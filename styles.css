@@ -68,7 +68,7 @@ body {
 .page-bg{
   position: fixed;
   inset: 0;
-  background-image: var(--bg-image, url('./images/v1_364.png'));
+  background-image: url('https://arrrbang.github.io/pumex/image/loginbackground.jpg');
   background-size: cover;
   background-position: center;
   filter: saturate(1) brightness(.65);
