@@ -107,8 +107,13 @@ body {
   width: 7.875rem;
   height: 7.875rem;
   border-radius: 50%;
-  background: #fff;
+  background-image: url('https://arrrbang.github.io/pumex/image/loginicon.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
 }
+
 
 .auth__title{
   margin: var(--space-24) 0 var(--space-12);
