@@ -77,16 +77,16 @@ body {
 
 /* ========== 인증 카드 ========== */
 .auth {
-  position: fixed;        /* 화면 오른쪽에 고정 */
+  position: fixed;
   top: 0;
   right: 0;
-  width: min(31.125rem, 100%);  /* 너비는 기존 유지 (~498px) */
-  height: 100vh;          /* ✅ 화면 전체 높이 */
+  width: 30vw;
+  height: 100vh;
   background: linear-gradient(90deg, rgba(0,0,0,0.55), rgba(0,0,0,0.75));
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  justify-content: center; /* 수직 가운데 정렬 */
+  justify-content: center;
   padding: clamp(2rem, 4vw, 3rem);
   backdrop-filter: blur(6px);
   box-shadow: var(--shadow-2);
