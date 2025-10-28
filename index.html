@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>로그인</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <!-- 전체 배경 -->
+  <div class="page-bg" aria-hidden="true"></div>
+
+  <header class="container site-header" aria-label="헤더">
+    <a class="brand" href="#">PUMEX</a>
+  </header>
+
+  <main class="container section" role="main">
+    <div class="auth">
+      <div class="auth__logo" aria-hidden="true">
+        <div class="auth__logo-inner"></div>
+      </div>
+
+      <h1 class="auth__title">로그인</h1>
+
+      <form class="auth__form" action="#" method="post" novalidate>
+        <label class="field">
+          <span class="field__label">USER NAME</span>
+          <input class="field__input" type="text" name="username" placeholder="아이디를 입력하세요" autocomplete="username" required>
+        </label>
+
+        <label class="field">
+          <span class="field__label">PASS WORD</span>
+          <input class="field__input" type="password" name="password" placeholder="비밀번호를 입력하세요" autocomplete="current-password" required>
+        </label>
+
+        <label class="toggle">
+          <input class="toggle__input" type="checkbox" name="remember" />
+          <span class="toggle__track" aria-hidden="true">
+            <span class="toggle__thumb"></span>
+          </span>
+          <span class="toggle__text">로그인 유지</span>
+        </label>
+
+        <button class="btn btn--primary" type="submit">LOG IN</button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="container site-footer" aria-label="푸터">
+    <small>© 2025 PUMEX Movers &amp; Relocation</small>
+  </footer>
+</body>
+</html>
