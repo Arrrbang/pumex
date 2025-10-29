@@ -258,6 +258,21 @@ body {
   transform: translateY(0);
 }
 
+.next-dropdowns {
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-10px);
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.5s ease;
+}
+
+.next-dropdowns.show {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 1000px;
+}
+
 @media (max-width: 1024px){
   .panel__cell{ grid-column: span 6; } /* 2열 */
 }
