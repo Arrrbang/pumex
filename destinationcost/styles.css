@@ -184,10 +184,11 @@ body {
   padding: 0;
 }
 .dropdown.show {
-  max-height: 1000px;
-  opacity: 1;
-  transform: translateY(0);
-  margin:0.8rem 0;
+  opacity:1;
+  transform:translateY(0);
+  max-height:1000px;
+  margin: .8rem 0;
+  padding: 1rem 1.2rem;
 }
 
 .dropdown-label-row {
