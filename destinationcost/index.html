@@ -33,7 +33,9 @@
       <button class="tab" type="button" id="btnDiplomat">Diplomat</button>
       <button class="tab" type="button" id="btnNonDiplomat">Non-Diplomat</button>
     </nav>
-
+    
+  <div class="selection-summary" id="selectionSummary"></div>
+    
   <div class="dropdown-container">
     <div class="dropdown" id="dropdownMenu">
 
@@ -41,15 +43,13 @@
       <select id="countrySelect" class="dropdown-select">
       </select>
 
-      <div class="dropdown-label-row">
-        <span class="label-text">지역 선택</span>
-        <button class="map-button-inline" type="button">지도에서 선택</button>
+        <div class="dropdown-label-row">
+          <span class="label-text">지역 선택</span>
+          <button class="map-button-inline" type="button">지도에서 선택</button>
+        </div>
+        <select id="regionSelect" class="dropdown-select">
+        </select>
       </div>
-      <select id="regionSelect" class="dropdown-select">
-      </select>
-    </div>
-    
-      <div class="selection-summary" id="selectionSummary"></div>
     </div>
 </main>
 
