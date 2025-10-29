@@ -30,8 +30,8 @@
   <!-- 메인 -->
   <main class="container section">
     <nav class="tabs" aria-label="카테고리 선택">
-      <button class="tab is-active" type="button" aria-selected="true">Diplomat</button>
-      <button class="tab" type="button" aria-selected="false">Non-Diplomat</button>
+      <button class="tab" type="button">Diplomat</button>
+      <button class="tab" type="button">Non-Diplomat</button>
     </nav>
 
     <!-- 콘텐츠 박스 예시 (필요 시 여기에 폼/표 구성 예정) -->
@@ -45,5 +45,16 @@
     </section>
   </main>
 
+  <script>
+  // 클릭 시 토글 활성화
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('is-active'));
+      tab.classList.add('is-active');
+    });
+  });
+</script>
+  
 </body>
 </html>
