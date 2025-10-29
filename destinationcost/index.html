@@ -34,14 +34,27 @@
       <button class="tab" type="button" id="btnNonDiplomat">Non-Diplomat</button>
     </nav>
 
-    <div class="dropdown-container">
-      <div class="dropdown" id="dropdownMenu">
-        <div class="dropdown-item">국가 선택</div>
-        <div class="dropdown-item">지역 선택</div>
-        <div class="dropdown-item">추가 요금 보기</div>
-      </div>
+  <div class="dropdown-container">
+    <div class="dropdown" id="dropdownMenu">
+
+      <!-- 국가 선택 -->
+      <label class="dropdown-label" for="countrySelect">국가 선택</label>
+      <select id="countrySelect" class="dropdown-select">
+        <!-- JS로 항목 채워질 예정 -->
+      </select>
+
+      <!-- 지역 선택 -->
+      <label class="dropdown-label" for="regionSelect">지역 선택</label>
+      <select id="regionSelect" class="dropdown-select">
+        <!-- JS로 항목 채워질 예정 -->
+      </select>
+
+      <!-- 지도에서 선택 버튼 -->
+      <button class="map-button" type="button">지도에서 선택</button>
+
     </div>
-  </main>
+  </div>
+</main>
 
   <script>
 
@@ -65,15 +78,11 @@
   function toggleDropdown(button) {
     if (isDropdownVisible) {
       dropdownMenu.classList.remove("show");
-      setTimeout(() => {
-        dropdownMenu.style.display = "none";
-      }, 300); // transition 시간과 일치
       btnDiplomat.classList.remove("is-active");
       btnNonDiplomat.classList.remove("is-active");
       isDropdownVisible = false;
     } else {
-      dropdownMenu.style.display = "flex";
-      setTimeout(() => dropdownMenu.classList.add("show"), 10);
+      dropdownMenu.classList.add("show");
       btnDiplomat.classList.remove("is-active");
       btnNonDiplomat.classList.remove("is-active");
       button.classList.add("is-active");
