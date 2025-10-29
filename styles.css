@@ -151,6 +151,21 @@ body {
   box-shadow: 0 0 0 3px rgba(35,155,103,.25);
 }
 
+.field.password-field {
+  position: relative;
+  margin-bottom: 1.25rem; 
+}
+
+#caps-lock-warning {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  color: #ff6b6b;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: none;
+}
+
 /* 토글 */
 .toggle{
   display: inline-flex;
