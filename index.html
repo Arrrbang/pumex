@@ -30,10 +30,11 @@
           <span class="field__label">USER NAME</span>
           <input class="field__input" type="text" name="username" placeholder="아이디를 입력하세요" autocomplete="username" required>
         </label>
-
-        <label class="field">
+        
+        <label class="field password-field">
           <span class="field__label">PASS WORD</span>
           <input class="field__input" type="password" name="password" placeholder="비밀번호를 입력하세요" autocomplete="current-password" required>
+          <div id="caps-lock-warning">Caps Lock이 켜져 있습니다.</div>
         </label>
 
         <label class="toggle">
@@ -41,13 +42,86 @@
           <span class="toggle__track" aria-hidden="true">
             <span class="toggle__thumb"></span>
           </span>
-          <span class="toggle__text">로그인 유지</span>
+          <span class="toggle__text">로그인 정보 저장</span>
         </label>
 
         <button class="btn btn--primary" type="submit">LOG IN</button>
       </form>
     </div>
   </main>
+  
+<script>
+  const usernameInput = document.querySelector('input[name="username"]');
+  const passwordInput = document.querySelector('input[name="password"]');
+  const rememberToggle = document.querySelector('input[name="remember"]');
+  const loginForm = document.querySelector('.auth__form');
+
+  // 🔹 페이지 로드 시 저장된 정보 불러오기
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedUsername = localStorage.getItem('savedUsername');
+    const savedPassword = localStorage.getItem('savedPassword');
+    const rememberState = localStorage.getItem('rememberState') === 'true';
+
+    if (rememberState && savedUsername && savedPassword) {
+      usernameInput.value = savedUsername;
+      passwordInput.value = savedPassword;
+      rememberToggle.checked = true;
+    }
+  });
+
+  // 🔹 Caps Lock 감지 (기존 코드 유지)
+  const capsLockWarning = document.getElementById('caps-lock-warning');
+  passwordInput.addEventListener('keydown', (event) => {
+    if (event.getModifierState('CapsLock')) {
+      capsLockWarning.style.display = 'block';
+    } else {
+      capsLockWarning.style.display = 'none';
+    }
+  });
+  passwordInput.addEventListener('blur', () => {
+    capsLockWarning.style.display = 'none';
+  });
+
+  // 🔹 로그인 제출 이벤트
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    try {
+      const response = await fetch('https://backend-beta-lemon.vercel.app/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // ✅ 로그인 유지가 켜져 있을 경우
+        if (rememberToggle.checked) {
+          localStorage.setItem('savedUsername', username);
+          localStorage.setItem('savedPassword', password);
+          localStorage.setItem('rememberState', 'true');
+        } else {
+          // ❌ 체크 안되어 있으면 저장 안 함
+          localStorage.removeItem('savedUsername');
+          localStorage.removeItem('savedPassword');
+          localStorage.setItem('rememberState', 'false');
+        }
+
+        // JWT 토큰 저장 및 이동
+        localStorage.setItem('token', result.token);
+        window.location.href = 'https://arrrbang.github.io/pumex/destinationcost/index.html';
+      } else {
+        alert('아이디 또는 비밀번호가 올바르지 않습니다.');
+      }
+    } catch (error) {
+      alert('서버 오류가 발생했습니다. 다시 시도해주세요.');
+    }
+  });
+</script>
 
 </body>
 </html>

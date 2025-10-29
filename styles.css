@@ -77,16 +77,16 @@ body {
 
 /* ========== 인증 카드 ========== */
 .auth {
-  position: fixed;        /* 화면 오른쪽에 고정 */
+  position: fixed;
   top: 0;
   right: 0;
-  width: min(31.125rem, 100%);  /* 너비는 기존 유지 (~498px) */
-  height: 100vh;          /* ✅ 화면 전체 높이 */
+  width: 30vw;
+  height: 100vh;
   background: linear-gradient(90deg, rgba(0,0,0,0.55), rgba(0,0,0,0.75));
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  justify-content: center; /* 수직 가운데 정렬 */
+  justify-content: center;
   padding: clamp(2rem, 4vw, 3rem);
   backdrop-filter: blur(6px);
   box-shadow: var(--shadow-2);
@@ -94,8 +94,8 @@ body {
 }
 
 .auth__logo{
-  width: 9.25rem;
-  height: 9.25rem;
+  width: 8rem;
+  height: 8rem;
   margin-inline: auto;
   border-radius: 50%;
   display: grid;
@@ -104,11 +104,16 @@ body {
   border: 1px solid var(--border);
 }
 .auth__logo-inner{
-  width: 7.875rem;
-  height: 7.875rem;
-  border-radius: 50%;
-  background: #fff;
+  width: 7.6rem;
+  height: 7.6rem;
+  border-radius: 85%;
+  background-image: url('https://arrrbang.github.io/pumex/image/loginicon.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: transparent;
 }
+
 
 .auth__title{
   margin: var(--space-24) 0 var(--space-12);
@@ -146,6 +151,21 @@ body {
   box-shadow: 0 0 0 3px rgba(35,155,103,.25);
 }
 
+.field.password-field {
+  position: relative;
+  margin-bottom: 1.25rem; 
+}
+
+#caps-lock-warning {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  color: #ff6b6b;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: none;
+}
+
 /* 토글 */
 .toggle{
   display: inline-flex;
@@ -181,6 +201,9 @@ body {
   border-radius: 9999px;
   box-shadow: var(--shadow-1);
   transition: left .2s ease;
+}
+.toggle__input:checked + .toggle__track {
+  background: #1F9461;
 }
 .toggle__input:checked + .toggle__track .toggle__thumb{
   left: calc(100% - 1.2rem);
