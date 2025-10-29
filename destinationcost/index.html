@@ -50,6 +50,17 @@
       </div>
     </div>
 <div class="selection-summary" id="selectionSummary"></div>
+
+  <div class="next-dropdowns" id="nextDropdowns">
+    <label class="dropdown-label" for="containerSelect">컨테이너 타입</label>
+    <select id="containerSelect" class="dropdown-select">
+  </select>
+    
+    <label class="dropdown-label" for="cbmSelect">CBM 선택</label>
+    <select id="cbmSelect" class="dropdown-select">
+    </select>
+  </div>
+  
 </main>
 
   <script>
@@ -60,7 +71,12 @@
 
   const countrySelect = document.getElementById("countrySelect");
   const regionSelect = document.getElementById("regionSelect");
+    
   const summary = document.getElementById("selectionSummary");
+    
+  const nextDropdowns = document.getElementById("nextDropdowns");
+  const countrySelect = document.getElementById("countrySelect");
+  const regionSelect = document.getElementById("regionSelect");
 
   let isDropdownVisible = false;
     
@@ -79,32 +95,39 @@
       closeDropdown();
     } else {
       dropdownMenu.classList.add("show");
-      summary.classList.remove("show"); // ✅ 드롭다운 열릴 땐 요약 숨김
+      summary.classList.remove("show");
+      nextDropdowns.classList.remove("show");
       isDropdownVisible = true;
     }
   }
 
   // ✅ 드롭다운 닫기 함수
-  function closeDropdown() {
-    dropdownMenu.classList.remove("show");
-    btnDiplomat.classList.remove("is-active");
-    btnNonDiplomat.classList.remove("is-active");
-    isDropdownVisible = false;
-    setTimeout(showSelectionSummary, 400);
-  }
+function closeDropdown() {
+  dropdownMenu.classList.remove("show");
+  btnDiplomat.classList.remove("is-active");
+  btnNonDiplomat.classList.remove("is-active");
+  isDropdownVisible = false;
+
+  // ✅ 드롭다운 닫힌 후, 서머리와 다음 단계 드롭다운 표시
+  setTimeout(() => {
+    showSummaryAndNextDropdowns();
+  }, 400);
+}
+
 
   // ✅ 외부 클릭 감지
   document.addEventListener("click", (e) => {
     if (isDropdownVisible) {
-      const clickedInside = dropdownMenu.contains(e.target) ||
-                            btnDiplomat.contains(e.target) ||
-                            btnNonDiplomat.contains(e.target);
+      const clickedInside =
+        dropdownMenu.contains(e.target) ||
+        btnDiplomat.contains(e.target) ||
+        btnNonDiplomat.contains(e.target);
       if (!clickedInside) closeDropdown();
     }
   });
 
   // ✅ 선택값 표시
-  function showSelectionSummary() {
+  function showSummaryAndNextDropdowns() {
     const country = countrySelect.value
       ? countrySelect.options[countrySelect.selectedIndex].text
       : "미선택";
@@ -112,10 +135,14 @@
       ? regionSelect.options[regionSelect.selectedIndex].text
       : "미선택";
 
-      summary.textContent = `${country} - ${region}`;
-      summary.classList.add("show");
-      summary.style.display = "block";
-    }
+    summary.textContent = `${country} - ${region}`;
+    summary.classList.add("show");
+
+    // summary 표시 후 0.2초 뒤 다음 드롭다운 등장
+    setTimeout(() => {
+      nextDropdowns.classList.add("show");
+    }, 200);
+  }
 
   // 테스트용 기본 옵션 (임시로 추가)
   window.addEventListener("DOMContentLoaded", () => {
