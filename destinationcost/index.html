@@ -108,12 +108,33 @@
 
   // ✅ 선택값 표시
   function showSelectionSummary() {
-    const country = countrySelect.options[countrySelect.selectedIndex]?.text || "국가 미선택";
-    const region = regionSelect.options[regionSelect.selectedIndex]?.text || "지역 미선택";
+    const country = countrySelect.value
+      ? countrySelect.options[countrySelect.selectedIndex].text
+      : "미선택";
+    const region = regionSelect.value
+      ? regionSelect.options[regionSelect.selectedIndex].text
+      : "미선택";
+
     summary.textContent = `${country} - ${region}`;
     summary.style.display = "block";
   }
 
+  // 테스트용 기본 옵션 (임시로 추가)
+  window.addEventListener("DOMContentLoaded", () => {
+    countrySelect.innerHTML = `
+      <option value="">국가 선택</option>
+      <option value="kr">대한민국</option>
+      <option value="jp">일본</option>
+      <option value="us">미국</option>
+    `;
+    regionSelect.innerHTML = `
+      <option value="">지역 선택</option>
+      <option value="seoul">서울</option>
+      <option value="busan">부산</option>
+      <option value="tokyo">도쿄</option>
+    `;
+  });
+    
   // 버튼 이벤트 연결
   btnDiplomat.addEventListener("click", () => toggleDropdown(btnDiplomat));
   btnNonDiplomat.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
