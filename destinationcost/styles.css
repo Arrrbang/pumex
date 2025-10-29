@@ -83,7 +83,11 @@ body {
   min-height: var(--header-h);
   padding-block: calc((var(--header-h) - 2.8rem)/2);
 }
-.site-header .container {
+.site-header .container{
+  max-width: none;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   padding-left: 0;
 }
 
