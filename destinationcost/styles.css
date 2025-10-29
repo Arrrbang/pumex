@@ -126,7 +126,7 @@ body {
   justify-content: center;
   align-items: center;
   gap: 2rem;
-  margin-top: 3rem;
+  margin-top: 1.5rem;
 }
 
 .tab {
@@ -136,7 +136,7 @@ body {
   border-radius: 2rem;
   background: transparent;
   color: #1F9461;
-  font-size: 1.05rem;
+  font-size: 1.5rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.25s ease;
