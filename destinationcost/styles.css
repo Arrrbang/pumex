@@ -189,9 +189,9 @@ body {
 
 .dropdown-label-row {
   display: flex;
-  justify-content: space-between; /* 좌: 글씨 / 우: 버튼 */
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .dropdown-label,
