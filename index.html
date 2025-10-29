@@ -42,7 +42,7 @@
           <span class="toggle__track" aria-hidden="true">
             <span class="toggle__thumb"></span>
           </span>
-          <span class="toggle__text">로그인 유지</span>
+          <span class="toggle__text">로그인 정보 저장</span>
         </label>
 
         <button class="btn btn--primary" type="submit">LOG IN</button>
@@ -51,25 +51,26 @@
   </main>
   
 <script>
-  // Caps Lock 경고 표시
-  const passwordInput = document.querySelector('input[name="password"]');
   const usernameInput = document.querySelector('input[name="username"]');
+  const passwordInput = document.querySelector('input[name="password"]');
+  const rememberToggle = document.querySelector('input[name="remember"]');
+  const loginForm = document.querySelector('.auth__form');
 
-  // 경고 표시용 span을 추가 (필요 시)
-  let capsLockWarning = document.getElementById('caps-lock-warning');
-  if (!capsLockWarning) {
-    capsLockWarning = document.createElement('div');
-    capsLockWarning.id = 'caps-lock-warning';
-    capsLockWarning.textContent = 'Caps Lock이 켜져 있습니다.';
-    capsLockWarning.style.cssText = `
-      color: #ff6b6b;
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
-      display: none;
-    `;
-    passwordInput.insertAdjacentElement('afterend', capsLockWarning);
-  }
+  // 🔹 페이지 로드 시 저장된 정보 불러오기
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedUsername = localStorage.getItem('savedUsername');
+    const savedPassword = localStorage.getItem('savedPassword');
+    const rememberState = localStorage.getItem('rememberState') === 'true';
 
+    if (rememberState && savedUsername && savedPassword) {
+      usernameInput.value = savedUsername;
+      passwordInput.value = savedPassword;
+      rememberToggle.checked = true;
+    }
+  });
+
+  // 🔹 Caps Lock 감지 (기존 코드 유지)
+  const capsLockWarning = document.getElementById('caps-lock-warning');
   passwordInput.addEventListener('keydown', (event) => {
     if (event.getModifierState('CapsLock')) {
       capsLockWarning.style.display = 'block';
@@ -77,28 +78,11 @@
       capsLockWarning.style.display = 'none';
     }
   });
-
   passwordInput.addEventListener('blur', () => {
     capsLockWarning.style.display = 'none';
   });
 
-  // 메시지 출력 영역 추가
-  let messageDiv = document.getElementById('message');
-  if (!messageDiv) {
-    messageDiv = document.createElement('div');
-    messageDiv.id = 'message';
-    messageDiv.style.cssText = `
-      margin-top: 1rem;
-      color: #ff6b6b;
-      font-size: 0.9rem;
-      text-align: center;
-    `;
-    document.querySelector('.auth__form').appendChild(messageDiv);
-  }
-
-  // 로그인 처리
-  const loginForm = document.querySelector('.auth__form');
-
+  // 🔹 로그인 제출 이벤트
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -115,13 +99,26 @@
       const result = await response.json();
 
       if (result.success) {
+        // ✅ 로그인 유지가 켜져 있을 경우
+        if (rememberToggle.checked) {
+          localStorage.setItem('savedUsername', username);
+          localStorage.setItem('savedPassword', password);
+          localStorage.setItem('rememberState', 'true');
+        } else {
+          // ❌ 체크 안되어 있으면 저장 안 함
+          localStorage.removeItem('savedUsername');
+          localStorage.removeItem('savedPassword');
+          localStorage.setItem('rememberState', 'false');
+        }
+
+        // JWT 토큰 저장 및 이동
         localStorage.setItem('token', result.token);
-        window.location.href = 'https://arrrbang.github.io/CostCalculator/selectpage.html'; //이동할 PAGE 추후 추가 
+        window.location.href = 'https://arrrbang.github.io/CostCalculator/selectpage.html';
       } else {
-        messageDiv.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.';
+        alert('아이디 또는 비밀번호가 올바르지 않습니다.');
       }
     } catch (error) {
-      messageDiv.textContent = '서버 연결 오류가 발생했습니다. 다시 시도해주세요.';
+      alert('서버 오류가 발생했습니다. 다시 시도해주세요.');
     }
   });
 </script>
