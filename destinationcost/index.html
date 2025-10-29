@@ -13,22 +13,22 @@
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <!-- 고정 배경 -->
   <div class="page-bg" aria-hidden="true"></div>
 
   <!-- 상단 바 -->
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="#">
-        <img src="https://arrrbang.github.io/pumex/image/pumexlogonew.jpg" alt="PUMEX Logo" class="brand__logo" />
+        <img src="https://arrrbang.github.io/pumex/image/pumexlogonew.png" alt="PUMEX Logo" class="brand__logo" />
       </a>
-      <h1 class="header__title">도착지 비용 계산</h1>
+      <a class="header__title" href="#">도착지 비용 계산</a>
+      <nav class="header__nav" aria-label="상단 링크"> // 이동할 링크 추가
+      </nav>
     </div>
   </header>
 
   <!-- 메인 -->
   <main class="container section">
-    <!-- 탭 -->
     <nav class="tabs" aria-label="카테고리 선택">
       <button class="tab is-active" type="button" aria-selected="true">Diplomat</button>
       <button class="tab" type="button" aria-selected="false">Non-Diplomat</button>
@@ -45,11 +45,5 @@
     </section>
   </main>
 
-  <!-- 하단 (필요 없으면 숨길 수 있음) -->
-  <footer class="site-footer">
-    <div class="container">
-      <small>© 2025 PUMEX Movers &amp; Relocation</small>
-    </div>
-  </footer>
 </body>
 </html>
