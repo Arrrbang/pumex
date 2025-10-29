@@ -91,12 +91,18 @@ body {
   padding-left: 0;
 }
 
-.brand { display: inline-flex; align-items: center; justify-content: flex-start; }
+.brand { 
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: 
+    flex-start; 
+}
 .brand__logo{
   height: calc(var(--header-h) * 0.65); 
   width: auto;
   display: block;
   object-fit: contain;
+  padding-left: 1rem;
 }
 .header__title{
   justify-self: start;
