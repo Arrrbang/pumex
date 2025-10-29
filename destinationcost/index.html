@@ -63,33 +63,20 @@
   
 </main>
 
-  <script>
-
+<script>
   const btnDiplomat = document.getElementById("btnDiplomat");
   const btnNonDiplomat = document.getElementById("btnNonDiplomat");
   const dropdownMenu = document.getElementById("dropdownMenu");
 
   const countrySelect = document.getElementById("countrySelect");
-  const regionSelect = document.getElementById("regionSelect");
-    
-  const summary = document.getElementById("selectionSummary");
-    
+  const regionSelect  = document.getElementById("regionSelect");
+
+  const summary       = document.getElementById("selectionSummary");
   const nextDropdowns = document.getElementById("nextDropdowns");
-  const countrySelect = document.getElementById("countrySelect");
-  const regionSelect = document.getElementById("regionSelect");
 
   let isDropdownVisible = false;
-    
-  // 클릭 시 토글 활성화
-  const tabs = document.querySelectorAll('.tab');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('is-active'));
-      tab.classList.add('is-active');
-    });
-  });
 
-  // 공통 함수: 드롭다운 토글
+  // 탭 버튼 클릭 시 드롭다운 토글
   function toggleDropdown(button) {
     if (isDropdownVisible) {
       closeDropdown();
@@ -97,36 +84,36 @@
       dropdownMenu.classList.add("show");
       summary.classList.remove("show");
       nextDropdowns.classList.remove("show");
+      btnDiplomat.classList.remove("is-active");
+      btnNonDiplomat.classList.remove("is-active");
+      button.classList.add("is-active");
       isDropdownVisible = true;
     }
   }
 
-  // ✅ 드롭다운 닫기 함수
-function closeDropdown() {
-  dropdownMenu.classList.remove("show");
-  btnDiplomat.classList.remove("is-active");
-  btnNonDiplomat.classList.remove("is-active");
-  isDropdownVisible = false;
+  // 드롭다운 닫기 → 서머리 → 2단계 드롭다운 순서로 표시
+  function closeDropdown() {
+    dropdownMenu.classList.remove("show");
+    btnDiplomat.classList.remove("is-active");
+    btnNonDiplomat.classList.remove("is-active");
+    isDropdownVisible = false;
 
-  // ✅ 드롭다운 닫힌 후, 서머리와 다음 단계 드롭다운 표시
-  setTimeout(() => {
-    showSummaryAndNextDropdowns();
-  }, 400);
-}
+    setTimeout(() => {
+      showSummaryAndNextDropdowns();
+    }, 400); // CSS transition 시간과 맞춤
+  }
 
-
-  // ✅ 외부 클릭 감지
+  // 바깥 클릭 시 닫기
   document.addEventListener("click", (e) => {
-    if (isDropdownVisible) {
-      const clickedInside =
-        dropdownMenu.contains(e.target) ||
-        btnDiplomat.contains(e.target) ||
-        btnNonDiplomat.contains(e.target);
-      if (!clickedInside) closeDropdown();
-    }
+    if (!isDropdownVisible) return;
+    const clickedInside =
+      dropdownMenu.contains(e.target) ||
+      btnDiplomat.contains(e.target) ||
+      btnNonDiplomat.contains(e.target);
+    if (!clickedInside) closeDropdown();
   });
 
-  // ✅ 선택값 표시
+  // 서머리 + 다음 단계 드롭다운 표시
   function showSummaryAndNextDropdowns() {
     const country = countrySelect.value
       ? countrySelect.options[countrySelect.selectedIndex].text
@@ -138,13 +125,16 @@ function closeDropdown() {
     summary.textContent = `${country} - ${region}`;
     summary.classList.add("show");
 
-    // summary 표시 후 0.2초 뒤 다음 드롭다운 등장
     setTimeout(() => {
       nextDropdowns.classList.add("show");
     }, 200);
   }
 
-  // 테스트용 기본 옵션 (임시로 추가)
+  // 버튼 이벤트
+  btnDiplomat.addEventListener("click", () => toggleDropdown(btnDiplomat));
+  btnNonDiplomat.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
+
+  // 테스트용 옵션 (임시)
   window.addEventListener("DOMContentLoaded", () => {
     countrySelect.innerHTML = `
       <option value="">국가 선택</option>
@@ -159,11 +149,8 @@ function closeDropdown() {
       <option value="tokyo">도쿄</option>
     `;
   });
-    
-  // 버튼 이벤트 연결
-  btnDiplomat.addEventListener("click", () => toggleDropdown(btnDiplomat));
-  btnNonDiplomat.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
 </script>
+
   
 </body>
 </html>
