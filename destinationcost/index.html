@@ -176,20 +176,40 @@
   btnNonDiplomat.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
 
   // 테스트용 옵션 (임시)
-  window.addEventListener("DOMContentLoaded", () => {
-    countrySelect.innerHTML = `
-      <option value="">국가 선택</option>
-      <option value="kr">대한민국</option>
-      <option value="jp">일본</option>
-      <option value="us">미국</option>
-    `;
-    regionSelect.innerHTML = `
-      <option value="">지역 선택</option>
-      <option value="seoul">서울</option>
-      <option value="busan">부산</option>
-      <option value="tokyo">도쿄</option>
-    `;
-  });
+window.addEventListener("DOMContentLoaded", () => {
+  // 1️⃣ 국가 선택
+  countrySelect.innerHTML = `
+    <option value="">국가 선택</option>
+    <option value="kr">대한민국</option>
+    <option value="jp">일본</option>
+    <option value="us">미국</option>
+  `;
+
+  // 2️⃣ 지역 선택
+  regionSelect.innerHTML = `
+    <option value="">지역 선택</option>
+    <option value="seoul">서울</option>
+    <option value="busan">부산</option>
+    <option value="tokyo">도쿄</option>
+  `;
+
+  // 3️⃣ 컨테이너 타입
+  containerSelect.innerHTML = `
+    <option value="">컨테이너 타입 선택</option>
+    <option value="console">CONSOLE</option>
+    <option value="20ft">20FT</option>
+    <option value="40hc">40HC</option>
+  `;
+
+  // 4️⃣ CBM 선택
+  cbmSelect.innerHTML = `
+    <option value="">CBM 선택</option>
+    <option value="5">5 CBM</option>
+    <option value="10">10 CBM</option>
+    <option value="15">15 CBM</option>
+    <option value="20">20 CBM</option>
+  `;
+});
   
 </script>
 
