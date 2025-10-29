@@ -93,7 +93,7 @@ body {
 
 .brand { display: inline-flex; align-items: center; justify-content: flex-start; }
 .brand__logo{
-  height: calc(var(--header-h) * 0.8); 
+  height: calc(var(--header-h) * 0.65); 
   width: auto;
   display: block;
   object-fit: contain;
@@ -101,11 +101,11 @@ body {
 .header__title{
   justify-self: start;
   margin: 0;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: .02em;
   color: #fff;
   text-decoration: none;
-  font-size: clamp(1.125rem, 2.2vw, 1.5rem);
+  font-size: clamp(1rem, 1.8vw, 1.25rem);
 }
 .header__title:hover{ text-decoration: underline; }
 .header__nav{
