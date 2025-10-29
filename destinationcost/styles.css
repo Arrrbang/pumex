@@ -37,6 +37,7 @@ body {
   /* 레이아웃 */
   --container-max: 90rem; /* 1440px / 16 */
   --gutter: var(--space-24);
+  --header-h: 4.5rem; /* 약 72px */
 }
 
 /* ====== 공통 레이아웃 ====== */
@@ -54,7 +55,15 @@ body {
   background-image: url("https://arrrbang.github.io/pumex/image/costbackground.jpg");
   background-size: cover;
   background-position: center;
-  filter: saturate(1) brightness(.7);
+  filter: saturate(1) brightness(.9);
+  z-index: -2;
+}
+
+.page-bg::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.4); 
   z-index: -1;
 }
 
@@ -62,33 +71,40 @@ body {
 .site-header{
   position: sticky;
   top: 0;
-  backdrop-filter: blur(6px);
-  background: linear-gradient(180deg, rgba(0,0,0,.55), rgba(0,0,0,.25));
+  background: rgba(0,0,0,0.7);
   border-bottom: 1px solid var(--border);
   z-index: 10;
 }
 .header-inner{
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: var(--space-16);
-  min-height: 3.75rem; /* ~60px */
-  padding-block: var(--space-12);
+  column-gap: var(--space-16);
+  min-height: var(--header-h);
+  padding-block: calc((var(--header-h) - 2.8rem)/2);
 }
+.brand { display: inline-flex; align-items: center; justify-content: flex-start; }
 .brand__logo{
-  width: 7.563rem;   /* ~121px */
-  height: auto;
+  height: calc(var(--header-h) * 0.8); 
+  width: auto;
   display: block;
-  border-radius: .25rem;
-  box-shadow: var(--shadow-1);
+  object-fit: contain;
 }
 .header__title{
+  justify-self: start;
   margin: 0;
   font-weight: 800;
   letter-spacing: .02em;
   color: #fff;
-  font-size: clamp(1.125rem, 2.2vw, 1.5rem); /* ~23px 상한 */
+  text-decoration: none;
+  font-size: clamp(1.125rem, 2.2vw, 1.5rem);
 }
-
+.header__title:hover{ text-decoration: underline; }
+.header__nav{
+  justify-self: end;
+  display: inline-flex;
+  gap: var(--space-16);
+}
 /* ====== 탭 ====== */
 .tabs{
   display: grid;
@@ -153,15 +169,6 @@ body {
 @media (max-width: 640px){
   .panel__cell{ grid-column: span 12; } /* 1열 */
 }
-
-/* ====== 하단 ====== */
-.site-footer{
-  color: var(--muted);
-  padding-block: var(--space-16);
-  background: linear-gradient(0deg, rgba(0,0,0,.45), rgba(0,0,0,.0));
-  border-top: 1px solid var(--border);
-}
-.site-footer small{ opacity: .8; }
 
 /* ====== 접근성 포커스 ====== */
 :focus-visible{
