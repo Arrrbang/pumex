@@ -64,12 +64,16 @@
   // 공통 함수: 드롭다운 토글
   function toggleDropdown(button) {
     if (isDropdownVisible) {
-      dropdownMenu.style.display = "none";
+      dropdownMenu.classList.remove("show");
+      setTimeout(() => {
+        dropdownMenu.style.display = "none";
+      }, 300); // transition 시간과 일치
       btnDiplomat.classList.remove("is-active");
       btnNonDiplomat.classList.remove("is-active");
       isDropdownVisible = false;
     } else {
       dropdownMenu.style.display = "flex";
+      setTimeout(() => dropdownMenu.classList.add("show"), 10);
       btnDiplomat.classList.remove("is-active");
       btnNonDiplomat.classList.remove("is-active");
       button.classList.add("is-active");
