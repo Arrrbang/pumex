@@ -58,6 +58,11 @@
   const btnDiplomat = document.getElementById("btnDiplomat");
   const btnNonDiplomat = document.getElementById("btnNonDiplomat");
   const dropdownMenu = document.getElementById("dropdownMenu");
+
+  const countrySelect = document.getElementById("countrySelect");
+  const regionSelect = document.getElementById("regionSelect");
+    
+  let isDropdownVisible = false;
     
   // 클릭 시 토글 활성화
   const tabs = document.querySelectorAll('.tab');
@@ -68,26 +73,48 @@
     });
   });
 
-  // 현재 드롭다운 표시 여부 상태
-  let isDropdownVisible = false;
-
   // 공통 함수: 드롭다운 토글
   function toggleDropdown(button) {
     if (isDropdownVisible) {
-      dropdownMenu.classList.remove("show");
-      btnDiplomat.classList.remove("is-active");
-      btnNonDiplomat.classList.remove("is-active");
-      isDropdownVisible = false;
+      closeDropdown();
     } else {
       dropdownMenu.classList.add("show");
       btnDiplomat.classList.remove("is-active");
       btnNonDiplomat.classList.remove("is-active");
       button.classList.add("is-active");
       isDropdownVisible = true;
+      summary.style.display = "none"; // 드롭다운 열릴 때 결과 숨김
     }
   }
 
-  // 두 버튼 모두 같은 함수 실행
+  // ✅ 드롭다운 닫기 함수
+  function closeDropdown() {
+    dropdownMenu.classList.remove("show");
+    btnDiplomat.classList.remove("is-active");
+    btnNonDiplomat.classList.remove("is-active");
+    isDropdownVisible = false;
+    showSelectionSummary(); // 닫히면서 선택 결과 표시
+  }
+
+  // ✅ 외부 클릭 감지
+  document.addEventListener("click", (e) => {
+    if (isDropdownVisible) {
+      const clickedInside = dropdownMenu.contains(e.target) ||
+                            btnDiplomat.contains(e.target) ||
+                            btnNonDiplomat.contains(e.target);
+      if (!clickedInside) closeDropdown();
+    }
+  });
+
+  // ✅ 선택값 표시
+  function showSelectionSummary() {
+    const country = countrySelect.options[countrySelect.selectedIndex]?.text || "국가 미선택";
+    const region = regionSelect.options[regionSelect.selectedIndex]?.text || "지역 미선택";
+    summary.textContent = `${country} - ${region}`;
+    summary.style.display = "block";
+  }
+
+  // 버튼 이벤트 연결
   btnDiplomat.addEventListener("click", () => toggleDropdown(btnDiplomat));
   btnNonDiplomat.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
 </script>
