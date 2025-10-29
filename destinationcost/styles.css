@@ -35,9 +35,9 @@ body {
   --radius-20: 1.250rem;  /* 20px */
 
   /* 레이아웃 */
-  --container-max: 90rem; /* 1440px / 16 */
+  --container-max: 90rem;
   --gutter: var(--space-24);
-  --header-h: 4.5rem; /* 약 72px */
+  --header-h: 3.75rem;
 }
 
 /* ====== 공통 레이아웃 ====== */
@@ -83,6 +83,10 @@ body {
   min-height: var(--header-h);
   padding-block: calc((var(--header-h) - 2.8rem)/2);
 }
+.site-header .container {
+  padding-left: 0;
+}
+
 .brand { display: inline-flex; align-items: center; justify-content: flex-start; }
 .brand__logo{
   height: calc(var(--header-h) * 0.8); 
