@@ -187,6 +187,9 @@ body {
   box-shadow: var(--shadow-1);
   transition: left .2s ease;
 }
+.toggle__input:checked + .toggle__track {
+  background: #1F9461;
+}
 .toggle__input:checked + .toggle__track .toggle__thumb{
   left: calc(100% - 1.2rem);
 }
