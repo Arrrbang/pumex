@@ -183,10 +183,38 @@ body {
   transform: translateY(0);
 }
 
+.dropdown-label-row {
+  display: flex;
+  justify-content: space-between; /* 좌: 글씨 / 우: 버튼 */
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
 .dropdown-label {
   font-weight: 600;
   color: #1F9461;
   font-size: 1rem;
+}
+
+.map-button-inline {
+  background: #1F9461;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.6rem;
+  border: none;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.map-button-inline:hover {
+  background: #16724a;
+}
+
+.map-button-inline:active {
+  transform: scale(0.97);
 }
 
 .dropdown-select {
@@ -201,16 +229,6 @@ body {
   cursor: pointer;
 }
 
-.map-button {
-  background: #1F9461;
-  color: #fff;
-  font-weight: 600;
-  padding: 0.8rem 1rem;
-  border: none;
-  border-radius: 0.6rem;
-  cursor: pointer;
-  font-size: 1rem;
-}
 
 .region-row {
   display: flex;
@@ -218,14 +236,7 @@ body {
   gap: 0.8rem; /* 둘 사이 간격 */
 }
 
-/* 지도 버튼을 드롭다운 높이에 맞게 축소 */
-.region-row .map-button {
-  padding: 0.45rem 0.9rem; /* 기존보다 작게 */
-  font-size: 0.9rem;
-  border-radius: 0.5rem;
-  white-space: nowrap; /* 줄바꿈 방지 */
-  height: 100%; /* 드롭다운 높이에 맞춤 */
-}
+
 
 @media (max-width: 1024px){
   .panel__cell{ grid-column: span 6; } /* 2열 */
