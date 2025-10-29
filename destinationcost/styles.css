@@ -161,6 +161,10 @@ body {
   position: relative;
 }
 
+#countrySelect {
+  margin-bottom: 1.5rem; /* 국가 선택과 지역 선택 사이 간격 */
+}
+
 .dropdown {
   overflow: hidden;
   max-height: 0;
