@@ -153,30 +153,47 @@ body {
   box-shadow: 0 4px 10px rgba(31,148,97,0.35);
 }
 
-/* ====== 콘텐츠 패널 ====== */
-.panel{
-  background: linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.6));
-  border: 1px solid var(--border);
-  border-radius: var(--radius-20);
-  box-shadow: var(--shadow-2);
-  padding: clamp(1rem, 3vw, 1.75rem);
-  backdrop-filter: blur(4px);
+/* ====== 드롭다운 패널 ====== */
+.dropdown-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  position: relative;
 }
-.panel__row{
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: var(--space-16);
+
+.dropdown {
+  display: none; /* 기본적으로 숨김 */
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 28rem;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  backdrop-filter: blur(8px);
+  padding: 1rem;
+  animation: dropdownFade 0.3s ease;
 }
-.panel__cell{
-  grid-column: span 3; /* 4열 */
-  min-height: 3.5rem;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-10);
-  display: grid;
-  place-items: center;
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-item {
+  background: #1F9461;
   color: #fff;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 0.6rem;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: background 0.25s ease;
 }
+
+.dropdown-item:hover {
+  background: #16724a;
+}
+
 @media (max-width: 1024px){
   .panel__cell{ grid-column: span 6; } /* 2열 */
 }
