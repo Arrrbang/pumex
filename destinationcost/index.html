@@ -34,18 +34,21 @@
       <button class="tab" type="button">Non-Diplomat</button>
     </nav>
 
-    <!-- 콘텐츠 박스 예시 (필요 시 여기에 폼/표 구성 예정) -->
-    <section class="panel">
-      <div class="panel__row">
-        <div class="panel__cell">콘텐츠 1</div>
-        <div class="panel__cell">콘텐츠 2</div>
-        <div class="panel__cell">콘텐츠 3</div>
-        <div class="panel__cell">콘텐츠 4</div>
+    <div class="dropdown-container">
+      <div class="dropdown" id="dropdownMenu">
+        <div class="dropdown-item">국가 선택</div>
+        <div class="dropdown-item">지역 선택</div>
+        <div class="dropdown-item">추가 요금 보기</div>
       </div>
-    </section>
+    </div>
   </main>
 
   <script>
+
+  const btnDiplomat = document.getElementById("btnDiplomat");
+  const btnNonDiplomat = document.getElementById("btnNonDiplomat");
+  const dropdownMenu = document.getElementById("dropdownMenu");
+    
   // 클릭 시 토글 활성화
   const tabs = document.querySelectorAll('.tab');
   tabs.forEach(tab => {
@@ -54,6 +57,29 @@
       tab.classList.add('is-active');
     });
   });
+
+  // 현재 드롭다운 표시 여부 상태
+  let isDropdownVisible = false;
+
+  // 공통 함수: 드롭다운 토글
+  function toggleDropdown(button) {
+    if (isDropdownVisible) {
+      dropdownMenu.style.display = "none";
+      btnDiplomat.classList.remove("is-active");
+      btnNonDiplomat.classList.remove("is-active");
+      isDropdownVisible = false;
+    } else {
+      dropdownMenu.style.display = "flex";
+      btnDiplomat.classList.remove("is-active");
+      btnNonDiplomat.classList.remove("is-active");
+      button.classList.add("is-active");
+      isDropdownVisible = true;
+    }
+  }
+
+  // 두 버튼 모두 같은 함수 실행
+  btnDiplomat.addEventListener("click", () => toggleDropdown(btnDiplomat));
+  btnNonDiplomat.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
 </script>
   
 </body>
