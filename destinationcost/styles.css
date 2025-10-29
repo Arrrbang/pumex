@@ -94,8 +94,7 @@ body {
 .brand { 
   display: inline-flex; 
   align-items: center; 
-  justify-content: 
-  flex-start; 
+  justify-content: flex-start; 
 }
 .brand__logo{
   height: calc(var(--header-h) * 0.65); 
@@ -166,8 +165,10 @@ body {
 }
 
 .dropdown {
+  text-align:center;
   overflow: hidden;
   max-height: 0;
+  margin:0;
   opacity: 0;
   transform: translateY(-10px);
   transition: all 0.4s ease;
@@ -185,6 +186,7 @@ body {
   max-height: 1000px;
   opacity: 1;
   transform: translateY(0);
+  margin:1.2rem 0;
 }
 
 .dropdown-label-row {
@@ -246,7 +248,7 @@ body {
   font-weight: 700;
   color: #000;
   font-size: 1.4rem;
-  margin-top: 1rem 0;
+  margin-top: 1rem;
   margin-bottom: 1.5rem;
   opacity: 0;
   transform: translateY(-10px);
