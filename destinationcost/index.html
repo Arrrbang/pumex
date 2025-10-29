@@ -61,21 +61,25 @@
     <select id="cbmSelect" class="dropdown-select">
     </select>
   </div>
+  <div class="selection-summary" id="nextSelectionSummary"></div>
 </div>
 </main>
 
 <script>
   const btnDiplomat = document.getElementById("btnDiplomat");
   const btnNonDiplomat = document.getElementById("btnNonDiplomat");
-  const dropdownMenu = document.getElementById("dropdownMenu");
-
+  const dropdownMenu = document.getElementById("dropdownMenu"); 
+  const summary = document.getElementById("selectionSummary");
   const countrySelect = document.getElementById("countrySelect");
   const regionSelect  = document.getElementById("regionSelect");
 
-  const summary       = document.getElementById("selectionSummary");
   const nextDropdowns = document.getElementById("nextDropdowns");
+  const nextSummary   = document.getElementById("nextSelectionSummary");
+  const containerSelect = document.getElementById("containerSelect");
+  const cbmSelect       = document.getElementById("cbmSelect");
 
-  let isDropdownVisible = false;
+  let isDropdownVisible = false;  // 1단계 열림 여부
+  let isNextVisible     = false;  // 2단계 열림 여부
 
   // 탭 버튼 클릭 시 드롭다운 토글
   function toggleDropdown(button) {
@@ -85,6 +89,7 @@
       dropdownMenu.classList.add("show");
       summary.classList.remove("show");
       nextDropdowns.classList.remove("show");
+      nextSummary.classList.remove("show");
       btnDiplomat.classList.remove("is-active");
       btnNonDiplomat.classList.remove("is-active");
       button.classList.add("is-active");
@@ -92,14 +97,14 @@
     }
   }
 
-  // 드롭다운 닫기 → 서머리 → 2단계 드롭다운 순서로 표시
   function closeDropdown() {
     dropdownMenu.classList.remove("show");
     isDropdownVisible = false;
-
+    // 닫히는 애니메이션 끝난 뒤 1단계 요약 표시 + 0.2s 후 2단계 박스 열기
     setTimeout(() => {
-      showSummaryAndNextDropdowns();
-    }, 400); // CSS transition 시간과 맞춤
+      showFirstSummary();
+      openNextDropdowns();
+    }, 400);
   }
 
   // 바깥 클릭 시 닫기
@@ -112,23 +117,60 @@
     if (!clickedInside) closeDropdown();
   });
 
-  // 서머리 + 다음 단계 드롭다운 표시
-  function showSummaryAndNextDropdowns() {
-    const country = countrySelect.value
+  function showFirstSummary() {
+    const c = countrySelect.value
       ? countrySelect.options[countrySelect.selectedIndex].text
       : "미선택";
-    const region = regionSelect.value
+    const r = regionSelect.value
       ? regionSelect.options[regionSelect.selectedIndex].text
       : "미선택";
-
-    summary.textContent = `${country} - ${region}`;
+    summary.textContent = `${c} - ${r}`;
     summary.classList.add("show");
-
-    setTimeout(() => {
-      nextDropdowns.classList.add("show");
-    }, 200);
   }
 
+  function openNextDropdowns() {
+    nextDropdowns.classList.add("show");
+    nextSummary.classList.remove("show");
+    isNextVisible = true;
+  }
+
+  function closeNextDropdowns() {
+    nextDropdowns.classList.remove("show");
+    isNextVisible = false;
+    setTimeout(() => {
+      const t = containerSelect.value
+        ? containerSelect.options[containerSelect.selectedIndex].text
+        : "미선택";
+      const cbm = cbmSelect.value
+        ? cbmSelect.options[cbmSelect.selectedIndex].text
+        : "미선택";
+      nextSummary.textContent = `${t} - ${cbm}`;
+      nextSummary.classList.add("show");
+    }, 400);
+  }
+
+  document.addEventListener("click", (e) => {
+    // 1단계가 열려있고, 클릭이 (박스/버튼) 밖이라면 닫기
+    if (isDropdownVisible) {
+      const clickedInside1 =
+        dropdownMenu.contains(e.target) ||
+        btnDiplomat.contains(e.target) ||
+        btnNonDiplomat.contains(e.target);
+      if (!clickedInside1) {
+        closeDropdown();
+        return; // 1단계 닫히면 여기서 종료(2단계는 아직 안 열렸거나, 뒤에서 별도 처리)
+      }
+    }
+
+    // 2단계가 열려있고, 클릭이 2단계 박스 밖이라면 닫기
+    if (isNextVisible) {
+      const clickedInside2 = nextDropdowns.contains(e.target);
+      if (!clickedInside2) {
+        closeNextDropdowns();
+      }
+    }
+  });
+  
   // 버튼 이벤트
   btnDiplomat.addEventListener("click", () => toggleDropdown(btnDiplomat));
   btnNonDiplomat.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
@@ -148,6 +190,7 @@
       <option value="tokyo">도쿄</option>
     `;
   });
+  
 </script>
 
   
