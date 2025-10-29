@@ -162,7 +162,12 @@ body {
 }
 
 .dropdown {
-  display: none; /* 기본적으로 숨김 */
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: max-height .35s ease, opacity .35s ease, transform .35s ease;
+  display: flex;
   flex-direction: column;
   gap: 0.5rem;
   width: 28rem;
@@ -171,12 +176,10 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   backdrop-filter: blur(8px);
   padding: 1rem;
-  animation: dropdownFade 0.3s ease;
 }
 
-/* ✅ 드롭다운이 열릴 때 적용 */
 .dropdown.show {
-  display: flex;
+  max-height: 600px;
   opacity: 1;
   transform: translateY(0);
 }
