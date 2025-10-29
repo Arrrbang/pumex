@@ -212,6 +212,21 @@ body {
   font-size: 1rem;
 }
 
+.region-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem; /* 둘 사이 간격 */
+}
+
+/* 지도 버튼을 드롭다운 높이에 맞게 축소 */
+.region-row .map-button {
+  padding: 0.45rem 0.9rem; /* 기존보다 작게 */
+  font-size: 0.9rem;
+  border-radius: 0.5rem;
+  white-space: nowrap; /* 줄바꿈 방지 */
+  height: 100%; /* 드롭다운 높이에 맞춤 */
+}
+
 @media (max-width: 1024px){
   .panel__cell{ grid-column: span 6; } /* 2열 */
 }
