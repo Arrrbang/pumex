@@ -37,7 +37,7 @@ body {
   /* 레이아웃 */
   --container-max: 90rem;
   --gutter: var(--space-24);
-  --header-h: 3.75rem;
+  --header-h: 3.5rem;
 }
 
 /* ====== 공통 레이아웃 ====== */
