@@ -244,9 +244,10 @@ body {
 .selection-summary {
   text-align: center;
   font-weight: 700;
-  color: #1F9461;
-  font-size: 1.2rem;
-  margin: 1rem 0;
+  color: #000;
+  font-size: 1.4rem;
+  margin-top: 1rem 0;
+  margin-bottom: 1.5rem;
   opacity: 0;
   transform: translateY(-10px);
   transition: all 0.4s ease;
