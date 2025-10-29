@@ -95,7 +95,7 @@ body {
   display: inline-flex; 
   align-items: center; 
   justify-content: 
-    flex-start; 
+  flex-start; 
 }
 .brand__logo{
   height: calc(var(--header-h) * 0.65); 
@@ -103,6 +103,7 @@ body {
   display: block;
   object-fit: contain;
   padding-left: 1rem;
+  margin-right: 1rem;
 }
 .header__title{
   justify-self: start;
