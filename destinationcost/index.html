@@ -80,11 +80,8 @@
       closeDropdown();
     } else {
       dropdownMenu.classList.add("show");
-      btnDiplomat.classList.remove("is-active");
-      btnNonDiplomat.classList.remove("is-active");
-      button.classList.add("is-active");
+      summary.classList.remove("show"); // ✅ 드롭다운 열릴 땐 요약 숨김
       isDropdownVisible = true;
-      summary.style.display = "none"; // 드롭다운 열릴 때 결과 숨김
     }
   }
 
@@ -94,7 +91,7 @@
     btnDiplomat.classList.remove("is-active");
     btnNonDiplomat.classList.remove("is-active");
     isDropdownVisible = false;
-    showSelectionSummary(); // 닫히면서 선택 결과 표시
+    setTimeout(showSelectionSummary, 400);
   }
 
   // ✅ 외부 클릭 감지
@@ -116,9 +113,10 @@
       ? regionSelect.options[regionSelect.selectedIndex].text
       : "미선택";
 
-    summary.textContent = `${country} - ${region}`;
-    summary.style.display = "block";
-  }
+      summary.textContent = `${country} - ${region}`;
+      summary.classList.add("show");
+      summary.style.display = "block";
+    }
 
   // 테스트용 기본 옵션 (임시로 추가)
   window.addEventListener("DOMContentLoaded", () => {
