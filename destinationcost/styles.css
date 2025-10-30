@@ -220,6 +220,8 @@ body {
   font-size: 1rem;
 }
 
+.combo-float-wrap { z-index: 1000; }
+
 .map-button-inline {
   background: #1F9461;
   color: #fff;
