@@ -172,7 +172,11 @@ body {
   margin:0;
   opacity: 0;
   transform: translateY(-10px);
-  transition: all 0.4s ease;
+  transition:
+    max-height .45s ease,
+    opacity .45s ease,
+    transform .45s ease,
+    margin .45s ease;
   display: flex;
   flex-direction: column;
   gap: 1rem;
