@@ -292,6 +292,22 @@ body {
   max-height: 1000px;
 }
 
+/* 타이핑 가능한 콤보박스 */
+.combo{ position:relative; width:100%; }
+.combo input{
+  width:100%; padding:10px 12px; border:1px solid var(--border,#e5e7eb);
+  border-radius:8px; outline:none; box-sizing:border-box;
+}
+.combo .list{
+  position:absolute; left:0; right:auto; max-width:100%;
+  z-index: 20; background:#fff; border:1px solid var(--border,#e5e7eb);
+  border-radius:8px; margin-top:6px; max-height:220px; overflow:auto; display:none;
+}
+.combo.open .list{ display:block; }
+.combo .item{ padding:8px 10px; cursor:pointer; }
+.combo .item:hover{ background:#f3f4f6; }
+
+
 /* 결과 섹션 여백 */
 .result-section{ margin-top:8px; }
 
