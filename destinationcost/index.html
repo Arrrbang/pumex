@@ -276,6 +276,7 @@ const countryCombo = makeCombo(document.getElementById('countryCombo'));
 const regionCombo  = makeCombo(document.getElementById('regionCombo'));
 const companyCombo = makeCombo(document.getElementById('companyCombo'));
 const typeCombo    = makeCombo(document.getElementById('typeCombo'), ['20FT','40HC','CONSOLE']);
+const poeCombo = makeCombo(document.getElementById('poeCombo'));
 
 const cbmSelect    = $("#cbmSelect");
 
@@ -414,7 +415,19 @@ regionCombo.root.addEventListener('change', async ()=>{
     const j = await r.json();
     companyCombo.setItems(j.companies||[]);
     companyCombo.input.disabled = false;
-  }catch(e){ companyCombo.setItems([]); }
+  }catch(e){
+    companyCombo.setItems([]);
+  }
+
+  try {
+    const url = `${BASE}/api/poe/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=data`;
+    const r   = await fetch(url);
+    const j   = await r.json();
+    poeCombo.setItems((j.poes || []).filter(Boolean));
+    poeCombo.input.disabled = false;
+  } catch (e) {
+    poeCombo.setItems([]);
+  }
 });
 
 /* ------------------------------
