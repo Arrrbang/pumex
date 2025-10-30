@@ -415,7 +415,7 @@ regionCombo.root.addEventListener('change', async ()=>{
     const j = await r.json();
     const companies = (j.companies || []).filter(Boolean);
     companyCombo.setItems(companies);
-    companyCombo.input.disabled = companies.length === 0;  // ✅ 길이로 확실히 enable
+    companyCombo.input.disabled = companies.length === 0;
   }catch(e){
     companyCombo.setItems([]); 
     companyCombo.input.disabled = true;
