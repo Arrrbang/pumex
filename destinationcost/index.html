@@ -86,318 +86,301 @@
 </main>
 
 <script>
-/* =========================================================
-   0) 공통 상수/도우미
-========================================================= */
-const BASE = 'https://notion-api-hub.vercel.app'; // 동일 도메인이면 '' 가능
-const $  = (sel, root=document) => root.querySelector(sel);
-const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+/* =========================
+   공통 유틸
+========================= */
+const BASE = 'https://notion-api-hub.vercel.app';
+const $  = (s, r=document)=>r.querySelector(s);
 
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g,(m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
+/* =========================
+   떠 있는 콤보 팝업 관리자
+   - 콤보 .list를 body로 옮겨서 overflow 잘림 회피
+========================= */
+const Floating = (() => {
+  const mounts = new Map(); // listEl -> { comboEl, onScroll, onResize }
+  function open(comboEl){
+    const input = comboEl.querySelector('input');
+    const list  = comboEl.querySelector('.list');
+    if(!input || !list) return;
 
-/* select 전용 옵션 유틸(혹시 기존 select가 남아있어도 동작하도록) */
-function setOptions(selectEl, values, placeholder='선택'){
-  if(!selectEl) return;
-  const opts = ['<option value="">' + placeholder + '</option>']
-    .concat(values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`));
-  selectEl.innerHTML = opts.join('');
-}
+    // 이미 떠 있으면 위치만 갱신
+    if(mounts.has(list)){ position(comboEl); return; }
 
-/* =========================================================
-   1) 타이핑 가능한 콤보박스 makeCombo (ORIGINAL 기반)
-   - 접두어 일치 우선 정렬 + 자연수 정렬
-   - input에 타이핑하면 실시간 필터
-========================================================= */
-function makeCombo(el, items = []) {
-  if (!el) return null;
+    // body에 붙일 래퍼
+    const wrap = document.createElement('div');
+    wrap.className = 'combo-float-wrap';
+    wrap.style.position = 'fixed';
+    wrap.style.zIndex = '1000';
+    wrap.style.left = '0'; wrap.style.top = '0';
+    wrap.style.width = '0'; wrap.style.height = '0';
+    document.body.appendChild(wrap);
+
+    // 기존 list를 래퍼로 이동
+    list.dataset.__float = '1';
+    wrap.appendChild(list);
+
+    // 위치 지정 함수
+    const onScroll = () => position(comboEl);
+    const onResize = () => position(comboEl);
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', onResize);
+
+    mounts.set(list, { comboEl, wrap, onScroll, onResize });
+    position(comboEl);
+  }
+  function position(comboEl){
+    const input = comboEl.querySelector('input');
+    const list  = getList(comboEl);
+    if(!input || !list) return;
+    const r = input.getBoundingClientRect();
+    const maxW = r.width;
+    list.style.display = 'block';
+    list.style.position = 'fixed';
+    list.style.left = `${r.left}px`;
+    list.style.top  = `${r.bottom + 6}px`;
+    list.style.width= `${maxW}px`;
+    // 화면 하단 넘치면 위로 띄우기
+    const rect = list.getBoundingClientRect();
+    const tooLow = rect.bottom > window.innerHeight - 8;
+    if(tooLow){
+      list.style.top = `${Math.max(8, r.top - 6 - rect.height)}px`;
+    }
+  }
+  function close(comboEl){
+    const list = getList(comboEl);
+    if(!list) return;
+    const mount = mounts.get(list);
+    if(!mount) return;
+    window.removeEventListener('scroll', mount.onScroll, true);
+    window.removeEventListener('resize', mount.onResize);
+    mounts.delete(list);
+
+    // 원래 자리로 복귀
+    list.removeAttribute('style');
+    list.removeAttribute('data-__float');
+    mount.wrap.remove(); // 래퍼 제거
+    comboEl.appendChild(list);
+    list.style.display = 'none';
+  }
+  function getList(comboEl){ return document.querySelector('.list[data-__float="1"]') || comboEl.querySelector('.list'); }
+  function isInsideFloating(el){
+    return !!el.closest('.combo-float-wrap') || !!el.closest('.list[data-__float="1"]');
+  }
+  return { open, close, position, isInsideFloating };
+})();
+
+/* =========================
+   타이핑 콤보
+========================= */
+function makeCombo(el, items=[]){
   const input = el.querySelector('input');
   const list  = el.querySelector('.list');
   let data = [...items];
   let selected = null;
 
-  function render(filter='') {
-    const f = (filter ?? '').trim().toLowerCase();
-    list.innerHTML = '';
-    const filtered = f ? data.filter(x => x.toLowerCase().includes(f)) : [...data];
-
-    const sorted = filtered.sort((a, b) => {
-      const an = Number(a), bn = Number(b);
-      if (!isNaN(an) && !isNaN(bn)) return an - bn;      // 숫자 자연 정렬
-      const ap = f && a.toLowerCase().startsWith(f) ? 0 : 1;  // 접두어 우선
-      const bp = f && b.toLowerCase().startsWith(f) ? 0 : 1;
-      if (ap !== bp) return ap - bp;
+  function render(filter=''){
+    const f = (filter||'').trim().toLowerCase();
+    list.innerHTML='';
+    const filtered = f ? data.filter(x=>x.toLowerCase().includes(f)) : [...data];
+    const sorted = filtered.sort((a,b)=>{
+      const an=Number(a), bn=Number(b);
+      if(!isNaN(an)&&!isNaN(bn)) return an-bn;
+      const ap=f && a.toLowerCase().startsWith(f)?0:1;
+      const bp=f && b.toLowerCase().startsWith(f)?0:1;
+      if(ap!==bp) return ap-bp;
       return a.localeCompare(b, 'ko');
     });
-
-    sorted.forEach(v => {
-      const div = document.createElement('div');
-      div.className = 'item';
-      if (selected && v === selected) div.classList.add('is-selected');
-      div.textContent = v;
-      div.onclick = () => {
-        selected = v;
-        input.value = v;
-        // ⬇️ 닫지 않고 유지 (외부 클릭 시에만 닫힘)
-        if (!el.classList.contains('open')) el.classList.add('open');
-        render(input.value); // 선택 강조 갱신
-        el.dispatchEvent(new CustomEvent('change', { detail: v }));
-        // 포커스를 인풋에 유지해 연속 타이핑 가능
-        input.focus();
-      };
-      list.appendChild(div);
+    sorted.forEach(v=>{
+      const d=document.createElement('div');
+      d.className='item' + (selected===v ? ' is-selected':'');
+      d.textContent=v;
+      d.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        selected=v;
+        input.value=v;
+        // 선택하면 콤보 리스트는 닫는 게 맞음
+        el.classList.remove('open');
+        Floating.close(el);
+        el.dispatchEvent(new CustomEvent('change',{detail:v}));
+      });
+      list.appendChild(d);
     });
   }
-
-  function setItems(arr) {
-    data = [...new Set((arr || []).filter(Boolean))];
-    input.disabled = data.length === 0;
-    if (document.activeElement !== input) input.value = '';
-    // 선택값 초기화
-    selected = null;
+  function setItems(arr){
+    data = [...new Set((arr||[]).filter(Boolean))];
+    input.disabled = data.length===0;
+    if(document.activeElement!==input) input.value='';
+    selected=null;
     render(input.value);
   }
+  function getValue(){ return selected || input.value.trim(); }
+  function setValue(v){ selected=v||null; input.value=v??''; render(input.value); }
 
-  ['mousedown','pointerdown','touchstart','click'].forEach(evt => {
-  list.addEventListener(evt, e => e.stopPropagation(), { passive: true });
-  input.addEventListener(evt, e => e.stopPropagation(), { passive: true });
-});
-  
-  function getItems(){ return [...data]; }
-  function getValue(){
-    return selected || input.value.trim();
-  }
-  function setValue(v){
-    selected = v || null;
-    input.value = v ?? '';
-    if (!el.classList.contains('open')) el.classList.add('open');
-    render(input.value);
-    el.dispatchEvent(new CustomEvent('change', { detail: v }));
-  }
+  // 열기/필터
+  input.addEventListener('focus', ()=>{
+    el.classList.add('open'); render(input.value); Floating.open(el);
+  });
+  input.addEventListener('input', ()=>{
+    el.classList.add('open'); render(input.value); Floating.open(el);
+  });
 
-  // 열기/필터링
-  input.addEventListener('focus', () => { el.classList.add('open'); render(input.value); });
-  input.addEventListener('input', () => { el.classList.add('open'); render(input.value); });
-
-  // 엔터: 첫 항목 선택(닫지 않음)
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      const first = list.querySelector('.item');
-      if (first) first.click();
+  // Enter → 첫 항목 선택
+  input.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter'){
+      const first=(Floating.isInsideFloating(document.activeElement)?document:el).querySelector('.item');
+      if(first) first.click();
     }
   });
 
-  // 외부 클릭 시에만 닫힘
-  document.addEventListener('pointerdown', (e) => {
-    if (!countryCombo.root.contains(e.target)) countryCombo.root.classList.remove('open');
-    if (!regionCombo.root.contains(e.target))  regionCombo.root.classList.remove('open');
-    if (!companyCombo.root.contains(e.target)) companyCombo.root.classList.remove('open');
-    if (!typeCombo.root.contains(e.target))    typeCombo.root.classList.remove('open');
-  }, { passive: true });
-
-
   setItems(items);
-  return { setItems, getItems, getValue, setValue, input, list, root: el };
+  return { setItems, getValue, setValue, root: el, input, list };
 }
 
+/* =========================
+   요소 참조
+========================= */
+const btnDiplomat    = $("#btnDiplomat");
+const btnNonDiplomat = $("#btnNonDiplomat");
+const dropdownMenu   = $("#dropdownMenu");
+const nextDropdowns  = $("#nextDropdowns");
+const summary        = $("#selectionSummary");
+const nextSummary    = $("#nextSelectionSummary");
 
-/* =========================================================
-   2) 요소 참조
-   - 콤보: #countryCombo, #regionCombo, #companyCombo, #typeCombo
-   - CBM:  #cbmSelect (기존 select 유지)
-   - 탭/컨테이너: 버튼, 1단계/2단계, 요약
-========================================================= */
-const btnDiplomat     = $("#btnDiplomat");
-const btnNonDiplomat  = $("#btnNonDiplomat");
+const countryCombo = makeCombo(document.getElementById('countryCombo'));
+const regionCombo  = makeCombo(document.getElementById('regionCombo'));
+const companyCombo = makeCombo(document.getElementById('companyCombo'));
+const typeCombo    = makeCombo(document.getElementById('typeCombo'), ['20FT','40HC','CONSOLE']);
 
-const dropdownMenu    = $("#dropdownMenu");        // 1단계 래퍼
-const nextDropdowns   = $("#nextDropdowns");       // 2단계 래퍼
-const summary         = $("#selectionSummary");    // 1단계 요약
-const nextSummary     = $("#nextSelectionSummary");// 2단계 요약
+const cbmSelect    = $("#cbmSelect");
 
-const countryCombo    = makeCombo(document.getElementById('countryCombo'));
-const regionCombo     = makeCombo(document.getElementById('regionCombo'));
-const companyCombo    = makeCombo(document.getElementById('companyCombo'));
-const typeCombo       = makeCombo(document.getElementById('typeCombo'), ['20FT','40HC','CONSOLE']);
+let isDropdownVisible=false;
+let isNextVisible=false;
 
-const cbmSelect       = $("#cbmSelect"); // select 유지
-
-let isDropdownVisible = false;  // 1단계 오픈 여부
-let isNextVisible     = false;  // 2단계 오픈 여부
-let currentRoles      = [];     // ["DIPLOMAT"] | ["NON-DIPLOMAT"]
-
-/* =========================================================
-   3) 1단계/2단계 열림/닫힘 + 요약 표시
-   - 컨테이너 패딩 이슈는 CSS에서 .dropdown-inner로 분리 권장
-========================================================= */
-function toggleDropdown(button) {
-  if (!button) return;
-  btnDiplomat?.classList.remove("is-active");
-  btnNonDiplomat?.classList.remove("is-active");
-  button.classList.add("is-active");
-
-  currentRoles = (button === btnDiplomat) ? ["DIPLOMAT"] : ["NON-DIPLOMAT"];
-
-  if (isDropdownVisible) {
-    closeDropdown(); // 열려 있으면 닫고 2단계 열기
-  } else {
-    dropdownMenu?.classList.add("show");
-    summary?.classList.remove("show");
-    nextDropdowns?.classList.remove("show");
-    nextSummary?.classList.remove("show");
-    isDropdownVisible = true;
-  }
+/* =========================
+   1단계/2단계 열고 닫기
+========================= */
+function openFirst(){
+  dropdownMenu.classList.add('show');
+  summary.classList.remove('show');
+  nextDropdowns.classList.remove('show');
+  nextSummary.classList.remove('show');
+  isDropdownVisible=true;
 }
-
-function closeDropdown() {
-  dropdownMenu?.classList.remove("show");
-  isDropdownVisible = false;
-  // 닫힘 애니메이션 후 요약/2단계
-  setTimeout(() => {
-    showFirstSummary();
-    openNextDropdowns();
+function closeFirst(){
+  dropdownMenu.classList.remove('show');
+  isDropdownVisible=false;
+  setTimeout(()=>{ showFirstSummary(); openSecond(); }, 400);
+}
+function openSecond(){
+  nextDropdowns.classList.add('show');
+  nextSummary.classList.remove('show');
+  isNextVisible=true;
+}
+function closeSecond(){
+  nextDropdowns.classList.remove('show');
+  isNextVisible=false;
+  setTimeout(()=>{
+    const t = typeCombo.getValue() || '미선택';
+    const cbm = cbmSelect?.value ? (cbmSelect.options[cbmSelect.selectedIndex]?.text||cbmSelect.value) : '미선택';
+    nextSummary.textContent = `${t} — ${cbm}`;
+    nextSummary.classList.add('show');
   }, 400);
 }
-
-function showFirstSummary() {
-  const c    = countryCombo?.getValue() || "미선택";
-  const r    = regionCombo?.getValue()  || "미선택";
-  const comp = companyCombo?.getValue() || "미선택";
-  if (summary) {
-    summary.textContent = `${c} — ${r} — ${comp}`;
-    summary.classList.add("show");
-  }
+function showFirstSummary(){
+  const c = countryCombo.getValue() || '미선택';
+  const r = regionCombo.getValue()  || '미선택';
+  const comp = companyCombo.getValue() || '미선택';
+  summary.textContent = `${c} — ${r} — ${comp}`;
+  summary.classList.add('show');
 }
 
-function openNextDropdowns() {
-  nextDropdowns?.classList.add("show");
-  nextSummary?.classList.remove("show");
-  isNextVisible = true;
-}
-
-function closeNextDropdowns() {
-  nextDropdowns?.classList.remove("show");
-  isNextVisible = false;
-  setTimeout(() => {
-    const t   = typeCombo?.getValue() || "미선택";
-    let cbm = "미선택";
-    if (cbmSelect && cbmSelect.value) {
-      cbm = cbmSelect.options[cbmSelect.selectedIndex]?.text || cbmSelect.value;
-    }
-    if (nextSummary) {
-      nextSummary.textContent = `${t} — ${cbm}`;
-      nextSummary.classList.add("show");
-    }
-  }, 400);
-}
-
-/* 탭 버튼 이벤트 */
-btnDiplomat?.addEventListener("click", () => toggleDropdown(btnDiplomat));
-btnNonDiplomat?.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
-
-/* 바깥 클릭 시 닫기 (1단계/2단계 각각) */
-document.addEventListener("click", (e) => {
-  if (isDropdownVisible && dropdownMenu) {
-    const inside1 = dropdownMenu.contains(e.target) || btnDiplomat?.contains(e.target) || btnNonDiplomat?.contains(e.target);
-    if (!inside1) { closeDropdown(); return; }
-  }
-  if (isNextVisible && nextDropdowns) {
-    const inside2 = nextDropdowns.contains(e.target);
-    if (!inside2) closeNextDropdowns();
-  }
+/* 탭 버튼 */
+btnDiplomat?.addEventListener('click', ()=>{
+  if(isDropdownVisible) closeFirst(); else openFirst();
+});
+btnNonDiplomat?.addEventListener('click', ()=>{
+  if(isDropdownVisible) closeFirst(); else openFirst();
 });
 
-/* =========================================================
-   4) API 연동: 국가 → 지역 → 업체
-========================================================= */
-async function loadCountries() {
-  try {
-    const r = await fetch(`${BASE}/api/debug/config`);
-    if (!r.ok) throw new Error('debug/config 오류');
-    const j = await r.json();
-    const countries = j.countries || Object.keys(j.dbStructure || {}) || [];
-    countryCombo?.setItems(countries);
-  } catch (e) {
-    console.warn(e);
-    countryCombo?.setItems([]);
+/* 바깥 클릭 시 닫기 (정확한 내부 판별 포함) */
+document.addEventListener('pointerdown', (e)=>{
+  // 1단계: dropdownMenu 내부이거나, 떠 있는 콤보 팝업을 클릭하면 닫지 않음
+  if(isDropdownVisible){
+    const insideDropdown = dropdownMenu.contains(e.target);
+    const insideFloating = Floating.isInsideFloating(e.target);
+    if(!insideDropdown && !insideFloating){
+      closeFirst();
+    }
   }
+  // 2단계
+  if(isNextVisible){
+    const inside2 = nextDropdowns.contains(e.target);
+    if(!inside2) closeSecond();
+  }
+}, {passive:true});
+
+/* =========================
+   API 연동: 국가→지역→업체
+========================= */
+async function loadCountries(){
+  try{
+    const r = await fetch(`${BASE}/api/debug/config`);
+    const j = await r.json();
+    const countries = j.countries || Object.keys(j.dbStructure||{}) || [];
+    countryCombo.setItems(countries);
+  }catch(e){ countryCombo.setItems([]); }
 }
-
-/* 국가 → 지역 */
-countryCombo?.root.addEventListener('change', async () => {
+countryCombo.root.addEventListener('change', async ()=>{
   const country = countryCombo.getValue();
-  regionCombo?.setItems([]);
-  companyCombo?.setItems([]);
-  if (!country) return;
-
-  try {
+  regionCombo.setItems([]); companyCombo.setItems([]);
+  if(!country) return;
+  try{
     const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`);
     const j = await r.json();
-    const regions = j.regions || [];
-    regionCombo?.setItems(regions);
-  } catch (e) {
-    console.warn(e);
-    regionCombo?.setItems([]);
-  }
+    regionCombo.setItems(j.regions||[]);
+  }catch(e){ regionCombo.setItems([]); }
 });
-
-/* 지역 → 업체 */
-regionCombo?.root.addEventListener('change', async () => {
-  const country = countryCombo?.getValue();
-  const region  = regionCombo?.getValue();
-  companyCombo?.setItems([]);
-  if (!country || !region) return;
-
-  try {
+regionCombo.root.addEventListener('change', async ()=>{
+  const country = countryCombo.getValue();
+  const region  = regionCombo.getValue();
+  companyCombo.setItems([]);
+  if(!country || !region) return;
+  try{
     const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
     const r = await fetch(url);
     const j = await r.json();
-    const companies = j.companies || [];
-    companyCombo?.setItems(companies);
-  } catch (e) {
-    console.warn(e);
-    companyCombo?.setItems([]);
-  }
+    companyCombo.setItems(j.companies||[]);
+  }catch(e){ companyCombo.setItems([]); }
 });
 
-/* =========================================================
-   5) 컨테이너 타입 & CBM
-   - 타입: 콤보 필터 가능 (20FT / 40HC / CONSOLE)
-   - CBM : select 유지(타입에 따라 옵션 자동 구성)
-========================================================= */
-function fillCbmOptionsByType(type){
-  if (!cbmSelect) return;
-  let values = [];
-  const T = (type || '').toUpperCase();
-  if (!T) { setOptions(cbmSelect, [], 'CBM 선택'); return; }
-
-  if (T === 'CONSOLE') {
-    values = Array.from({length: 30}, (_,i)=> String(i+1)); // 1~30 CBM
-  } else {
-    // FCL은 예시로 5 단위 설정(필요 시 조정)
-    values = [5,10,15,20,25,30,35,40].map(String);
-  }
-  setOptions(cbmSelect, values, 'CBM 선택');
+/* =========================
+   컨테이너 타입 & CBM
+========================= */
+function setOptions(selectEl, values, placeholder='CBM 선택'){
+  const opts = ['<option value="">'+placeholder+'</option>']
+   .concat(values.map(v=>`<option value="${String(v)}">${String(v)}</option>`));
+  selectEl.innerHTML = opts.join('');
 }
+function fillCbmByType(type){
+  if(!cbmSelect) return;
+  const T=(type||'').toUpperCase();
+  let values=[];
+  if(!T){ setOptions(cbmSelect,[], 'CBM 선택'); return; }
+  if(T==='CONSOLE'){ values = Array.from({length:30},(_,i)=>i+1); }
+  else { values = [5,10,15,20,25,30,35,40]; }
+  setOptions(cbmSelect, values);
+}
+typeCombo.root.addEventListener('change', ()=> fillCbmByType(typeCombo.getValue()) );
 
-/* 타입콤보가 변경되면 CBM 재구성 */
-typeCombo?.root.addEventListener('change', () => {
-  fillCbmOptionsByType(typeCombo.getValue());
-});
-
-/* =========================================================
-   6) 초기화
-========================================================= */
-window.addEventListener("DOMContentLoaded", async () => {
-  // 국가/지역/업체 로드
+/* =========================
+   초기화
+========================= */
+window.addEventListener('DOMContentLoaded', async ()=>{
   await loadCountries();
-
-  // 타입/CBM 초기화
-  const initialType = typeCombo?.getValue() || '20FT';
-  fillCbmOptionsByType(initialType);
+  fillCbmByType(typeCombo.getValue() || '20FT');
 });
 </script>
+
 
 
 </body>
