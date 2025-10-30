@@ -74,7 +74,7 @@
   
       <label class="dropdown-label" for="cbmSelect">CBM 선택</label>
       <select id="cbmSelect" class="dropdown-select"></select>
-    </div><!-- /.dropdown-inner -->
+    </div>
   </div>
 </div>
     
@@ -87,31 +87,40 @@
 </main>
 
 <script>
-/* =========================
+/* =========================================================
+   App Core — Dropdowns + Combos + Map Picker (완성본)
+   요구 HTML ID:
+   - 1차 컨테이너: #dropdownMenu   / 요약: #selectionSummary
+   - 2차 컨테이너: #nextDropdowns  / 요약: #nextSelectionSummary
+   - 콤보: #countryCombo, #regionCombo, #companyCombo, #typeCombo
+   - 셀렉트: #cbmSelect
+   - 지도버튼: #btnSelectOnMap
+   외부 API (Notion Hub): BASE
+========================================================= */
+
+/* ------------------------------
    공통 유틸
-========================= */
+------------------------------ */
 const BASE = 'https://notion-api-hub.vercel.app';
 const $  = (s, r=document)=>r.querySelector(s);
 
-/* =========================
-   떠 있는 콤보 팝업 관리자
-   - 콤보 .list를 body로 옮겨 overflow 잘림 회피
-========================= */
+/* ------------------------------
+   Floating(포털) 콤보 리스트 관리자
+   - 부모 overflow에 잘리지 않도록 .list를 body로 띄움
+------------------------------ */
 const Floating = (() => {
   const mounts = new Map(); // listEl -> { comboEl, wrap, onScroll, onResize }
-
   function open(comboEl){
     const input = comboEl.querySelector('input');
     const list  = comboEl.querySelector('.list');
     if(!input || !list) return;
 
-    // 이미 떠 있으면 위치만 갱신
     if(mounts.has(list)){ position(comboEl); return; }
 
     const wrap = document.createElement('div');
     wrap.className = 'combo-float-wrap';
     wrap.style.position = 'fixed';
-    wrap.style.zIndex = '1000';
+    wrap.style.zIndex = '1200';
     wrap.style.left = '0'; wrap.style.top = '0';
     wrap.style.width = '0'; wrap.style.height = '0';
     document.body.appendChild(wrap);
@@ -127,7 +136,6 @@ const Floating = (() => {
     mounts.set(list, { comboEl, wrap, onScroll, onResize });
     position(comboEl);
   }
-
   function position(comboEl){
     const input = comboEl.querySelector('input');
     const list  = getList(comboEl);
@@ -140,20 +148,17 @@ const Floating = (() => {
     list.style.top  = `${r.bottom + 6}px`;
     list.style.width= `${r.width}px`;
 
-    // 화면 하단 넘치면 위로 띄우기
+    // 화면 하단 넘치면 위로
     const rect = list.getBoundingClientRect();
-    const tooLow = rect.bottom > window.innerHeight - 8;
-    if(tooLow){
+    if(rect.bottom > window.innerHeight - 8){
       list.style.top = `${Math.max(8, r.top - 6 - rect.height)}px`;
     }
   }
-
   function close(comboEl){
     const list = getList(comboEl);
     if(!list) return;
     const mount = mounts.get(list);
     if(!mount) return;
-
     window.removeEventListener('scroll', mount.onScroll, true);
     window.removeEventListener('resize', mount.onResize);
     mounts.delete(list);
@@ -164,23 +169,19 @@ const Floating = (() => {
     comboEl.appendChild(list);
     list.style.display = 'none';
   }
-
   function getList(comboEl){
-    // 현재 떠 있는 목록이 있으면 그것을 우선 반환
     const floated = document.querySelector('.list[data-__float="1"]');
     return floated || comboEl.querySelector('.list');
   }
-
   function isInsideFloating(target){
     return !!target.closest('.combo-float-wrap') || !!target.closest('.list[data-__float="1"]');
   }
-
   return { open, close, position, isInsideFloating };
 })();
 
-/* =========================
-   타이핑 콤보
-========================= */
+/* ------------------------------
+   타이핑 콤보 (검색/선택 가능)
+------------------------------ */
 function makeCombo(el, items=[]){
   const input = el.querySelector('input');
   const list  = el.querySelector('.list');
@@ -207,7 +208,7 @@ function makeCombo(el, items=[]){
         e.stopPropagation();
         selected=v;
         input.value=v;
-        // 선택 시: 콤보는 닫는 게 맞음 (패널은 그대로 열려 있어야 함)
+        // 콤보는 선택 시 닫음(요구사항)
         el.classList.remove('open');
         Floating.close(el);
         el.dispatchEvent(new CustomEvent('change',{detail:v}));
@@ -215,7 +216,6 @@ function makeCombo(el, items=[]){
       list.appendChild(d);
     });
   }
-
   function setItems(arr){
     data = [...new Set((arr||[]).filter(Boolean))];
     input.disabled = data.length===0;
@@ -223,19 +223,15 @@ function makeCombo(el, items=[]){
     selected=null;
     render(input.value);
   }
-
   function getValue(){ return selected || input.value.trim(); }
-  function setValue(v){ selected=v||null; input.value=v??''; render(input.value); }
+  function setValue(v){ selected=v||null; input.value=v??''; render(input.value); el.dispatchEvent(new CustomEvent('change',{detail:v})); }
 
-  // 열기/필터
   input.addEventListener('focus', ()=>{
     el.classList.add('open'); render(input.value); Floating.open(el);
   });
   input.addEventListener('input', ()=>{
     el.classList.add('open'); render(input.value); Floating.open(el);
   });
-
-  // Enter → 첫 항목 선택
   input.addEventListener('keydown', (e)=>{
     if(e.key==='Enter'){
       const first=(Floating.isInsideFloating(document.activeElement)?document:el).querySelector('.item');
@@ -243,7 +239,6 @@ function makeCombo(el, items=[]){
     }
   });
 
-  // 내부 이벤트는 바깥 닫힘으로 전파되지 않게
   ['pointerdown','mousedown','click','touchstart'].forEach(evt=>{
     list.addEventListener(evt, e=>e.stopPropagation(), {passive:true});
     input.addEventListener(evt, e=>e.stopPropagation(), {passive:true});
@@ -253,9 +248,9 @@ function makeCombo(el, items=[]){
   return { setItems, getValue, setValue, root: el, input, list };
 }
 
-/* =========================
+/* ------------------------------
    요소 참조
-========================= */
+------------------------------ */
 const btnDiplomat    = $("#btnDiplomat");
 const btnNonDiplomat = $("#btnNonDiplomat");
 const dropdownMenu   = $("#dropdownMenu");
@@ -273,9 +268,9 @@ const cbmSelect    = $("#cbmSelect");
 let isDropdownVisible=false;
 let isNextVisible=false;
 
-/* =========================
-   1단계/2단계 열고 닫기
-========================= */
+/* ------------------------------
+   1차/2차 컨테이너 열고 닫기
+------------------------------ */
 function openFirst(){
   dropdownMenu.classList.add('show');
   summary.classList.remove('show');
@@ -304,48 +299,48 @@ function closeSecond(){
   }, 400);
 }
 function showFirstSummary(){
-  const c = countryCombo.getValue() || '미선택';
-  const r = regionCombo.getValue()  || '미선택';
-  const comp = companyCombo.getValue() || '미선택';
-  summary.textContent = `${c} — ${r} — ${comp}`;
+  const c    = countryCombo.getValue();
+  const r    = regionCombo.getValue();
+  const comp = companyCombo.getValue();
+  if (!summary) return;
+  // 값이 전혀 없으면 기존 텍스트 유지(미선택으로 강제 초기화 방지)
+  if (!c && !r && !comp) return;
+  summary.textContent = `${c || '미선택'} — ${r || '미선택'} — ${comp || '미선택'}`;
   summary.classList.add('show');
 }
 
-/* 탭 버튼: 같은 클릭 사이클에서 닫힘 방지 위해 pointerdown에서 guard */
+/* 탭 토글 */
 function onTabClick(btn){
-  // 탭 활성화 토글(디자인은 임의)
-  btnDiplomat.classList.toggle('is-active', btn===btnDiplomat);
-  btnNonDiplomat.classList.toggle('is-active', btn===btnNonDiplomat);
-
+  btnDiplomat?.classList.toggle('is-active', btn===btnDiplomat);
+  btnNonDiplomat?.classList.toggle('is-active', btn===btnNonDiplomat);
   if(isDropdownVisible) closeFirst(); else openFirst();
 }
 btnDiplomat?.addEventListener('click', ()=> onTabClick(btnDiplomat));
 btnNonDiplomat?.addEventListener('click', ()=> onTabClick(btnNonDiplomat));
 
-/* 바깥 클릭 시 닫기 — 정확한 내부 판별 */
+/* ------------------------------
+   전역 “바깥 클릭 닫기”
+   - 지도 모달이 열려 있을 땐 닫기 로직 스킵
+   - 콤보 떠있는 리스트 클릭은 내부로 간주
+------------------------------ */
+let MAP_MODAL_OPEN = false;
 document.addEventListener('pointerdown', (e)=>{
-  // 탭 버튼을 누른 경우는 닫기 판단에서 제외(같은 사이클 중복 닫힘 방지)
-  if (e.target.closest('.tab')) return;
+  if (MAP_MODAL_OPEN) return; // 지도 열려 있으면 스킵
 
-  // 1단계: 드롭다운 영역이거나 떠 있는 콤보 팝업이면 닫지 않음
-  if(isDropdownVisible){
+  if (isDropdownVisible) {
     const insideDropdown = dropdownMenu.contains(e.target);
-    const insideFloating = Floating.isInsideFloating(e.target);
-    if(!insideDropdown && !insideFloating){
-      closeFirst();
-    }
+    const insideFloating = Floating?.isInsideFloating?.(e.target);
+    if (!insideDropdown && !insideFloating) closeFirst();
   }
-
-  // 2단계
-  if(isNextVisible){
+  if (isNextVisible) {
     const inside2 = nextDropdowns.contains(e.target);
-    if(!inside2) closeSecond();
+    if (!inside2) closeSecond();
   }
-}, {passive:true});
+}, { passive:true });
 
-/* =========================
+/* ------------------------------
    API 연동: 국가→지역→업체
-========================= */
+------------------------------ */
 async function loadCountries(){
   try{
     const r = await fetch(`${BASE}/api/debug/config`);
@@ -357,29 +352,32 @@ async function loadCountries(){
 countryCombo.root.addEventListener('change', async ()=>{
   const country = countryCombo.getValue();
   regionCombo.setItems([]); companyCombo.setItems([]);
+  regionCombo.input.disabled = true; companyCombo.input.disabled = true;
   if(!country) return;
   try{
     const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`);
     const j = await r.json();
     regionCombo.setItems(j.regions||[]);
+    regionCombo.input.disabled = false;
   }catch(e){ regionCombo.setItems([]); }
 });
 regionCombo.root.addEventListener('change', async ()=>{
   const country = countryCombo.getValue();
   const region  = regionCombo.getValue();
-  companyCombo.setItems([]);
+  companyCombo.setItems([]); companyCombo.input.disabled = true;
   if(!country || !region) return;
   try{
     const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
     const r = await fetch(url);
     const j = await r.json();
     companyCombo.setItems(j.companies||[]);
+    companyCombo.input.disabled = false;
   }catch(e){ companyCombo.setItems([]); }
 });
 
-/* =========================
+/* ------------------------------
    컨테이너 타입 & CBM
-========================= */
+------------------------------ */
 function setOptions(selectEl, values, placeholder='CBM 선택'){
   const opts = ['<option value="">'+placeholder+'</option>']
    .concat(values.map(v=>`<option value="${String(v)}">${String(v)}</option>`));
@@ -396,29 +394,11 @@ function fillCbmByType(type){
 }
 typeCombo.root.addEventListener('change', ()=> fillCbmByType(typeCombo.getValue()) );
 
-/* =========================
-   초기화
-========================= */
-window.addEventListener('DOMContentLoaded', async ()=>{
-  await loadCountries();
-
-  // 초기 상태에서 패널이 전혀 안 보인다고 느낄 수 있어
-  // 첫 탭 클릭 없이 바로 확인하려면 아래 한 줄 임시 활성화:
-  // openFirst();
-
-  fillCbmByType(typeCombo.getValue() || '20FT');
-});
-
-/* =========================
+/* =========================================================
    MapPicker — ORIGINAL 기반 지도 팝업
-   요구사항:
-   - 버튼 id="btnSelectOnMap" (클릭 시 팝업)
-   - countryCombo / regionCombo: 기존 콤보 인스턴스(권장)
-     → 없을 경우 #countryCombo input / #regionCombo input을 자동 fallback
-   - ./MAP.JSON 존재 (ORIGINAL과 동일 구조)
-========================= */
-
-// ---- 0) 도우미: DOM/리소스 로더 ----
+   - 버튼 id="btnSelectOnMap" 클릭 시 팝업
+   - map.json: ./map.json (destinationcost/map.json)
+========================================================= */
 function loadCssOnce(href){ return new Promise((res, rej)=>{ if(document.querySelector(`link[href="${href}"]`)) return res(); const l=document.createElement('link'); l.rel='stylesheet'; l.href=href; l.onload=res; l.onerror=rej; document.head.appendChild(l); }); }
 function loadJsOnce(src){ return new Promise((res, rej)=>{ if(document.querySelector(`script[src="${src}"]`)) return res(); const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
 const LCSS  = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
@@ -426,12 +406,10 @@ const LJS   = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
 const GCSS  = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css";
 const GJS   = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js";
 
-// ---- 1) 콤보 접근: 인스턴스가 있으면 사용, 없으면 input fallback ----
 function getCountry(){ if (window.countryCombo?.getValue) return window.countryCombo.getValue(); const el = document.querySelector('#countryCombo input'); return el?.value?.trim() || ''; }
 function getRegion(){  if (window.regionCombo?.getValue)  return window.regionCombo.getValue();  const el = document.querySelector('#regionCombo input');  return el?.value?.trim() || ''; }
-function setRegion(v){ if (window.regionCombo?.setValue)  return window.regionCombo.setValue(v);  const el = document.querySelector('#regionCombo input');  if(el) el.value = v; }
+function setRegion(v){ if (window.regionCombo?.setValue)  return window.regionCombo.setValue(v);  const el = document.querySelector('#regionCombo input');  if(el){ el.value = v; el.dispatchEvent(new Event('input')); } }
 
-// ---- 2) 토스트(ORIGINAL 톤) ----
 let __sticky = null;
 function toast(msg, {sticky=false, timeout=1500}={}) {
   if (sticky) {
@@ -450,25 +428,19 @@ function toast(msg, {sticky=false, timeout=1500}={}) {
   document.body.appendChild(d); setTimeout(()=>d.remove(), timeout);
 }
 
-// ---- 3) 아이콘(SVG 핀) ----
+function haversineKm(aLat,aLng,bLat,bLng){ const R=6371, dLat=(bLat-aLat)*Math.PI/180, dLng=(bLng-aLng)*Math.PI/180; const A=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(A)); }
+function findNearest(lat,lng,pts){ if(!pts?.length) return null; let best=null,bd=Infinity; for(const p of pts){ const d=haversineKm(lat,lng,p.lat,p.lng); if(d<bd){best=p;bd=d;} } return {point:best,distanceKm:bd}; }
+
+let map, markerLayer, geocoder, mapInited=false, mapData=null, tmpSearch=null;
+const pinReg    = '#2563eb';
+const pinSearch = '#ef4444';
+
 function makeSvgPinIcon(color, withLabel=false, labelText="") {
-  const svg = `
-  <svg class="pin-svg" viewBox="0 0 24 24" aria-hidden="true">
-    <path fill="${color}" d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/>
-  </svg>`;
+  const svg = `<svg class="pin-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="${color}" d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/></svg>`;
   const labelHtml = withLabel ? `<div class="pin-label">${String(labelText).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}</div>` : "";
   const html = `<div class="pin-wrap">${svg}${labelHtml}</div>`;
   return L.divIcon({ className: "", html, iconSize: [26,26], iconAnchor: [13,26] });
 }
-
-// ---- 4) 거리/최근접 ----
-function haversineKm(aLat,aLng,bLat,bLng){ const R=6371, dLat=(bLat-aLat)*Math.PI/180, dLng=(bLng-aLng)*Math.PI/180; const A=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(A)); }
-function findNearest(lat,lng,pts){ if(!pts?.length) return null; let best=null,bd=Infinity; for(const p of pts){ const d=haversineKm(lat,lng,p.lat,p.lng); if(d<bd){best=p;bd=d;} } return {point:best,distanceKm:bd}; }
-
-// ---- 5) 팝업 모달 생성 ----
-let map, markerLayer, geocoder, mapInited=false, mapData=null, tmpSearch=null;
-const pinReg    = '#2563eb';  // 등록 핀
-const pinSearch = '#ef4444';  // 검색 핀
 
 function ensureModal() {
   if (document.getElementById('mapPickerModal')) return;
@@ -491,19 +463,12 @@ function ensureModal() {
     </div>
   `;
   document.body.appendChild(wrap);
-  // 닫기
   wrap.querySelector('#mpkBtnClose').onclick = closeModal;
   wrap.querySelector('.mpk__backdrop').onclick = closeModal;
-  // 확인(선택 완료)
   wrap.querySelector('#mpkBtnConfirm').onclick = ()=> { closeModal(); };
-  // ESC
   document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
 }
 
-function openModal(){ ensureModal(); document.getElementById('mapPickerModal').style.display='block'; }
-function closeModal(){ const m=document.getElementById('mapPickerModal'); if(m) m.style.display='none'; }
-
-// ---- 6) 지도 준비 ----
 async function ensureMapReady() {
   if (!mapInited) {
     await loadCssOnce(LCSS); await loadJsOnce(LJS);
@@ -512,28 +477,31 @@ async function ensureMapReady() {
     const worldBounds = L.latLngBounds([[-85,-180],[85,180]]);
     map = L.map('mpkMap', { center:[20,0], zoom:2, worldCopyJump:false, maxBounds:worldBounds, maxBoundsViscosity:1.0 });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OSM', noWrap:true, bounds:worldBounds }).addTo(map);
-
     markerLayer = L.layerGroup().addTo(map);
 
     geocoder = L.Control.geocoder({ defaultMarkGeocode:false })
       .on('markgeocode', (e)=>{
         const c = e.geocode.center;
-        // 임시 검색 핀
         if (tmpSearch) { map.removeLayer(tmpSearch); tmpSearch=null; }
         tmpSearch = L.marker(c, {icon: makeSvgPinIcon(pinSearch,false)}).addTo(map);
         map.setView(c, 9);
 
-        // 최근접 등록 지역 안내
         const pts = __countryPoints;
         if (pts?.length) {
           const hit = findNearest(c.lat,c.lng,pts);
-          if (hit?.point) { setRegion(hit.point.name); toast(`가장 가까운 등록 지역: ${hit.point.name} (~${hit.distanceKm.toFixed(1)}km)`, {sticky:true}); }
+          if (hit?.point) {
+            setRegion(hit.point.name);
+            toast(`가장 가까운 등록 지역: ${hit.point.name} (~${hit.distanceKm.toFixed(1)}km)`, {sticky:true});
+
+            // ★ 1차 컨테이너 유지 (지도 동작 중에는 항상 열린 상태)
+            dropdownMenu?.classList.add('show');
+            isDropdownVisible = true;
+          }
         }
       }).addTo(map);
 
-    // MAP.JSON 로드
     try {
-      const r = await fetch('./map.json', { cache:'no-store' });
+      const r = await fetch('./map.json', { cache:'no-store' });  // ← destinationcost/map.json
       mapData = await r.json();
     } catch(e) {
       console.warn('map.json 로드 실패:', e);
@@ -556,14 +524,67 @@ function setMapCountry(country) {
     const m = L.marker([p.lat,p.lng], { icon: makeSvgPinIcon(pinReg,false) })
       .addTo(markerLayer)
       .bindPopup(p.name);
-    m.on('click', ()=>{ setRegion(p.name); toast(`지역 선택: ${p.name}`); });
+    m.on('click', ()=>{
+      setRegion(p.name);
+      toast(`지역 선택: ${p.name}`);
+
+      // ★ 지역 선택 후에도 1차 컨테이너 유지
+      dropdownMenu?.classList.add('show');
+      isDropdownVisible = true;
+    });
     __countryPoints.push({ ...p, marker:m });
     bounds.push([p.lat,p.lng]);
   });
   if (bounds.length) map.fitBounds(bounds,{padding:[20,20]});
 }
 
-// ---- 7) 버튼 연결 ----
+/* ------------------------------
+   지도 모달 열기/닫기 + 스냅샷 복구
+------------------------------ */
+let __uiSnapshot = {
+  isDropdownVisible: false,
+  isNextVisible: false,
+  dropdownMenuHadShow: false,
+  nextDropdownsHadShow: false,
+  summaryHadShow: false,
+  nextSummaryHadShow: false,
+};
+
+function openModal(){
+  ensureModal();
+  // 지도 열기 직전 상태 저장
+  __uiSnapshot = {
+    isDropdownVisible,
+    isNextVisible,
+    dropdownMenuHadShow:  dropdownMenu?.classList.contains('show'),
+    nextDropdownsHadShow: nextDropdowns?.classList.contains('show'),
+    summaryHadShow:       summary?.classList.contains('show'),
+    nextSummaryHadShow:   nextSummary?.classList.contains('show'),
+  };
+  MAP_MODAL_OPEN = true;
+
+  const m = document.getElementById('mapPickerModal');
+  if (m) m.style.display = 'block';
+}
+function closeModal(){
+  const m = document.getElementById('mapPickerModal');
+  if (m) m.style.display = 'none';
+  MAP_MODAL_OPEN = false;
+
+  // ★ 지도 닫힌 후: 1차 컨테이너는 열린 상태로 복귀
+  dropdownMenu?.classList.add('show');
+  isDropdownVisible = true;
+
+  // ★ 지도 열기 전 상태로 2차/요약 복구(강제 '미선택' 방지)
+  summary?.classList.toggle('show', __uiSnapshot.summaryHadShow);
+  nextDropdowns?.classList.toggle('show', __uiSnapshot.nextDropdownsHadShow);
+  isNextVisible = __uiSnapshot.nextDropdownsHadShow;
+  nextSummary?.classList.toggle('show', __uiSnapshot.nextSummaryHadShow);
+}
+
+/* ------------------------------
+   지도 버튼 바인딩
+------------------------------ */
 const __bindMapBtn = ()=>{
   const btn = document.getElementById('btnSelectOnMap');
   if (!btn) return;
@@ -576,8 +597,16 @@ const __bindMapBtn = ()=>{
 };
 if (document.readyState !== 'loading') __bindMapBtn();
 else document.addEventListener('DOMContentLoaded', __bindMapBtn);
-  
+
+/* ------------------------------
+   초기화
+------------------------------ */
+window.addEventListener('DOMContentLoaded', async ()=>{
+  await loadCountries();
+  fillCbmByType(typeCombo.getValue() || '20FT');
+});
 </script>
+
 
 
 </body>
