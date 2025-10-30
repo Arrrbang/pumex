@@ -34,37 +34,35 @@
       <button class="tab" type="button" id="btnNonDiplomat">Non-Diplomat</button>
     </nav>
     
-  <div class="dropdown-container">
-    <div class="dropdown" id="dropdownMenu">
-
+<div class="dropdown-container">
+  <div class="dropdown" id="dropdownMenu">
+    <div class="dropdown-inner"><!-- ⬅️ 추가 -->
       <label class="dropdown-label" for="countrySelect">국가 선택</label>
-      <select id="countrySelect" class="dropdown-select">
-      </select>
-
-        <div class="dropdown-label-row">
-          <span class="label-text">지역 선택</span>
-          <button class="map-button-inline" type="button">지도에서 선택</button>
-        </div>
-        <select id="regionSelect" class="dropdown-select"></select>
-    
-        <label class="dropdown-label" for="companySelect">업체 선택</label>
-        <select id="companySelect" class="dropdown-select"></select>
+      <select id="countrySelect" class="dropdown-select"></select>
+  
+      <div class="dropdown-label-row">
+        <span class="label-text">지역 선택</span>
+        <button class="map-button-inline" type="button">지도에서 선택</button>
       </div>
-    </div>
+      <select id="regionSelect" class="dropdown-select"></select>
+  
+      <label class="dropdown-label" for="companySelect">업체 선택</label>
+      <select id="companySelect" class="dropdown-select"></select>
+    </div><!-- /.dropdown-inner -->
+  </div>
+</div>
 <div class="selection-summary" id="selectionSummary"></div>
 
-<div class="dropdown-container">
-  <div class="dropdown" id="nextDropdowns">
+<div class="dropdown" id="nextDropdowns">
+  <div class="dropdown-inner"><!-- ⬅️ 추가 -->
     <label class="dropdown-label" for="containerSelect">컨테이너 타입</label>
     <select id="containerSelect" class="dropdown-select"></select>
 
     <label class="dropdown-label" for="cbmSelect">CBM 선택</label>
     <select id="cbmSelect" class="dropdown-select"></select>
-    
-  </div>
+  </div><!-- /.dropdown-inner -->
 </div>
-    
-  <div class="selection-summary" id="nextSelectionSummary"></div>
+<div class="selection-summary" id="nextSelectionSummary"></div>
 
   <section id="resultSection" class="result-section" aria-live="polite">
     <div id="costList" class="cost-list"></div>
