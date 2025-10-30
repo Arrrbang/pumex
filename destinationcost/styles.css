@@ -281,6 +281,56 @@ body {
   max-height: 1000px;
 }
 
+/* 결과 섹션 여백 */
+.result-section{ margin-top:8px; }
+
+/* 리스트 전체 */
+.cost-list{
+  display:flex; flex-direction:column; gap:8px;
+  font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Apple SD Gothic Neo, sans-serif;
+}
+
+/* 한 줄(항목명 / 금액) — 표선 없이 두 열 정렬 */
+.cost-item{
+  display:grid; grid-template-columns: 1fr auto; align-items:baseline; gap:12px;
+  line-height:1.5;
+}
+
+/* 항목명은 버튼(접근성/토글). 기본 스타일 제거 */
+.cost-item__name{
+  appearance:none; background:none; border:none; padding:0; margin:0;
+  text-align:left; cursor:pointer; font:inherit;
+}
+
+/* 호버 시 살짝 강조 */
+.cost-item__name:hover{ text-decoration:underline; }
+
+/* 금액(오른쪽 정렬) */
+.cost-item__amt{
+  white-space:nowrap; text-align:right; font-variant-numeric: tabular-nums;
+}
+
+/* 상세 토글 박스 (접힘 기본) */
+.cost-item__details{
+  grid-column:1 / -1; overflow:hidden; max-height:0; opacity:0;
+  transition:max-height .28s ease, opacity .2s ease;
+  padding-left:0; margin-left:0;
+}
+
+/* 펼쳐진 상태 */
+.cost-item[aria-expanded="true"] .cost-item__details{
+  opacity:1; padding-top:6px; max-height:400px; /* 상세 내용 높이에 맞춰 충분히 크게 */
+}
+
+/* 상세 안의 라벨/값 */
+.detail-row{
+  display:grid; grid-template-columns: 1fr auto; gap:12px; padding:2px 0;
+  font-size:.95rem; color:#4b5563; /* muted */
+}
+
+/* 섬세한 줄간 간격과 시각적 리듬 */
+.cost-item + .cost-item{ margin-top:6px; }
+
 @media (max-width: 1024px){
   .panel__cell{ grid-column: span 6; } /* 2열 */
 }
