@@ -94,10 +94,11 @@ const $  = (s, r=document)=>r.querySelector(s);
 
 /* =========================
    떠 있는 콤보 팝업 관리자
-   - 콤보 .list를 body로 옮겨서 overflow 잘림 회피
+   - 콤보 .list를 body로 옮겨 overflow 잘림 회피
 ========================= */
 const Floating = (() => {
-  const mounts = new Map(); // listEl -> { comboEl, onScroll, onResize }
+  const mounts = new Map(); // listEl -> { comboEl, wrap, onScroll, onResize }
+
   function open(comboEl){
     const input = comboEl.querySelector('input');
     const list  = comboEl.querySelector('.list');
@@ -106,7 +107,6 @@ const Floating = (() => {
     // 이미 떠 있으면 위치만 갱신
     if(mounts.has(list)){ position(comboEl); return; }
 
-    // body에 붙일 래퍼
     const wrap = document.createElement('div');
     wrap.className = 'combo-float-wrap';
     wrap.style.position = 'fixed';
@@ -115,11 +115,9 @@ const Floating = (() => {
     wrap.style.width = '0'; wrap.style.height = '0';
     document.body.appendChild(wrap);
 
-    // 기존 list를 래퍼로 이동
     list.dataset.__float = '1';
     wrap.appendChild(list);
 
-    // 위치 지정 함수
     const onScroll = () => position(comboEl);
     const onResize = () => position(comboEl);
     window.addEventListener('scroll', onScroll, true);
@@ -128,17 +126,19 @@ const Floating = (() => {
     mounts.set(list, { comboEl, wrap, onScroll, onResize });
     position(comboEl);
   }
+
   function position(comboEl){
     const input = comboEl.querySelector('input');
     const list  = getList(comboEl);
     if(!input || !list) return;
+
     const r = input.getBoundingClientRect();
-    const maxW = r.width;
     list.style.display = 'block';
     list.style.position = 'fixed';
-    list.style.left = `${r.left}px`;
+    list.style.left = `${Math.max(8, r.left)}px`;
     list.style.top  = `${r.bottom + 6}px`;
-    list.style.width= `${maxW}px`;
+    list.style.width= `${r.width}px`;
+
     // 화면 하단 넘치면 위로 띄우기
     const rect = list.getBoundingClientRect();
     const tooLow = rect.bottom > window.innerHeight - 8;
@@ -146,26 +146,34 @@ const Floating = (() => {
       list.style.top = `${Math.max(8, r.top - 6 - rect.height)}px`;
     }
   }
+
   function close(comboEl){
     const list = getList(comboEl);
     if(!list) return;
     const mount = mounts.get(list);
     if(!mount) return;
+
     window.removeEventListener('scroll', mount.onScroll, true);
     window.removeEventListener('resize', mount.onResize);
     mounts.delete(list);
 
-    // 원래 자리로 복귀
     list.removeAttribute('style');
     list.removeAttribute('data-__float');
-    mount.wrap.remove(); // 래퍼 제거
+    mount.wrap.remove();
     comboEl.appendChild(list);
     list.style.display = 'none';
   }
-  function getList(comboEl){ return document.querySelector('.list[data-__float="1"]') || comboEl.querySelector('.list'); }
-  function isInsideFloating(el){
-    return !!el.closest('.combo-float-wrap') || !!el.closest('.list[data-__float="1"]');
+
+  function getList(comboEl){
+    // 현재 떠 있는 목록이 있으면 그것을 우선 반환
+    const floated = document.querySelector('.list[data-__float="1"]');
+    return floated || comboEl.querySelector('.list');
   }
+
+  function isInsideFloating(target){
+    return !!target.closest('.combo-float-wrap') || !!target.closest('.list[data-__float="1"]');
+  }
+
   return { open, close, position, isInsideFloating };
 })();
 
@@ -198,7 +206,7 @@ function makeCombo(el, items=[]){
         e.stopPropagation();
         selected=v;
         input.value=v;
-        // 선택하면 콤보 리스트는 닫는 게 맞음
+        // 선택 시: 콤보는 닫는 게 맞음 (패널은 그대로 열려 있어야 함)
         el.classList.remove('open');
         Floating.close(el);
         el.dispatchEvent(new CustomEvent('change',{detail:v}));
@@ -206,6 +214,7 @@ function makeCombo(el, items=[]){
       list.appendChild(d);
     });
   }
+
   function setItems(arr){
     data = [...new Set((arr||[]).filter(Boolean))];
     input.disabled = data.length===0;
@@ -213,6 +222,7 @@ function makeCombo(el, items=[]){
     selected=null;
     render(input.value);
   }
+
   function getValue(){ return selected || input.value.trim(); }
   function setValue(v){ selected=v||null; input.value=v??''; render(input.value); }
 
@@ -230,6 +240,12 @@ function makeCombo(el, items=[]){
       const first=(Floating.isInsideFloating(document.activeElement)?document:el).querySelector('.item');
       if(first) first.click();
     }
+  });
+
+  // 내부 이벤트는 바깥 닫힘으로 전파되지 않게
+  ['pointerdown','mousedown','click','touchstart'].forEach(evt=>{
+    list.addEventListener(evt, e=>e.stopPropagation(), {passive:true});
+    input.addEventListener(evt, e=>e.stopPropagation(), {passive:true});
   });
 
   setItems(items);
@@ -294,17 +310,23 @@ function showFirstSummary(){
   summary.classList.add('show');
 }
 
-/* 탭 버튼 */
-btnDiplomat?.addEventListener('click', ()=>{
-  if(isDropdownVisible) closeFirst(); else openFirst();
-});
-btnNonDiplomat?.addEventListener('click', ()=>{
-  if(isDropdownVisible) closeFirst(); else openFirst();
-});
+/* 탭 버튼: 같은 클릭 사이클에서 닫힘 방지 위해 pointerdown에서 guard */
+function onTabClick(btn){
+  // 탭 활성화 토글(디자인은 임의)
+  btnDiplomat.classList.toggle('is-active', btn===btnDiplomat);
+  btnNonDiplomat.classList.toggle('is-active', btn===btnNonDiplomat);
 
-/* 바깥 클릭 시 닫기 (정확한 내부 판별 포함) */
+  if(isDropdownVisible) closeFirst(); else openFirst();
+}
+btnDiplomat?.addEventListener('click', ()=> onTabClick(btnDiplomat));
+btnNonDiplomat?.addEventListener('click', ()=> onTabClick(btnNonDiplomat));
+
+/* 바깥 클릭 시 닫기 — 정확한 내부 판별 */
 document.addEventListener('pointerdown', (e)=>{
-  // 1단계: dropdownMenu 내부이거나, 떠 있는 콤보 팝업을 클릭하면 닫지 않음
+  // 탭 버튼을 누른 경우는 닫기 판단에서 제외(같은 사이클 중복 닫힘 방지)
+  if (e.target.closest('.tab')) return;
+
+  // 1단계: 드롭다운 영역이거나 떠 있는 콤보 팝업이면 닫지 않음
   if(isDropdownVisible){
     const insideDropdown = dropdownMenu.contains(e.target);
     const insideFloating = Floating.isInsideFloating(e.target);
@@ -312,6 +334,7 @@ document.addEventListener('pointerdown', (e)=>{
       closeFirst();
     }
   }
+
   // 2단계
   if(isNextVisible){
     const inside2 = nextDropdowns.contains(e.target);
@@ -377,10 +400,14 @@ typeCombo.root.addEventListener('change', ()=> fillCbmByType(typeCombo.getValue(
 ========================= */
 window.addEventListener('DOMContentLoaded', async ()=>{
   await loadCountries();
+
+  // 초기 상태에서 패널이 전혀 안 보인다고 느낄 수 있어
+  // 첫 탭 클릭 없이 바로 확인하려면 아래 한 줄 임시 활성화:
+  // openFirst();
+
   fillCbmByType(typeCombo.getValue() || '20FT');
 });
 </script>
-
 
 
 </body>
