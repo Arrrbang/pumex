@@ -528,29 +528,34 @@ async function ensureMapReady() {
 let __countryPoints = [];
 function setMapCountry(country) {
   if (!mapInited) return;
-  markerLayer.clearLayers(); __countryPoints = [];
+  markerLayer.clearLayers();
+  __countryPoints = [];
   if (!mapData || !mapData[country]) return;
 
   const pts = mapData[country];
   const bounds = [];
+
   pts.forEach(p => {
-    const m = L.marker([p.lat,p.lng], { icon: makeSvgPinIcon(pinReg,false) })
+    const m = L.marker([p.lat, p.lng], { icon: makeSvgPinIcon(pinReg, false) })
       .addTo(markerLayer);
-    m.on('click', ()=>{
+
+    // 핀 클릭 시: 지역값 세팅 + 1차 컨테이너 유지
+    m.on('click', () => {
       setRegion(p.name);
       toast(`지역 선택: ${p.name}`);
       dropdownMenu?.classList.add('show');
       isDropdownVisible = true;
     });
 
-      dropdownMenu?.classList.add('show');
-      isDropdownVisible = true;
-    });
-    __countryPoints.push({ ...p, marker:m });
-    bounds.push([p.lat,p.lng]);
+    __countryPoints.push({ ...p, marker: m });
+    bounds.push([p.lat, p.lng]);
   });
-  if (bounds.length) map.fitBounds(bounds,{padding:[20,20]});
+
+  if (bounds.length) {
+    map.fitBounds(bounds, { padding: [20, 20] });
+  }
 }
+
 
 /* ------------------------------
    지도 모달 열기/닫기 + 스냅샷 복구
