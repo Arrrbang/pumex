@@ -165,18 +165,16 @@ body {
   margin-bottom: 1.5rem; /* 국가 선택과 지역 선택 사이 간격 */
 }
 
-.dropdown {
-  text-align:center;
+.dropdown{
+  text-align: center;
   overflow: hidden;
   max-height: 0;
-  margin:0;
   opacity: 0;
   transform: translateY(-10px);
   transition:
     max-height .45s ease,
     opacity .45s ease,
-    transform .45s ease,
-    margin .45s ease;
+    transform .45s ease;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -186,13 +184,21 @@ body {
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   backdrop-filter: blur(8px);
   padding: 0;
+  margin: 0;
 }
-.dropdown.show {
-  opacity:1;
-  transform:translateY(0);
-  max-height:1000px;
-  margin: .8rem 0;
-  padding: 1rem 1.2rem;
+
+.dropdown.show{
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 1000px;
+}
+
+.dropdown-inner{
+  padding: 1rem 1.2rem;                /* 패딩은 여기로 */
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity .35s ease, transform .35s ease;
+  will-change: opacity, transform;
 }
 
 .dropdown-label-row {
@@ -200,6 +206,11 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.25rem;
+}
+
+.dropdown.show .dropdown-inner{
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .dropdown-label,
