@@ -415,16 +415,29 @@ function toast(msg, {sticky=false, timeout=1500}={}) {
   if (sticky) {
     if (__sticky) __sticky.remove();
     const el = document.createElement('div');
-    el.innerHTML = `<div style="position:fixed;left:50%;top:16px;transform:translateX(-50%);background:rgba(17,17,17,.92);color:#fff;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.15);box-shadow:0 2px 8px rgba(0,0,0,.35);z-index:10000;font-size:13px;display:flex;gap:10px;align-items:center;">
-      <span>${msg}</span>
-      <button type="button" style="background:#fff;color:#111;border:0;border-radius:8px;padding:6px 10px;cursor:pointer;">닫기</button>
-    </div>`;
+      el.innerHTML = `<div style="
+        position:fixed;left:50%;top:33vh;transform:translate(-50%,-50%);
+        background:rgba(17,17,17,.92);color:#fff;padding:12px 16px;
+        border-radius:12px;border:1px solid rgba(255,255,255,.15);
+        box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:10000;
+        font-size:14px;line-height:1.4;display:flex;gap:12px;align-items:center;
+        max-width:min(90vw,640px);text-align:center
+      ">
+        <span>${msg}</span>
+        <button type="button" style="background:#fff;color:#111;border:0;border-radius:10px;padding:6px 12px;cursor:pointer;">닫기</button>
+      </div>`;
     el.querySelector('button').onclick = ()=>{ el.remove(); __sticky=null; };
     document.body.appendChild(el); __sticky = el; return;
   }
   const d = document.createElement('div');
   d.textContent = msg;
-  d.style.cssText = "position:fixed;left:50%;top:24px;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:8px 12px;border-radius:8px;z-index:10000;font-size:13px;";
+  d.style.cssText = `
+    position:fixed;left:50%;top:33vh;transform:translate(-50%,-50%);
+    background:rgba(0,0,0,.85);color:#fff;padding:10px 14px;
+    border-radius:12px;z-index:10000;font-size:14px;line-height:1.4;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:min(90vw,640px);
+    text-align:center
+  `;
   document.body.appendChild(d); setTimeout(()=>d.remove(), timeout);
 }
 
@@ -522,13 +535,14 @@ function setMapCountry(country) {
   const bounds = [];
   pts.forEach(p => {
     const m = L.marker([p.lat,p.lng], { icon: makeSvgPinIcon(pinReg,false) })
-      .addTo(markerLayer)
-      .bindPopup(p.name);
+      .addTo(markerLayer);
     m.on('click', ()=>{
       setRegion(p.name);
       toast(`지역 선택: ${p.name}`);
+      dropdownMenu?.classList.add('show');
+      isDropdownVisible = true;
+    });
 
-      // ★ 지역 선택 후에도 1차 컨테이너 유지
       dropdownMenu?.classList.add('show');
       isDropdownVisible = true;
     });
