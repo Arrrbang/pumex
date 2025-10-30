@@ -29,6 +29,8 @@
   --header-h: 3.5rem;
   --container-max: 90rem;
   --gutter: var(--space-24);
+  --label-bottom-gap: 8px;
+  --group-vertical-gap: 14px;
 
   /* 테이블 하이라이트 */
   --table-header: #D1FAE5;
@@ -124,8 +126,24 @@ body{
 .dropdown.show .dropdown-inner{ opacity:1; transform: translateY(0); }
 
 /* 라벨/요약 */
-.dropdown-label, .dropdown-label-row .label-text{ font-weight:600; color: var(--primary); font-size: 1rem; }
-.dropdown-label-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom: .25rem; }
+.dropdown-label, .dropdown-label-row .label-text{
+  display: block;
+  text-align: left;
+  margin: 0 0 var(--label-bottom-gap);
+  font-weight:600;
+  color: var(--text);         /* 변경: var(--primary) → var(--text)로 더 진하게 */
+  font-size: 1rem;
+}
+.dropdown-label-row{
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom: .25rem;
+}
+/* 추가: 라벨이 연달아 나올 때 위쪽 여백 조금 주기 */
+.dropdown-inner > .dropdown-label,
+.dropdown-inner > .dropdown-label-row{
+  margin-top: 6px;
+}
+
 .selection-summary{
   text-align:center; font-weight:700; color:#000; font-size: 1.4rem;
   margin-top: .5rem; margin-bottom: .8rem;
@@ -133,6 +151,18 @@ body{
   transition: all .4s ease;
 }
 .selection-summary.show{ opacity:1; transform: translateY(0); }
+
+/* 추가: 라벨 아래 컨트롤(콤보/셀렉트/인풋)과의 세로 간격 확보 */
+.dropdown .combo,
+.dropdown .dropdown-select,
+.dropdown input[type="text"],
+.dropdown input[type="number"]{
+  margin-bottom: var(--group-vertical-gap);
+}
+
+/* 추가: “지역 선택” 라벨은 왼쪽 고정, 버튼은 오른쪽으로 밀기 */
+.dropdown-label-row .label-text{ margin-right: auto; }
+
 
 /* 지도 버튼 */
 .map-button-inline{
