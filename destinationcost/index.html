@@ -37,18 +37,27 @@
 <div class="dropdown-container">
   <div class="dropdown" id="dropdownMenu">
     <div class="dropdown-inner">
-      <label class="dropdown-label" for="countrySelect">국가 선택</label>
-      <select id="countrySelect" class="dropdown-select"></select>
+      <label class="dropdown-label" for="countryCombo">국가 선택</label>
+      <div class="combo" id="countryCombo">
+        <input type="text" placeholder="국가를 입력/선택 (예: 미국, 중국)" autocomplete="off">
+        <div class="list"></div>
+      </div>
   
       <div class="dropdown-label-row">
         <span class="label-text">지역 선택</span>
         <button class="map-button-inline" type="button">지도에서 선택</button>
       </div>
-      <select id="regionSelect" class="dropdown-select"></select>
+      <div class="combo" id="regionCombo">
+        <input type="text" placeholder="지역을 입력/선택 (예: A지역, B지역)" autocomplete="off" disabled>
+        <div class="list"></div>
+      </div>
   
-      <label class="dropdown-label" for="companySelect">업체 선택</label>
-      <select id="companySelect" class="dropdown-select"></select>
-    </div><!-- /.dropdown-inner -->
+      <label class="dropdown-label" for="companyCombo">업체 선택</label>
+      <div class="combo" id="companyCombo">
+        <input type="text" placeholder="업체를 입력/선택 (예: A업체, B업체)" autocomplete="off" disabled>
+        <div class="list"></div>
+      </div>
+    </div>
   </div>
 </div>
 <div class="selection-summary" id="selectionSummary"></div>
@@ -56,8 +65,11 @@
 <div class="dropdown-container">
   <div class="dropdown" id="nextDropdowns">
     <div class="dropdown-inner">
-      <label class="dropdown-label" for="containerSelect">컨테이너 타입</label>
-      <select id="containerSelect" class="dropdown-select"></select>
+      <label class="dropdown-label" for="typeCombo">컨테이너 타입</label>
+      <div class="combo" id="typeCombo">
+        <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" value="20FT">
+        <div class="list"></div>
+      </div>
   
       <label class="dropdown-label" for="cbmSelect">CBM 선택</label>
       <select id="cbmSelect" class="dropdown-select"></select>
@@ -74,66 +86,153 @@
 </main>
 
 <script>
-/* =========================
-   0) 상수/도움 함수
-========================= */
-const BASE = 'https://notion-api-hub.vercel.app'; // 동일 도메인이면 '' 사용 가능
+/* =========================================================
+   0) 공통 상수/도우미
+========================================================= */
+const BASE = 'https://notion-api-hub.vercel.app'; // 동일 도메인이면 '' 가능
 const $  = (sel, root=document) => root.querySelector(sel);
 const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
-const setOptions = (selectEl, values, placeholder='선택') => {
-  const opts = ['<option value="">' + placeholder + '</option>']
-    .concat(values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`));
-  selectEl.innerHTML = opts.join('');
-};
+
 function escapeHtml(s){
   return String(s).replace(/[&<>"']/g,(m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-/* =========================
-   1) 요소 참조
-========================= */
-const btnDiplomat   = $("#btnDiplomat");
-const btnNonDiplomat= $("#btnNonDiplomat");
-const dropdownMenu  = $("#dropdownMenu");
-const summary       = $("#selectionSummary");
+/* select 전용 옵션 유틸(혹시 기존 select가 남아있어도 동작하도록) */
+function setOptions(selectEl, values, placeholder='선택'){
+  if(!selectEl) return;
+  const opts = ['<option value="">' + placeholder + '</option>']
+    .concat(values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`));
+  selectEl.innerHTML = opts.join('');
+}
 
-const countrySelect = $("#countrySelect");
-const regionSelect  = $("#regionSelect");
-const companySelect = $("#companySelect"); // ⬅️ 방금 추가
+/* =========================================================
+   1) 타이핑 가능한 콤보박스 makeCombo (ORIGINAL 기반)
+   - 접두어 일치 우선 정렬 + 자연수 정렬
+   - input에 타이핑하면 실시간 필터
+========================================================= */
+function makeCombo(el, items = []) {
+  if (!el) return null;
+  const input = el.querySelector('input');
+  const list  = el.querySelector('.list');
+  let data = [...items];
+  let selected = null;
 
-const nextDropdowns = $("#nextDropdowns");
-const nextSummary   = $("#nextSelectionSummary");
-const containerSelect = $("#containerSelect");
-const cbmSelect       = $("#cbmSelect");
+  function render(filter='') {
+    const f = (filter ?? '').trim().toLowerCase();
+    list.innerHTML = '';
+    const filtered = f ? data.filter(x => x.toLowerCase().includes(f)) : [...data];
 
-let isDropdownVisible = false;  // 1단계 열림 여부
-let isNextVisible     = false;  // 2단계 열림 여부
-let currentRoles = [];          // 탭 상태(Diplomat / Non-Diplomat)
+    const sorted = filtered.sort((a, b) => {
+      const an = Number(a), bn = Number(b);
+      if (!isNaN(an) && !isNaN(bn)) return an - bn;      // 숫자 자연 정렬
+      const ap = f && a.toLowerCase().startsWith(f) ? 0 : 1;  // 접두어 우선
+      const bp = f && b.toLowerCase().startsWith(f) ? 0 : 1;
+      if (ap !== bp) return ap - bp;
+      return a.localeCompare(b, 'ko');
+    });
 
-/* =========================
-   2) 탭/1·2단계 패널 열고 닫기
-========================= */
+    sorted.forEach(v => {
+      const div = document.createElement('div');
+      div.className = 'item';
+      div.textContent = v;
+      div.onclick = () => {
+        selected = v;
+        input.value = v;
+        el.classList.remove('open');
+        list.innerHTML = '';
+        el.dispatchEvent(new CustomEvent('change', { detail: v }));
+      };
+      list.appendChild(div);
+    });
+  }
+
+  function setItems(arr) {
+    data = [...new Set((arr || []).filter(Boolean))];
+    input.disabled = data.length === 0;
+    // 선택을 초기화하되, 기존 입력값은 유지 (원하면 ''로 비워도 됨)
+    if (document.activeElement !== input) input.value = '';
+    selected = null;
+    render(input.value);
+  }
+
+  function getItems(){ return [...data]; }
+  function getValue(){
+    // 사용자가 직접 타이핑만 했더라도 그 값을 반환 (서버 쿼리 등에 활용 가능)
+    return selected || input.value.trim();
+  }
+  function setValue(v){
+    selected = v;
+    input.value = v ?? '';
+    el.dispatchEvent(new CustomEvent('change', { detail: v }));
+  }
+
+  // 열고/닫기 & 입력 이벤트
+  input.addEventListener('focus', () => { el.classList.add('open'); render(input.value); });
+  input.addEventListener('input', () => { el.classList.add('open'); render(input.value); });
+  document.addEventListener('click', (e) => { if (!el.contains(e.target)) el.classList.remove('open'); });
+  input.addEventListener('keydown', (e) => {
+    // Enter로 첫 항목 빠르게 선택
+    if (e.key === 'Enter') {
+      const first = list.querySelector('.item');
+      if (first) first.click();
+      else el.classList.remove('open');
+    }
+  });
+
+  setItems(items);
+  return { setItems, getItems, getValue, setValue, input, list, root: el };
+}
+
+/* =========================================================
+   2) 요소 참조
+   - 콤보: #countryCombo, #regionCombo, #companyCombo, #typeCombo
+   - CBM:  #cbmSelect (기존 select 유지)
+   - 탭/컨테이너: 버튼, 1단계/2단계, 요약
+========================================================= */
+const btnDiplomat     = $("#btnDiplomat");
+const btnNonDiplomat  = $("#btnNonDiplomat");
+
+const dropdownMenu    = $("#dropdownMenu");        // 1단계 래퍼
+const nextDropdowns   = $("#nextDropdowns");       // 2단계 래퍼
+const summary         = $("#selectionSummary");    // 1단계 요약
+const nextSummary     = $("#nextSelectionSummary");// 2단계 요약
+
+const countryCombo    = makeCombo(document.getElementById('countryCombo'));
+const regionCombo     = makeCombo(document.getElementById('regionCombo'));
+const companyCombo    = makeCombo(document.getElementById('companyCombo'));
+const typeCombo       = makeCombo(document.getElementById('typeCombo'), ['20FT','40HC','CONSOLE']);
+
+const cbmSelect       = $("#cbmSelect"); // select 유지
+
+let isDropdownVisible = false;  // 1단계 오픈 여부
+let isNextVisible     = false;  // 2단계 오픈 여부
+let currentRoles      = [];     // ["DIPLOMAT"] | ["NON-DIPLOMAT"]
+
+/* =========================================================
+   3) 1단계/2단계 열림/닫힘 + 요약 표시
+   - 컨테이너 패딩 이슈는 CSS에서 .dropdown-inner로 분리 권장
+========================================================= */
 function toggleDropdown(button) {
-  // 탭 상태 반영
-  btnDiplomat.classList.remove("is-active");
-  btnNonDiplomat.classList.remove("is-active");
+  if (!button) return;
+  btnDiplomat?.classList.remove("is-active");
+  btnNonDiplomat?.classList.remove("is-active");
   button.classList.add("is-active");
 
-  currentRoles = button === btnDiplomat ? ["DIPLOMAT"] : ["NON-DIPLOMAT"];
+  currentRoles = (button === btnDiplomat) ? ["DIPLOMAT"] : ["NON-DIPLOMAT"];
 
   if (isDropdownVisible) {
-    closeDropdown(); // 열려있으면 닫고 요약 → 2단계 오픈
+    closeDropdown(); // 열려 있으면 닫고 2단계 열기
   } else {
-    dropdownMenu.classList.add("show");
-    summary.classList.remove("show");
-    nextDropdowns.classList.remove("show");
-    nextSummary.classList.remove("show");
+    dropdownMenu?.classList.add("show");
+    summary?.classList.remove("show");
+    nextDropdowns?.classList.remove("show");
+    nextSummary?.classList.remove("show");
     isDropdownVisible = true;
   }
 }
 
 function closeDropdown() {
-  dropdownMenu.classList.remove("show");
+  dropdownMenu?.classList.remove("show");
   isDropdownVisible = false;
   // 닫힘 애니메이션 후 요약/2단계
   setTimeout(() => {
@@ -142,146 +241,145 @@ function closeDropdown() {
   }, 400);
 }
 
-// 바깥 클릭 시 닫기
+function showFirstSummary() {
+  const c    = countryCombo?.getValue() || "미선택";
+  const r    = regionCombo?.getValue()  || "미선택";
+  const comp = companyCombo?.getValue() || "미선택";
+  if (summary) {
+    summary.textContent = `${c} — ${r} — ${comp}`;
+    summary.classList.add("show");
+  }
+}
+
+function openNextDropdowns() {
+  nextDropdowns?.classList.add("show");
+  nextSummary?.classList.remove("show");
+  isNextVisible = true;
+}
+
+function closeNextDropdowns() {
+  nextDropdowns?.classList.remove("show");
+  isNextVisible = false;
+  setTimeout(() => {
+    const t   = typeCombo?.getValue() || "미선택";
+    let cbm = "미선택";
+    if (cbmSelect && cbmSelect.value) {
+      cbm = cbmSelect.options[cbmSelect.selectedIndex]?.text || cbmSelect.value;
+    }
+    if (nextSummary) {
+      nextSummary.textContent = `${t} — ${cbm}`;
+      nextSummary.classList.add("show");
+    }
+  }, 400);
+}
+
+/* 탭 버튼 이벤트 */
+btnDiplomat?.addEventListener("click", () => toggleDropdown(btnDiplomat));
+btnNonDiplomat?.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
+
+/* 바깥 클릭 시 닫기 (1단계/2단계 각각) */
 document.addEventListener("click", (e) => {
-  // 1단계
-  if (isDropdownVisible) {
-    const inside1 = dropdownMenu.contains(e.target) || btnDiplomat.contains(e.target) || btnNonDiplomat.contains(e.target);
+  if (isDropdownVisible && dropdownMenu) {
+    const inside1 = dropdownMenu.contains(e.target) || btnDiplomat?.contains(e.target) || btnNonDiplomat?.contains(e.target);
     if (!inside1) { closeDropdown(); return; }
   }
-  // 2단계
-  if (isNextVisible) {
+  if (isNextVisible && nextDropdowns) {
     const inside2 = nextDropdowns.contains(e.target);
     if (!inside2) closeNextDropdowns();
   }
 });
 
-function showFirstSummary() {
-  const c = countrySelect.value ? countrySelect.options[countrySelect.selectedIndex].text : "미선택";
-  const r = regionSelect.value  ? regionSelect.options[regionSelect.selectedIndex].text   : "미선택";
-  const comp = companySelect.value ? companySelect.options[companySelect.selectedIndex].text : "미선택";
-  summary.textContent = `${c} — ${r} — ${comp}`;
-  summary.classList.add("show");
-}
-
-function openNextDropdowns() {
-  nextDropdowns.classList.add("show");
-  nextSummary.classList.remove("show");
-  isNextVisible = true;
-}
-
-function closeNextDropdowns() {
-  nextDropdowns.classList.remove("show");
-  isNextVisible = false;
-  setTimeout(() => {
-    const t   = containerSelect.value ? containerSelect.options[containerSelect.selectedIndex].text : "미선택";
-    const cbm = cbmSelect.value       ? cbmSelect.options[cbmSelect.selectedIndex].text             : "미선택";
-    nextSummary.textContent = `${t} — ${cbm}`;
-    nextSummary.classList.add("show");
-  }, 400);
-}
-
-// 탭 버튼 이벤트
-btnDiplomat.addEventListener("click", () => toggleDropdown(btnDiplomat));
-btnNonDiplomat.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
-
-/* =========================
-   3) 드롭다운 연동(국가→지역→업체)
-   (기존 index(43)의 API 흐름을 이식)
-========================= */
-// 초기 국가 목록 로딩: /api/debug/config
+/* =========================================================
+   4) API 연동: 국가 → 지역 → 업체
+========================================================= */
 async function loadCountries() {
   try {
     const r = await fetch(`${BASE}/api/debug/config`);
     if (!r.ok) throw new Error('debug/config 오류');
     const j = await r.json();
     const countries = j.countries || Object.keys(j.dbStructure || {}) || [];
-    setOptions(countrySelect, countries, '국가 선택');
+    countryCombo?.setItems(countries);
   } catch (e) {
-    setOptions(countrySelect, [], '국가 선택');
     console.warn(e);
+    countryCombo?.setItems([]);
   }
 }
 
-// 국가 선택 → 지역 로딩
-countrySelect.addEventListener('change', async () => {
-  const country = countrySelect.value;
-  setOptions(regionSelect, [], '지역 선택');
-  setOptions(companySelect, [], '업체 선택');
-
+/* 국가 → 지역 */
+countryCombo?.root.addEventListener('change', async () => {
+  const country = countryCombo.getValue();
+  regionCombo?.setItems([]);
+  companyCombo?.setItems([]);
   if (!country) return;
 
   try {
     const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`);
     const j = await r.json();
     const regions = j.regions || [];
-    setOptions(regionSelect, regions, '지역 선택');
+    regionCombo?.setItems(regions);
   } catch (e) {
     console.warn(e);
+    regionCombo?.setItems([]);
   }
 });
 
-// 지역 선택 → 업체 로딩
-regionSelect.addEventListener('change', async () => {
-  const country = countrySelect.value;
-  const region  = regionSelect.value;
-  setOptions(companySelect, [], '업체 선택');
+/* 지역 → 업체 */
+regionCombo?.root.addEventListener('change', async () => {
+  const country = countryCombo?.getValue();
+  const region  = regionCombo?.getValue();
+  companyCombo?.setItems([]);
   if (!country || !region) return;
 
   try {
-    const mode = 'options';
-    const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=${mode}`;
+    const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
     const r = await fetch(url);
     const j = await r.json();
     const companies = j.companies || [];
-    setOptions(companySelect, companies, '업체 선택');
+    companyCombo?.setItems(companies);
   } catch (e) {
     console.warn(e);
+    companyCombo?.setItems([]);
   }
 });
 
-/* =========================
-   4) 컨테이너/콘솔 & CBM
-========================= */
-// 컨테이너 타입 채우기 (초기 1회)
-function initContainerTypes(){
-  const types = ['CONSOLE', '20FT', '40HC']; // 표기 통일
-  setOptions(containerSelect, types, '컨테이너 타입 선택');
-}
-
+/* =========================================================
+   5) 컨테이너 타입 & CBM
+   - 타입: 콤보 필터 가능 (20FT / 40HC / CONSOLE)
+   - CBM : select 유지(타입에 따라 옵션 자동 구성)
+========================================================= */
 function fillCbmOptionsByType(type){
-  // 디자인은 select 기반이므로 범위를 미리 만들어줍니다.
-  // - CONSOLE: 1~30 CBM (필요 시 조정)
-  // - 20FT, 40HC: CBM 직접입력 구조가 아니므로 범례형 옵션 제공(예: 5 단위)
+  if (!cbmSelect) return;
   let values = [];
-  if (type === 'CONSOLE') {
-    values = Array.from({length:30}, (_,i)=> String(i+1)); // 1~30
+  const T = (type || '').toUpperCase();
+  if (!T) { setOptions(cbmSelect, [], 'CBM 선택'); return; }
+
+  if (T === 'CONSOLE') {
+    values = Array.from({length: 30}, (_,i)=> String(i+1)); // 1~30 CBM
   } else {
-    // 예시: 5, 10, 15, 20, 25, 30
-    values = [5,10,15,20,25,30].map(String);
+    // FCL은 예시로 5 단위 설정(필요 시 조정)
+    values = [5,10,15,20,25,30,35,40].map(String);
   }
   setOptions(cbmSelect, values, 'CBM 선택');
 }
 
-// 타입 변경 시 CBM 리스트 재구성
-containerSelect.addEventListener('change', () => {
-  const type = containerSelect.value.toUpperCase();
-  if (!type) { setOptions(cbmSelect, [], 'CBM 선택'); return; }
-  fillCbmOptionsByType(type);
+/* 타입콤보가 변경되면 CBM 재구성 */
+typeCombo?.root.addEventListener('change', () => {
+  fillCbmOptionsByType(typeCombo.getValue());
 });
 
-/* =========================
-   5) 초기 실행
-========================= */
+/* =========================================================
+   6) 초기화
+========================================================= */
 window.addEventListener("DOMContentLoaded", async () => {
-  // 국가/지역/업체는 API로 채움
+  // 국가/지역/업체 로드
   await loadCountries();
 
   // 타입/CBM 초기화
-  initContainerTypes();
-  fillCbmOptionsByType(containerSelect.value ? containerSelect.value.toUpperCase() : 'CONSOLE');
+  const initialType = typeCombo?.getValue() || '20FT';
+  fillCbmOptionsByType(initialType);
 });
 </script>
+
 
 </body>
 </html>
