@@ -292,20 +292,62 @@ body {
   max-height: 1000px;
 }
 
-/* 타이핑 가능한 콤보박스 */
-.combo{ position:relative; width:100%; }
+/* === 타이핑 가능한 콤보박스: 드롭다운과 동일한 외형 === */
+.combo{
+  position: relative;
+  width: 100%;
+}
+
 .combo input{
-  width:100%; padding:10px 12px; border:1px solid var(--border,#e5e7eb);
-  border-radius:8px; outline:none; box-sizing:border-box;
+  width: 100%;
+  padding: 0.6rem 1rem;               /* .dropdown-select 와 동일 */
+  font-size: 1rem;
+  border: 2px solid #1F9461;          /* 동일 테두리 색 */
+  border-radius: 0.6rem;              /* 동일 라운드 */
+  background: #fff;
+  color: #333;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
 }
+
+/* 드롭다운 팝업 */
 .combo .list{
-  position:absolute; left:0; right:auto; max-width:100%;
-  z-index: 20; background:#fff; border:1px solid var(--border,#e5e7eb);
-  border-radius:8px; margin-top:6px; max-height:220px; overflow:auto; display:none;
+  position: absolute;
+  left: 0; right: 0;                   /* 폭 100%로 정렬 */
+  top: calc(100% + 6px);
+  z-index: 30;                         /* 패널 위로 */
+  background: #fff;
+  border: 2px solid #1F9461;           /* 동일 테두리 */
+  border-radius: 0.6rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  max-height: 240px;
+  overflow: auto;
+  display: none;
 }
+
+/* 열렸을 때 표시 */
 .combo.open .list{ display:block; }
-.combo .item{ padding:8px 10px; cursor:pointer; }
-.combo .item:hover{ background:#f3f4f6; }
+
+/* 항목 */
+.combo .item{
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+/* 호버/선택 시 하이라이트 (드롭다운 톤과 유사) */
+.combo .item:hover{ background: rgba(31,148,97,0.08); }
+.combo .item.is-selected{ background: rgba(31,148,97,0.14); }
+
+/* (선택) 스크롤바 톤 */
+.combo .list::-webkit-scrollbar{ width: 8px; }
+.combo .list::-webkit-scrollbar-thumb{
+  background: rgba(31,148,97,0.35);
+  border-radius: 8px;
+}
+
+
 
 
 /* 결과 섹션 여백 */
