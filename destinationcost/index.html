@@ -159,6 +159,11 @@ function makeCombo(el, items = []) {
     render(input.value);
   }
 
+  ['mousedown','pointerdown','touchstart','click'].forEach(evt => {
+  list.addEventListener(evt, e => e.stopPropagation(), { passive: true });
+  input.addEventListener(evt, e => e.stopPropagation(), { passive: true });
+});
+  
   function getItems(){ return [...data]; }
   function getValue(){
     return selected || input.value.trim();
@@ -184,9 +189,13 @@ function makeCombo(el, items = []) {
   });
 
   // 외부 클릭 시에만 닫힘
-  document.addEventListener('click', (e) => {
-    if (!el.contains(e.target)) el.classList.remove('open');
-  });
+  document.addEventListener('pointerdown', (e) => {
+    if (!countryCombo.root.contains(e.target)) countryCombo.root.classList.remove('open');
+    if (!regionCombo.root.contains(e.target))  regionCombo.root.classList.remove('open');
+    if (!companyCombo.root.contains(e.target)) companyCombo.root.classList.remove('open');
+    if (!typeCombo.root.contains(e.target))    typeCombo.root.classList.remove('open');
+  }, { passive: true });
+
 
   setItems(items);
   return { setItems, getItems, getValue, setValue, input, list, root: el };
