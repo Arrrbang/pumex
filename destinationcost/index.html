@@ -134,13 +134,17 @@ function makeCombo(el, items = []) {
     sorted.forEach(v => {
       const div = document.createElement('div');
       div.className = 'item';
+      if (selected && v === selected) div.classList.add('is-selected');
       div.textContent = v;
       div.onclick = () => {
         selected = v;
         input.value = v;
-        el.classList.remove('open');
-        list.innerHTML = '';
+        // ⬇️ 닫지 않고 유지 (외부 클릭 시에만 닫힘)
+        if (!el.classList.contains('open')) el.classList.add('open');
+        render(input.value); // 선택 강조 갱신
         el.dispatchEvent(new CustomEvent('change', { detail: v }));
+        // 포커스를 인풋에 유지해 연속 타이핑 가능
+        input.focus();
       };
       list.appendChild(div);
     });
@@ -149,39 +153,45 @@ function makeCombo(el, items = []) {
   function setItems(arr) {
     data = [...new Set((arr || []).filter(Boolean))];
     input.disabled = data.length === 0;
-    // 선택을 초기화하되, 기존 입력값은 유지 (원하면 ''로 비워도 됨)
     if (document.activeElement !== input) input.value = '';
+    // 선택값 초기화
     selected = null;
     render(input.value);
   }
 
   function getItems(){ return [...data]; }
   function getValue(){
-    // 사용자가 직접 타이핑만 했더라도 그 값을 반환 (서버 쿼리 등에 활용 가능)
     return selected || input.value.trim();
   }
   function setValue(v){
-    selected = v;
+    selected = v || null;
     input.value = v ?? '';
+    if (!el.classList.contains('open')) el.classList.add('open');
+    render(input.value);
     el.dispatchEvent(new CustomEvent('change', { detail: v }));
   }
 
-  // 열고/닫기 & 입력 이벤트
+  // 열기/필터링
   input.addEventListener('focus', () => { el.classList.add('open'); render(input.value); });
   input.addEventListener('input', () => { el.classList.add('open'); render(input.value); });
-  document.addEventListener('click', (e) => { if (!el.contains(e.target)) el.classList.remove('open'); });
+
+  // 엔터: 첫 항목 선택(닫지 않음)
   input.addEventListener('keydown', (e) => {
-    // Enter로 첫 항목 빠르게 선택
     if (e.key === 'Enter') {
       const first = list.querySelector('.item');
       if (first) first.click();
-      else el.classList.remove('open');
     }
+  });
+
+  // 외부 클릭 시에만 닫힘
+  document.addEventListener('click', (e) => {
+    if (!el.contains(e.target)) el.classList.remove('open');
   });
 
   setItems(items);
   return { setItems, getItems, getValue, setValue, input, list, root: el };
 }
+
 
 /* =========================================================
    2) 요소 참조
