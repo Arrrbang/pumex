@@ -533,10 +533,10 @@ async function ensureMapReady() {
 
     // MAP.JSON 로드
     try {
-      const r = await fetch('./MAP.JSON', { cache:'no-store' });
+      const r = await fetch('./map.json', { cache:'no-store' });
       mapData = await r.json();
     } catch(e) {
-      console.warn('MAP.JSON 로드 실패:', e);
+      console.warn('map.json 로드 실패:', e);
       mapData = {};
     }
     mapInited = true;
