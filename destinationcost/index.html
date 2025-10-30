@@ -36,7 +36,7 @@
     
 <div class="dropdown-container">
   <div class="dropdown" id="dropdownMenu">
-    <div class="dropdown-inner"><!-- ⬅️ 추가 -->
+    <div class="dropdown-inner">
       <label class="dropdown-label" for="countrySelect">국가 선택</label>
       <select id="countrySelect" class="dropdown-select"></select>
   
@@ -53,15 +53,18 @@
 </div>
 <div class="selection-summary" id="selectionSummary"></div>
 
-<div class="dropdown" id="nextDropdowns">
-  <div class="dropdown-inner"><!-- ⬅️ 추가 -->
-    <label class="dropdown-label" for="containerSelect">컨테이너 타입</label>
-    <select id="containerSelect" class="dropdown-select"></select>
-
-    <label class="dropdown-label" for="cbmSelect">CBM 선택</label>
-    <select id="cbmSelect" class="dropdown-select"></select>
-  </div><!-- /.dropdown-inner -->
+<div class="dropdown-container">
+  <div class="dropdown" id="nextDropdowns">
+    <div class="dropdown-inner">
+      <label class="dropdown-label" for="containerSelect">컨테이너 타입</label>
+      <select id="containerSelect" class="dropdown-select"></select>
+  
+      <label class="dropdown-label" for="cbmSelect">CBM 선택</label>
+      <select id="cbmSelect" class="dropdown-select"></select>
+    </div><!-- /.dropdown-inner -->
+  </div>
 </div>
+    
 <div class="selection-summary" id="nextSelectionSummary"></div>
 
   <section id="resultSection" class="result-section" aria-live="polite">
