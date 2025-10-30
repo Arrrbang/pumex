@@ -131,7 +131,7 @@ body{
   text-align: left;
   margin: 0 0 var(--label-bottom-gap);
   font-weight:600;
-  color: var(--text);         /* 변경: var(--primary) → var(--text)로 더 진하게 */
+  color: #000;
   font-size: 1rem;
 }
 .dropdown-label-row{
