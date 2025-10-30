@@ -407,27 +407,44 @@ regionCombo.root.addEventListener('change', async ()=>{
   const country = countryCombo.getValue();
   const region  = regionCombo.getValue();
   companyCombo.setItems([]); companyCombo.input.disabled = true;
+  poeCombo.setItems([]);     poeCombo.input.disabled     = true;
   if(!country || !region) return;
   try{
     const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
     const r = await fetch(url);
     const j = await r.json();
-    companyCombo.setItems(j.companies||[]);
-    companyCombo.input.disabled = false;
+    const companies = (j.companies || []).filter(Boolean);
+    companyCombo.setItems(companies);
+    companyCombo.input.disabled = companies.length === 0;  // ✅ 길이로 확실히 enable
   }catch(e){
-    companyCombo.setItems([]);
-  }
-
-  try {
-    const url = `${BASE}/api/poe/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=data`;
-    const r   = await fetch(url);
-    const j   = await r.json();
-    poeCombo.setItems((j.poes || []).filter(Boolean));
-    poeCombo.input.disabled = false;
-  } catch (e) {
-    poeCombo.setItems([]);
+    companyCombo.setItems([]); 
+    companyCombo.input.disabled = true;
   }
 });
+companyCombo.root.addEventListener('change', async ()=>{
+  const country = countryCombo.getValue();
+  const region  = regionCombo.getValue();
+  const company = companyCombo.getValue();
+
+  poeCombo.setItems([]); 
+  poeCombo.input.disabled = true;
+
+  if(!country || !region || !company) return;
+
+  try{
+    // ✅ 백엔드가 /api/poe/by-company 제공 시 (권장)
+    const url = `${BASE}/api/poe/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=data`;
+    const r   = await fetch(url);
+    const j   = await r.json();
+    const poes = (j.poes || []).filter(Boolean);
+    poeCombo.setItems(poes);
+    poeCombo.input.disabled = poes.length === 0 ? true : false;
+  }catch(e){
+    poeCombo.setItems([]); 
+    poeCombo.input.disabled = true;
+  }
+});
+
 
 /* ------------------------------
    컨테이너 타입 & CBM
