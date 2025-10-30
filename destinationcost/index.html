@@ -393,8 +393,8 @@ async function loadCountries(){
 }
 countryCombo.root.addEventListener('change', async ()=>{
   const country = countryCombo.getValue();
-  regionCombo.setItems([]); companyCombo.setItems([]);
-  regionCombo.input.disabled = true; companyCombo.input.disabled = true;
+  regionCombo.setItems([]); companyCombo.setItems([]); poeCombo.setItems([]);
+  regionCombo.input.disabled = true; companyCombo.input.disabled = true; poeCombo.input.disabled = true;
   if(!country) return;
   try{
     const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`);
