@@ -279,6 +279,11 @@ const typeCombo    = makeCombo(document.getElementById('typeCombo'), ['20FT','40
 
 const cbmSelect    = $("#cbmSelect");
 
+const thirdDropdowns = document.getElementById('thirdDropdowns');
+const thirdSummary   = document.getElementById('thirdSelectionSummary');
+const poeCombo       = makeCombo(document.getElementById('poeCombo'));
+  
+let isThirdVisible   = false;
 let isDropdownVisible=false;
 let isNextVisible=false;
 
@@ -306,12 +311,31 @@ function closeSecond(){
   nextDropdowns.classList.remove('show');
   isNextVisible=false;
   setTimeout(()=>{
-    const t = typeCombo.getValue() || '미선택';
+    const t   = typeCombo.getValue() || '미선택';
     const cbm = cbmSelect?.value ? (cbmSelect.options[cbmSelect.selectedIndex]?.text||cbmSelect.value) : '미선택';
     nextSummary.textContent = `${t} — ${cbm}`;
     nextSummary.classList.add('show');
+
+    openThird();
   }, 400);
 }
+
+function openThird(){
+  thirdDropdowns.classList.add('show');
+  thirdSummary.classList.remove('show');
+  isThirdVisible = true;
+}
+function closeThird(){
+  thirdDropdowns.classList.remove('show');
+  isThirdVisible = false;
+  setTimeout(()=>{
+    const comp = (companyCombo.getValue() || '미선택');
+    const poe  = (poeCombo.getValue()     || '미선택');
+    thirdSummary.textContent = `${comp} — ${poe}`;
+    thirdSummary.classList.add('show');
+  }, 400);
+}
+
 function showFirstSummary(){
   const c    = countryCombo.getValue();
   const r    = regionCombo.getValue();
@@ -349,6 +373,10 @@ document.addEventListener('pointerdown', (e)=>{
   if (isNextVisible) {
     const inside2 = nextDropdowns.contains(e.target);
     if (!inside2) closeSecond();
+  }
+  if (isThirdVisible) {
+    const inside3 = thirdDropdowns.contains(e.target);
+    if (!inside3) closeThird();
   }
 }, { passive:true });
 
