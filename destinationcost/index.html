@@ -45,8 +45,10 @@
           <span class="label-text">지역 선택</span>
           <button class="map-button-inline" type="button">지도에서 선택</button>
         </div>
-        <select id="regionSelect" class="dropdown-select">
-        </select>
+        <select id="regionSelect" class="dropdown-select"></select>
+    
+        <label class="dropdown-label" for="companySelect">업체 선택</label>
+        <select id="companySelect" class="dropdown-select"></select>
       </div>
     </div>
 <div class="selection-summary" id="selectionSummary"></div>
@@ -54,12 +56,14 @@
 <div class="dropdown-container">
   <div class="dropdown" id="nextDropdowns">
     <label class="dropdown-label" for="containerSelect">컨테이너 타입</label>
-    <select id="containerSelect" class="dropdown-select">
-    </select>
+    <select id="containerSelect" class="dropdown-select"></select>
 
     <label class="dropdown-label" for="cbmSelect">CBM 선택</label>
-    <select id="cbmSelect" class="dropdown-select">
-    </select>
+    <select id="cbmSelect" class="dropdown-select"></select>
+
+    <label class="dropdown-label" for="companySelect">업체 선택</label>
+    <select id="companySelect" class="dropdown-select"></select>
+    
   </div>
 </div>
     
@@ -72,153 +76,214 @@
 </main>
 
 <script>
-  const btnDiplomat = document.getElementById("btnDiplomat");
-  const btnNonDiplomat = document.getElementById("btnNonDiplomat");
-  const dropdownMenu = document.getElementById("dropdownMenu"); 
-  const summary = document.getElementById("selectionSummary");
-  const countrySelect = document.getElementById("countrySelect");
-  const regionSelect  = document.getElementById("regionSelect");
+/* =========================
+   0) 상수/도움 함수
+========================= */
+const BASE = 'https://notion-api-hub.vercel.app'; // 동일 도메인이면 '' 사용 가능
+const $  = (sel, root=document) => root.querySelector(sel);
+const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
+const setOptions = (selectEl, values, placeholder='선택') => {
+  const opts = ['<option value="">' + placeholder + '</option>']
+    .concat(values.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`));
+  selectEl.innerHTML = opts.join('');
+};
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,(m)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
 
-  const nextDropdowns = document.getElementById("nextDropdowns");
-  const nextSummary   = document.getElementById("nextSelectionSummary");
-  const containerSelect = document.getElementById("containerSelect");
-  const cbmSelect       = document.getElementById("cbmSelect");
+/* =========================
+   1) 요소 참조
+========================= */
+const btnDiplomat   = $("#btnDiplomat");
+const btnNonDiplomat= $("#btnNonDiplomat");
+const dropdownMenu  = $("#dropdownMenu");
+const summary       = $("#selectionSummary");
 
-  let isDropdownVisible = false;  // 1단계 열림 여부
-  let isNextVisible     = false;  // 2단계 열림 여부
+const countrySelect = $("#countrySelect");
+const regionSelect  = $("#regionSelect");
+const companySelect = $("#companySelect"); // ⬅️ 방금 추가
 
-  // 탭 버튼 클릭 시 드롭다운 토글
-  function toggleDropdown(button) {
-    if (isDropdownVisible) {
-      closeDropdown();
-    } else {
-      dropdownMenu.classList.add("show");
-      summary.classList.remove("show");
-      nextDropdowns.classList.remove("show");
-      nextSummary.classList.remove("show");
-      btnDiplomat.classList.remove("is-active");
-      btnNonDiplomat.classList.remove("is-active");
-      button.classList.add("is-active");
-      isDropdownVisible = true;
-    }
-  }
+const nextDropdowns = $("#nextDropdowns");
+const nextSummary   = $("#nextSelectionSummary");
+const containerSelect = $("#containerSelect");
+const cbmSelect       = $("#cbmSelect");
 
-  function closeDropdown() {
-    dropdownMenu.classList.remove("show");
-    isDropdownVisible = false;
-    // 닫히는 애니메이션 끝난 뒤 1단계 요약 표시 + 0.2s 후 2단계 박스 열기
-    setTimeout(() => {
-      showFirstSummary();
-      openNextDropdowns();
-    }, 400);
-  }
+let isDropdownVisible = false;  // 1단계 열림 여부
+let isNextVisible     = false;  // 2단계 열림 여부
+let currentRoles = [];          // 탭 상태(Diplomat / Non-Diplomat)
 
-  // 바깥 클릭 시 닫기
-  document.addEventListener("click", (e) => {
-    if (!isDropdownVisible) return;
-    const clickedInside =
-      dropdownMenu.contains(e.target) ||
-      btnDiplomat.contains(e.target) ||
-      btnNonDiplomat.contains(e.target);
-    if (!clickedInside) closeDropdown();
-  });
+/* =========================
+   2) 탭/1·2단계 패널 열고 닫기
+========================= */
+function toggleDropdown(button) {
+  // 탭 상태 반영
+  btnDiplomat.classList.remove("is-active");
+  btnNonDiplomat.classList.remove("is-active");
+  button.classList.add("is-active");
 
-  function showFirstSummary() {
-    const c = countrySelect.value
-      ? countrySelect.options[countrySelect.selectedIndex].text
-      : "미선택";
-    const r = regionSelect.value
-      ? regionSelect.options[regionSelect.selectedIndex].text
-      : "미선택";
-    summary.textContent = `${c} - ${r}`;
-    summary.classList.add("show");
-  }
+  currentRoles = button === btnDiplomat ? ["DIPLOMAT"] : ["NON-DIPLOMAT"];
 
-  function openNextDropdowns() {
-    nextDropdowns.classList.add("show");
-    nextSummary.classList.remove("show");
-    isNextVisible = true;
-  }
-
-  function closeNextDropdowns() {
+  if (isDropdownVisible) {
+    closeDropdown(); // 열려있으면 닫고 요약 → 2단계 오픈
+  } else {
+    dropdownMenu.classList.add("show");
+    summary.classList.remove("show");
     nextDropdowns.classList.remove("show");
-    isNextVisible = false;
-    setTimeout(() => {
-      const t = containerSelect.value
-        ? containerSelect.options[containerSelect.selectedIndex].text
-        : "미선택";
-      const cbm = cbmSelect.value
-        ? cbmSelect.options[cbmSelect.selectedIndex].text
-        : "미선택";
-      nextSummary.textContent = `${t} - ${cbm}`;
-      nextSummary.classList.add("show");
-    }, 400);
+    nextSummary.classList.remove("show");
+    isDropdownVisible = true;
   }
+}
 
-  document.addEventListener("click", (e) => {
-    // 1단계가 열려있고, 클릭이 (박스/버튼) 밖이라면 닫기
-    if (isDropdownVisible) {
-      const clickedInside1 =
-        dropdownMenu.contains(e.target) ||
-        btnDiplomat.contains(e.target) ||
-        btnNonDiplomat.contains(e.target);
-      if (!clickedInside1) {
-        closeDropdown();
-        return; // 1단계 닫히면 여기서 종료(2단계는 아직 안 열렸거나, 뒤에서 별도 처리)
-      }
-    }
+function closeDropdown() {
+  dropdownMenu.classList.remove("show");
+  isDropdownVisible = false;
+  // 닫힘 애니메이션 후 요약/2단계
+  setTimeout(() => {
+    showFirstSummary();
+    openNextDropdowns();
+  }, 400);
+}
 
-    // 2단계가 열려있고, 클릭이 2단계 박스 밖이라면 닫기
-    if (isNextVisible) {
-      const clickedInside2 = nextDropdowns.contains(e.target);
-      if (!clickedInside2) {
-        closeNextDropdowns();
-      }
-    }
-  });
-  
-  // 버튼 이벤트
-  btnDiplomat.addEventListener("click", () => toggleDropdown(btnDiplomat));
-  btnNonDiplomat.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
-
-  // 테스트용 옵션 (임시)
-window.addEventListener("DOMContentLoaded", () => {
-  // 1️⃣ 국가 선택
-  countrySelect.innerHTML = `
-    <option value="">국가 선택</option>
-    <option value="kr">대한민국</option>
-    <option value="jp">일본</option>
-    <option value="us">미국</option>
-  `;
-
-  // 2️⃣ 지역 선택
-  regionSelect.innerHTML = `
-    <option value="">지역 선택</option>
-    <option value="seoul">서울</option>
-    <option value="busan">부산</option>
-    <option value="tokyo">도쿄</option>
-  `;
-
-  // 3️⃣ 컨테이너 타입
-  containerSelect.innerHTML = `
-    <option value="">컨테이너 타입 선택</option>
-    <option value="console">CONSOLE</option>
-    <option value="20ft">20FT</option>
-    <option value="40hc">40HC</option>
-  `;
-
-  // 4️⃣ CBM 선택
-  cbmSelect.innerHTML = `
-    <option value="">CBM 선택</option>
-    <option value="5">5 CBM</option>
-    <option value="10">10 CBM</option>
-    <option value="15">15 CBM</option>
-    <option value="20">20 CBM</option>
-  `;
+// 바깥 클릭 시 닫기
+document.addEventListener("click", (e) => {
+  // 1단계
+  if (isDropdownVisible) {
+    const inside1 = dropdownMenu.contains(e.target) || btnDiplomat.contains(e.target) || btnNonDiplomat.contains(e.target);
+    if (!inside1) { closeDropdown(); return; }
+  }
+  // 2단계
+  if (isNextVisible) {
+    const inside2 = nextDropdowns.contains(e.target);
+    if (!inside2) closeNextDropdowns();
+  }
 });
-  
+
+function showFirstSummary() {
+  const c = countrySelect.value ? countrySelect.options[countrySelect.selectedIndex].text : "미선택";
+  const r = regionSelect.value  ? regionSelect.options[regionSelect.selectedIndex].text   : "미선택";
+  const comp = companySelect.value ? companySelect.options[companySelect.selectedIndex].text : "미선택";
+  summary.textContent = `${c} — ${r} — ${comp}`;
+  summary.classList.add("show");
+}
+
+function openNextDropdowns() {
+  nextDropdowns.classList.add("show");
+  nextSummary.classList.remove("show");
+  isNextVisible = true;
+}
+
+function closeNextDropdowns() {
+  nextDropdowns.classList.remove("show");
+  isNextVisible = false;
+  setTimeout(() => {
+    const t   = containerSelect.value ? containerSelect.options[containerSelect.selectedIndex].text : "미선택";
+    const cbm = cbmSelect.value       ? cbmSelect.options[cbmSelect.selectedIndex].text             : "미선택";
+    nextSummary.textContent = `${t} — ${cbm}`;
+    nextSummary.classList.add("show");
+  }, 400);
+}
+
+// 탭 버튼 이벤트
+btnDiplomat.addEventListener("click", () => toggleDropdown(btnDiplomat));
+btnNonDiplomat.addEventListener("click", () => toggleDropdown(btnNonDiplomat));
+
+/* =========================
+   3) 드롭다운 연동(국가→지역→업체)
+   (기존 index(43)의 API 흐름을 이식)
+========================= */
+// 초기 국가 목록 로딩: /api/debug/config
+async function loadCountries() {
+  try {
+    const r = await fetch(`${BASE}/api/debug/config`);
+    if (!r.ok) throw new Error('debug/config 오류');
+    const j = await r.json();
+    const countries = j.countries || Object.keys(j.dbStructure || {}) || [];
+    setOptions(countrySelect, countries, '국가 선택');
+  } catch (e) {
+    setOptions(countrySelect, [], '국가 선택');
+    console.warn(e);
+  }
+}
+
+// 국가 선택 → 지역 로딩
+countrySelect.addEventListener('change', async () => {
+  const country = countrySelect.value;
+  setOptions(regionSelect, [], '지역 선택');
+  setOptions(companySelect, [], '업체 선택');
+
+  if (!country) return;
+
+  try {
+    const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`);
+    const j = await r.json();
+    const regions = j.regions || [];
+    setOptions(regionSelect, regions, '지역 선택');
+  } catch (e) {
+    console.warn(e);
+  }
+});
+
+// 지역 선택 → 업체 로딩
+regionSelect.addEventListener('change', async () => {
+  const country = countrySelect.value;
+  const region  = regionSelect.value;
+  setOptions(companySelect, [], '업체 선택');
+  if (!country || !region) return;
+
+  try {
+    const mode = 'options';
+    const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=${mode}`;
+    const r = await fetch(url);
+    const j = await r.json();
+    const companies = j.companies || [];
+    setOptions(companySelect, companies, '업체 선택');
+  } catch (e) {
+    console.warn(e);
+  }
+});
+
+/* =========================
+   4) 컨테이너/콘솔 & CBM
+========================= */
+// 컨테이너 타입 채우기 (초기 1회)
+function initContainerTypes(){
+  const types = ['CONSOLE', '20FT', '40HC']; // 표기 통일
+  setOptions(containerSelect, types, '컨테이너 타입 선택');
+}
+
+function fillCbmOptionsByType(type){
+  // 디자인은 select 기반이므로 범위를 미리 만들어줍니다.
+  // - CONSOLE: 1~30 CBM (필요 시 조정)
+  // - 20FT, 40HC: CBM 직접입력 구조가 아니므로 범례형 옵션 제공(예: 5 단위)
+  let values = [];
+  if (type === 'CONSOLE') {
+    values = Array.from({length:30}, (_,i)=> String(i+1)); // 1~30
+  } else {
+    // 예시: 5, 10, 15, 20, 25, 30
+    values = [5,10,15,20,25,30].map(String);
+  }
+  setOptions(cbmSelect, values, 'CBM 선택');
+}
+
+// 타입 변경 시 CBM 리스트 재구성
+containerSelect.addEventListener('change', () => {
+  const type = containerSelect.value.toUpperCase();
+  if (!type) { setOptions(cbmSelect, [], 'CBM 선택'); return; }
+  fillCbmOptionsByType(type);
+});
+
+/* =========================
+   5) 초기 실행
+========================= */
+window.addEventListener("DOMContentLoaded", async () => {
+  // 국가/지역/업체는 API로 채움
+  await loadCountries();
+
+  // 타입/CBM 초기화
+  initContainerTypes();
+  fillCbmOptionsByType(containerSelect.value ? containerSelect.value.toUpperCase() : 'CONSOLE');
+});
 </script>
 
-  
 </body>
 </html>
