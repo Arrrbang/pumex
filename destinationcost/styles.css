@@ -305,10 +305,14 @@ body {
   border: 2px solid #1F9461;          /* 동일 테두리 색 */
   border-radius: 0.6rem;              /* 동일 라운드 */
   background: #fff;
-  color: #333;
+  color: var(--muted, #6b7280);
   font-family: inherit;
   outline: none;
   box-sizing: border-box;
+}
+.combo input::placeholder {
+  color: var(--muted, #6b7280);
+  opacity: 1;
 }
 
 /* 드롭다운 팝업 */
