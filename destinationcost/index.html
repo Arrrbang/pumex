@@ -294,6 +294,7 @@ let isThirdVisible   = false;
 let isDropdownVisible=false;
 let isNextVisible=false;
 
+
 /* ------------------------------
    1차/2차 컨테이너 열고 닫기
 ------------------------------ */
@@ -790,6 +791,34 @@ document.getElementById('btnFetch')?.addEventListener('click', async () => {
   }
 });
 
+  // === 써머리 클릭 시 해당 드롭다운 재오픈 ===
+selectionSummary?.addEventListener('click', () => {
+  // 1단계 드롭다운 열기
+  openFirst();
+  // 수정 모드 진입이므로 결과/버튼은 잠시 내리기
+  document.getElementById('resultSection')?.classList.remove('show');
+  document.querySelector('.action-row.center')?.classList.remove('revealed');
+});
+
+nextSummary?.addEventListener('click', () => {
+  // 2단계만 포커스 — 1단계는 닫아두면 UX가 덜 흔들림
+  dropdownMenu?.classList.remove('show');
+  isDropdownVisible = false;
+  openSecond();
+  // 수정 모드 진입이므로 결과/버튼은 잠시 내리기
+  document.getElementById('resultSection')?.classList.remove('show');
+  document.querySelector('.action-row.center')?.classList.remove('revealed');
+});
+
+thirdSummary?.addEventListener('click', () => {
+  // 3단계 드롭다운 열기 (업체/POE 수정)
+  openThird();
+  // 수정 모드 진입이므로 결과/버튼은 잠시 내리기
+  document.getElementById('resultSection')?.classList.remove('show');
+  document.querySelector('.action-row.center')?.classList.remove('revealed');
+});
+
+  
 /** ========= 결과 표 렌더링 유틸 ========= */
 
 // Notion 숫자 포맷 메타 저장용 (백엔드 /api/costs 응답에 포함됨)
