@@ -329,7 +329,7 @@ input::placeholder{ color: var(--muted); opacity: 1; }
 }
 .result-table th,
 .result-table td{
-  border: 1px solid transparent;
+  border: 1px solid #F5F5F5;
   padding: .6rem .75rem;
   text-align: left;
   vertical-align: top;
