@@ -265,8 +265,6 @@ function makeCombo(el, items=[]){
     input.addEventListener(evt, e=>e.stopPropagation(), {passive:true});
   });
 
-
-
   setItems(items);
   return { setItems, getValue, setValue, root: el, input, list };
 }
@@ -291,7 +289,7 @@ const cbmSelect    = $("#cbmSelect");
 const thirdDropdowns = document.getElementById('thirdDropdowns');
 const thirdSummary   = document.getElementById('thirdSelectionSummary');
 const poeCombo       = makeCombo(document.getElementById('poeCombo'));
-  
+
 let isThirdVisible   = false;
 let isDropdownVisible=false;
 let isNextVisible=false;
@@ -310,15 +308,11 @@ function closeFirst(){
   dropdownMenu.classList.remove('show');
   isDropdownVisible=false;
   setTimeout(()=>{ showFirstSummary(); openSecond(); }, 400);
-
-
 }
-
 function openSecond(){
   nextDropdowns.classList.add('show');
   nextSummary.classList.remove('show');
   isNextVisible=true;
-
 }
 function closeSecond(){
   nextDropdowns.classList.remove('show');
@@ -337,8 +331,6 @@ function openThird(){
   thirdDropdowns.classList.add('show');
   thirdSummary.classList.remove('show');
   isThirdVisible = true;
-
-
 }
 function closeThird(){
   thirdDropdowns.classList.remove('show');
@@ -348,11 +340,8 @@ function closeThird(){
     const poe  = (poeCombo.getValue()     || '미선택');
     thirdSummary.textContent = `${comp} — ${poe}`;
     thirdSummary.classList.add('show');
-
-
   }, 400);
 }
-
 
 function showFirstSummary(){
   const c    = countryCombo.getValue();
@@ -389,12 +378,10 @@ document.addEventListener('pointerdown', (e)=>{
     if (!insideDropdown && !insideFloating) closeFirst();
   }
   if (isNextVisible) {
-
     const inside2 = nextDropdowns.contains(e.target);
     if (!inside2) closeSecond();
   }
   if (isThirdVisible) {
-
     const inside3 = thirdDropdowns.contains(e.target);
     if (!inside3) closeThird();
   }
@@ -535,47 +522,9 @@ function toast(msg, {sticky=false, timeout=1500}={}) {
 function haversineKm(aLat,aLng,bLat,bLng){ const R=6371, dLat=(bLat-aLat)*Math.PI/180, dLng=(bLng-aLng)*Math.PI/180; const A=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(A)); }
 function findNearest(lat,lng,pts){ if(!pts?.length) return null; let best=null,bd=Infinity; for(const p of pts){ const d=haversineKm(lat,lng,p.lat,p.lng); if(d<bd){best=p;bd=d;} } return {point:best,distanceKm:bd}; }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 let map, markerLayer, geocoder, mapInited=false, mapData=null, tmpSearch=null;
 const pinReg    = '#2563eb';
 const pinSearch = '#ef4444';
-
-
-
 
 function makeSvgPinIcon(color, withLabel=false, labelText="") {
   const svg = `<svg class="pin-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="${color}" d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/></svg>`;
@@ -621,8 +570,6 @@ async function ensureMapReady() {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OSM', noWrap:true, bounds:worldBounds }).addTo(map);
     markerLayer = L.layerGroup().addTo(map);
 
-
-
     geocoder = L.Control.geocoder({ defaultMarkGeocode:false })
       .on('markgeocode', (e)=>{
         const c = e.geocode.center;
@@ -654,8 +601,6 @@ async function ensureMapReady() {
     mapInited = true;
   }
   setTimeout(()=> map.invalidateSize(), 50);
-
-
 }
 
 let __countryPoints = [];
@@ -667,8 +612,6 @@ function setMapCountry(country) {
 
   const pts = mapData[country];
   const bounds = [];
-
-
 
   pts.forEach(p => {
     const m = L.marker([p.lat, p.lng], { icon: makeSvgPinIcon(pinReg, false) })
@@ -683,35 +626,13 @@ function setMapCountry(country) {
     });
 
     __countryPoints.push({ ...p, marker: m });
-
-
-
-
-
-
-
-
-
-
-
-
     bounds.push([p.lat, p.lng]);
   });
-
-
 
   if (bounds.length) {
     map.fitBounds(bounds, { padding: [20, 20] });
   }
-
-
-
 }
-
-
-
-
-
 
 
 /* ------------------------------
@@ -741,14 +662,6 @@ function openModal(){
 
   const m = document.getElementById('mapPickerModal');
   if (m) m.style.display = 'block';
-
-
-
-
-
-
-
-
 }
 function closeModal(){
   const m = document.getElementById('mapPickerModal');
@@ -764,9 +677,6 @@ function closeModal(){
   nextDropdowns?.classList.toggle('show', __uiSnapshot.nextDropdownsHadShow);
   isNextVisible = __uiSnapshot.nextDropdownsHadShow;
   nextSummary?.classList.toggle('show', __uiSnapshot.nextSummaryHadShow);
-
-
-
 }
 
 /* ------------------------------
@@ -797,12 +707,6 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 
 
 
-
-
-
-
-
-
 document.getElementById('btnFetch')?.addEventListener('click', async () => {
   try{
     // 현재 콤보/셀렉트에서 값 읽기 (ID는 INDEX(43)과 동일)
@@ -823,7 +727,6 @@ document.getElementById('btnFetch')?.addEventListener('click', async () => {
     if (tabDip?.classList?.contains?.('is-active')) roles.push('DIPLOMAT');
     if (tabNon?.classList?.contains?.('is-active')) roles.push('NON-DIPLOMAT');
 
-
     const params = new URLSearchParams();
     params.set('type', type);
     params.set('company', company);
@@ -842,39 +745,19 @@ document.getElementById('btnFetch')?.addEventListener('click', async () => {
     renderTable(j, type, Boolean(region));
     const rs = document.getElementById('resultSection');
     if (rs) rs.classList.add('show');
-
-
-
   }catch(e){
     console.error(e);
     alert('조회 중 오류가 발생했습니다.');
   }
 });
-  
+
 /** ========= 결과 표 렌더링 유틸 ========= */
 
 // Notion 숫자 포맷 메타 저장용 (백엔드 /api/costs 응답에 포함됨)
 let __numberFormats = {};
 
-
-
-
 function esc(s){ return String(s==null?'':s)
   .replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function formatAmount(n, columnKey){
   if (n==null || n==='' || isNaN(Number(n))) return '';
@@ -931,6 +814,8 @@ function renderTable(data, type, isRegionFiltered){
   `;
 }
 </script>
+
+
 
 </body>
 </html>
