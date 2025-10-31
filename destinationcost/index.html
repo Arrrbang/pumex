@@ -29,7 +29,9 @@
 
   <!-- 메인 -->
   <main class="container section">
-
+    
+<div class="selection-summary" id="selectionSummary"></div>
+    
 <div class="dropdown-container">
   <div class="dropdown" id="dropdownMenu">
     <div class="dropdown-inner">
@@ -48,10 +50,12 @@
         <input type="text" placeholder="지역을 입력/선택 (예: A지역, B지역)" autocomplete="off" disabled>
         <div class="list"></div>
       </div>
+      <div class="action-row">
+        <button id="btnSelectFirst" class="select-btn" type="button">선택</button>
+      </div>
     </div>
   </div>
 </div>
-<div class="selection-summary" id="selectionSummary"></div>
 
 <div class="dropdown-container">
   <div class="dropdown" id="nextDropdowns">
@@ -67,6 +71,10 @@
 
       <label class="dropdown-label" for="cbmSelect">CBM 선택</label>
       <select id="cbmSelect" class="dropdown-select"></select>
+
+      <div class="action-row">
+        <button id="btnSelectSecond" class="select-btn" type="button">선택</button>
+      </div>
     </div>
   </div>
 </div>
@@ -88,6 +96,9 @@
       <div class="combo" id="poeCombo">
         <input type="text" placeholder="POE를 입력/선택 (예: DAMMAM, RIYADH DRY PORT)" autocomplete="off" disabled>
         <div class="list"></div>
+      </div>
+      <div class="action-row">
+        <button id="btnSelectThird" class="select-btn" type="button">선택</button>
       </div>
     </div>
   </div>
@@ -291,7 +302,22 @@ let isThirdVisible   = false;
 let isDropdownVisible=false;
 let isNextVisible=false;
 
+// === 각 단계의 <선택> 버튼 → 다음 단계로 진행 ===
+document.getElementById('btnSelectFirst')?.addEventListener('click', ()=>{
+  // 1단계(국가/지역) 컨테이너 닫고 → 요약 노출 → 2단계 자동 오픈 (기존 closeFirst 로직)
+  closeFirst();
+});
 
+document.getElementById('btnSelectSecond')?.addEventListener('click', ()=>{
+  // 2단계(화물타입/컨테이너/CBM) 닫고 → 요약 노출 → 3단계 자동 오픈 (기존 closeSecond 로직)
+  closeSecond();
+});
+
+document.getElementById('btnSelectThird')?.addEventListener('click', ()=>{
+  // 3단계(업체/POE) 닫고 → 요약 노출 + 조회 버튼 애니메이션(기존 closeThird 로직)
+  closeThird();
+});
+  
 /* ------------------------------
    1차/2차 컨테이너 열고 닫기
 ------------------------------ */
