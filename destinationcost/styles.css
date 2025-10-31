@@ -149,6 +149,7 @@ body{
   margin-top: .5rem; margin-bottom: .8rem;
   opacity:0; transform: translateY(-10px);
   transition: all .4s ease;
+   cursor:pointer;
 }
 .selection-summary.show{ opacity:1; transform: translateY(0); }
 
