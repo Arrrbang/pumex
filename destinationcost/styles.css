@@ -360,16 +360,14 @@ input::placeholder{ color: var(--muted); opacity: 1; }
 
 .result-table thead th.type-col{ text-align: center; }
 
-/* 열 너비(임시): 필요 시 숫자만 수정하세요 */
+/*표 사이즈 수정*/
 .result-table thead th:nth-child(1),
-.result-table tbody td:nth-child(1){ width: 22%; }  /* 항목 */
+.result-table tbody td:nth-child(1){ width: 20%; }  /* 항목 */
 
- /* region 필터 유무에 따라 칼럼 인덱스가 달라지므로, 공통 폭 가이드를 제안합니다. */
- /* 지역 열이 있는 경우(일반 조회): 2열이 지역, 3열이 컨테이너 타입, 4열이 비고 */
 .result-table thead th:nth-child(2),
 .result-table tbody td:nth-child(2){ width: 18%; }  /* 지역(있을 때) */
 .result-table thead th:nth-child(3),
-.result-table tbody td:nth-child(3){ width: 18%; }  /* 컨테이너 타입 금액 */
+.result-table tbody td:nth-child(3){ width: 10%; }  /* 컨테이너 타입 금액 */
 .result-table thead th:nth-child(4),
 .result-table tbody td:nth-child(4){ width: auto; } /* 비고 */
 
