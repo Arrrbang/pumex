@@ -915,7 +915,7 @@ function renderTable(data, type, isRegionFiltered){
   // 헤더 구성
   let thead = '<tr><th>항목</th>';
   if (!isRegionFiltered) thead += '<th>지역</th>';
-  thead += `<th>${esc(type)}</th><th>비고</th></tr>`;
+  thead += `<th class="type-col">${esc(type)}</th><th>비고</th></tr>`;
 
   // 바디 구성
   let tbody = '';
