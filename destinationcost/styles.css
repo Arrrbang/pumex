@@ -264,30 +264,50 @@ input::placeholder{ color: var(--muted); opacity: 1; }
 /* ==========================================================================
    7) 결과 리스트(요금 표기)
    ========================================================================== */
-.result-section{ margin-top: 8px; }
-.cost-list{ display:flex; flex-direction:column; gap: 8px; font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, "Apple SD Gothic Neo", sans-serif; }
-.cost-item{ display:grid; grid-template-columns: 1fr auto; align-items:baseline; gap: 12px; line-height:1.5; }
-.cost-item + .cost-item{ margin-top: 6px; }
+/* === 결과 표/버튼 최소 스타일 === */
 
-.cost-item__name{
-  appearance:none; background:none; border:none; padding:0; margin:0;
-  text-align:left; cursor:pointer; font:inherit;
+.action-row{
+  display:flex; justify-content:flex-end; margin: 12px 0 8px;
 }
-.cost-item__name:hover{ text-decoration: underline; }
+.primary-btn{
+  border-radius:8px;
+  border:1px solid var(--control-border);
+  background: var(--primary);
+  color:#fff; font-weight:600;
+  padding:.55rem 1rem; cursor:pointer;
+  transition: background .2s ease, transform .08s ease;
+}
+.primary-btn:hover{ background:#16724a; }
+.primary-btn:active{ transform: translateY(1px); }
 
-.cost-item__amt{ white-space:nowrap; text-align:right; font-variant-numeric: tabular-nums; }
+.table-wrap{ width:100%; overflow:auto; }
+.result-table{
+  width:100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  background: var(--control-bg);
+  color: var(--control-fg);
+  border: 1px solid var(--control-border);
+  border-radius: var(--control-radius);
+}
+.result-table th,
+.result-table td{
+  border: 1px solid var(--control-border);
+  padding: .6rem .75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.result-table thead th{
+  background: var(--table-header);
+  color: var(--table-text);
+  font-weight: 700;
+}
+.result-table td.amt{
+  white-space: nowrap;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
 
-.cost-item__details{
-  grid-column:1 / -1; overflow:hidden; max-height:0; opacity:0;
-  transition: max-height .28s ease, opacity .2s ease; padding-left:0; margin-left:0;
-}
-.cost-item[aria-expanded="true"] .cost-item__details{
-  opacity:1; padding-top:6px; max-height:400px;
-}
-.detail-row{
-  display:grid; grid-template-columns: 1fr auto; gap:12px; padding:2px 0;
-  font-size:.95rem; color:#4b5563;
-}
 
 /* ==========================================================================
    8) 접근성
