@@ -94,9 +94,15 @@
   </div>
 </div>
 
-  <section id="resultSection" class="result-section" aria-live="polite">
-    <div id="costList" class="cost-list"></div>
-  </section>
+<div class="action-row">
+  <button id="btnFetch" class="primary-btn" type="button">조회</button>
+</div>
+
+<section id="resultSection" class="result-section" aria-live="polite">
+  <div class="muted">표 (item 기준, 노션 순서 유지)</div>
+  <div id="tableWrap" class="table-wrap">조회 후 여기에 렌더링됩니다.</div>
+</section>
+
     
 </main>
 
@@ -695,6 +701,115 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   await loadCountries();
   fillCbmByType(typeCombo.getValue() || '20FT');
 });
+
+/** ========= 조회 버튼 → API 호출 ========= */
+
+const BASE = 'https://notion-api-hub.vercel.app'; // 백엔드 베이스
+
+document.getElementById('btnFetch')?.addEventListener('click', async () => {
+  try{
+    // 현재 콤보/셀렉트에서 값 읽기 (ID는 INDEX(43)과 동일)
+    const country = window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value?.trim();
+    const region  = window.regionCombo?.getValue?.()  || document.querySelector('#regionCombo input')?.value?.trim();
+    const company = window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value?.trim();
+    const type    = window.typeCombo?.getValue?.()    || document.querySelector('#typeCombo input')?.value?.trim() || '20FT';
+    const cbmSel  = document.getElementById('cbmSelect');
+    const cbm     = cbmSel?.value ? Number(cbmSel.value) : undefined;
+
+    if (!country){ alert('국가를 선택하세요.'); return; }
+    if (!company){ alert('업체를 선택하세요.'); return; }
+
+    // 탭(또는 Pill)로 외교유무를 쓰는 경우 간단히 추론
+    const roles = [];
+    const tabDip  = document.getElementById('btnDiplomat');
+    const tabNon  = document.getElementById('btnNonDiplomat');
+    if (tabDip?.classList?.contains?.('is-active')) roles.push('DIPLOMAT');
+    if (tabNon?.classList?.contains?.('is-active')) roles.push('NON-DIPLOMAT');
+
+    const params = new URLSearchParams();
+    params.set('type', type);
+    params.set('company', company);
+    if (region) params.set('region', region);
+    if (roles.length) params.set('roles', roles.join(','));
+    if (!isNaN(cbm)) params.set('cbm', String(cbm));
+
+    const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
+    const res = await fetch(url);
+    const j   = await res.json();
+
+    // 숫자 포맷 메타 저장 → 금액 포맷에 사용
+    __numberFormats = j?.numberFormats || {};
+
+    // 표 렌더링 (단일 지역 필터 여부에 따라 컬럼 구성 달라짐)
+    renderTable(j, type, Boolean(region));
+  }catch(e){
+    console.error(e);
+    alert('조회 중 오류가 발생했습니다.');
+  }
+});
+  
+/** ========= 결과 표 렌더링 유틸 ========= */
+
+// Notion 숫자 포맷 메타 저장용 (백엔드 /api/costs 응답에 포함됨)
+let __numberFormats = {};
+
+function esc(s){ return String(s==null?'':s)
+  .replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+function formatAmount(n, columnKey){
+  if (n==null || n==='' || isNaN(Number(n))) return '';
+  const v = Number(n);
+  const fmt = __numberFormats?.[columnKey] || '';
+  // 아주 단순 매핑 — 필요 시 확대 가능
+  if (/dollar|usd/i.test(fmt)) return '$' + v.toLocaleString('en-US');
+  if (/won|krw/i.test(fmt))    return '₩' + v.toLocaleString('ko-KR');
+  if (/euro|eur/i.test(fmt))   return '€' + v.toLocaleString('de-DE');
+  return v.toLocaleString(); // 기본
+}
+
+/**
+ * renderTable(data, type, isRegionFiltered)
+ * - data.rows: [{ item, region, extra, "20FT", "40HC", "CONSOLE", ... }]
+ * - type: 현재 선택 타입(20FT/40HC/CONSOLE)
+ * - isRegionFiltered: region 파라미터를 넣어 단일 지역으로 조회했는지 여부
+ */
+function renderTable(data, type, isRegionFiltered){
+  const wrap = document.getElementById('tableWrap');
+  if (!wrap){ return; }
+
+  const rows = Array.isArray(data?.rows) ? data.rows : [];
+  if (!rows.length){
+    wrap.innerHTML = '<div class="muted">표시할 데이터가 없습니다.</div>';
+    return;
+  }
+
+  // 헤더 구성
+  let thead = '<tr><th>항목</th>';
+  if (!isRegionFiltered) thead += '<th>지역</th>';
+  thead += `<th>${esc(type)}</th><th>비고</th></tr>`;
+
+  // 바디 구성
+  let tbody = '';
+  for (const r of rows){
+    const amt = r?.[type];
+    const amtText = formatAmount(amt, type) || '-';
+    tbody += '<tr>';
+    tbody += `<td>${esc(r.item || '')}</td>`;
+    if (!isRegionFiltered) tbody += `<td>${esc(r.region || '')}</td>`;
+    tbody += `<td class="amt">${amtText}</td>`;
+    // extra는 백엔드에서 안전한 HTML(링크/줄바꿈) 형태로 내려줄 수 있음
+    tbody += `<td>${r.extra || ''}</td>`;
+    tbody += '</tr>';
+  }
+
+  // 렌더
+  wrap.innerHTML = `
+    <table class="result-table">
+      <thead>${thead}</thead>
+      <tbody>${tbody}</tbody>
+    </table>
+  `;
+}
 </script>
 
 
