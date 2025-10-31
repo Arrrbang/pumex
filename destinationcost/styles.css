@@ -270,16 +270,24 @@ input::placeholder{ color: var(--muted); opacity: 1; }
   display:flex; justify-content:flex-end; margin: 12px 0 8px;
 }
 
-.action-row.center {
-  display: none;
-  justify-content: center;
-  align-items: center;
+.action-row.center{
+  display:flex;
+  justify-content:center;
+  align-items:center;
   margin: 2rem auto 1.5rem;
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .45s ease, transform .45s ease;
+  pointer-events: none;
 }
 .action-row.center.show {
   display: flex;
 }
-
+.action-row.center.revealed{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
 .primary-btn{
   border-radius: 2rem;
   padding: .45rem 1.25rem;
