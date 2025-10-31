@@ -94,13 +94,14 @@
   </div>
 </div>
 
-<div class="action-row">
+<div class="action-row center">
   <button id="btnFetch" class="primary-btn" type="button">조회</button>
 </div>
 
-<section id="resultSection" class="result-section" aria-live="polite">
-  <div class="muted">표 (item 기준, 노션 순서 유지)</div>
-  <div id="tableWrap" class="table-wrap">조회 후 여기에 렌더링됩니다.</div>
+<section id="resultSection" class="result-section">
+  <div class="result-container">
+    <div id="tableWrap" class="table-wrap"></div>
+  </div>
 </section>
 
 
@@ -704,7 +705,7 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 
 /** ========= 조회 버튼 → API 호출 ========= */
 
-const BASE = 'https://notion-api-hub.vercel.app'; // 백엔드 베이스
+
 
 document.getElementById('btnFetch')?.addEventListener('click', async () => {
   try{
@@ -742,12 +743,14 @@ document.getElementById('btnFetch')?.addEventListener('click', async () => {
 
     // 표 렌더링 (단일 지역 필터 여부에 따라 컬럼 구성 달라짐)
     renderTable(j, type, Boolean(region));
+    const rs = document.getElementById('resultSection');
+    if (rs) rs.classList.add('show');
   }catch(e){
     console.error(e);
     alert('조회 중 오류가 발생했습니다.');
   }
 });
-  
+
 /** ========= 결과 표 렌더링 유틸 ========= */
 
 // Notion 숫자 포맷 메타 저장용 (백엔드 /api/costs 응답에 포함됨)
