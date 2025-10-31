@@ -270,7 +270,15 @@ input::placeholder{ color: var(--muted); opacity: 1; }
   display:flex; justify-content:flex-end; margin: 12px 0 8px;
 }
 
-.action-row.center{ display:flex; justify-content:center; margin: 16px 0 10px; }
+.action-row.center {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem auto 1.5rem;
+}
+.action-row.center.show {
+  display: flex;
+}
 
 .primary-btn{
   border-radius: 2rem;
