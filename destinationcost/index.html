@@ -302,6 +302,35 @@ let isThirdVisible   = false;
 let isDropdownVisible=false;
 let isNextVisible=false;
 
+// === [NEW] 콤보 리스트(플로팅)만 닫기 유틸 ===
+function closeAllCombos(){
+  const combos = [countryCombo, regionCombo, companyCombo, typeCombo, poeCombo].filter(Boolean);
+  combos.forEach(c=>{
+    try{
+      c.root.classList.remove('open');
+      Floating.close(c.root);
+    }catch(_){}
+  });
+}
+// === [NEW] 컨테이너 내부 빈 곳 클릭하면, 콤보/리스트만 닫기 (컨테이너는 그대로) ===
+['dropdownMenu','nextDropdowns','thirdDropdowns'].forEach(id=>{
+  const container = document.getElementById(id);
+  if(!container) return;
+
+  container.addEventListener('pointerdown', (e)=>{
+    const t = e.target;
+
+    // 1) 콤보 input/리스트 클릭이면 닫지 않음
+    if (t.closest('.combo') || (Floating?.isInsideFloating?.(t))) return;
+
+    // 2) 컨테이너 내부의 빈 영역/라벨/버튼 등 클릭 → 콤보만 닫기
+    closeAllCombos();
+
+    // 3) 네이티브 <select>가 열려 있었다면 포커스만 제거 (실제 '강제 닫기' 대용)
+    container.querySelectorAll('select').forEach(sel => sel.blur());
+  }, { passive:true });
+});
+
 // === 각 단계의 <선택> 버튼 → 다음 단계로 진행 ===
 document.getElementById('btnSelectFirst')?.addEventListener('click', ()=>{
   // 1단계(국가/지역) 컨테이너 닫고 → 요약 노출 → 2단계 자동 오픈 (기존 closeFirst 로직)
