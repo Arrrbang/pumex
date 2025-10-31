@@ -321,7 +321,8 @@ function closeSecond(){
   setTimeout(()=>{
     const t   = typeCombo.getValue() || '미선택';
     const cbm = cbmSelect?.value ? (cbmSelect.options[cbmSelect.selectedIndex]?.text||cbmSelect.value) : '미선택';
-    nextSummary.textContent = `${t} — ${cbm}`;
+    const text = `${t} — ${cbm}`;
+    nextSummary.innerHTML = `<span class="summary-hot">${text}</span>`; // ← 변경
     nextSummary.classList.add('show');
 
     openThird();
@@ -341,21 +342,24 @@ function closeThird(){
   setTimeout(()=>{
     const comp = (companyCombo.getValue() || '미선택');
     const poe  = (poeCombo.getValue()     || '미선택');
-    thirdSummary.textContent = `${comp} — ${poe}`;
+    const text = `${comp} — ${poe}`;
+    thirdSummary.innerHTML = `<span class="summary-hot">${text}</span>`; // ← 변경
     thirdSummary.classList.add('show');
-    
+
     document.querySelector('.action-row.center')?.classList.add('revealed');
   }, 400);
 }
 
+
 function showFirstSummary(){
-  const c    = countryCombo.getValue();
-  const r    = regionCombo.getValue();
+  const c = countryCombo.getValue();
+  const r = regionCombo.getValue();
   const comp = companyCombo.getValue();
   if (!summary) return;
-  // 값이 전혀 없으면 기존 텍스트 유지(미선택으로 강제 초기화 방지)
   if (!c && !r && !comp) return;
-  summary.textContent = `${c || '미선택'} — ${r || '미선택'} — ${comp || '미선택'}`;
+
+  const text = `${c || '미선택'} — ${r || '미선택'} — ${comp || '미선택'}`;
+  summary.innerHTML = `<span class="summary-hot">${text}</span>`;  // ← 변경
   summary.classList.add('show');
 }
 
@@ -792,31 +796,35 @@ document.getElementById('btnFetch')?.addEventListener('click', async () => {
 });
 
   // === 써머리 클릭 시 해당 드롭다운 재오픈 ===
-selectionSummary?.addEventListener('click', () => {
-  // 1단계 드롭다운 열기
+// 1단계 써머리 클릭 → 1단계 드롭다운 열기
+summary?.addEventListener('click', (e)=>{
+  if (!(e.target instanceof HTMLElement)) return;
+  if (!e.target.classList.contains('summary-hot')) return; // ← 텍스트만 반응
   openFirst();
-  // 수정 모드 진입이므로 결과/버튼은 잠시 내리기
   document.getElementById('resultSection')?.classList.remove('show');
   document.querySelector('.action-row.center')?.classList.remove('revealed');
 });
 
-nextSummary?.addEventListener('click', () => {
-  // 2단계만 포커스 — 1단계는 닫아두면 UX가 덜 흔들림
+// 2단계 써머리 클릭 → 2단계 드롭다운 열기
+nextSummary?.addEventListener('click', (e)=>{
+  if (!(e.target instanceof HTMLElement)) return;
+  if (!e.target.classList.contains('summary-hot')) return;
   dropdownMenu?.classList.remove('show');
   isDropdownVisible = false;
   openSecond();
-  // 수정 모드 진입이므로 결과/버튼은 잠시 내리기
   document.getElementById('resultSection')?.classList.remove('show');
   document.querySelector('.action-row.center')?.classList.remove('revealed');
 });
 
-thirdSummary?.addEventListener('click', () => {
-  // 3단계 드롭다운 열기 (업체/POE 수정)
+// 3단계 써머리 클릭 → 3단계 드롭다운 열기
+thirdSummary?.addEventListener('click', (e)=>{
+  if (!(e.target instanceof HTMLElement)) return;
+  if (!e.target.classList.contains('summary-hot')) return;
   openThird();
-  // 수정 모드 진입이므로 결과/버튼은 잠시 내리기
   document.getElementById('resultSection')?.classList.remove('show');
   document.querySelector('.action-row.center')?.classList.remove('revealed');
 });
+
 
   
 /** ========= 결과 표 렌더링 유틸 ========= */
