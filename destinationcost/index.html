@@ -705,7 +705,42 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 
 /** ========= 조회 버튼 → API 호출 ========= */
 
+// === 조회 버튼 표시 토글 ===
+const actionRowCenter = document.querySelector('.action-row.center');
 
+function allReady() {
+  const country = window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value?.trim();
+  const region  = window.regionCombo?.getValue?.()  || document.querySelector('#regionCombo input')?.value?.trim();
+  const company = window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value?.trim();
+  const poe     = window.poeCombo?.getValue?.()     || document.querySelector('#poeCombo input')?.value?.trim();
+  const type    = window.typeCombo?.getValue?.()    || document.querySelector('#typeCombo input')?.value?.trim() || '20FT';
+  const cbmSel  = document.getElementById('cbmSelect');
+  const cbmOk   = (String(type).toUpperCase()==='CONSOLE') ? !!cbmSel?.value : true; // 콘솔일 때만 CBM 필수
+
+  // 필요 조건: 국가, 업체, (POE는 선택사항이면 빼세요), 타입, (콘솔이면 CBM)
+  return !!country && !!company && cbmOk /* && !!poe */ ;
+}
+
+function toggleFetchVisibility() {
+  if (!actionRowCenter) return;
+  actionRowCenter.classList.toggle('show', allReady());
+}
+
+// 콤보/셀렉트가 바뀔 때마다 체크
+['countryCombo','regionCombo','companyCombo','poeCombo','typeCombo'].forEach(id=>{
+  const root = document.getElementById(id);
+  if (!root) return;
+  root.addEventListener('change', toggleFetchVisibility);
+});
+
+document.getElementById('cbmSelect')?.addEventListener('change', toggleFetchVisibility);
+
+// 지도에서 지역을 설정하는 경우도 반영
+window.addEventListener('DOMContentLoaded', ()=>{
+  toggleFetchVisibility(); // 초기 1회
+});
+
+// 조회 성공 시 표 영역은 기존 코드대로 .show 추가됨
 
 document.getElementById('btnFetch')?.addEventListener('click', async () => {
   try{
