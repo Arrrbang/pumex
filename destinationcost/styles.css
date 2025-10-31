@@ -91,18 +91,20 @@ body{
 .header__nav{ justify-self:end; display:inline-flex; gap: var(--space-16); }
 
 /* ==========================================================================
-   3) 탭 (Diplomat / Non-Diplomat)
+   3) 드롭다운 컨테이너의 선택 버튼 디자인 
    ========================================================================== */
-.tabs{ display:flex; justify-content:center; align-items:center; gap: 2rem; margin-top: .5rem; }
-.tab{
-  min-width: 13rem; padding: .5rem 1.5rem;
-  border: 2px solid var(--primary); border-radius: 2rem;
-  background: transparent; color: var(--primary);
-  font-size: 1.5rem; font-weight: 700; cursor: pointer;
-  transition: all .25s ease;
+
+.select-btn{
+  border-radius: 2rem;
+  padding: .35rem 1.1rem;         /* ← 더 낮은 높이 */
+  min-width: 8.5rem;              /* ← 조회보다 조금 짧게 */
+  border: 2px solid var(--primary);
+  background: var(--primary);
+  color:#fff; font-weight:700; font-size: .95rem;
+  cursor:pointer; transition: background .2s ease, transform .08s ease;
 }
-.tab:hover{ background: rgba(31,148,97,0.12); }
-.tab.is-active{ background: var(--primary); color:#fff; box-shadow: 0 4px 10px rgba(31,148,97,0.35); }
+.select-btn:hover{ background:#16724a; }
+.select-btn:active{ transform: translateY(1px); }
 
 /* ==========================================================================
    4) 드롭다운 패널(1단계/2단계) — 레이아웃 흔들림 최소화
