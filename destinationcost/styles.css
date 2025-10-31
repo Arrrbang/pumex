@@ -149,10 +149,22 @@ body{
   margin-top: .5rem; margin-bottom: .8rem;
   opacity:0; transform: translateY(-10px);
   transition: all .4s ease;
-   cursor:pointer;
+  pointer-events: none;
 }
 .selection-summary.show{ opacity:1; transform: translateY(0); }
 
+.selection-summary .summary-hot{
+  pointer-events: auto;         /* ← 이 영역만 클릭 허용 */
+  display: inline-block;
+  padding: 2px 4px;
+  border-radius: .25rem;
+  cursor: pointer;
+}
+.selection-summary .summary-hot:focus-visible{
+  outline: 3px solid rgba(35,155,103,.35);
+  outline-offset: 2px;
+  border-radius: .25rem;
+}
 /* 추가: 라벨 아래 컨트롤(콤보/셀렉트/인풋)과의 세로 간격 확보 */
 .dropdown .combo,
 .dropdown .dropdown-select,
