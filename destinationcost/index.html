@@ -29,10 +29,6 @@
 
   <!-- 메인 -->
   <main class="container section">
-    <nav class="tabs" aria-label="카테고리 선택">
-      <button class="tab" type="button" id="btnDiplomat">Diplomat</button>
-      <button class="tab" type="button" id="btnNonDiplomat">Non-Diplomat</button>
-    </nav>
 
 <div class="dropdown-container">
   <div class="dropdown" id="dropdownMenu">
@@ -60,6 +56,9 @@
 <div class="dropdown-container">
   <div class="dropdown" id="nextDropdowns">
     <div class="dropdown-inner">
+      <label class="dropdown-label" for="cargoTypeSelect">화물타입</label>
+      <select id="cargoTypeSelect" class="dropdown-select"></select>
+      
       <label class="dropdown-label" for="typeCombo">컨테이너 타입</label>
       <div class="combo" id="typeCombo">
         <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" value="20FT">
@@ -272,8 +271,6 @@ function makeCombo(el, items=[]){
 /* ------------------------------
    요소 참조
 ------------------------------ */
-const btnDiplomat    = $("#btnDiplomat");
-const btnNonDiplomat = $("#btnNonDiplomat");
 const dropdownMenu   = $("#dropdownMenu");
 const nextDropdowns  = $("#nextDropdowns");
 const summary        = $("#selectionSummary");
@@ -363,15 +360,6 @@ function showFirstSummary(){
   summary.classList.add('show');
 }
 
-/* 탭 토글 */
-function onTabClick(btn){
-  btnDiplomat?.classList.toggle('is-active', btn===btnDiplomat);
-  btnNonDiplomat?.classList.toggle('is-active', btn===btnNonDiplomat);
-  if(isDropdownVisible) closeFirst(); else openFirst();
-}
-btnDiplomat?.addEventListener('click', ()=> onTabClick(btnDiplomat));
-btnNonDiplomat?.addEventListener('click', ()=> onTabClick(btnNonDiplomat));
-
 /* ------------------------------
    전역 “바깥 클릭 닫기”
    - 지도 모달이 열려 있을 땐 닫기 로직 스킵
@@ -418,6 +406,7 @@ countryCombo.root.addEventListener('change', async ()=>{
     regionCombo.setItems(j.regions||[]);
     regionCombo.input.disabled = false;
   }catch(e){ regionCombo.setItems([]); }
+  updateCargoTypeOptions();
 });
 regionCombo.root.addEventListener('change', async ()=>{
   const country = countryCombo.getValue();
@@ -436,6 +425,8 @@ regionCombo.root.addEventListener('change', async ()=>{
     companyCombo.setItems([]); 
     companyCombo.input.disabled = true;
   }
+  updateCargoTypeOptions();
+
 });
 companyCombo.root.addEventListener('change', async ()=>{
   const country = countryCombo.getValue();
@@ -459,12 +450,39 @@ companyCombo.root.addEventListener('change', async ()=>{
     poeCombo.setItems([]); 
     poeCombo.input.disabled = true;
   }
+  updateCargoTypeOptions();
 });
 
 
 /* ------------------------------
-   컨테이너 타입 & CBM
+   화물타입 & 컨테이너 타입 & CBM
 ------------------------------ */
+// 화물타입 옵션 세팅
+function setCargoTypeOptions(values){
+  const el = document.getElementById('cargoTypeSelect');
+  if(!el) return;
+  const opts = ['<option value="">화물타입 선택</option>']
+    .concat((values||[]).map(v=>`<option value="${String(v)}">${String(v)}</option>`));
+  el.innerHTML = opts.join('');
+}
+
+// 지역/업체에 따라 화물타입 동적 구성 (기본값: DIPLOMAT/NON-DIPLOMAT)
+function updateCargoTypeOptions(){
+  const country = window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value?.trim();
+  const region  = window.regionCombo?.getValue?.()  || document.querySelector('#regionCombo input')?.value?.trim();
+  const company = window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value?.trim();
+
+  // 기본값
+  let values = ['DIPLOMAT','NON-DIPLOMAT'];
+
+  // 필요 시 조건 분기 (예: 특정 업체/지역에서만 DIPLOMAT 허용 등)
+  // if (company === 'XXX') values = ['NON-DIPLOMAT'];
+  // if (region?.includes('Embassy')) values = ['DIPLOMAT'];
+
+  setCargoTypeOptions(values);
+  toggleFetchVisibility?.();
+}
+
 function setOptions(selectEl, values, placeholder='CBM 선택'){
   const opts = ['<option value="">'+placeholder+'</option>']
    .concat(values.map(v=>`<option value="${String(v)}">${String(v)}</option>`));
@@ -710,7 +728,10 @@ else document.addEventListener('DOMContentLoaded', __bindMapBtn);
 window.addEventListener('DOMContentLoaded', async ()=>{
   await loadCountries();
   fillCbmByType(typeCombo.getValue() || '20FT');
+  openFirst();               // 첫 드롭다운 자동 열기
+  updateCargoTypeOptions();  // 화물타입 초기화
 });
+
 
 /** ========= 조회 버튼 → API 호출 ========= */
 
@@ -721,14 +742,16 @@ function allReady() {
   const country = window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value?.trim();
   const region  = window.regionCombo?.getValue?.()  || document.querySelector('#regionCombo input')?.value?.trim();
   const company = window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value?.trim();
-  const poe     = window.poeCombo?.getValue?.()     || document.querySelector('#poeCombo input')?.value?.trim();
   const type    = window.typeCombo?.getValue?.()    || document.querySelector('#typeCombo input')?.value?.trim() || '20FT';
-  const cbmSel  = document.getElementById('cbmSelect');
-  const cbmOk   = (String(type).toUpperCase()==='CONSOLE') ? !!cbmSel?.value : true; // 콘솔일 때만 CBM 필수
+  const cargo   = document.getElementById('cargoTypeSelect')?.value || '';
 
-  // 필요 조건: 국가, 업체, (POE는 선택사항이면 빼세요), 타입, (콘솔이면 CBM)
-  return !!country && !!company && cbmOk /* && !!poe */ ;
+  const cbmSel  = document.getElementById('cbmSelect');
+  const cbmOk   = (String(type).toUpperCase()==='CONSOLE') ? !!cbmSel?.value : true;
+
+  // 필수: 국가, 업체, 화물타입 (+ 콘솔이면 CBM)
+  return !!country && !!company && !!cargo && cbmOk;
 }
+
 
 function toggleFetchVisibility() {
   if (!actionRowCenter) return;
@@ -741,8 +764,9 @@ function toggleFetchVisibility() {
   if (!root) return;
   root.addEventListener('change', toggleFetchVisibility);
 });
-
 document.getElementById('cbmSelect')?.addEventListener('change', toggleFetchVisibility);
+document.getElementById('cargoTypeSelect')?.addEventListener('change', toggleFetchVisibility);
+
 
 // 지도에서 지역을 설정하는 경우도 반영
 window.addEventListener('DOMContentLoaded', ()=>{
@@ -764,12 +788,12 @@ document.getElementById('btnFetch')?.addEventListener('click', async () => {
     if (!country){ alert('국가를 선택하세요.'); return; }
     if (!company){ alert('업체를 선택하세요.'); return; }
 
-    // 탭(또는 Pill)로 외교유무를 쓰는 경우 간단히 추론
+    // 화물타입 드롭다운 값으로 roles 설정
+    const cargoSel = document.getElementById('cargoTypeSelect');
     const roles = [];
-    const tabDip  = document.getElementById('btnDiplomat');
-    const tabNon  = document.getElementById('btnNonDiplomat');
-    if (tabDip?.classList?.contains?.('is-active')) roles.push('DIPLOMAT');
-    if (tabNon?.classList?.contains?.('is-active')) roles.push('NON-DIPLOMAT');
+    const cargo = cargoSel?.value?.trim();
+    if (cargo) roles.push(cargo.toUpperCase()); // 'DIPLOMAT' 또는 'NON-DIPLOMAT'
+
 
     const params = new URLSearchParams();
     params.set('type', type);
