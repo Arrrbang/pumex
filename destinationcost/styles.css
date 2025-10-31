@@ -269,13 +269,17 @@ input::placeholder{ color: var(--muted); opacity: 1; }
 .action-row{
   display:flex; justify-content:flex-end; margin: 12px 0 8px;
 }
+
+.action-row.center{ display:flex; justify-content:center; margin: 16px 0 10px; }
+
 .primary-btn{
-  border-radius:8px;
-  border:1px solid var(--control-border);
+  border-radius: 2rem;
+  padding: .45rem 1.25rem;
+  min-width: 10rem;
+  border: 2px solid var(--primary);
   background: var(--primary);
-  color:#fff; font-weight:600;
-  padding:.55rem 1rem; cursor:pointer;
-  transition: background .2s ease, transform .08s ease;
+  color:#fff; font-weight:700;
+  cursor:pointer; transition: background .2s ease, transform .08s ease;
 }
 .primary-btn:hover{ background:#16724a; }
 .primary-btn:active{ transform: translateY(1px); }
@@ -308,6 +312,19 @@ input::placeholder{ color: var(--muted); opacity: 1; }
   font-variant-numeric: tabular-nums;
 }
 
+.result-section{ display:none; padding: 0 1rem 2rem; }
+.result-section.show{ display:block; }
+
+.result-container{
+  max-width: 64rem;                    /* 페이지 가운데 폭 제한 */
+  margin: 0 auto;                      /* 가운데 정렬 */
+  background: rgba(255,255,255,0.82);  /* 밝은 카드 */
+  backdrop-filter: blur(6px);
+  border-radius: 1rem;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22);
+  border: 1px solid var(--border);
+  padding: 1rem 1.25rem;
+}
 
 /* ==========================================================================
    8) 접근성
