@@ -331,6 +331,8 @@ function openThird(){
   thirdDropdowns.classList.add('show');
   thirdSummary.classList.remove('show');
   isThirdVisible = true;
+  
+  document.querySelector('.action-row.center')?.classList.remove('revealed');
 }
 function closeThird(){
   thirdDropdowns.classList.remove('show');
@@ -340,6 +342,8 @@ function closeThird(){
     const poe  = (poeCombo.getValue()     || '미선택');
     thirdSummary.textContent = `${comp} — ${poe}`;
     thirdSummary.classList.add('show');
+    
+    document.querySelector('.action-row.center')?.classList.add('revealed');
   }, 400);
 }
 
