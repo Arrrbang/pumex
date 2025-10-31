@@ -573,6 +573,8 @@ function setRegion(v){ if (window.regionCombo?.setValue)  return window.regionCo
 
 let __sticky = null;
 function toast(msg, {sticky=false, timeout=1500}={}) {
+  if (__sticky) { __sticky.remove(); __sticky = null; }
+  }
   if (sticky) {
     if (__sticky) __sticky.remove();
     const el = document.createElement('div');
@@ -639,7 +641,11 @@ function ensureModal() {
   document.body.appendChild(wrap);
   wrap.querySelector('#mpkBtnClose').onclick = closeModal;
   wrap.querySelector('.mpk__backdrop').onclick = closeModal;
-  wrap.querySelector('#mpkBtnConfirm').onclick = ()=> { closeModal(); };
+  wrap.querySelector('#mpkBtnConfirm').onclick = ()=>{
+  // 지도의 '가장 가까운 등록 지역' 안내(sticky)도 함께 닫기
+  closeStickyToast();        // ★ [NEW]
+  closeModal();
+};
   document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
 }
 
@@ -747,6 +753,7 @@ function openModal(){
   if (m) m.style.display = 'block';
 }
 function closeModal(){
+  closeStickyToast(); // ★ [NEW] 닫기 버튼/배경 클릭/ESC 등 모든 경로에서 sticky 닫기
   const m = document.getElementById('mapPickerModal');
   if (m) m.style.display = 'none';
   MAP_MODAL_OPEN = false;
