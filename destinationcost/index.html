@@ -284,8 +284,22 @@ function setTab(active){ // 'dip' | 'non' | null
   btnDip?.classList.toggle('is-active', active==='dip');
   btnNon?.classList.toggle('is-active', active==='non');
 }
-btnDip?.addEventListener('click', ()=> setTab('dip'));
-btnNon?.addEventListener('click', ()=> setTab('non'));
+  
+function ensureFirstPanel(){
+  if (!isDropdownVisible && !isNextVisible && !isThirdVisible){
+    openFirst();
+  }
+  hideFetch();
+}
+btnDip?.addEventListener('click', ()=>{
+  setTab('dip');
+  ensureFirstPanel();
+});
+
+btnNon?.addEventListener('click', ()=>{
+  setTab('non');
+  ensureFirstPanel();
+});
 
 /* ======= 지도(Leaflet) 통합 ======= */
 /* ----- 10) 동적 로더 ----- */
