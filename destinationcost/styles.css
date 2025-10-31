@@ -348,6 +348,10 @@ input::placeholder{ color: var(--muted); opacity: 1; }
   text-align: center;
 }
 
+.result-table thead th:first-child {
+  text-align: center;
+}
+
 .result-table td.amt{
   white-space: nowrap;
   text-align: center;
