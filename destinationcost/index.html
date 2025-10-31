@@ -343,9 +343,11 @@ function closeSecond(){
   isNextVisible=false;
   setTimeout(()=>{
     const t   = typeCombo.getValue() || '미선택';
-    const cbm = cbmSelect?.value ? (cbmSelect.options[cbmSelect.selectedIndex]?.text||cbmSelect.value) : '미선택';
-    const text = `${t} — ${cbm}`;
-    nextSummary.innerHTML = `<span class="summary-hot">${text}</span>`; // ← 변경
+    const cbmText = cbmSelect?.value
+      ? (cbmSelect.options[cbmSelect.selectedIndex]?.text || cbmSelect.value)
+      : '미선택';
+    const text = `${esc(cbmText)} CBM (${esc(t)})`;
+    nextSummary.innerHTML = `<span class="summary-hot">${text}</span>`;
     nextSummary.classList.add('show');
 
     openThird();
@@ -365,8 +367,8 @@ function closeThird(){
   setTimeout(()=>{
     const comp = (companyCombo.getValue() || '미선택');
     const poe  = (poeCombo.getValue()     || '미선택');
-    const text = `${comp} — ${poe}`;
-    thirdSummary.innerHTML = `<span class="summary-hot">${text}</span>`; // ← 변경
+    const text = `${esc(comp)} (POE: ${esc(poe)})`;
+    thirdSummary.innerHTML = `<span class="summary-hot">${text}</span>`;
     thirdSummary.classList.add('show');
 
     document.querySelector('.action-row.center')?.classList.add('revealed');
@@ -377,12 +379,11 @@ function closeThird(){
 function showFirstSummary(){
   const c = countryCombo.getValue();
   const r = regionCombo.getValue();
-  const comp = companyCombo.getValue();
   if (!summary) return;
   if (!c && !r && !comp) return;
 
-  const text = `${c || '미선택'} — ${r || '미선택'} — ${comp || '미선택'}`;
-  summary.innerHTML = `<span class="summary-hot">${text}</span>`;  // ← 변경
+  const text = `[${esc(r)}, ${esc(c)}]`;
+  summary.innerHTML = `<span class="summary-hot">${text}</span>`;
   summary.classList.add('show');
 }
 
