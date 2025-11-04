@@ -577,22 +577,28 @@ function setCargoTypeOptions(values){
 }
 
 // 지역/업체에 따라 화물타입 동적 구성 (기본값: DIPLOMAT/NON-DIPLOMAT)
-function updateCargoTypeOptions(){
-  const sel = document.getElementById('cargoTypeSelect');
-  if (!sel) return;
-
-  const prev = sel.value; // 🔒 기존 선택 기억
-
-  // ... (여기서 옵션을 재구성하거나 disabled 설정 등 기존 로직을 수행)
-
-  // 🔁 가능하면 이전 선택 복원
-  if (prev && Array.from(sel.options).some(o => o.value === prev)) {
-    sel.value = prev;
-  } else {
-    // 이전 값이 사라졌다면 기본 선택(필요 시 첫 옵션/빈 값 유지)
-    // sel.value = '';  ← 정말 초기화가 필요할 때만
-  }
-}
++function updateCargoTypeOptions(){
++  const sel = document.getElementById('cargoTypeSelect');
++  if (!sel) return;
++
++  // ✅ 항상 활성화
++  sel.disabled = false;
++  sel.style.pointerEvents = 'auto';
++  sel.style.opacity = '';
++
++  // ✅ 이전 선택 보존
++  const prev = sel.value;
++
++  // (필요 시 옵션 업데이트가 있더라도) 기존 옵션을 되도록 유지하고,
++  // 새 옵션을 덧붙이거나 enable/disable만 하세요.
++  // ❌ sel.value = '' 같은 초기화 금지
++  // ❌ sel.disabled = true 금지
++
++  // ✅ 가능한 경우 이전 선택 복원
++  if (prev && Array.from(sel.options).some(o => o.value === prev)) {
++    sel.value = prev;
++  }
++}
 
 
 function setOptions(selectEl, values, placeholder='CBM 선택'){
