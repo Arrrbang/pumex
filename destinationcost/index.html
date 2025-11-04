@@ -709,16 +709,13 @@ async function ensureMapReady() {
           const hit = findNearest(c.lat,c.lng,pts);
           if (hit?.point) {
             setRegion(hit.point.name);
-            toast(`가장 가까운 등록 지역: ${hit.point.name} (~${hit.distanceKm.toFixed(1)}km)`, {sticky:true});
+            toast(`가장 가까운 ${hit.point.name} 지역을 선택하였습니다. (~${hit.distanceKm.toFixed(1)}km)`, {sticky:true});
 
             // ★ 1차 컨테이너 유지 (지도 동작 중에는 항상 열린 상태)
             dropdownMenu?.classList.add('show');
             isDropdownVisible = true;
           }
           if (hit?.point?.name) window.__selectedPlace.name = hit.point.name;
-            applySelectedLocationFromMap();
-            closeStickyToast(); 
-            closeModal();
         }
       }).addTo(map);
 
