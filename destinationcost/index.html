@@ -409,7 +409,7 @@ function showFirstSummary(){
   const c = countryCombo.getValue();
   const r = regionCombo.getValue();
   if (!summary) return;
-  if (!c && !r && !comp) return;
+ if (!c && !r) return;
 
   const text = `[${esc(r)}, ${esc(c)}]`;
   summary.innerHTML = `<span class="summary-hot">${text}</span>`;
@@ -574,7 +574,7 @@ function setRegion(v){ if (window.regionCombo?.setValue)  return window.regionCo
 let __sticky = null;
 function toast(msg, {sticky=false, timeout=1500}={}) {
   if (__sticky) { __sticky.remove(); __sticky = null; }
-  }
+
   if (sticky) {
     if (__sticky) __sticky.remove();
     const el = document.createElement('div');
