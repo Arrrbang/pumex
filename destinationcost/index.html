@@ -741,6 +741,10 @@ let __countryPoints = [];
     
     console.log('[setMapCountry] country=', country, 'mapData keys=', Object.keys(mapData||{}));
 
+    function normalizeCountryKey(raw){
+  if (!raw) return '';
+  return String(raw).trim();
+      
 function setMapCountry(country) {
   if (!mapInited) return;
   markerLayer.clearLayers();
@@ -925,11 +929,20 @@ function closeModal(){
    초기화
 ------------------------------ */
 window.addEventListener('DOMContentLoaded', async ()=>{
-  await loadCountries();
-  fillCbmByType(typeCombo.getValue() || '20FT');
-  openFirst();               // 첫 드롭다운 자동 열기
-  updateCargoTypeOptions();  // 화물타입 초기화
+  try{
+    await loadCountries();
+  }catch(_){}
+  try{
+    fillCbmByType(typeCombo.getValue() || '20FT');
+  }catch(_){}
+  try{
+    openFirst();               // 첫 드롭다운 자동 열기 (실패해도 페이지는 계속)
+  }catch(_){}
+  try{
+    updateCargoTypeOptions();  // 화물타입 초기화
+  }catch(_){}
 });
+
 
 
 /** ========= 조회 버튼 → API 호출 ========= */
