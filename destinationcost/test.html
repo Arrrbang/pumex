@@ -577,28 +577,28 @@ function setCargoTypeOptions(values){
 }
 
 // 지역/업체에 따라 화물타입 동적 구성 (기본값: DIPLOMAT/NON-DIPLOMAT)
-+function updateCargoTypeOptions(){
-+  const sel = document.getElementById('cargoTypeSelect');
-+  if (!sel) return;
-+
-+  // ✅ 항상 활성화
-+  sel.disabled = false;
-+  sel.style.pointerEvents = 'auto';
-+  sel.style.opacity = '';
-+
-+  // ✅ 이전 선택 보존
-+  const prev = sel.value;
-+
-+  // (필요 시 옵션 업데이트가 있더라도) 기존 옵션을 되도록 유지하고,
-+  // 새 옵션을 덧붙이거나 enable/disable만 하세요.
-+  // ❌ sel.value = '' 같은 초기화 금지
-+  // ❌ sel.disabled = true 금지
-+
-+  // ✅ 가능한 경우 이전 선택 복원
-+  if (prev && Array.from(sel.options).some(o => o.value === prev)) {
-+    sel.value = prev;
-+  }
-+}
+function updateCargoTypeOptions(){
+  const sel = document.getElementById('cargoTypeSelect');
+  if (!sel) return;
+
+  // ✅ 항상 활성화
+  sel.disabled = false;
+  sel.style.pointerEvents = 'auto';
+  sel.style.opacity = '';
+
+  // ✅ 이전 선택 보존
+  const prev = sel.value;
+
+  // (필요 시 옵션 업데이트가 있더라도) 기존 옵션을 되도록 유지하고,
+  // 새 옵션을 덧붙이거나 enable/disable만 하세요.
+  // ❌ sel.value = '' 같은 초기화 금지
+  // ❌ sel.disabled = true 금지
+
+  // ✅ 가능한 경우 이전 선택 복원
+  if (prev && Array.from(sel.options).some(o => o.value === prev)) {
+    sel.value = prev;
+  }
+}
 
 
 function setOptions(selectEl, values, placeholder='CBM 선택'){
@@ -1110,8 +1110,8 @@ async function fetchSide(side){
 
     document.getElementById('resultSection')?.classList.add('show'); // 표 섹션 노출
   }catch(e){
-    console.error(e);
-    alert(`${left?'A':'B'} 조회 중 오류가 발생했습니다.`);
+    companyComboA.setItems([]); companyComboA.input.disabled = true;
+    companyComboB.setItems([]); companyComboB.input.disabled = true;
   }
 }
 
