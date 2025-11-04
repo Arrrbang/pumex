@@ -735,6 +735,12 @@ async function ensureMapReady() {
 }
 
 let __countryPoints = [];
+  function normalizeCountryKey(raw){
+  if (!raw) return '';
+  return String(raw).trim();
+    
+    console.log('[setMapCountry] country=', country, 'mapData keys=', Object.keys(mapData||{}));
+
 function setMapCountry(country) {
   if (!mapInited) return;
   markerLayer.clearLayers();
@@ -748,6 +754,9 @@ function setMapCountry(country) {
   }
 
   const pts = mapData[key];
+  
+  console.log('[setMapCountry] using key=', key, 'points=', pts?.length);
+
   const bounds = [];
 
   pts.forEach(p => {
