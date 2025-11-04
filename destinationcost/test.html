@@ -334,7 +334,8 @@ const poeComboB     = makeCombo(document.getElementById('poeComboB'));
 
 const cbmSelect    = $("#cbmSelect");
 
-const thirdDropdowns = document.getElementById('thirdDropdowns');
+const thirdDropdownsAEl = document.getElementById('thirdDropdownsA');
+const thirdDropdownsBEl = document.getElementById('thirdDropdownsB');
 const thirdSummary   = document.getElementById('thirdSelectionSummary');
 
 let isThirdVisible   = false;
@@ -383,8 +384,6 @@ document.getElementById('btnSelectSecond')?.addEventListener('click', ()=>{
 
 document.getElementById('btnSelectThirdA')?.addEventListener('click', closeThird);
 document.getElementById('btnSelectThirdB')?.addEventListener('click', closeThird);
-
-});
   
 /* ------------------------------
    1차/2차 컨테이너 열고 닫기
@@ -478,7 +477,9 @@ document.addEventListener('pointerdown', (e)=>{
     if (!inside2) closeSecond();
   }
   if (isThirdVisible) {
-    const inside3 = thirdDropdowns.contains(e.target);
+      const inside3 =
+    (thirdDropdownsAEl && thirdDropdownsAEl.contains(e.target)) ||
+    (thirdDropdownsBEl && thirdDropdownsBEl.contains(e.target));
     if (!inside3) closeThird();
   }
 }, { passive:true });
@@ -496,8 +497,12 @@ async function loadCountries(){
 }
 countryCombo.root.addEventListener('change', async ()=>{
   const country = countryCombo.getValue();
-  regionCombo.setItems([]); companyCombo.setItems([]); poeCombo.setItems([]);
-  regionCombo.input.disabled = true; companyCombo.input.disabled = true; poeCombo.input.disabled = true;
+    regionCombo.setItems([]);
+     companyComboA.setItems([]); companyComboB.setItems([]);
+      poeComboA.setItems([]);     poeComboB.setItems([]);
+      regionCombo.input.disabled = true;
+      companyComboA.input.disabled = true; companyComboB.input.disabled = true;
+      poeComboA.input.disabled = true;     poeComboB.input.disabled = true;
   if(!country) return;
   try{
     const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`);
@@ -510,8 +515,10 @@ countryCombo.root.addEventListener('change', async ()=>{
 regionCombo.root.addEventListener('change', async ()=>{
   const country = countryCombo.getValue();
   const region  = regionCombo.getValue();
-  companyCombo.setItems([]); companyCombo.input.disabled = true;
-  poeCombo.setItems([]);     poeCombo.input.disabled     = true;
+  companyComboA.setItems([]); companyComboA.input.disabled = true;
+  companyComboB.setItems([]); companyComboB.input.disabled = true;
+  poeComboA.setItems([]);     poeComboA.input.disabled     = true;
+  poeComboB.setItems([]);     poeComboB.input.disabled     = true;
   if(!country || !region) return;
   try{
     const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
@@ -1012,12 +1019,6 @@ function toggleFetchVisibility() {
   if (!actionRowCenter) return;
   actionRowCenter.classList.toggle('show', allReady());
 }
-  
-['countryCombo','regionCombo','companyComboA','poeComboA','companyComboB','poeComboB','typeCombo'].forEach(id=>{
-  const root = document.getElementById(id);
-  if (!root) return;
-  root.addEventListener('change', toggleFetchVisibility);
-});
 
   
 // 콤보/셀렉트가 바뀔 때마다 체크
