@@ -133,8 +133,9 @@
 </div>
 
 <!-- 조회 버튼은 하나로 공유 -->
-<div class="action-row center">
-  <button id="btnFetch" class="primary-btn" type="button">조회</button>
+<div class="action-row center compare-grid">
+  <button id="btnFetchA" class="primary-btn" type="button">조회 (A)</button>
+  <button id="btnFetchB" class="primary-btn" type="button">조회 (B)</button>
 </div>
 
 <section id="resultSection" class="result-section">
@@ -577,20 +578,22 @@ function setCargoTypeOptions(values){
 
 // 지역/업체에 따라 화물타입 동적 구성 (기본값: DIPLOMAT/NON-DIPLOMAT)
 function updateCargoTypeOptions(){
-  const country = window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value?.trim();
-  const region  = window.regionCombo?.getValue?.()  || document.querySelector('#regionCombo input')?.value?.trim();
-  const company = window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value?.trim();
+  const sel = document.getElementById('cargoTypeSelect');
+  if (!sel) return;
 
-  // 기본값
-  let values = ['DIPLOMAT','NON-DIPLOMAT'];
+  const prev = sel.value; // 🔒 기존 선택 기억
 
-  // 필요 시 조건 분기 (예: 특정 업체/지역에서만 DIPLOMAT 허용 등)
-  // if (company === 'XXX') values = ['NON-DIPLOMAT'];
-  // if (region?.includes('Embassy')) values = ['DIPLOMAT'];
+  // ... (여기서 옵션을 재구성하거나 disabled 설정 등 기존 로직을 수행)
 
-  setCargoTypeOptions(values);
-  toggleFetchVisibility?.();
+  // 🔁 가능하면 이전 선택 복원
+  if (prev && Array.from(sel.options).some(o => o.value === prev)) {
+    sel.value = prev;
+  } else {
+    // 이전 값이 사라졌다면 기본 선택(필요 시 첫 옵션/빈 값 유지)
+    // sel.value = '';  ← 정말 초기화가 필요할 때만
+  }
 }
+
 
 function setOptions(selectEl, values, placeholder='CBM 선택'){
   const opts = ['<option value="">'+placeholder+'</option>']
@@ -994,25 +997,45 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 // === 조회 버튼 표시 토글 ===
 const actionRowCenter = document.querySelector('.action-row.center');
 
-function allReady() {
+function readyForA(){
   const country = countryCombo.getValue();
+  const region  = regionCombo.getValue();
   const type    = (typeCombo.getValue() || '20FT');
   const cargo   = document.getElementById('cargoTypeSelect')?.value || '';
   const cbmSel  = document.getElementById('cbmSelect');
-  const cbmOk   = (String(type).toUpperCase()==='CONSOLE') ? !!cbmSel?.value : true;
-
-  const hasA = !!companyComboA.getValue();
-  const hasB = !!companyComboB.getValue();
-
-  // 둘 중 하나라도 선택되어 있으면 조회 가능 (둘 다 필수로 하려면: hasA && hasB)
-  return !!country && !!cargo && cbmOk && (hasA || hasB);
+  const needsCbm= String(type).toUpperCase()==='CONSOLE';
+  const cbmOk   = needsCbm ? !!cbmSel?.value : true;
+  const hasA    = !!companyComboA.getValue();
+  return !!country && !!region && !!cargo && cbmOk && hasA;
 }
 
-['countryCombo','regionCombo','companyComboA','poeComboA','companyComboB','poeComboB','typeCombo'].forEach(id=>{
+function readyForB(){
+  const country = countryCombo.getValue();
+  const region  = regionCombo.getValue();
+  const type    = (typeCombo.getValue() || '20FT');
+  const cargo   = document.getElementById('cargoTypeSelect')?.value || '';
+  const cbmSel  = document.getElementById('cbmSelect');
+  const needsCbm= String(type).toUpperCase()==='CONSOLE';
+  const cbmOk   = needsCbm ? !!cbmSel?.value : true;
+  const hasB    = !!companyComboB.getValue();
+  return !!country && !!region && !!cargo && cbmOk && hasB;
+}
+
+function toggleFetchVisibilityAB(){
+  const a = document.getElementById('btnFetchA');
+  const b = document.getElementById('btnFetchB');
+  if (a) a.disabled = !readyForA();
+  if (b) b.disabled = !readyForB();
+}
+
+
+['countryCombo','regionCombo','companyComboA','poeComboA','companyComboB','poeComboB','typeCombo','cargoTypeSelect','cbmSelect'].forEach(id=>{
   const root = document.getElementById(id);
   if (!root) return;
-  root.addEventListener('change', toggleFetchVisibility);
+  root.addEventListener('change', toggleFetchVisibilityAB);
+  root.addEventListener('input',  toggleFetchVisibilityAB);
 });
+window.addEventListener('DOMContentLoaded', toggleFetchVisibilityAB);
 
   
 function toggleFetchVisibility() {
@@ -1038,51 +1061,58 @@ window.addEventListener('DOMContentLoaded', ()=>{
 
 // 조회 성공 시 표 영역은 기존 코드대로 .show 추가됨
 
-document.getElementById('btnFetch')?.addEventListener('click', async () => {
+async function fetchSide(side){
+  const left  = (side==='A');
+  const wrapId  = left ? 'tableWrapA' : 'tableWrapB';
+  const company = left ? companyComboA.getValue() : companyComboB.getValue();
+  const poe     = left ? poeComboA.getValue()     : poeComboB.getValue();
+
+  const country = countryCombo.getValue();
+  const region  = regionCombo.getValue();
+  const type    = (typeCombo.getValue() || '20FT');           // 컨테이너 타입
+  const cargo   = document.getElementById('cargoTypeSelect')?.value || ''; // 화물타입
+
+  // 🔎 유효성 (요구사항: 화물타입 반드시 선택)
+  if (!country) return alert('국가를 선택하세요.');
+  if (!region)  return alert('지역을 선택하세요.');
+  if (!company) return alert(`${left?'A':'B'} 업체를 선택하세요.`);
+  if (!cargo)   return alert('화물타입을 선택하세요.');
+
+  // CONSOLE일 때만 CBM 필수라면:
+  const cbmSel  = document.getElementById('cbmSelect');
+  const needsCbm = String(type).toUpperCase()==='CONSOLE';
+  const cbm     = cbmSel?.value ? Number(cbmSel.value) : undefined;
+  if (needsCbm && !cbmSel?.value) return alert('CONSOLE은 CBM을 선택하세요.');
+
   try{
-    const country = countryCombo.getValue();
-    const region  = regionCombo.getValue();
-    const type    = (typeCombo.getValue() || '20FT');
-    const cargo   = document.getElementById('cargoTypeSelect')?.value || '';
+    const roles = [];
+    if (cargo) roles.push(cargo.toUpperCase()); // API가 roles로 화물타입 받는 구조라고 가정
 
-    if (!country){ return alert('국가를 선택하세요.'); }
-    if (!cargo){   return alert('화물타입을 선택하세요.'); }
+    const params = new URLSearchParams();
+    params.set('type', type);
+    params.set('company', company);
+    if (region) params.set('region', region);
+    if (roles.length) params.set('roles', roles.join(','));
+    if (needsCbm && !isNaN(cbm)) params.set('cbm', String(cbm));
 
-    const cbmSel  = document.getElementById('cbmSelect');
-    const cbm     = cbmSel?.value ? Number(cbmSel.value) : undefined;
+    const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
+    const res = await fetch(url);
+    const j   = await res.json();
 
-    async function fetchSide(side){
-      const company = side==='A' ? companyComboA.getValue() : companyComboB.getValue();
-      const wrapId  = side==='A' ? 'tableWrapA' : 'tableWrapB';
-      if (!company){
-        document.getElementById(wrapId).innerHTML = '<div class="muted">업체가 선택되지 않았습니다.</div>';
-        return;
-      }
-      const roles = [];
-      if (cargo) roles.push(cargo.toUpperCase());
+    __numberFormats = j?.numberFormats || {};
+    renderTableTo(wrapId, j, type, Boolean(region));
 
-      const params = new URLSearchParams();
-      params.set('type', type);
-      params.set('company', company);
-      if (region) params.set('region', region);
-      if (roles.length) params.set('roles', roles.join(','));
-      if (!isNaN(cbm)) params.set('cbm', String(cbm));
-
-      const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
-      const res = await fetch(url);
-      const j   = await res.json();
-
-      __numberFormats = j?.numberFormats || {};
-      renderTableTo(wrapId, j, type, Boolean(region));
-    }
-
-    await Promise.all([fetchSide('A'), fetchSide('B')]);
-    document.getElementById('resultSection')?.classList.add('show');
+    document.getElementById('resultSection')?.classList.add('show'); // 표 섹션 노출
   }catch(e){
     console.error(e);
-    alert('조회 중 오류가 발생했습니다.');
+    alert(`${left?'A':'B'} 조회 중 오류가 발생했습니다.`);
   }
-});
+}
+
+// A/B 각각 별도 조회
+document.getElementById('btnFetchA')?.addEventListener('click', ()=>fetchSide('A'));
+document.getElementById('btnFetchB')?.addEventListener('click', ()=>fetchSide('B'));
+
 
 
   // === 써머리 클릭 시 해당 드롭다운 재오픈 ===
@@ -1207,6 +1237,8 @@ function renderTableTo(wrapId, data, type, isRegionFiltered){
       <tbody>${tbody}</tbody>
     </table>
   `;
+  console.log(wrapId, 'rows=', rows.length, data);
+
 }
 
 </script>
