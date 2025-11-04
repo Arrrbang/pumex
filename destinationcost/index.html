@@ -678,7 +678,7 @@ wrap.querySelector('#mpkBtnConfirm').onclick = ()=>{
   if (ok) closeModal();
 };
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') { closeStickyToast(); closeModal(); } });
-
+}
 
 async function ensureMapReady() {
   if (!mapInited) {
