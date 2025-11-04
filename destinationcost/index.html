@@ -695,6 +695,8 @@ async function ensureMapReady() {
         const c = e.geocode.center;
         if (tmpSearch) { map.removeLayer(tmpSearch); tmpSearch=null; }
         tmpSearch = L.marker(c, {icon: makeSvgPinIcon(pinSearch,false)}).addTo(map);
+        const gEl = document.querySelector('.leaflet-control-geocoder');
+        if (gEl) gEl.style.display = 'block';
         map.setView(c, 9);
 
         window.__selectedPlace = {
@@ -737,9 +739,15 @@ function setMapCountry(country) {
   if (!mapInited) return;
   markerLayer.clearLayers();
   __countryPoints = [];
-  if (!mapData || !mapData[country]) return;
+  if (!mapData) return;
+  const key = normalizeCountryKey(country);
+  if (!mapData[key]) {
+  console.warn('No map data for country:', country, '→ normalized:', key);
+  toast(`해당 국가 데이터가 없습니다: ${country}`, {sticky:true});
+  return;
+  }
 
-  const pts = mapData[country];
+  const pts = mapData[key];
   const bounds = [];
 
   pts.forEach(p => {
@@ -890,18 +898,19 @@ function closeModal(){
 /* ------------------------------
    지도 버튼 바인딩
 ------------------------------ */
-const __bindMapBtn = ()=>{
-  const btn = document.getElementById('btnSelectOnMap');
-  if (!btn) return;
-  btn.addEventListener('click', async ()=>{
-    openModal();
-    await ensureMapReady();
-    const c = getCountry();
-    if (c) setMapCountry(c);
-  }, { once:false });
-};
-if (document.readyState !== 'loading') __bindMapBtn();
-else document.addEventListener('DOMContentLoaded', __bindMapBtn);
+// ↓↓↓ 이 블록은 주석 처리해도 동작에 문제 없습니다.
+// const __bindMapBtn = ()=>{
+//   const btn = document.getElementById('btnSelectOnMap');
+//   if (!btn) return;
+//   btn.addEventListener('click', async ()=>{
+//     openModal();
+//     await ensureMapReady();
+//     const c = getCountry();
+//     if (c) setMapCountry(c);
+//   }, { once:false });
+// };
+// if (document.readyState !== 'loading') __bindMapBtn();
+// else document.addEventListener('DOMContentLoaded', __bindMapBtn);
 
 /* ------------------------------
    초기화
