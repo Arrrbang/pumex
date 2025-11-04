@@ -44,8 +44,8 @@
       <div class="dropdown-label-row">
         <span class="label-text">지역 선택</span>
         <button id="btnSelectOnMap" type="button" class="map-button-inline">지도에서 선택</button>
-
       </div>
+      
       <div class="combo" id="regionCombo">
         <input type="text" placeholder="지역을 입력/선택 (예: A지역, B지역)" autocomplete="off" disabled>
         <div class="list"></div>
@@ -571,6 +571,37 @@ function getCountry(){ if (window.countryCombo?.getValue) return window.countryC
 function getRegion(){  if (window.regionCombo?.getValue)  return window.regionCombo.getValue();  const el = document.querySelector('#regionCombo input');  return el?.value?.trim() || ''; }
 function setRegion(v){ if (window.regionCombo?.setValue)  return window.regionCombo.setValue(v);  const el = document.querySelector('#regionCombo input');  if(el){ el.value = v; el.dispatchEvent(new Event('input')); } }
 
+/* ========== [추가] setRegion 보강: change/input 이벤트 강제 발생 ========== */
+(function hardenSetRegion(){
+  const _orig = window.setRegion;
+  window.setRegion = function(v){
+    if (window.regionCombo?.setValue) {
+      regionCombo.setValue(v);
+      try { regionCombo.el?.dispatchEvent?.(new Event('change', {bubbles:true})); } catch(e){}
+      try { regionCombo.el?.dispatchEvent?.(new Event('input',  {bubbles:true})); } catch(e){}
+      return;
+    }
+    const el = document.querySelector('#regionCombo input');
+    if (el){
+      el.value = v;
+      el.dispatchEvent(new Event('input',  {bubbles:true}));
+      el.dispatchEvent(new Event('change', {bubbles:true}));
+      return;
+    }
+    const selEl = document.getElementById('regionSelect') || document.querySelector('select#regionSelect, select[name="region"]');
+    if (selEl){
+      let opt = Array.from(selEl.options).find(o => (o.value === v) || (o.text.trim() === v));
+      if (!opt) { opt = new Option(v, v, true, true); selEl.add(opt); }
+      selEl.value = opt.value;
+      selEl.dispatchEvent(new Event('change', {bubbles:true}));
+      selEl.dispatchEvent(new Event('input',  {bubbles:true}));
+      return;
+    }
+    _orig?.(v);
+  };
+})();
+
+  
 let __sticky = null;
 function toast(msg, {sticky=false, timeout=1500}={}) {
   if (__sticky) { __sticky.remove(); __sticky = null; }
@@ -639,15 +670,15 @@ function ensureModal() {
     </div>
   `;
   document.body.appendChild(wrap);
-  wrap.querySelector('#mpkBtnClose').onclick = closeModal;
-  wrap.querySelector('.mpk__backdrop').onclick = closeModal;
-  wrap.querySelector('#mpkBtnConfirm').onclick = ()=>{
-  // 지도의 '가장 가까운 등록 지역' 안내(sticky)도 함께 닫기
-  closeStickyToast();        // ★ [NEW]
-  closeModal();
+wrap.querySelector('#mpkBtnClose').onclick = ()=>{ closeStickyToast(); closeModal(); };
+wrap.querySelector('.mpk__backdrop').onclick = ()=>{ closeStickyToast(); closeModal(); };
+wrap.querySelector('#mpkBtnConfirm').onclick = ()=>{
+  const ok = applySelectedLocationFromMap();
+  closeStickyToast();
+  if (ok) closeModal();
 };
-  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
-}
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') { closeStickyToast(); closeModal(); } });
+
 
 async function ensureMapReady() {
   if (!mapInited) {
@@ -666,6 +697,11 @@ async function ensureMapReady() {
         tmpSearch = L.marker(c, {icon: makeSvgPinIcon(pinSearch,false)}).addTo(map);
         map.setView(c, 9);
 
+        window.__selectedPlace = {
+          name: null,  
+          lat:  c.lat,
+          lng:  c.lng
+        };
         const pts = __countryPoints;
         if (pts?.length) {
           const hit = findNearest(c.lat,c.lng,pts);
@@ -677,6 +713,10 @@ async function ensureMapReady() {
             dropdownMenu?.classList.add('show');
             isDropdownVisible = true;
           }
+          if (hit?.point?.name) window.__selectedPlace.name = hit.point.name;
+            applySelectedLocationFromMap();
+            closeStickyToast(); 
+            closeModal();
         }
       }).addTo(map);
 
@@ -727,6 +767,84 @@ function setMapCountry(country) {
 /* ------------------------------
    지도 모달 열기/닫기 + 스냅샷 복구
 ------------------------------ */
+
+/* ========== [추가] Sticky 토스트 닫기 ========== */
+function closeStickyToast(){
+  if (window.__sticky) { __sticky.remove(); __sticky = null; }
+}
+
+/* ========== [추가] 지도 선택값 → 드롭다운 반영 ========== */
+function applySelectedLocationFromMap(){
+  const sel = window.__selectedPlace || {};
+  let name = sel.name;
+
+  if (!name && sel.lat != null && sel.lng != null && Array.isArray(__countryPoints) && __countryPoints.length){
+    const hit = findNearest(sel.lat, sel.lng, __countryPoints);
+    name = hit?.point?.name;
+  }
+  if (!name){
+    toast('선택된 지역을 찾지 못했습니다.');
+    return false;
+  }
+
+  if (window.regionCombo?.setValue) {
+    regionCombo.setValue(name);
+    try { regionCombo.el?.dispatchEvent?.(new Event('change', {bubbles:true})); } catch(e){}
+    try { regionCombo.el?.dispatchEvent?.(new Event('input',  {bubbles:true})); } catch(e){}
+  } else {
+    const selEl = document.getElementById('regionSelect') || document.querySelector('select#regionSelect, select[name="region"]');
+    if (selEl) {
+      let opt = Array.from(selEl.options).find(o => (o.value === name) || (o.text.trim() === name));
+      if (!opt) { opt = new Option(name, name, true, true); selEl.add(opt); }
+      selEl.value = opt.value;
+      selEl.dispatchEvent(new Event('change', {bubbles:true}));
+      selEl.dispatchEvent(new Event('input',  {bubbles:true}));
+    } else {
+      const el = document.querySelector('#regionCombo input');
+      if (el){ el.value = name; el.dispatchEvent(new Event('input', {bubbles:true})); }
+    }
+  }
+
+  try { if (typeof showFirstSummary === 'function') showFirstSummary(); } catch(e){}
+  try { if (typeof updateSelectionSummary === 'function') updateSelectionSummary(); } catch(e){}
+
+  toast(`지역이 "${name}"(으)로 선택되었습니다.`);
+  return true;
+}
+
+/* ========== [추가] 모달 열기/닫기 ========== */
+let __mapModalOpen = false;
+function openModal(){
+  const m = document.getElementById('mapPickerModal');
+  if (!m) return;
+  m.style.display = 'block';
+  m.setAttribute('aria-hidden','false');
+  document.body.classList.add('no-scroll');
+  __mapModalOpen = true;
+  setTimeout(()=>{ if (window.map?.invalidateSize) map.invalidateSize(); }, 100);
+}
+function closeModal(){
+  const m = document.getElementById('mapPickerModal');
+  if (!m) return;
+  m.style.display = 'none';
+  m.setAttribute('aria-hidden','true');
+  document.body.classList.remove('no-scroll');
+  __mapModalOpen = false;
+}
+  
+/* ========== [추가] 버튼(id="btnSelectOnMap")으로 모달 열기 ========== */
+(function wireOpenButton(){
+  const btn = document.getElementById('btnSelectOnMap');
+  if (!btn) return;
+  btn.addEventListener('click', async ()=>{
+    ensureModal();                 // 모달 DOM 생성
+    await ensureMapReady();        // Leaflet/지오코더 로드
+    const c = getCountry();
+    if (c) setMapCountry(c);       // 국가 마커 로드
+    openModal();
+  });
+})();
+
 let __uiSnapshot = {
   isDropdownVisible: false,
   isNextVisible: false,
