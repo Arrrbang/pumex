@@ -735,46 +735,40 @@ async function ensureMapReady() {
 }
 
 let __countryPoints = [];
-  function normalizeCountryKey(raw){
-  if (!raw) return '';
-  return String(raw).trim();
-    
-    console.log('[setMapCountry] country=', country, 'mapData keys=', Object.keys(mapData||{}));
 
-    function normalizeCountryKey(raw){
+/* 국가 키 보정 (현재는 trim만 수행 — 필요한 별칭은 매핑 추가) */
+function normalizeCountryKey(raw){
   if (!raw) return '';
   return String(raw).trim();
-      
+}
+
+/* 선택 국가의 마커 세팅 */
 function setMapCountry(country) {
   if (!mapInited) return;
   markerLayer.clearLayers();
   __countryPoints = [];
   if (!mapData) return;
+
   const key = normalizeCountryKey(country);
   if (!mapData[key]) {
-  console.warn('No map data for country:', country, '→ normalized:', key);
-  toast(`해당 국가 데이터가 없습니다: ${country}`, {sticky:true});
-  return;
+    console.warn('No map data for country:', country, '→ normalized:', key);
+    toast(`해당 국가 데이터가 없습니다: ${country}`, {sticky:true});
+    return;
   }
 
   const pts = mapData[key];
-  
   console.log('[setMapCountry] using key=', key, 'points=', pts?.length);
 
   const bounds = [];
-
   pts.forEach(p => {
     const m = L.marker([p.lat, p.lng], { icon: makeSvgPinIcon(pinReg, false) })
       .addTo(markerLayer);
-
-    // 핀 클릭 시: 지역값 세팅 + 1차 컨테이너 유지
     m.on('click', () => {
       setRegion(p.name);
       toast(`지역 선택: ${p.name}`);
       dropdownMenu?.classList.add('show');
       isDropdownVisible = true;
     });
-
     __countryPoints.push({ ...p, marker: m });
     bounds.push([p.lat, p.lng]);
   });
