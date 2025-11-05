@@ -781,46 +781,98 @@ function normalizeCountryKey(raw){
 
 
 /* === [PATCH C] setMapCountry — 상시/모달 동시 업데이트 === */
+/* === 지도 동기화: 국가 선택 시 마커 표시 + 줌 === */
 function setMapCountry(country) {
-  const key = normalizeCountryKey(country);
-  if (!mapData || !mapData[key]) {
+  const key = normalizeCountryKey ? normalizeCountryKey(country) : (country || "").trim().toLowerCase();
+  const pts = (window.mapData && window.mapData[key]) ? window.mapData[key] : null;
+
+  if (!pts || !pts.length) {
     console.warn('No map data for country:', country, '→ normalized:', key);
-    toast(`해당 국가 데이터가 없습니다: ${country}`, {sticky:true});
+    if (typeof toast === 'function') toast(`해당 국가 데이터가 없습니다: ${country}`, { sticky: true });
     return;
   }
-  const pts = mapData[key];
-  __countryPoints = []; // 최근접 탐색용 풀(모달/상시 공용)
 
-  // 공통 마커 세팅 함수
-  function setMarkers(targetMap, targetLayer) {
+  function applyTo(targetMap, targetLayer) {
     if (!targetMap || !targetLayer) return;
     targetLayer.clearLayers();
+
     const bounds = [];
+    let capital = null;
+
     pts.forEach(p => {
-      const m = L.marker([p.lat, p.lng], { icon: makeSvgPinIcon(pinReg, false) })
-        .addTo(targetLayer);
-      m.on('click', () => {
-        setRegion(p.name);
-        toast(`지역 선택: ${p.name}`);
-        // 단계 컨테이너는 항상 열려있으므로 추가 처리 불필요
+      const latlng = [p.lat, p.lng];
+      const marker = L.marker(latlng, { icon: (typeof makeSvgPinIcon === 'function' ? makeSvgPinIcon(pinReg, false) : undefined) });
+      marker.addTo(targetLayer).on('click', () => {
+        if (typeof setRegion === 'function') setRegion(p.name);
+        if (typeof toast === 'function') toast(`지역 선택: ${p.name}`);
       });
-      bounds.push([p.lat, p.lng]);
+      bounds.push(latlng);
+      // 수도 판별 키: isCapital / type === 'capital' / name에 'Capital' 등
+      if (p.isCapital || (p.type && /capital/i.test(p.type)) || (p.name && /capital/i.test(p.name))) {
+        capital = latlng;
+      }
     });
-    if (bounds.length) targetMap.fitBounds(bounds, { padding: [20, 20] });
+
+    if (capital) {
+      targetMap.setView(capital, 9, { animate: true });
+    } else if (bounds.length) {
+      targetMap.fitBounds(bounds, { padding: [20, 20] });
+    }
   }
 
-  // 상시 지도에 적용
-  if (baseMapInited) {
-    setMarkers(baseMap, baseMarkerLayer);
+  // 상시 지도(#mapAlways)
+  if (window.baseMapInited && window.baseMap && window.baseMarkerLayer) {
+    applyTo(baseMap, baseMarkerLayer);
   }
-  // 모달 지도에도 적용
-  if (mapInited) {
-    setMarkers(map, markerLayer);
+  // 모달 지도
+  if (window.mapInited && window.map && window.markerLayer) {
+    applyTo(map, markerLayer);
   }
 
-  // 최근접 계산 풀(클릭/검색 공용)
-  __countryPoints = pts.map(p => ({...p}));
+  // 최근접 탐색 풀(있다면) 갱신
+  window.__countryPoints = pts.map(p => ({ ...p }));
 }
+
+  
+/* === 국가 선택 → 지도 자동 업데이트 === */
+function onCountrySelected(country) {
+  const c = (country || "").trim();
+  if (!c) return;
+
+  // 상시 지도/모달 지도 준비(이미 초기화돼 있으면 내부에서 스킵)
+  const p1 = (typeof ensureBaseMapReady === 'function') ? ensureBaseMapReady() : Promise.resolve();
+  const p2 = (typeof ensureMapReady === 'function') ? ensureMapReady() : Promise.resolve();
+
+  Promise.allSettled([p1, p2]).finally(() => {
+    setMapCountry(c);
+    // 지역 콤보 활성화
+    const regionInput = document.querySelector('#regionCombo input');
+    regionInput && regionInput.removeAttribute('disabled');
+  });
+}
+
+(function wireCountryCombo() {
+  const root = document.getElementById('countryCombo');
+  const input = root ? root.querySelector('input') : null;
+  if (!input) return;
+
+  // 1) 커스텀 콤보 API가 있는 경우(예: countryCombo.on('select', ...))
+  if (window.countryCombo && typeof countryCombo.on === 'function') {
+    countryCombo.on('select', val => onCountrySelected(val));
+    countryCombo.on('change', val => onCountrySelected(val));
+  }
+
+  // 2) 폴백: 일반 input 이벤트(타이핑/엔터/변경)
+  let t;
+  input.addEventListener('input', () => {
+    clearTimeout(t);
+    t = setTimeout(() => onCountrySelected(input.value), 400); // 디바운스
+  });
+  input.addEventListener('change', () => onCountrySelected(input.value));
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') onCountrySelected(input.value);
+  });
+})();
 
 
 
@@ -1034,8 +1086,11 @@ document.getElementById('cargoTypeSelect')?.addEventListener('change', toggleFet
 
 
 // 지도에서 지역을 설정하는 경우도 반영
-window.addEventListener('DOMContentLoaded', ()=>{
-  toggleFetchVisibility(); // 초기 1회
+window.addEventListener('DOMContentLoaded', () => {
+  const preset = (window.countryCombo && typeof countryCombo.getValue === 'function')
+    ? (countryCombo.getValue() || '')
+    : (document.querySelector('#countryCombo input')?.value || '');
+  if (preset.trim()) onCountrySelected(preset.trim());
 });
 
 // 조회 성공 시 표 영역은 기존 코드대로 .show 추가됨
