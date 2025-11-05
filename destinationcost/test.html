@@ -38,103 +38,128 @@
     </div>
 
     <!-- 바디: 좌(흰 영역 = 지도) / 우(폼 전체) -->
-    <div class="svc__body">
-      <!-- LEFT: 지도 고정 영역(흰 배경) -->
-      <aside class="svc__map">
-        <div class="svc__map-head">
-          <strong>지도</strong>
-          <button id="btnSelectOnMap" type="button" class="svc__map-btn">지도에서 선택</button>
-        </div>
-        <div id="mapAlways" class="svc__map-canvas" role="img" aria-label="지도"></div>
-        <p class="svc__map-note">국가 선택 시 해당 국가 마커 표시 &amp; 수도 기준 줌인 · 지도 검색/선택 유지</p>
-      </aside>
+<div class="v104_119"><!-- 메인 래퍼 (피그마) -->
+  <!-- 회색 큰 카드 -->
+  <div class="v104_121">
 
-      <!-- RIGHT: 폼(기존 ID 유지: 기능 그대로 동작) -->
-      <div class="svc__form">
-        <!-- 1) 국가 / 지역 -->
-        <div class="selection-summary" id="selectionSummary"></div>
-        <section class="dropdown-container">
-          <div class="dropdown" id="dropdownMenu">
-            <div class="dropdown-inner">
-              <label class="dropdown-label" for="countryCombo">국가 선택</label>
-              <div class="combo" id="countryCombo">
-                <input type="text" placeholder="국가를 입력/선택 (예: 미국, 중국)" autocomplete="off">
-                <div class="list"></div>
-              </div>
-
-              <div class="dropdown-label-row">
-                <span class="label-text">지역 선택</span>
-                <button id="btnSelectOnMap2" type="button" class="map-button-inline">지도에서 선택</button>
-              </div>
-
-              <div class="combo" id="regionCombo">
-                <input type="text" placeholder="지역을 입력/선택 (예: A지역, B지역)" autocomplete="off" disabled>
-                <div class="list"></div>
-              </div>
-
-              <div class="action-row">
-                <button id="btnSelectFirst" class="select-btn" type="button">선택</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 2) 화물/컨테이너/CBM -->
-        <section class="dropdown-container">
-          <div class="dropdown" id="nextDropdowns">
-            <div class="dropdown-inner">
-              <label class="dropdown-label" for="cargoTypeSelect">화물타입</label>
-              <select id="cargoTypeSelect" class="dropdown-select"></select>
-
-              <label class="dropdown-label" for="typeCombo">컨테이너 타입</label>
-              <div class="combo" id="typeCombo">
-                <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" value="20FT">
-                <div class="list"></div>
-              </div>
-
-              <label class="dropdown-label" for="cbmSelect">CBM 선택</label>
-              <select id="cbmSelect" class="dropdown-select"></select>
-
-              <div class="action-row">
-                <button id="btnSelectSecond" class="select-btn" type="button">선택</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div class="selection-summary" id="nextSelectionSummary"></div>
-
-        <!-- 3) 파트너/POE -->
-        <section class="dropdown-container">
-          <div class="dropdown" id="thirdDropdowns">
-            <div class="dropdown-inner">
-              <label class="dropdown-label" for="companyCombo">업체 선택</label>
-              <div class="combo" id="companyCombo">
-                <input type="text" placeholder="업체를 입력/선택 (예: A업체, B업체)" autocomplete="off" disabled>
-                <div class="list"></div>
-              </div>
-
-              <label class="dropdown-label" for="poeCombo">POE 선택</label>
-              <div class="combo" id="poeCombo">
-                <input type="text" placeholder="POE를 입력/선택 (예: DAMMAM, RIYADH DRY PORT)" autocomplete="off" disabled>
-                <div class="list"></div>
-              </div>
-
-              <div class="action-row">
-                <button id="btnSelectThird" class="select-btn" type="button">선택</button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div class="selection-summary" id="thirdSelectionSummary"></div>
-
-        <!-- 조회 버튼 -->
-        <div class="action-row center">
-          <button id="btnFetch" class="primary-btn" type="button">조회</button>
-        </div>
+    <!-- LEFT: 흰 박스(지도 영역) -->
+    <div class="v104_122">
+      <!-- 지도 헤더 -->
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid #e5e7eb">
+        <strong style="color:#111827">지도</strong>
+        <button id="btnSelectOnMap" type="button" style="border:2px solid #14532D;background:#fff;color:#14532D;border-radius:999px;padding:8px 14px;font-weight:700;cursor:pointer">
+          지도에서 선택
+        </button>
+      </div>
+      <!-- 상시 지도 캔버스 -->
+      <div id="mapAlways" style="height:520px;background:#e6efe8;border-top:1px solid #eef2f7"></div>
+      <div style="padding:8px 12px;color:#6b7280;font-size:12px">
+        국가 선택 시 해당 국가 마커 표시 & 수도 기준 줌(추후 단계별 기능 추가)
       </div>
     </div>
+
+    <!-- RIGHT-1: 1) 국가 / 지역 선택 (v106_5 영역 안에 실제 컨트롤 삽입) -->
+    <div class="v106_5">
+      <div class="v104_123">
+        <div style="position:absolute;inset:0;padding:8px 10px">
+          <label style="font-weight:700;color:#111827;display:block;margin-bottom:6px">국가</label>
+          <div class="combo" id="countryCombo">
+            <input type="text" placeholder="국가 입력/선택 (예: 미국, 중국)" autocomplete="off" style="width:100%;padding:10px 12px;border:2px solid #1F9461;border-radius:10px;background:#fff;">
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="v104_127">
+        <div style="position:absolute;inset:0;padding:8px 10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <label style="font-weight:700;color:#111827">지역</label>
+            <button id="btnSelectOnMap2" type="button" class="map-button-inline" style="border:2px solid #1F9461;background:#fff;color:#1F9461;border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer">지도에서 선택</button>
+          </div>
+          <div class="combo" id="regionCombo">
+            <input type="text" placeholder="지역 입력/선택 (예: A지역, B지역)" autocomplete="off" disabled
+                   style="width:100%;padding:10px 12px;border:2px solid #1F9461;border-radius:10px;background:#fff;">
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+
+      <span class="v104_131" style="position:absolute;top:0;left:0">1) 국가 / 지역 선택</span>
+    </div>
+
+    <!-- RIGHT-2: 2) 화물/컨테이너/CBM (v106_7) -->
+    <div class="v106_7">
+      <!-- 컨테이너 -->
+      <div class="v104_149">
+        <div style="position:absolute;inset:0;padding:8px 10px">
+          <label style="font-weight:700;color:#111827;display:block;margin-bottom:6px">컨테이너 타입</label>
+          <div class="combo" id="typeCombo">
+            <input type="text" placeholder="20FT / 40HC / CONSOLE" value="20FT" autocomplete="off"
+                   style="width:100%;padding:10px 12px;border:2px solid #1F9461;border-radius:10px;background:#fff;">
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+      <!-- 화물 타입 -->
+      <div class="v104_145">
+        <div style="position:absolute;inset:0;padding:8px 10px">
+          <label style="font-weight:700;color:#111827;display:block;margin-bottom:6px">화물 타입</label>
+          <select id="cargoTypeSelect" style="width:100%;padding:10px 12px;border:2px solid #1F9461;border-radius:10px;background:#fff;">
+            <option value="">화물타입 선택</option>
+          </select>
+        </div>
+      </div>
+      <!-- CBM -->
+      <div class="v104_153">
+        <div style="position:absolute;inset:0;padding:8px 10px">
+          <label style="font-weight:700;color:#111827;display:block;margin-bottom:6px">CBM 선택</label>
+          <select id="cbmSelect" style="width:100%;padding:10px 12px;border:2px solid #1F9461;border-radius:10px;background:#fff;">
+            <option value="">CBM 선택</option>
+          </select>
+        </div>
+      </div>
+
+      <span class="v104_143" style="position:absolute;top:0;left:0">3) 화물/컨테이너/CBM</span>
+    </div>
+
+    <!-- RIGHT-3: 3) 파트너/POE (v106_6) -->
+    <div class="v106_6">
+      <!-- 파트너 -->
+      <div class="v104_135">
+        <div style="position:absolute;inset:0;padding:8px 10px">
+          <label style="font-weight:700;color:#111827;display:block;margin-bottom:6px">파트너</label>
+          <div class="combo" id="companyCombo">
+            <input type="text" placeholder="파트너 입력/선택" autocomplete="off" disabled
+                   style="width:100%;padding:10px 12px;border:2px solid #1F9461;border-radius:10px;background:#fff;">
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+      <!-- POE -->
+      <div class="v104_139">
+        <div style="position:absolute;inset:0;padding:8px 10px">
+          <label style="font-weight:700;color:#111827;display:block;margin-bottom:6px">POE</label>
+          <div class="combo" id="poeCombo">
+            <input type="text" placeholder="POE 입력/선택 (예: DAMMAM, RIYADH DRY PORT)" autocomplete="off" disabled
+                   style="width:100%;padding:10px 12px;border:2px solid #1F9461;border-radius:10px;background:#fff;">
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+
+      <span class="v104_133" style="position:absolute;top:0;left:0">2) 파트너 / POE</span>
+    </div>
+
+    <!-- RIGHT-4: 조회 버튼 (v105_2) -->
+    <div class="v105_2">
+      <button id="btnFetch" type="button" style="all:unset;display:block;width:100%;height:100%;cursor:pointer;text-align:center;color:#fff;font-weight:800;line-height:40px">
+        조회
+      </button>
+    </div>
+
+    <!-- (선택) 가격 비교/단일업체 조회 버튼도 살리고 싶으면 v106_8 / v106_11에 버튼으로 교체 가능 -->
+  </div>
+</div>
 
     <!-- FOOT: 결과(같은 카드 안 하단) -->
     <footer class="svc__foot">
@@ -148,221 +173,116 @@
 </main>
   
 <script>
-/* =========================================================
-   Minimal App Script
-   - 남기는 것: Notion 연동(국가/지역/업체/POE/타입/CBM) + 상시 지도 "표시만"
-   - 제거한 것: 모달 지도, 검색/최근접, 토스트, 단계 열림/닫힘, 요약, 표 렌더, 비교/조회 등
-========================================================= */
+const BASE='https://notion-api-hub.vercel.app';
+const $=(s,r=document)=>r.querySelector(s);
 
-/* ------------------------------
-   환경 & 헬퍼
------------------------------- */
-const BASE = 'https://notion-api-hub.vercel.app';
-const $  = (s, r=document)=>r.querySelector(s);
-
-/* ------------------------------
-   아주 심플한 콤보 (부모 안에서만 열림)
------------------------------- */
+/* ————— 간단 콤보 ————— */
 function makeCombo(el, items=[]){
-  const input = el.querySelector('input');
-  const list  = el.querySelector('.list');
-  let data = [...items];
-  let selected = null;
-
-  function render(filter=''){
-    const f = (filter||'').trim().toLowerCase();
-    list.innerHTML='';
-    const filtered = f ? data.filter(x=>String(x).toLowerCase().includes(f)) : [...data];
-    filtered.forEach(v=>{
-      const d=document.createElement('div');
-      d.className='item' + (selected===v ? ' is-selected':'');
-      d.textContent=v;
-      d.addEventListener('click', (e)=>{
-        e.stopPropagation();
-        selected=v;
-        input.value=v;
-        el.classList.remove('open');
-        el.dispatchEvent(new CustomEvent('change',{detail:v}));
-      });
-      list.appendChild(d);
-    });
+  const input = el.querySelector('input'); const list = el.querySelector('.list');
+  let data=[...items]; let selected=null;
+  function render(f=''){ const q=(f||'').toLowerCase().trim();
+    list.innerHTML=''; (q?data.filter(x=>String(x).toLowerCase().includes(q)):data)
+      .forEach(v=>{ const d=document.createElement('div'); d.className='item'+(selected===v?' is-selected':''); d.textContent=v;
+        d.onclick=(e)=>{ e.stopPropagation(); selected=v; input.value=v; el.classList.remove('open'); el.dispatchEvent(new CustomEvent('change',{detail:v})); };
+        list.appendChild(d); });
   }
-  function setItems(arr){
-    data = [...new Set((arr||[]).filter(Boolean))];
-    input.disabled = data.length===0;
-    if(document.activeElement!==input) input.value='';
-    selected=null;
-    render(input.value);
-  }
+  function setItems(arr){ data=[...new Set((arr||[]).filter(Boolean))]; input.disabled=!data.length; if(document.activeElement!==input) input.value=''; selected=null; render(input.value); }
   function getValue(){ return selected || input.value.trim(); }
   function setValue(v){ selected=v||null; input.value=v??''; render(input.value); el.dispatchEvent(new CustomEvent('change',{detail:v})); }
-
-  input.addEventListener('focus', ()=>{ el.classList.add('open'); render(input.value); });
+  input.addEventListener('focus',()=>{ el.classList.add('open'); render(input.value); });
   input.addEventListener('input', ()=>{ el.classList.add('open'); render(input.value); });
-  input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ const first=list.querySelector('.item'); if(first) first.click(); } });
-
-  document.addEventListener('pointerdown', (e)=>{
-    if (!el.contains(e.target)) { el.classList.remove('open'); }
-  }, {passive:true});
-
-  setItems(items);
-  return { setItems, getValue, setValue, root: el, input, list };
+  document.addEventListener('pointerdown',(e)=>{ if(!el.contains(e.target)) el.classList.remove('open'); },{passive:true});
+  setItems(items); return { setItems, getValue, setValue, root:el, input, list };
 }
 
-/* ------------------------------
-   요소 핸들
------------------------------- */
-const countryCombo = makeCombo(document.getElementById('countryCombo'));
-const regionCombo  = makeCombo(document.getElementById('regionCombo'));
-const companyCombo = makeCombo(document.getElementById('companyCombo'));
-const typeCombo    = makeCombo(document.getElementById('typeCombo'), ['20FT','40HC','CONSOLE']);
-const poeCombo     = makeCombo(document.getElementById('poeCombo'));
-const cbmSelect    = $("#cbmSelect");
+/* ————— 요소 참조 ————— */
+const countryCombo=makeCombo(document.getElementById('countryCombo'));
+const regionCombo =makeCombo(document.getElementById('regionCombo'));
+const companyCombo=makeCombo(document.getElementById('companyCombo'));
+const typeCombo   =makeCombo(document.getElementById('typeCombo'), ['20FT','40HC','CONSOLE']);
+const poeCombo    =makeCombo(document.getElementById('poeCombo'));
+const cbmSelect   = document.getElementById('cbmSelect');
 
-/* ------------------------------
-   Notion API 연동: 국가 → 지역 → 업체 → POE
------------------------------- */
+/* ————— Notion 연동 ————— */
 async function loadCountries(){
   try{
-    const r = await fetch(`${BASE}/api/debug/config`);
-    const j = await r.json();
-    const countries = j.countries || Object.keys(j.dbStructure||{}) || [];
+    const r=await fetch(`${BASE}/api/debug/config`); const j=await r.json();
+    const countries=j.countries || Object.keys(j.dbStructure||{}) || [];
     countryCombo.setItems(countries);
-  }catch(e){
-    countryCombo.setItems([]);
-  }
+  }catch(e){ countryCombo.setItems([]); }
 }
-
 countryCombo.root.addEventListener('change', async ()=>{
-  const country = countryCombo.getValue();
-  // 다음 단계 초기화
+  const country=countryCombo.getValue();
   regionCombo.setItems([]); companyCombo.setItems([]); poeCombo.setItems([]);
-  regionCombo.input.disabled = true; companyCombo.input.disabled = true; poeCombo.input.disabled = true;
-
+  regionCombo.input.disabled=true; companyCombo.input.disabled=true; poeCombo.input.disabled=true;
   if(!country) return;
   try{
-    const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`);
-    const j = await r.json();
-    const regions = j.regions || [];
-    regionCombo.setItems(regions);
-    regionCombo.input.disabled = regions.length===0;
-  }catch(e){
-    regionCombo.setItems([]); 
-    regionCombo.input.disabled = true;
-  }
+    const r=await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`); const j=await r.json();
+    const regions=j.regions||[]; regionCombo.setItems(regions); regionCombo.input.disabled = regions.length===0;
+  }catch(e){ regionCombo.setItems([]); regionCombo.input.disabled=true; }
   updateCargoTypeOptions();
 });
-
 regionCombo.root.addEventListener('change', async ()=>{
-  const country = countryCombo.getValue();
-  const region  = regionCombo.getValue();
-  companyCombo.setItems([]); companyCombo.input.disabled = true;
-  poeCombo.setItems([]);     poeCombo.input.disabled     = true;
-
-  if(!country || !region) return;
+  const c=countryCombo.getValue(); const r=regionCombo.getValue();
+  companyCombo.setItems([]); companyCombo.input.disabled=true; poeCombo.setItems([]); poeCombo.input.disabled=true;
+  if(!c||!r) return;
   try{
-    const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
-    const r   = await fetch(url);
-    const j   = await r.json();
-    const companies = (j.companies || []).filter(Boolean);
-    companyCombo.setItems(companies);
-    companyCombo.input.disabled = companies.length===0;
-  }catch(e){
-    companyCombo.setItems([]); 
-    companyCombo.input.disabled = true;
-  }
+    const url=`${BASE}/api/companies/by-region?country=${encodeURIComponent(c)}&region=${encodeURIComponent(r)}&mode=options`;
+    const res=await fetch(url); const j=await res.json();
+    const companies=(j.companies||[]).filter(Boolean);
+    companyCombo.setItems(companies); companyCombo.input.disabled=companies.length===0;
+  }catch(e){ companyCombo.setItems([]); companyCombo.input.disabled=true; }
   updateCargoTypeOptions();
 });
-
 companyCombo.root.addEventListener('change', async ()=>{
-  const country = countryCombo.getValue();
-  const region  = regionCombo.getValue();
-  const company = companyCombo.getValue();
-
-  poeCombo.setItems([]); 
-  poeCombo.input.disabled = true;
-
-  if(!country || !region || !company) return;
-
+  const c=countryCombo.getValue(); const r=regionCombo.getValue(); const comp=companyCombo.getValue();
+  poeCombo.setItems([]); poeCombo.input.disabled=true; if(!c||!r||!comp) return;
   try{
-    // 권장 API: /api/poe/by-company
-    const url = `${BASE}/api/poe/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=data`;
-    const r   = await fetch(url);
-    const j   = await r.json();
-    const poes = (j.poes || []).filter(Boolean);
-    poeCombo.setItems(poes);
-    poeCombo.input.disabled = poes.length === 0;
-  }catch(e){
-    poeCombo.setItems([]); 
-    poeCombo.input.disabled = true;
-  }
+    const url=`${BASE}/api/poe/by-company?country=${encodeURIComponent(c)}&region=${encodeURIComponent(r)}&company=${encodeURIComponent(comp)}&mode=data`;
+    const res=await fetch(url); const j=await res.json();
+    const poes=(j.poes||[]).filter(Boolean); poeCombo.setItems(poes); poeCombo.input.disabled=poes.length===0;
+  }catch(e){ poeCombo.setItems([]); poeCombo.input.disabled=true; }
   updateCargoTypeOptions();
 });
 
-/* ------------------------------
-   화물/컨테이너/CBM (프런트만 유지)
------------------------------- */
+/* ————— 타입/CBM ————— */
 function setCargoTypeOptions(values){
-  const el = document.getElementById('cargoTypeSelect');
-  if(!el) return;
-  const opts = ['<option value="">화물타입 선택</option>']
-    .concat((values||[]).map(v=>`<option value="${String(v)}">${String(v)}</option>`));
-  el.innerHTML = opts.join('');
+  const el=document.getElementById('cargoTypeSelect'); if(!el) return;
+  el.innerHTML=['<option value="">화물타입 선택</option>'].concat((values||[]).map(v=>`<option value="${String(v)}">${String(v)}</option>`)).join('');
 }
-
-function updateCargoTypeOptions(){
-  // 상황에 따라 분기할 수 있도록 hook만 유지 (기본 2종)
-  setCargoTypeOptions(['DIPLOMAT','NON-DIPLOMAT']);
-}
-
-function setOptions(selectEl, values, placeholder='CBM 선택'){
-  const opts = ['<option value="">'+placeholder+'</option>']
-   .concat(values.map(v=>`<option value="${String(v)}">${String(v)}</option>`));
-  selectEl.innerHTML = opts.join('');
+function updateCargoTypeOptions(){ setCargoTypeOptions(['DIPLOMAT','NON-DIPLOMAT']); }
+function setOptions(selectEl, values, ph='CBM 선택'){
+  selectEl.innerHTML=['<option value="">'+ph+'</option>'].concat(values.map(v=>`<option value="${String(v)}">${String(v)}</option>`)).join('');
 }
 function fillCbmByType(type){
   if(!cbmSelect) return;
   const T=(type||'').toUpperCase();
-  let values=[];
-  if(!T){ setOptions(cbmSelect,[], 'CBM 선택'); return; }
-  if(T==='CONSOLE'){ values = Array.from({length:30},(_,i)=>i+1); }
-  else { values = [5,10,15,20,25,30,35,40]; }
+  let values=[]; if(!T){ setOptions(cbmSelect,[], 'CBM 선택'); return; }
+  if(T==='CONSOLE'){ values=Array.from({length:30},(_,i)=>i+1); } else { values=[5,10,15,20,25,30,35,40]; }
   setOptions(cbmSelect, values);
 }
 typeCombo.root.addEventListener('change', ()=> fillCbmByType(typeCombo.getValue()) );
 
-/* ------------------------------
-   지도: "표시만" (OSM 타일 + 기본 뷰)
-   - 마커/검색/모달/최근접/동기화 없음
------------------------------- */
-const LCSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-const LJS  = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-function loadCssOnce(href){ return new Promise((res, rej)=>{ if(document.querySelector(`link[href="${href}"]`)) return res(); const l=document.createElement('link'); l.rel='stylesheet'; l.href=href; l.onload=res; l.onerror=rej; document.head.appendChild(l); }); }
-function loadJsOnce(src){  return new Promise((res, rej)=>{ if(document.querySelector(`script[src="${src}"]`)) return res(); const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
-
-let baseMap, baseMapInited=false;
-async function ensureBaseMapReady() {
-  await loadCssOnce(LCSS); await loadJsOnce(LJS);
-  if (baseMapInited) { setTimeout(()=> baseMap.invalidateSize(), 50); return; }
-  const worldBounds = L.latLngBounds([[-85,-180],[85,180]]);
-  baseMap = L.map('mapAlways', {
-    center:[20,0], zoom:2,
-    worldCopyJump:false, maxBounds:worldBounds, maxBoundsViscosity:1.0
-  });
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    attribution:'&copy; OSM', noWrap:true, bounds:worldBounds
-  }).addTo(baseMap);
-  baseMapInited = true;
+/* ————— 상시 지도: 표시만 ————— */
+const LCSS="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+const LJS ="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+function loadCssOnce(href){ return new Promise((res,rej)=>{ if(document.querySelector(`link[href="${href}"]`)) return res(); const l=document.createElement('link'); l.rel='stylesheet'; l.href=href; l.onload=res; l.onerror=rej; document.head.appendChild(l); }); }
+function loadJsOnce (src ){ return new Promise((res,rej)=>{ if(document.querySelector(`script[src="${src}"]`)) return res(); const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+let baseMap, baseInited=false;
+async function ensureBaseMap(){ await loadCssOnce(LCSS); await loadJsOnce(LJS);
+  if(baseInited){ setTimeout(()=> baseMap.invalidateSize(),50); return; }
+  const world=L.latLngBounds([[-85,-180],[85,180]]);
+  baseMap=L.map('mapAlways',{center:[20,0],zoom:2,worldCopyJump:false,maxBounds:world,maxBoundsViscosity:1.0});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OSM',noWrap:true,bounds:world}).addTo(baseMap);
+  baseInited=true;
 }
 
-/* ------------------------------
-   초기화
------------------------------- */
+/* ————— 초기화 ————— */
 window.addEventListener('DOMContentLoaded', async ()=>{
-  try { await ensureBaseMapReady(); } catch(_){}
-  try { await loadCountries(); } catch(_){}
-  try { fillCbmByType(typeCombo.getValue() || '20FT'); } catch(_){}
-  try { updateCargoTypeOptions(); } catch(_){}
+  try{ await ensureBaseMap(); }catch(_){}
+  try{ await loadCountries(); }catch(_){}
+  try{ fillCbmByType(typeCombo.getValue()||'20FT'); }catch(_){}
+  try{ updateCargoTypeOptions(); }catch(_){}
 });
 </script>
 
