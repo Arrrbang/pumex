@@ -116,5 +116,124 @@
     </div>
   </main>
 
+  <script>
+/** ======================= 상시 노출 지도 (좌측 #mpkMap) ======================= */
+/* Leaflet & Geocoder 동적 로더 */
+function loadCssOnce(href){ return new Promise((res, rej)=>{ if(document.querySelector(`link[href="${href}"]`)) return res(); const l=document.createElement('link'); l.rel='stylesheet'; l.href=href; l.onload=res; l.onerror=rej; document.head.appendChild(l); }); }
+function loadJsOnce(src){  return new Promise((res, rej)=>{ if(document.querySelector(`script[src="${src}"]`)) return res(); const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+
+const LCSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+const LJS  = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+const GCSS = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css";
+const GJS  = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js";
+
+/* 콤보 편의 함수(이미 페이지에 makeCombo가 있다면 생략 가능) */
+function getCountry(){ const el = document.querySelector('#countryCombo input'); return el?.value?.trim() || ''; }
+function getRegion(){  const el = document.querySelector('#regionCombo input');  return el?.value?.trim() || ''; }
+function setRegion(v){
+  const combo = document.querySelector('#regionCombo input');
+  if (combo){ combo.value = v; combo.dispatchEvent(new Event('input',{bubbles:true})); combo.dispatchEvent(new Event('change',{bubbles:true})); }
+}
+
+/* 간단 토스트 */
+function toast(msg){ try{ const d=document.createElement('div'); d.textContent=msg; d.style.cssText="position:fixed;left:50%;top:32vh;transform:translate(-50%,-50%);background:rgba(0,0,0,.82);color:#fff;padding:10px 14px;border-radius:10px;z-index:9999;font-size:14px;box-shadow:0 10px 24px rgba(0,0,0,.35)"; document.body.appendChild(d); setTimeout(()=>d.remove(),1500);}catch(_){} }
+
+/* 거리 계산 & 최근접 찾기 */
+function haversineKm(aLat,aLng,bLat,bLng){ const R=6371, dLat=(bLat-aLat)*Math.PI/180, dLng=(bLng-aLng)*Math.PI/180; const A=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(A)); }
+function findNearest(lat,lng,pts){ if(!pts?.length) return null; let best=null,bd=Infinity; for(const p of pts){ const d=haversineKm(lat,lng,p.lat,p.lng); if(d<bd){best=p;bd=d;} } return {point:best,distanceKm:bd}; }
+
+/* 지도 상태 */
+let map, markerLayer, geocoder, mapInited=false, mapData=null, tmpSearch=null;
+const pinReg    = '#2563eb';
+const pinSearch = '#ef4444';
+
+/* 커스텀 핀 */
+function makeSvgPinIcon(color) {
+  const svg = `<svg class="pin-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="${color}" d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/></svg>`;
+  return L.divIcon({ className: "", html:`<div class="pin-wrap">${svg}</div>`, iconSize:[26,26], iconAnchor:[13,26] });
+}
+
+/* 국가 키 보정(필요 시 별칭 매핑 추가) */
+function normalizeCountryKey(raw){ return String(raw||'').trim(); }
+
+/* ===== 핵심: 좌측 #mpkMap에 지도 초기화 ===== */
+async function initAlwaysOnMap(){
+  if (mapInited) return;
+  await loadCssOnce(LCSS); await loadJsOnce(LJS);
+  await loadCssOnce(GCSS); await loadJsOnce(GJS);
+
+  const worldBounds = L.latLngBounds([[-85,-180],[85,180]]);
+  map = L.map('mpkMap', { center:[20,0], zoom:2, worldCopyJump:false, maxBounds:worldBounds, maxBoundsViscosity:1.0 });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OSM', noWrap:true, bounds:worldBounds }).addTo(map);
+  markerLayer = L.layerGroup().addTo(map);
+
+  /* 검색 박스(지오코더) */
+  geocoder = L.Control.geocoder({ defaultMarkGeocode:false })
+    .on('markgeocode', (e)=>{
+      const c = e.geocode.center;
+      if (tmpSearch) { map.removeLayer(tmpSearch); tmpSearch=null; }
+      tmpSearch = L.marker(c, {icon: makeSvgPinIcon(pinSearch)}).addTo(map);
+      map.setView(c, 9);
+
+      // 최근접 등록 지역 자동 선택
+      const hit = findNearest(c.lat, c.lng, __countryPoints);
+      if (hit?.point){
+        setRegion(hit.point.name);
+        toast(`가장 가까운 등록 지역: ${hit.point.name} (~${hit.distanceKm.toFixed(1)}km)`);
+      }
+    }).addTo(map);
+
+  /* 국가별 포인트 데이터 로드 (index(70)과 동일 경로 규칙) */
+  try{
+    const r = await fetch('./map.json', {cache:'no-store'});
+    mapData = await r.json();
+  }catch(e){
+    console.warn('map.json 로드 실패:', e);
+    mapData = {};
+  }
+
+  mapInited = true;
+  setTimeout(()=> map.invalidateSize(), 100);
+}
+
+/* 선택 국가의 마커 세팅 (index(70)에서 사용하던 로직을 상시 지도용으로) */
+let __countryPoints = [];
+function setMapCountry(country){
+  if (!mapInited) return;
+  markerLayer.clearLayers();
+  __countryPoints = [];
+  if (!mapData) return;
+
+  const key = normalizeCountryKey(country);
+  const pts = mapData[key];
+  if (!pts || !pts.length){ toast(`해당 국가 데이터가 없습니다: ${country}`); return; }
+
+  const bounds = [];
+  pts.forEach(p=>{
+    const m = L.marker([p.lat, p.lng], { icon: makeSvgPinIcon(pinReg) }).addTo(markerLayer);
+    m.on('click', ()=>{ setRegion(p.name); toast(`지역 선택: ${p.name}`); });
+    __countryPoints.push({ ...p, marker:m });
+    bounds.push([p.lat, p.lng]);
+  });
+  if (bounds.length) map.fitBounds(bounds, { padding:[20,20] });
+}
+
+/* ===== 바인딩: 페이지 로드시 지도 항상 보이기 + 국가 바뀌면 마커 갱신 ===== */
+window.addEventListener('DOMContentLoaded', async ()=>{
+  try{ await initAlwaysOnMap(); }catch(_){}
+  // 나라 바뀌면 지도 갱신
+  const cc = document.querySelector('#countryCombo');
+  if (cc){
+    cc.addEventListener('change', ()=>{
+      const c = getCountry();
+      if (c) setMapCountry(c);
+    });
+  }
+  // 이미 국가가 입력돼 있다면 즉시 반영
+  const initial = getCountry();
+  if (initial) setMapCountry(initial);
+});
+</script>
+
 </body>
 </html>
