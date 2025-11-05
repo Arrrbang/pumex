@@ -1,124 +1,207 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>도착지 비용 계산 — Figma 스타일(단일 컨테이너)</title>
+  <title>도착지 비용 계산</title>
 
-  <!-- 폰트 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- 폰트 및 기존 CSS -->
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="./css/main.css" rel="stylesheet" />
 
-  <link rel="stylesheet" href="./styles (18).css" />
+  <style>
+    :root{
+  --bg: #0b0f14;
+  --fg: #eef2f7;
+  --border: rgba(255,255,255,0.18);
+  --header-h: 3.5rem;
+  --container-max: 1200px;
+  --gutter: 1.5rem;
+}
+
+body{ margin:0; font-family:"Noto Sans KR",system-ui,-apple-system,Segoe UI,Roboto,Apple SD Gothic Neo,sans-serif; color:var(--fg); background:var(--bg); }
+.page-bg{ position:fixed; inset:0;
+  background-image:url("https://arrrbang.github.io/pumex/image/costbackground.jpg");
+  background-size:cover; background-position:center; filter:saturate(1) brightness(.9); z-index:-2;
+}
+.page-bg::after{ content:""; position:absolute; inset:0; background:rgba(255,255,255,.4); z-index:-1; }
+
+.site-header{ position:sticky; top:0; background:rgba(0,0,0,.7); border-bottom:1px solid var(--border); z-index:10; }
+.container{ max-width:var(--container-max); margin:0 auto; padding:0 var(--gutter); }
+.header-inner{ display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:.75rem; min-height:var(--header-h); }
+.brand{ display:inline-flex; align-items:center; }
+.brand__logo{ height:calc(var(--header-h)*0.65); width:auto; display:block; padding-left:.75rem; margin-right:.75rem; }
+.header__title{ color:#fff; text-decoration:none; font-weight:700; letter-spacing:.02em; font-size:clamp(1rem,1.8vw,1.25rem); }
+.header__nav a{ color:#fff; text-decoration:none; margin-left:1rem; opacity:.9 }
+.header__nav a:hover{ opacity:1 }
+
+    /* 최소 레이아웃만 살짝: 하나의 큰 카드 안에 좌(지도)/우(폼) */
+    .mega-card{max-width:1200px;margin:24px auto;background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 20px 40px rgba(0,0,0,.12);overflow:hidden}
+    .mega-card__head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid #e5e7eb;background:linear-gradient(180deg,#F8FFF7 0%,#FFFFFF 100%)}
+    .mega-card__body{padding:16px}
+    .mega-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+    @media (max-width:1024px){.mega-grid{grid-template-columns:1fr}}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px}
+    .map-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    #mapAlways{height:460px;background:#e6efe8;border:1px solid #e5e7eb;border-radius:10px}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+    .field label{font-weight:700;color:#111827}
+    .field input[type="text"], .field select{
+      width:100%;padding:11px 12px;border:2px solid #1F9461;border-radius:10px;background:#fff;outline:none;
+    }
+    .row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    @media (max-width:1180px){.row-3{grid-template-columns:1fr}}
+    .actions{display:flex;gap:10px;justify-content:flex-end;align-items:center;margin-top:6px}
+    .btn{border:none;border-radius:999px;padding:11px 16px;font-weight:800;cursor:pointer}
+    .btn--primary{background:#1F9461;color:#fff}
+    .btn--ghost{background:#fff;border:2px solid #1F9461;color:#1F9461}
+    .summary{font-weight:700;color:#0f172a}
+    .mega-card__foot{border-top:1px solid #e5e7eb;padding:12px 16px}
+    .table-wrap{width:100%;overflow:auto;border-radius:10px}
+  </style>
 </head>
 <body>
-  <div class="page">
-    <!-- 단 하나의 메가 컨테이너 -->
-    <section class="mega-card">
-      <!-- 카드 헤더: 타이틀 + 피그마 배너(SVG) -->
-      <header class="mega-card__header">
-        <div class="header-left">
-          <h1 class="title">도착지 비용 계산</h1>
-          <p class="subtitle">국가/지역 선택 → 화물/컨테이너/CBM → 업체/POE → 조회</p>
-        </div>
-        <div class="header-right">
-          <img src="./Frame 1.svg" alt="" class="figma-banner" />
-        </div>
-      </header>
+  <div class="page-bg" aria-hidden="true"></div>
 
-      <!-- 카드 바디: 좌 지도 / 우 입력 (같은 카드 안) -->
-      <div class="mega-card__body">
-        <div class="grid">
-          <!-- LEFT: 지도 -->
-          <div class="cell map-box">
-            <div class="map-head">
-              <strong>지도</strong>
-              <button id="btnSelectOnMap" type="button" class="map-search-btn">지도에서 선택</button>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="#">
+      <img src="https://arrrbang.github.io/pumex/image/pumexlogonew.png" alt="PUMEX Logo" class="brand__logo" />
+    </a>
+    <a class="header__title" href="#">도착지 비용 계산</a>
+    <nav class="header__nav" aria-label="상단 링크">
+      <!-- 이동할 링크 추가 -->
+      <!-- <a href="/calc">계산기</a> <a href="/tariff">요율</a> ... -->
+    </nav>
+  </div>
+</header>
+  
+  <div class="mega-card v104_119">
+    <!-- 헤더 -->
+    <div class="mega-card__head v104_121">
+      <div>
+        <h1 style="margin:0;font-size:20px;color:#153A47">도착지 비용 계산</h1>
+        <div style="color:#475569;font-size:14px;margin-top:4px">국가/지역 → 화물/컨테이너/CBM → 파트너/POE → 조회</div>
+      </div>
+      <div><!-- 필요시 배너/로고 --></div>
+    </div>
+
+    <!-- 바디: 좌 지도 / 우 입력 -->
+    <div class="mega-card__body v104_122">
+      <div class="mega-grid v106_7">
+        <!-- LEFT: 지도 -->
+        <div class="card">
+          <div class="map-head">
+            <strong>지도</strong>
+            <button id="btnSelectOnMap" type="button" class="btn btn--ghost">지도에서 선택</button>
+          </div>
+          <!-- ✅ 항상 떠있는 지도 캔버스 -->
+          <div id="mapAlways" aria-label="지도"></div>
+          <p style="color:#6b7280;font-size:12px;margin:8px 2px 0">
+            국가 선택 시 해당 국가 마커 표시 및 수도 기준 줌인 / 지도 검색·선택 기능 유지
+          </p>
+        </div>
+
+        <!-- RIGHT: 입력 폼 -->
+        <div class="card">
+          <!-- 1) 국가 / 지역 -->
+          <div class="v106_5">
+            <div class="field">
+              <label for="countryInput">국가</label>
+              <!-- ✅ countryCombo: 콤보 UI를 쓰는 경우 이 div id가 필요 -->
+              <div class="combo" id="countryCombo">
+                <input id="countryInput" type="text" placeholder="국가 입력/선택 (예: 미국, 중국)" autocomplete="off" />
+                <div class="list"></div>
+              </div>
             </div>
-            <div id="mapAlways" class="map-canvas" role="img" aria-label="지도"></div>
-            <p class="muted">국가 선택 시 해당 국가 마커 표시 및 수도 기준 줌인 / 지도 검색·선택 기능 유지</p>
+            <div class="field">
+              <label for="regionInput">지역</label>
+              <!-- ✅ regionCombo -->
+              <div class="combo" id="regionCombo">
+                <input id="regionInput" type="text" placeholder="지역 입력/선택 (예: A지역, B지역)" autocomplete="off" disabled />
+                <div class="list"></div>
+              </div>
+            </div>
           </div>
 
-          <!-- RIGHT: 입력들 -->
-          <div class="cell form-box">
-            <!-- 1) 국가/지역 -->
-            <div class="field-group">
-              <label class="label" for="countryCombo">국가</label>
-              <div class="combo" id="countryCombo">
-                <input type="text" placeholder="국가 입력/선택" autocomplete="off">
-                <div class="list"></div>
+          <!-- 2) 화물 / 컨테이너 / CBM -->
+          <div class="v104_153">
+            <div class="row-3">
+              <div class="field">
+                <label for="cargoTypeSelect">화물 타입</label>
+                <!-- ✅ cargoTypeSelect -->
+                <select id="cargoTypeSelect">
+                  <!-- 동적 옵션 로드됨 -->
+                </select>
               </div>
-            </div>
-
-            <div class="field-group">
-              <label class="label" for="regionCombo">지역</label>
-              <div class="combo" id="regionCombo">
-                <input type="text" placeholder="지역 입력/선택" autocomplete="off" disabled>
-                <div class="list"></div>
-              </div>
-            </div>
-
-            <!-- 2) 화물/컨테이너/CBM -->
-            <div class="field-row">
-              <div class="field-group">
-                <label class="label" for="cargoTypeSelect">화물타입</label>
-                <select id="cargoTypeSelect" class="select"></select>
-              </div>
-              <div class="field-group">
-                <label class="label" for="typeCombo">컨테이너 타입</label>
+              <div class="field">
+                <label for="containerTypeInput">컨테이너 타입</label>
+                <!-- ✅ typeCombo: 콤보형 컨테이너 -->
                 <div class="combo" id="typeCombo">
-                  <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" value="20FT">
+                  <input id="containerTypeInput" type="text" placeholder="20FT / 40HC / CONSOLE" value="20FT" autocomplete="off" />
                   <div class="list"></div>
                 </div>
               </div>
-              <div class="field-group">
-                <label class="label" for="cbmSelect">CBM</label>
-                <select id="cbmSelect" class="select"></select>
+              <div class="field">
+                <label for="cbmSelect">CBM 선택</label>
+                <!-- ✅ cbmSelect -->
+                <select id="cbmSelect"></select>
               </div>
             </div>
+          </div>
 
-            <!-- 3) 업체/POE -->
-            <div class="field-row">
-              <div class="field-group">
-                <label class="label" for="companyCombo">업체</label>
+          <!-- 3) 파트너 / POE -->
+          <div class="v106_6" style="margin-top:8px">
+            <div class="row-3">
+              <div class="field">
+                <label for="companyInput">파트너</label>
+                <!-- ✅ companyCombo -->
                 <div class="combo" id="companyCombo">
-                  <input type="text" placeholder="업체 입력/선택" autocomplete="off" disabled>
+                  <input id="companyInput" type="text" placeholder="파트너 입력/선택 (예: A업체, B업체)" autocomplete="off" disabled />
                   <div class="list"></div>
                 </div>
               </div>
-              <div class="field-group">
-                <label class="label" for="poeCombo">POE</label>
+              <div class="field">
+                <label for="poeInput">POE</label>
+                <!-- ✅ poeCombo -->
                 <div class="combo" id="poeCombo">
-                  <input type="text" placeholder="POE 입력/선택" autocomplete="off" disabled>
+                  <input id="poeInput" type="text" placeholder="POE 입력/선택 (예: DAMMAM, RIYADH DRY PORT)" autocomplete="off" disabled />
                   <div class="list"></div>
                 </div>
               </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <!-- 선택 요약(옵션) -->
+                <div id="selectionSummary" class="summary"></div>
+              </div>
             </div>
+          </div>
 
-            <!-- 요약 + 조회 버튼 -->
-            <div class="summary-row">
-              <div class="selection-summary" id="selectionSummary"></div>
-              <button id="btnFetch" class="primary-btn" type="button">조회</button>
-            </div>
+          <!-- 액션 -->
+          <div class="actions v106_8">
+            <!-- 필요 시 비교 버튼도 유지 -->
+            <button id="btnCompare" type="button" class="btn btn--ghost">가격 비교</button>
+            <!-- ✅ 필수: 조회 버튼 -->
+            <button id="btnFetch" type="button" class="btn btn--primary">조회</button>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- 카드 풋터: 결과(같은 카드 안에서 하단) -->
-      <footer class="mega-card__footer">
-        <section id="resultSection" class="result-section">
-          <div class="result-container">
-            <div id="tableWrap" class="table-wrap"></div>
-          </div>
-        </section>
-
-        <div class="selection-summary-row">
-          <div class="selection-summary" id="nextSelectionSummary"></div>
-          <div class="selection-summary" id="thirdSelectionSummary"></div>
+    <!-- 풋터: 결과 -->
+    <div class="mega-card__foot v106_11">
+      <div id="resultSection">
+        <div class="table-wrap">
+          <!-- ✅ 결과 테이블이 여기에 렌더됨 -->
+          <div id="tableWrap"></div>
         </div>
-      </footer>
-    </section>
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:space-between;margin-top:10px">
+        <div id="nextSelectionSummary" class="summary"></div>
+        <div id="thirdSelectionSummary" class="summary"></div>
+      </div>
+    </div>
   </div>
 </body>
 </html>
