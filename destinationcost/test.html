@@ -836,7 +836,7 @@ function setMapCountry(country) {
   const key = normalizeCountryKey(country);
   if (!mapData[key]) {
     console.warn('No map data for country:', country, '→ normalized:', key);
-    toast(\`해당 국가 데이터가 없습니다: ${country}\`, {sticky:true});
+    toast(`해당 국가 데이터가 없습니다: ${country}`, {sticky:true});
     return;
     }
   const pts = mapData[key];
@@ -846,7 +846,7 @@ function setMapCountry(country) {
       .addTo(markerLayer);
     m.on('click', () => {
       setRegion(p.name);
-      toast(\`지역 선택: ${p.name}\`);
+      toast(`지역 선택: ${p.name}`);
       dropdownMenu?.classList.add('show');
       isDropdownVisible = true;
     });
@@ -860,23 +860,23 @@ function toast(msg, {sticky=false, timeout=1500}={}) {
   if (window.__sticky) { window.__sticky.remove(); window.__sticky = null; }
   if (sticky) {
     const el = document.createElement('div');
-      el.innerHTML = \`<div style="position:fixed;left:50%;top:33vh;transform:translate(-50%,-50%);
+      el.innerHTML = `<div style="position:fixed;left:50%;top:33vh;transform:translate(-50%,-50%);
         background:rgba(17,17,17,.92);color:#fff;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.15);
         box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:10000;font-size:14px;line-height:1.4;display:flex;gap:12px;align-items:center;
         max-width:min(90vw,640px);text-align:center"><span>${msg}</span>
-        <button type="button" style="background:#fff;color:#111;border:0;border-radius:10px;padding:6px 12px;cursor:pointer;">닫기</button></div>\`;
+        <button type="button" style="background:#fff;color:#111;border:0;border-radius:10px;padding:6px 12px;cursor:pointer;">닫기</button></div>`;
     el.querySelector('button').onclick = ()=>{ el.remove(); window.__sticky=null; };
     document.body.appendChild(el); window.__sticky = el; return;
   }
   const d = document.createElement('div');
   d.textContent = msg;
-  d.style.cssText = \`position:fixed;left:50%;top:33vh;transform:translate(-50%,-50%);
+  d.style.cssText = `position:fixed;left:50%;top:33vh;transform:translate(-50%,-50%);
     background:rgba(0,0,0,.85);color:#fff;padding:10px 14px;border-radius:12px;z-index:10000;font-size:14px;line-height:1.4;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:min(90vw,640px);text-align:center\`;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:min(90vw,640px);text-align:center`;
   document.body.appendChild(d); setTimeout(()=>d.remove(), timeout);
 }
 function haversineKm(aLat,aLng,bLat,bLng){ const R=6371, dLat=(bLat-aLat)*Math.PI/180, dLng=(bLng-aLng)*Math.PI/180; const A=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(A)); }
-function findNearest(lat,lng,pts){ if(!pts?.length) return null; let best=null,bd=Infinity; for(const p of pts){ const d=haversineKm(lat,lng,p.lat,p.lng); if(d<bd){best=p;bd=d;} } return {point:best,distanceKm:bd}; }
+function findNearest(lat,lng,pts){ if(!pts?.length) return null; let best=null,bd=Infinity; for(const p of pts){ const d=haversineKm(lat,lng,p.lat,p.lng); if(d<bd){best=p;bd=d;}  return {point:best,distanceKm:bd}; }
 
 /* 지도 버튼 → 좌측 지도 영역으로 포커스 */
 (function wireOpenButton(){
@@ -956,7 +956,7 @@ document.getElementById('btnFetch')?.addEventListener('click', async () => {
     if (roles.length) params.set('roles', roles.join(','));
     if (!isNaN(cbm)) params.set('cbm', String(cbm));
 
-    const url = \`${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}\`;
+    const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
     const res = await fetch(url);
     const j   = await res.json();
 
@@ -1021,24 +1021,24 @@ function renderTable(data, type, isRegionFiltered){
   }
   let thead = '<tr><th>항목</th>';
   if (!isRegionFiltered) thead += '<th>지역</th>';
-  thead += \`<th class="type-col">${esc(type)}</th><th>비고</th></tr>\`;
+  thead += `<th class="type-col">${esc(type)}</th><th>비고</th></tr>`;
 
   let tbody = '';
   for (const r of rows){
     const amt = r?.[type];
     const amtText = formatAmount(amt, type) || '-';
     tbody += '<tr>';
-    tbody += \`<td>${esc(r.item || '')}</td>\`;
-    if (!isRegionFiltered) tbody += \`<td>${esc(r.region || '')}</td>\`;
-    tbody += \`<td class="amt">${amtText}</td>\`;
-    tbody += \`<td>${r.extra || ''}</td>\`;
+    tbody += `<td>${esc(r.item || '')}</td>`;
+    if (!isRegionFiltered) tbody += `<td>${esc(r.region || '')}</td>`;
+    tbody += `<td class="amt">${amtText}</td>`;
+    tbody += `<td>${r.extra || ''}</td>`;
     tbody += '</tr>';
   }
-  wrap.innerHTML = \`
+  wrap.innerHTML = `
     <table class="result-table">
       <thead>${thead}</thead>
       <tbody>${tbody}</tbody>
-    </table>\`;
+    </table>`;
 }
   </script>
 </body>
