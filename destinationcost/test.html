@@ -3,135 +3,122 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>도착지 비용 계산 — 새 레이아웃(항상 표시)</title>
+  <title>도착지 비용 계산 — Figma 스타일(단일 컨테이너)</title>
 
   <!-- 폰트 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- 새 스타일(기존 styles (18).css 대체) -->
-  <link rel="stylesheet" href="./newstyles.css" />
+  <link rel="stylesheet" href="./styles (18).css" />
 </head>
 <body>
-  <!-- 배경 -->
-  <div class="page-bg" aria-hidden="true"></div>
-
-  <!-- 상단 바 (index.html과 톤/구조 동일) -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="#">
-        <img src="https://arrrbang.github.io/pumex/image/pumexlogonew.png" alt="PUMEX Logo" class="brand__logo" />
-      </a>
-      <a class="header__title" href="#">도착지 비용 계산</a>
-      <nav class="header__nav" aria-label="상단 링크"></nav>
-    </div>
-  </header>
-
-  <!-- 메인: 좌측 지도 + 우측 컨트롤(항상 표시) -->
-  <main class="container section">
-    <div class="layout">
-      <!-- LEFT: 지도 패널 (항상 고정 표시) -->
-      <aside class="map-panel" aria-label="지도">
-        <div class="map-card">
-          <div class="map-card__head">
-            <strong>지도</strong>
-            <span class="muted">국가/지역 선택 시 자동 줌</span>
-          </div>
-          <!-- ⚠️ 기능은 기존과 동일하게 유지. 우선 디자인용 자리만 -->
-          <div id="mapAlways" class="map-canvas" role="img" aria-label="지도 자리(디자인 우선)"></div>
-          <div class="map-note">
-            • 국가를 선택하면 해당 국가 마커 표시 및 수도 기준 줌인<br/>
-            • 지도에서 지역 검색/선택 기능은 추후 기존 스크립트를 그대로 이식
-          </div>
+  <div class="page">
+    <!-- 단 하나의 메가 컨테이너 -->
+    <section class="mega-card">
+      <!-- 카드 헤더: 타이틀 + 피그마 배너(SVG) -->
+      <header class="mega-card__header">
+        <div class="header-left">
+          <h1 class="title">도착지 비용 계산</h1>
+          <p class="subtitle">국가/지역 선택 → 화물/컨테이너/CBM → 업체/POE → 조회</p>
         </div>
-      </aside>
+        <div class="header-right">
+          <img src="./Frame 1.svg" alt="" class="figma-banner" />
+        </div>
+      </header>
 
-      <!-- RIGHT: 입력 컨테이너들(항상 표시) -->
-      <div class="controls-panel">
-        <!-- 선택 요약(선택 시 상단에만 간단히 노출) -->
-        <div class="selection-summary" id="selectionSummary"></div>
+      <!-- 카드 바디: 좌 지도 / 우 입력 (같은 카드 안) -->
+      <div class="mega-card__body">
+        <div class="grid">
+          <!-- LEFT: 지도 -->
+          <div class="cell map-box">
+            <div class="map-head">
+              <strong>지도</strong>
+              <button id="btnSelectOnMap" type="button" class="map-search-btn">지도에서 선택</button>
+            </div>
+            <div id="mapAlways" class="map-canvas" role="img" aria-label="지도"></div>
+            <p class="muted">국가 선택 시 해당 국가 마커 표시 및 수도 기준 줌인 / 지도 검색·선택 기능 유지</p>
+          </div>
 
-        <!-- 1) 국가/지역 -->
-        <section class="dropdown-container">
-          <div class="dropdown always-open" id="dropdownMenu">
-            <div class="dropdown-inner">
-              <label class="dropdown-label" for="countryCombo">국가 선택</label>
+          <!-- RIGHT: 입력들 -->
+          <div class="cell form-box">
+            <!-- 1) 국가/지역 -->
+            <div class="field-group">
+              <label class="label" for="countryCombo">국가</label>
               <div class="combo" id="countryCombo">
-                <input type="text" placeholder="국가를 입력/선택 (예: 미국, 중국)" autocomplete="off">
+                <input type="text" placeholder="국가 입력/선택" autocomplete="off">
                 <div class="list"></div>
               </div>
+            </div>
 
-              <div class="dropdown-label-row">
-                <span class="label-text">지역 선택</span>
-                <!-- 기존 기능 유지: 지도에서 선택 버튼 id 동일 -->
-                <button id="btnSelectOnMap" type="button" class="map-button-inline">지도에서 선택</button>
-              </div>
-
+            <div class="field-group">
+              <label class="label" for="regionCombo">지역</label>
               <div class="combo" id="regionCombo">
-                <input type="text" placeholder="지역을 입력/선택 (예: A지역, B지역)" autocomplete="off" disabled>
+                <input type="text" placeholder="지역 입력/선택" autocomplete="off" disabled>
                 <div class="list"></div>
               </div>
             </div>
-          </div>
-        </section>
 
-        <!-- 2) 화물/컨테이너/CBM -->
-        <section class="dropdown-container">
-          <div class="dropdown always-open" id="nextDropdowns">
-            <div class="dropdown-inner">
-              <label class="dropdown-label" for="cargoTypeSelect">화물타입</label>
-              <select id="cargoTypeSelect" class="dropdown-select"></select>
-
-              <label class="dropdown-label" for="typeCombo">컨테이너 타입</label>
-              <div class="combo" id="typeCombo">
-                <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" value="20FT">
-                <div class="list"></div>
+            <!-- 2) 화물/컨테이너/CBM -->
+            <div class="field-row">
+              <div class="field-group">
+                <label class="label" for="cargoTypeSelect">화물타입</label>
+                <select id="cargoTypeSelect" class="select"></select>
               </div>
-
-              <label class="dropdown-label" for="cbmSelect">CBM 선택</label>
-              <select id="cbmSelect" class="dropdown-select"></select>
-            </div>
-          </div>
-        </section>
-
-        <!-- 3) 업체/POE -->
-        <section class="dropdown-container">
-          <div class="dropdown always-open" id="thirdDropdowns">
-            <div class="dropdown-inner">
-              <label class="dropdown-label" for="companyCombo">업체 선택</label>
-              <div class="combo" id="companyCombo">
-                <input type="text" placeholder="업체를 입력/선택 (예: A업체, B업체)" autocomplete="off" disabled>
-                <div class="list"></div>
+              <div class="field-group">
+                <label class="label" for="typeCombo">컨테이너 타입</label>
+                <div class="combo" id="typeCombo">
+                  <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" value="20FT">
+                  <div class="list"></div>
+                </div>
               </div>
-
-              <label class="dropdown-label" for="poeCombo">POE 선택</label>
-              <div class="combo" id="poeCombo">
-                <input type="text" placeholder="POE를 입력/선택 (예: DAMMAM, RIYADH DRY PORT)" autocomplete="off" disabled>
-                <div class="list"></div>
+              <div class="field-group">
+                <label class="label" for="cbmSelect">CBM</label>
+                <select id="cbmSelect" class="select"></select>
               </div>
             </div>
-          </div>
-        </section>
 
-        <!-- 조회 버튼 + 결과 -->
-        <div class="action-row center revealed">
-          <button id="btnFetch" class="primary-btn" type="button">조회</button>
+            <!-- 3) 업체/POE -->
+            <div class="field-row">
+              <div class="field-group">
+                <label class="label" for="companyCombo">업체</label>
+                <div class="combo" id="companyCombo">
+                  <input type="text" placeholder="업체 입력/선택" autocomplete="off" disabled>
+                  <div class="list"></div>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="label" for="poeCombo">POE</label>
+                <div class="combo" id="poeCombo">
+                  <input type="text" placeholder="POE 입력/선택" autocomplete="off" disabled>
+                  <div class="list"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 요약 + 조회 버튼 -->
+            <div class="summary-row">
+              <div class="selection-summary" id="selectionSummary"></div>
+              <button id="btnFetch" class="primary-btn" type="button">조회</button>
+            </div>
+          </div>
         </div>
+      </div>
 
+      <!-- 카드 풋터: 결과(같은 카드 안에서 하단) -->
+      <footer class="mega-card__footer">
         <section id="resultSection" class="result-section">
           <div class="result-container">
             <div id="tableWrap" class="table-wrap"></div>
           </div>
         </section>
 
-        <!-- 보조 요약들 (필요 시 노출) -->
-        <div class="selection-summary" id="nextSelectionSummary"></div>
-        <div class="selection-summary" id="thirdSelectionSummary"></div>
-      </div>
-    </div>
-  </main>
-
-  <!-- ⚠️ 기능 스크립트는 기존 index.html의 것을 그대로 사용 예정. 디자인만 우선 반영 -->
+        <div class="selection-summary-row">
+          <div class="selection-summary" id="nextSelectionSummary"></div>
+          <div class="selection-summary" id="thirdSelectionSummary"></div>
+        </div>
+      </footer>
+    </section>
+  </div>
 </body>
 </html>
