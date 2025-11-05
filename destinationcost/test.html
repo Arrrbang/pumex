@@ -64,7 +64,7 @@
 
               <div class="dropdown-label-row">
                 <span class="label-text">지역 선택</span>
-                <button id="btnSelectOnMap" type="button" class="map-button-inline">지도에서 선택</button>
+                <button id="btnSelectOnMap2" type="button" class="map-button-inline">지도에서 선택</button>
               </div>
 
               <div class="combo" id="regionCombo">
@@ -483,6 +483,7 @@ countryCombo.root.addEventListener('change', async ()=>{
     regionCombo.input.disabled = false;
   }catch(e){ regionCombo.setItems([]); }
   updateCargoTypeOptions();
+  try { onCountrySelected(country); } catch(_) {}
 });
 regionCombo.root.addEventListener('change', async ()=>{
   const country = countryCombo.getValue();
@@ -697,6 +698,7 @@ wrap.querySelector('#mpkBtnConfirm').onclick = ()=>{
   const ok = applySelectedLocationFromMap();
   closeStickyToast();
   if (ok) closeModal();
+  try { onCountrySelected(getCountry()); } catch(_) {}
 };
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') { closeStickyToast(); closeModal(); } });
 }
@@ -956,6 +958,20 @@ function closeModal(){
     openModal();
   });
 })();
+
+// 두 번째 버튼도 모달 열리도록 연결
+(function wireOpenSecondButton(){
+  const btn2 = document.getElementById('btnSelectOnMap2');
+  if (!btn2) return;
+  btn2.addEventListener('click', async ()=>{
+    ensureModal();
+    await ensureMapReady();
+    const c = getCountry();
+    if (c) setMapCountry(c);
+    openModal();
+  });
+})();
+
 
 let __uiSnapshot = {
   isDropdownVisible: false,
