@@ -35,10 +35,37 @@
 /* ===== 베이스 */
 *{ box-sizing: border-box; }
 html{ font-size: clamp(14px, 1.2vw, 16px); }
+
+/* ===== 고정 배경 레이어 ===== */
 body{
-  margin:0; color:var(--fg); background:var(--bg); line-height:1.5;
-  font-family:"Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, "Apple SD Gothic Neo", sans-serif;
+  position: relative;
+  background: var(--bg); /* 기존 단색 배경 유지 (이미지 로딩 전 깔림) */
+  min-height: 100dvh;
 }
+
+body::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image: var(--bg-image-url);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(var(--bg-blur));
+  transform: translateZ(0); /* 렌더링 보정 */
+}
+
+body::after{
+  /* 그라디언트 + 살짝 어둡게 오버레이 */
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--bg-overlay), var(--bg-darken);
+}
+
 
 /* ===== 상단 헤더 */
 .site-header{
