@@ -387,31 +387,21 @@ function openFirst(){
   nextSummary.classList.remove('show');
   isDropdownVisible=true;
 }
-function closeFirst(){
-  dropdownMenu.classList.remove('show');
-  isDropdownVisible=false;
-  setTimeout(()=>{ showFirstSummary(); openSecond(); }, 400);
-}
-function openSecond(){
-  nextDropdowns.classList.add('show');
-  nextSummary.classList.remove('show');
-  isNextVisible=true;
-}
+// 필요하면 이렇게 단순화 (컨테이너 닫지 않음)
+function closeFirst(){ showFirstSummary?.(); /* no-op */ }
 function closeSecond(){
-  nextDropdowns.classList.remove('show');
-  isNextVisible=false;
-  setTimeout(()=>{
-    const t   = typeCombo.getValue() || '미선택';
-    const cbmText = cbmSelect?.value
-      ? (cbmSelect.options[cbmSelect.selectedIndex]?.text || cbmSelect.value)
-      : '미선택';
-    const text = `${esc(cbmText)} CBM (${esc(t)})`;
-    nextSummary.innerHTML = `<span class="summary-hot">${text}</span>`;
-    nextSummary.classList.add('show');
-
-    openThird();
-  }, 400);
+  const t   = typeCombo.getValue() || '미선택';
+  const cbm = cbmSelect?.value ? (cbmSelect.options[cbmSelect.selectedIndex]?.text || cbmSelect.value) : '미선택';
+  nextSummary.innerHTML = `<span class="summary-hot">${esc(cbm)} CBM (${esc(t)})</span>`;
+  nextSummary.classList.add('show');
 }
+function closeThird(){
+  const comp = (companyCombo.getValue() || '미선택');
+  const poe  = (poeCombo.getValue()     || '미선택');
+  thirdSummary.innerHTML = `<span class="summary-hot">${esc(comp)} (POE: ${esc(poe)})</span>`;
+  thirdSummary.classList.add('show');
+}
+
 
 function openThird(){
   thirdDropdowns.classList.add('show');
@@ -668,6 +658,7 @@ function toast(msg, {sticky=false, timeout=1500}={}) {
 function haversineKm(aLat,aLng,bLat,bLng){ const R=6371, dLat=(bLat-aLat)*Math.PI/180, dLng=(bLng-aLng)*Math.PI/180; const A=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(A)); }
 function findNearest(lat,lng,pts){ if(!pts?.length) return null; let best=null,bd=Infinity; for(const p of pts){ const d=haversineKm(lat,lng,p.lat,p.lng); if(d<bd){best=p;bd=d;} } return {point:best,distanceKm:bd}; }
 
+let baseMap, baseMarkerLayer, baseMapInited = false;
 let map, markerLayer, geocoder, mapInited=false, mapData=null, tmpSearch=null;
 const pinReg    = '#2563eb';
 const pinSearch = '#ef4444';
@@ -708,6 +699,25 @@ wrap.querySelector('#mpkBtnConfirm').onclick = ()=>{
   if (ok) closeModal();
 };
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') { closeStickyToast(); closeModal(); } });
+}
+
+/* === [PATCH B] 상시 지도 보드 초기화 === */
+async function ensureBaseMapReady() {
+  // Leaflet/타일 로드는 모달과 공유
+  await loadCssOnce(LCSS); await loadJsOnce(LJS);
+  if (baseMapInited) { setTimeout(()=> baseMap.invalidateSize(), 50); return; }
+
+  const worldBounds = L.latLngBounds([[-85,-180],[85,180]]);
+  baseMap = L.map('mapAlways', {
+    center:[20,0], zoom:2,
+    worldCopyJump:false, maxBounds:worldBounds, maxBoundsViscosity:1.0
+  });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'&copy; OSM', noWrap:true, bounds:worldBounds
+  }).addTo(baseMap);
+
+  baseMarkerLayer = L.layerGroup().addTo(baseMap);
+  baseMapInited = true;
 }
 
 async function ensureMapReady() {
@@ -769,41 +779,49 @@ function normalizeCountryKey(raw){
   return String(raw).trim();
 }
 
-/* 선택 국가의 마커 세팅 */
-function setMapCountry(country) {
-  if (!mapInited) return;
-  markerLayer.clearLayers();
-  __countryPoints = [];
-  if (!mapData) return;
 
+/* === [PATCH C] setMapCountry — 상시/모달 동시 업데이트 === */
+function setMapCountry(country) {
   const key = normalizeCountryKey(country);
-  if (!mapData[key]) {
+  if (!mapData || !mapData[key]) {
     console.warn('No map data for country:', country, '→ normalized:', key);
     toast(`해당 국가 데이터가 없습니다: ${country}`, {sticky:true});
     return;
   }
-
   const pts = mapData[key];
-  console.log('[setMapCountry] using key=', key, 'points=', pts?.length);
+  __countryPoints = []; // 최근접 탐색용 풀(모달/상시 공용)
 
-  const bounds = [];
-  pts.forEach(p => {
-    const m = L.marker([p.lat, p.lng], { icon: makeSvgPinIcon(pinReg, false) })
-      .addTo(markerLayer);
-    m.on('click', () => {
-      setRegion(p.name);
-      toast(`지역 선택: ${p.name}`);
-      dropdownMenu?.classList.add('show');
-      isDropdownVisible = true;
+  // 공통 마커 세팅 함수
+  function setMarkers(targetMap, targetLayer) {
+    if (!targetMap || !targetLayer) return;
+    targetLayer.clearLayers();
+    const bounds = [];
+    pts.forEach(p => {
+      const m = L.marker([p.lat, p.lng], { icon: makeSvgPinIcon(pinReg, false) })
+        .addTo(targetLayer);
+      m.on('click', () => {
+        setRegion(p.name);
+        toast(`지역 선택: ${p.name}`);
+        // 단계 컨테이너는 항상 열려있으므로 추가 처리 불필요
+      });
+      bounds.push([p.lat, p.lng]);
     });
-    __countryPoints.push({ ...p, marker: m });
-    bounds.push([p.lat, p.lng]);
-  });
-
-  if (bounds.length) {
-    map.fitBounds(bounds, { padding: [20, 20] });
+    if (bounds.length) targetMap.fitBounds(bounds, { padding: [20, 20] });
   }
+
+  // 상시 지도에 적용
+  if (baseMapInited) {
+    setMarkers(baseMap, baseMarkerLayer);
+  }
+  // 모달 지도에도 적용
+  if (mapInited) {
+    setMarkers(map, markerLayer);
+  }
+
+  // 최근접 계산 풀(클릭/검색 공용)
+  __countryPoints = pts.map(p => ({...p}));
 }
+
 
 
 /* ------------------------------
@@ -949,20 +967,34 @@ function closeModal(){
 /* ------------------------------
    초기화
 ------------------------------ */
+/* === [PATCH D] 초기화: 상시 지도 + 컨테이너 항상 표시 === */
 window.addEventListener('DOMContentLoaded', async ()=>{
-  try{
-    await loadCountries();
-  }catch(_){}
-  try{
-    fillCbmByType(typeCombo.getValue() || '20FT');
-  }catch(_){}
-  try{
-    openFirst();               // 첫 드롭다운 자동 열기 (실패해도 페이지는 계속)
-  }catch(_){}
-  try{
-    updateCargoTypeOptions();  // 화물타입 초기화
-  }catch(_){}
+  try { await ensureBaseMapReady(); } catch(_){}
+
+  // 기존 데이터 로딩
+  try { await loadCountries(); } catch(_){}
+  try { fillCbmByType(typeCombo.getValue() || '20FT'); } catch(_){}
+  try { updateCargoTypeOptions(); } catch(_){}
+
+  // ★ 항상 표시: 자동 열림/닫힘 비활성화
+  ['dropdownMenu','nextDropdowns','thirdDropdowns'].forEach(id=>{
+    document.getElementById(id)?.classList.add('show');
+  });
+  // 전역 클릭으로 닫는 로직을 무력화(컨테이너는 항상 열려있음)
+  document.removeEventListener('pointerdown', ()=>{});
+
+  // 나라를 미리 입력했다면 지도에 즉시 반영
+  const c = getCountry();
+  if (c) {
+    try { await ensureMapReady(); } catch(_){}
+    setMapCountry(c);
+  }
+
+  // “지도에서 선택” 버튼은 모달 지도 열기 (검색/최근접 보정은 모달에서)
+  // wireOpenButton()은 파일 하단에 이미 바인딩됨
+  toggleFetchVisibility?.();
 });
+
 
 
 
