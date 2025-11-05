@@ -41,86 +41,43 @@
       <!-- 오른쪽: 폼(드롭다운/콤보박스) -->
       <section class="right-pane">
 
-        <!-- 1차 선택 요약 -->
-        <div class="selection-summary" id="selectionSummary"></div>
-
-        <!-- 1차: 국가/지역 + 지도에서 선택 -->
+        <!-- 1차: 국가/지역 -->
         <div class="dropdown-container">
-          <div class="dropdown" id="dropdownMenu">
-            <div class="dropdown-inner">
-              <label class="dropdown-label" for="countryCombo">국가 선택</label>
-              <div class="combo" id="countryCombo">
-                <input type="text" placeholder="국가를 입력/선택 (예: 미국, 중국)" autocomplete="off">
-                <div class="list"></div>
-              </div>
+          <label class="dropdown-label" for="countryCombo">[1] 국가/지역 선택</label>
+          <div class="combo" id="countryCombo">
+            <input type="text" placeholder="국가 선택" autocomplete="off">
+            <div class="list"></div>
+          </div>
 
-              <div class="dropdown-label-row">
-                <span class="label-text">지역 선택</span>
-                <button id="btnSelectOnMap" type="button" class="map-button-inline">지도에서 선택</button>
-              </div>
-
-              <div class="combo" id="regionCombo">
-                <input type="text" placeholder="지역을 입력/선택 (예: A지역, B지역)" autocomplete="off" disabled>
-                <div class="list"></div>
-              </div>
-
-              <div class="action-row">
-                <button id="btnSelectFirst" class="select-btn" type="button">선택</button>
-              </div>
-            </div>
+          <div class="combo" id="regionCombo">
+            <input type="text" placeholder="배송 지역 선택" autocomplete="off" disabled>
+            <div class="list"></div>
           </div>
         </div>
 
-        <!-- 2차 선택 -->
+        <!-- 2차 선택: 업체/POE -->
         <div class="dropdown-container">
-          <div class="dropdown" id="nextDropdowns">
-            <div class="dropdown-inner">
-              <label class="dropdown-label" for="cargoTypeSelect">화물타입</label>
-              <select id="cargoTypeSelect" class="dropdown-select"></select>
-
-              <label class="dropdown-label" for="typeCombo">컨테이너 타입</label>
-              <div class="combo" id="typeCombo">
-                <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" value="20FT">
-                <div class="list"></div>
-              </div>
-
-              <label class="dropdown-label" for="cbmSelect">CBM 선택</label>
-              <select id="cbmSelect" class="dropdown-select"></select>
-
-              <div class="action-row">
-                <button id="btnSelectSecond" class="select-btn" type="button">선택</button>
-              </div>
-            </div>
+          <label class="dropdown-label" for="companyCombo">[2] 파트너/POE 선택</label>
+          <div class="combo" id="companyCombo">
+            <input type="text" placeholder="파트너 선택" autocomplete="off" disabled>
+            <div class="list"></div>
+          </div>
+          
+          <div class="combo" id="poeCombo">
+            <input type="text" placeholder="POE 선택" autocomplete="off" disabled>
+            <div class="list"></div>
           </div>
         </div>
-
-        <!-- 2차 요약 -->
-        <div class="selection-summary" id="nextSelectionSummary"></div>
-
-        <!-- 3차 요약 -->
-        <div class="selection-summary" id="thirdSelectionSummary"></div>
-
-        <!-- 3차 선택: 업체/POE -->
+    
+        <!-- 3차 선택 -->
         <div class="dropdown-container">
-          <div class="dropdown" id="thirdDropdowns">
-            <div class="dropdown-inner">
-              <label class="dropdown-label" for="companyCombo">업체 선택</label>
-              <div class="combo" id="companyCombo">
-                <input type="text" placeholder="업체를 입력/선택 (예: A업체, B업체)" autocomplete="off" disabled>
-                <div class="list"></div>
-              </div>
-
-              <label class="dropdown-label" for="poeCombo">POE 선택</label>
-              <div class="combo" id="poeCombo">
-                <input type="text" placeholder="POE를 입력/선택 (예: DAMMAM, RIYADH DRY PORT)" autocomplete="off" disabled>
-                <div class="list"></div>
-              </div>
-
-              <div class="action-row">
-                <button id="btnSelectThird" class="select-btn" type="button">선택</button>
-              </div>
-            </div>
+          <label class="dropdown-label" for="cargoTypeSelect">[3] 화물/컨테이너/CBM 선택</label>
+          <select id="cargoTypeSelect" class="dropdown-select"></select>
+          <div class="combo" id="typeCombo">
+            <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" disabled>
+            <div class="list"></div>
           </div>
+            <select id="cbmSelect" class="dropdown-select"></select>
         </div>
 
         <!-- 조회 버튼 -->
