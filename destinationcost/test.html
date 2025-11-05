@@ -11,7 +11,154 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./newstyles.css" />
+
+<style>
+/* =========================================================
+   PUMEX — 단일 파일용 스타일 (지도 + 콤보)
+   - 피그마 v104_*/v106_* 레이아웃은 유지
+   - 우리가 삽입한 input/select/콤보/버튼/지도만 스타일링
+   ========================================================= */
+
+/* 토큰 */
+:root{
+  --brand:       #14532D;  /* 진녹색 */
+  --brand-ghost: #D1FAE5;  /* 연녹 하이라이트 */
+  --ink:         #111827;
+  --muted:       #6B7280;
+  --border:      #E5E7EB;
+  --radius:      10px;
+}
+
+html,body{margin:0}
+body{
+  font-family:"Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, "Apple SD Gothic Neo", sans-serif;
+  color:var(--ink);
+  background:#0b0f14;
+}
+
+/* 배경 이미지(필요 시) */
+.page-bg{ position:fixed; inset:0;
+  background-image:url("https://arrrbang.github.io/pumex/image/costbackground.jpg");
+  background-size:cover; background-position:center;
+  filter:saturate(1) brightness(.9); z-index:-2;
+}
+.page-bg::after{ content:""; position:absolute; inset:0; background:rgba(255,255,255,.4); z-index:-1; }
+
+/* 피그마 메인 회색 카드 래퍼 (v104_121) 안쪽 여백만 보강 */
+.v104_121{ position:relative; }
+
+/* ========== LEFT: 흰 박스(지도 영역) ========== */
+.v104_122{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+}
+
+/* 지도 헤더 라인(흰 박스 상단) */
+.map-head{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 12px; border-bottom:1px solid var(--border);
+}
+#btnSelectOnMap{
+  border:2px solid var(--brand);
+  background:#fff; color:var(--brand);
+  border-radius:999px; padding:8px 14px;
+  font-weight:700; cursor:pointer;
+}
+#btnSelectOnMap:hover{ background:#F2FFF9; }
+
+/* 지도 캔버스 */
+#mapAlways{
+  height:520px;
+  background:#E6EFE8;
+  border-top:1px solid #EEF2F7;
+  border-bottom:1px solid #EEF2F7;
+  border-radius:0 0 12px 12px;
+}
+.map-note{ padding:8px 12px; color:var(--muted); font-size:12px }
+
+/* ========== RIGHT: 폼(항상 표시) ========== */
+.section-pad{ position:absolute; inset:0; padding:8px 10px }
+
+/* 라벨 공통 */
+.v106_5 label, .v106_7 label, .v106_6 label{
+  display:block; margin:0 0 6px; font-weight:700; color:var(--ink);
+}
+
+/* 입력/셀렉트 기본 */
+.v106_5 input,
+.v106_7 input,
+.v106_6 input,
+.v106_7 select,
+#cbmSelect,
+#cargoTypeSelect{
+  width:100%;
+  padding:10px 12px;
+  border:2px solid var(--brand);
+  border-radius:var(--radius);
+  background:#fff;
+  color:var(--ink);
+  outline:none;
+  font:inherit;
+  transition:border-color .15s, box-shadow .15s;
+}
+.v106_5 input:focus,
+.v106_7 input:focus,
+.v106_6 input:focus,
+.v106_7 select:focus,
+#cbmSelect:focus,
+#cargoTypeSelect:focus{
+  border-color:var(--brand);
+  box-shadow:0 0 0 2px rgba(20,83,45,.14);
+}
+
+/* 커스텀 콤보 드롭다운 */
+.combo{ position:relative; }
+.combo .list{
+  position:absolute; top:calc(100% + 6px); left:0; right:0;
+  max-height:240px; overflow:auto;
+  background:#fff;
+  border:2px solid var(--brand);
+  border-radius:var(--radius);
+  box-shadow:0 14px 30px rgba(0,0,0,.12);
+  display:none; z-index:1000;
+}
+.combo.open .list{ display:block; }
+.combo .list .item{ padding:10px 12px; cursor:pointer; line-height:1.42; color:var(--ink) }
+.combo .list .item:hover{ background:var(--brand-ghost); color:var(--brand) }
+.combo .list .item.is-selected{ background:var(--brand-ghost); color:var(--brand); font-weight:700 }
+
+/* 우측 1단계 라벨 옆 지도 버튼(두 번째 버튼) */
+#btnSelectOnMap2{
+  border:2px solid var(--brand);
+  background:#fff; color:var(--brand);
+  border-radius:8px; padding:6px 10px;
+  font-weight:700; cursor:pointer;
+}
+#btnSelectOnMap2:hover{ background:#F2FFF9; }
+
+/* 조회 버튼: 피그마 박스(v105_2) 안 텍스트를 실제 버튼처럼 보이게 */
+#btnFetch{
+  all:unset; display:block; width:100%; height:100%;
+  cursor:pointer; text-align:center; color:#fff; font-weight:800; line-height:40px;
+}
+
+/* 선택 요약(있으면) */
+.selection-summary{ font-weight:700; color:var(--ink); }
+
+/* 상단 고정 헤더(원하면 사용) */
+.site-header{ position:sticky; top:0; background:rgba(0,0,0,.7); border-bottom:1px solid rgba(255,255,255,.18); z-index:10; }
+.container{ max-width:1200px; margin:0 auto; padding:0 1.5rem; }
+.header-inner{ display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:.75rem; min-height:3.5rem; }
+.brand__logo{ height:2.2rem; width:auto; display:block; padding-left:.75rem; margin-right:.75rem; }
+.header__title{ color:#fff; text-decoration:none; font-weight:700; letter-spacing:.02em; font-size:clamp(1rem,1.8vw,1.25rem); }
+
+</style>
+
 </head>
+
+
 <body>
   <div class="page-bg" aria-hidden="true"></div>
 
