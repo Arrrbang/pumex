@@ -21,7 +21,7 @@
   --table-text:   #14532D;
   
   /* ✅ 기존 INDEX.HTML 배경 이미지 경로로 교체 */
-  --bg-image-url: url('https://arrrbang.github.io/pumex/image/bg-main.jpg');
+  --bg-image-url: url('https://arrrbang.github.io/pumex/image/costbackground.jpg');
 
   /* 오버레이/블러 조절용 */
   --bg-overlay: radial-gradient(1200px 700px at 70% 20%, rgba(20,83,45,.22), transparent 60%),
