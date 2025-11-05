@@ -44,41 +44,61 @@
         <!-- 1차: 국가/지역 -->
         <div class="dropdown-container">
           <label class="dropdown-label" for="countryCombo">[1] 국가/지역 선택</label>
-          <div class="combo" id="countryCombo">
-            <input type="text" placeholder="국가 선택" autocomplete="off">
-            <div class="list"></div>
+        
+          <div class="combo-line">
+            <div class="combo" id="countryCombo">
+              <input type="text" placeholder="국가 선택" autocomplete="off">
+              <div class="list"></div>
+            </div>
           </div>
-
-          <div class="combo" id="regionCombo">
-            <input type="text" placeholder="배송 지역 선택" autocomplete="off" disabled>
-            <div class="list"></div>
+        
+          <div class="combo-line">
+            <div class="combo" id="regionCombo">
+              <input type="text" placeholder="배송 지역 선택" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
           </div>
         </div>
 
         <!-- 2차 선택: 업체/POE -->
         <div class="dropdown-container">
           <label class="dropdown-label" for="companyCombo">[2] 파트너/POE 선택</label>
-          <div class="combo" id="companyCombo">
-            <input type="text" placeholder="파트너 선택" autocomplete="off" disabled>
-            <div class="list"></div>
+        
+          <div class="combo-line">
+            <div class="combo" id="companyCombo">
+              <input type="text" placeholder="파트너 선택" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
           </div>
-          
-          <div class="combo" id="poeCombo">
-            <input type="text" placeholder="POE 선택" autocomplete="off" disabled>
-            <div class="list"></div>
+        
+          <div class="combo-line">
+            <div class="combo" id="poeCombo">
+              <input type="text" placeholder="POE 선택" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
           </div>
         </div>
     
         <!-- 3차 선택 -->
         <div class="dropdown-container">
           <label class="dropdown-label" for="cargoTypeSelect">[3] 화물/컨테이너/CBM 선택</label>
-          <select id="cargoTypeSelect" class="dropdown-select"></select>
-          <div class="combo" id="typeCombo">
-            <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" disabled>
-            <div class="list"></div>
+        
+          <div class="combo-line">
+            <select id="cargoTypeSelect" class="dropdown-select"></select>
           </div>
+        
+          <div class="combo-line">
+            <div class="combo" id="typeCombo">
+              <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
+          </div>
+        
+          <div class="combo-line">
             <select id="cbmSelect" class="dropdown-select"></select>
+          </div>
         </div>
+
 
         <!-- 조회 버튼 -->
         <div class="action-row center">
