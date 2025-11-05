@@ -2,219 +2,49 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>도착지 비용 계산 — Figma 레이아웃</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>도착지 비용 계산</title>
 
-  <!-- Google Font (같음) -->
+  <!-- 폰트 (기존과 동일 계열) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --gap: 16px;
-      --radius: 14px;
-      --border: #e5e7eb;
-      --muted: #6b7280;
-      --main: #14532D; /* 메인 녹색 */
-      --light: #D1FAE5; /* 밝은 포인트 */
-      --bg: #f7faf9;
-      --shadow: 0 12px 40px rgba(0,0,0,.08);
-    }
-    *{ box-sizing: border-box; }
-    html, body{ height:100%; }
-    body{
-      margin:0;
-      font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, Apple SD Gothic Neo, "Noto Sans KR", sans-serif;
-      background: var(--bg);
-      color:#111;
-    }
-
-    /* 헤더 */
-    .site-header{
-      position:sticky; top:0; z-index:100;
-      background:#fff; border-bottom:1px solid var(--border);
-    }
-    .header-inner{
-      max-width: 1280px;
-      margin: 0 auto;
-      display:flex; align-items:center; gap:16px;
-      height:64px; padding:0 16px;
-    }
-    .brand__logo{ height:30px; display:block; }
-    .header__title{
-      font-weight:700; color:#153A47; text-decoration:none; letter-spacing:.2px;
-    }
-
-    /* 메인 레이아웃: 좌측 지도(흰 박스), 우측 UI */
-    .layout{
-      max-width: 1280px;
-      margin: 20px auto;
-      padding: 0 16px;
-      display: grid;
-      grid-template-columns: 1.25fr 1fr; /* 왼쪽이 좀 더 큼 */
-      gap: var(--gap);
-    }
-    @media (max-width: 1100px){
-      .layout{ grid-template-columns: 1fr; }
-    }
-
-    /* 좌측 지도 상자 */
-    .map-panel{
-      background:#fff; border:1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      min-height: 560px;
-      display:flex; flex-direction:column;
-      overflow: hidden;
-    }
-    .map-header{
-      display:flex; align-items:center; justify-content:space-between;
-      padding:12px 14px; border-bottom:1px solid var(--border);
-    }
-    .map-title{ font-weight:700; color:#153A47; }
-    .map-hint{ color:var(--muted); font-size:12px; }
-    #mpkMap{
-      flex:1;
-      min-height: 480px;
-    }
-
-    /* 우측 컨트롤/요약/결과 */
-    .panel{
-      display:flex; flex-direction:column; gap: var(--gap);
-    }
-    .card{
-      background:#fff; border:1px solid var(--border);
-      border-radius: var(--radius); box-shadow: var(--shadow);
-      padding: 16px;
-    }
-    .selection-summary{
-      display:none;
-      padding:12px 14px; border-radius:12px;
-      background: var(--light);
-      color: var(--main);
-      font-weight:700;
-      cursor:pointer;
-    }
-    .selection-summary.show{ display:block; }
-    .summary-hot{ font-weight:800; }
-
-    .dropdown-container{ }
-    .dropdown{
-      border:1px dashed var(--border); border-radius:12px; padding:12px;
-      background:#fff;
-    }
-    .dropdown-inner{ display:flex; flex-direction:column; gap:12px; }
-    .dropdown-label{ font-size:12px; color:var(--muted); display:block; }
-    .dropdown-label-row{
-      display:flex; align-items:center; justify-content:space-between;
-      font-size:12px; color:var(--muted);
-    }
-    .map-button-inline{
-      border:1px solid var(--main);
-      color:#fff; background:var(--main);
-      padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px;
-    }
-    .combo{
-      position:relative;
-      border:1px solid var(--border); border-radius:10px; overflow:visible;
-    }
-    .combo input{
-      width:100%; border:0; outline:0; padding:10px 12px; font-size:14px;
-      background:#fff; border-radius:10px;
-    }
-    .combo .list{
-      display:none;
-      position:absolute; left:0; top:calc(100% + 6px);
-      width:100%; max-height:220px; overflow:auto;
-      background:#fff; border:1px solid var(--border); border-radius:10px;
-      box-shadow:0 10px 30px rgba(0,0,0,.08);
-      z-index:20;
-    }
-    .combo.open .list{ display:block; }
-    .combo .item{
-      padding:8px 10px; cursor:pointer;
-      border-bottom:1px dashed #f1f5f9;
-    }
-    .combo .item:last-child{ border-bottom:0; }
-    .combo .item:hover{ background:#f9fafb; }
-    .combo .item.is-selected{ background:#eef6f3; font-weight:700; color:#14532D; }
-
-    .dropdown-select{
-      width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:14px;
-      background:#fff; outline:0;
-    }
-
-    .action-row{ display:flex; align-items:center; justify-content:flex-end; gap:10px; }
-    .action-row.center{ justify-content:center; }
-    .select-btn{
-      border:1px solid var(--border); background:#fff; color:#111;
-      padding:8px 12px; border-radius:10px; cursor:pointer;
-    }
-    .primary-btn{
-      border:1px solid var(--main); background:var(--main); color:#fff;
-      padding:12px 18px; border-radius:12px; font-weight:800; letter-spacing:.2px;
-      cursor:pointer; box-shadow: 0 8px 20px rgba(20,83,45,.18);
-      transform: translateY(0);
-      transition: transform .12s ease, box-shadow .12s ease, opacity .2s ease;
-      opacity:.35; pointer-events:none;
-    }
-    .action-row.center.show .primary-btn{ opacity:1; pointer-events:auto; }
-    .action-row.center.revealed .primary-btn{ opacity:1; }
-
-    /* 결과 표 */
-    .result-section{ display:none; }
-    .result-section.show{ display:block; }
-    .table-wrap{ overflow:auto; border:1px solid var(--border); border-radius:12px; }
-    table{ width:100%; border-collapse:collapse; }
-    thead th{
-      background: var(--light);
-      color: var(--main);
-      text-align:left; padding:10px 12px; border-bottom:1px solid var(--border);
-      white-space:nowrap;
-    }
-    tbody td{
-      padding:10px 12px; border-bottom:1px solid #f1f5f9; vertical-align:top;
-    }
-    tbody tr:last-child td{ border-bottom:0; }
-    td.amt{ font-weight:800; color:#14532D; white-space:nowrap; }
-    .muted{ color:var(--muted); padding:16px; }
-
-    /* Leaflet pin SVG label (안 보이게 - 말풍선 제거) */
-    .pin-label{ display:none; }
-
-    /* floating combo list wrapper */
-    .combo-float-wrap{ pointer-events:none; }
-    .combo-float-wrap .list{ pointer-events:auto; }
-  </style>
+  <!-- 메인 스타일 -->
+  <link rel="stylesheet" href="./app.css" />
 </head>
 <body>
-  <!-- 상단 -->
+
+  <!-- 상단 헤더 (간단 버전) -->
   <header class="site-header">
-    <div class="header-inner">
+    <div class="container header-inner">
       <a class="brand" href="#">
         <img src="https://arrrbang.github.io/pumex/image/pumexlogonew.png" alt="PUMEX Logo" class="brand__logo" />
       </a>
       <a class="header__title" href="#">도착지 비용 계산</a>
+      <nav class="header__nav" aria-label="상단 링크"></nav>
     </div>
   </header>
 
-  <!-- 메인 그리드 -->
-  <main class="layout">
-    <!-- 좌측: 지도 큰 흰 박스 -->
-    <aside class="map-panel">
-      <div class="map-header">
-        <div class="map-title">지도</div>
-        <div class="map-hint">핀을 클릭해 지역을 선택할 수 있어요</div>
-      </div>
-      <div id="mpkMap"></div>
-    </aside>
+  <!-- 메인 앱 셸 -->
+  <main class="app-shell">
+    <div class="app-main container">
 
-    <!-- 우측: 컨트롤/요약/결과 -->
-    <section class="panel">
-      <div class="card">
+      <!-- 왼쪽: 지도 영역 -->
+      <section class="left-pane">
+        <!-- Leaflet 지도용 컨테이너 (JS 붙일 때 그대로 사용) -->
+        <div id="mpkMap" class="map-canvas" aria-label="지도 영역">
+          <div class="map-placeholder">지도(Leaflet)가 여기에 표시됩니다.</div>
+        </div>
+      </section>
+
+      <!-- 오른쪽: 폼(드롭다운/콤보박스) -->
+      <section class="right-pane">
+
+        <!-- 1차 선택 요약 -->
         <div class="selection-summary" id="selectionSummary"></div>
 
+        <!-- 1차: 국가/지역 + 지도에서 선택 -->
         <div class="dropdown-container">
           <div class="dropdown" id="dropdownMenu">
             <div class="dropdown-inner">
@@ -226,7 +56,6 @@
 
               <div class="dropdown-label-row">
                 <span class="label-text">지역 선택</span>
-                <!-- 동일 ID 유지 (지금은 지도는 좌측에 항상 노출) -->
                 <button id="btnSelectOnMap" type="button" class="map-button-inline">지도에서 선택</button>
               </div>
 
@@ -234,6 +63,7 @@
                 <input type="text" placeholder="지역을 입력/선택 (예: A지역, B지역)" autocomplete="off" disabled>
                 <div class="list"></div>
               </div>
+
               <div class="action-row">
                 <button id="btnSelectFirst" class="select-btn" type="button">선택</button>
               </div>
@@ -241,6 +71,7 @@
           </div>
         </div>
 
+        <!-- 2차 선택 -->
         <div class="dropdown-container">
           <div class="dropdown" id="nextDropdowns">
             <div class="dropdown-inner">
@@ -263,9 +94,13 @@
           </div>
         </div>
 
+        <!-- 2차 요약 -->
         <div class="selection-summary" id="nextSelectionSummary"></div>
+
+        <!-- 3차 요약 -->
         <div class="selection-summary" id="thirdSelectionSummary"></div>
 
+        <!-- 3차 선택: 업체/POE -->
         <div class="dropdown-container">
           <div class="dropdown" id="thirdDropdowns">
             <div class="dropdown-inner">
@@ -280,6 +115,7 @@
                 <input type="text" placeholder="POE를 입력/선택 (예: DAMMAM, RIYADH DRY PORT)" autocomplete="off" disabled>
                 <div class="list"></div>
               </div>
+
               <div class="action-row">
                 <button id="btnSelectThird" class="select-btn" type="button">선택</button>
               </div>
@@ -287,759 +123,21 @@
           </div>
         </div>
 
+        <!-- 조회 버튼 -->
         <div class="action-row center">
           <button id="btnFetch" class="primary-btn" type="button">조회</button>
         </div>
-      </div>
 
-      <section id="resultSection" class="result-section card">
-        <div class="result-container">
-          <div id="tableWrap" class="table-wrap"></div>
-        </div>
+        <!-- 결과 섹션 -->
+        <section id="resultSection" class="result-section">
+          <div class="result-container">
+            <div id="tableWrap" class="table-wrap"></div>
+          </div>
+        </section>
+
       </section>
-    </section>
+    </div>
   </main>
 
-  <script>
-/* =========================================================
-   App Core — Dropdowns + Combos + Map Picker (ori.html 기반)
-   - 요구 HTML ID는 ori.html과 동일
-   - 지도는 좌측 박스(#mpkMap)에 항상 표시되도록 보완
-========================================================= */
-const BASE = 'https://notion-api-hub.vercel.app';
-const $  = (s, r=document)=>r.querySelector(s);
-
-/* ------------------------------
-   Floating(포털) 콤보 리스트 관리자
------------------------------- */
-const Floating = (() => {
-  const mounts = new Map();
-  function open(comboEl){
-    const input = comboEl.querySelector('input');
-    const list  = comboEl.querySelector('.list');
-    if(!input || !list) return;
-    if(mounts.has(list)){ position(comboEl); return; }
-
-    const wrap = document.createElement('div');
-    wrap.className = 'combo-float-wrap';
-    wrap.style.position = 'fixed';
-    wrap.style.zIndex = '1200';
-    wrap.style.left = '0'; wrap.style.top = '0';
-    wrap.style.width = '0'; wrap.style.height = '0';
-    document.body.appendChild(wrap);
-
-    list.dataset.__float = '1';
-    wrap.appendChild(list);
-
-    const onScroll = () => position(comboEl);
-    const onResize = () => position(comboEl);
-    window.addEventListener('scroll', onScroll, true);
-    window.addEventListener('resize', onResize);
-
-    mounts.set(list, { comboEl, wrap, onScroll, onResize });
-    position(comboEl);
-  }
-  function position(comboEl){
-    const input = comboEl.querySelector('input');
-    const list  = getList(comboEl);
-    if(!input || !list) return;
-    const r = input.getBoundingClientRect();
-    list.style.display = 'block';
-    list.style.position = 'fixed';
-    list.style.left = Math.max(8, r.left) + 'px';
-    list.style.top  = (r.bottom + 6) + 'px';
-    list.style.width= r.width + 'px';
-    const rect = list.getBoundingClientRect();
-    if(rect.bottom > window.innerHeight - 8){
-      list.style.top = Math.max(8, r.top - 6 - rect.height) + 'px';
-    }
-  }
-  function close(comboEl){
-    const list = getList(comboEl);
-    if(!list) return;
-    const mount = mounts.get(list);
-    if(!mount) return;
-    window.removeEventListener('scroll', mount.onScroll, true);
-    window.removeEventListener('resize', mount.onResize);
-    mounts.delete(list);
-
-    list.removeAttribute('style');
-    list.removeAttribute('data-__float');
-    mount.wrap.remove();
-    comboEl.appendChild(list);
-    list.style.display = 'none';
-  }
-  function getList(comboEl){
-    const floated = document.querySelector('.list[data-__float="1"]');
-    return floated || comboEl.querySelector('.list');
-  }
-  function isInsideFloating(target){
-    return !!target.closest('.combo-float-wrap') || !!target.closest('.list[data-__float="1"]');
-  }
-  return { open, close, position, isInsideFloating };
-})();
-
-/* ------------------------------
-   타이핑 콤보
------------------------------- */
-function makeCombo(el, items=[]){
-  const input = el.querySelector('input');
-  const list  = el.querySelector('.list');
-  let data = [...items];
-  let selected = null;
-
-  function render(filter=''){
-    const f = (filter||'').trim().toLowerCase();
-    list.innerHTML='';
-    const filtered = f ? data.filter(x=>x.toLowerCase().includes(f)) : [...data];
-    const sorted = filtered.sort((a,b)=>{
-      const an=Number(a), bn=Number(b);
-      if(!isNaN(an)&&!isNaN(bn)) return an-bn;
-      const ap=f && a.toLowerCase().startsWith(f)?0:1;
-      const bp=f && b.toLowerCase().startsWith(f)?0:1;
-      if(ap!==bp) return ap-bp;
-      return a.localeCompare(b, 'ko');
-    });
-    sorted.forEach(v=>{
-      const d=document.createElement('div');
-      d.className='item' + (selected===v ? ' is-selected':'');
-      d.textContent=v;
-      d.addEventListener('click', (e)=>{
-        e.stopPropagation();
-        selected=v;
-        input.value=v;
-        el.classList.remove('open');
-        Floating.close(el);
-        el.dispatchEvent(new CustomEvent('change',{detail:v}));
-      });
-      list.appendChild(d);
-    });
-  }
-  function setItems(arr){
-    data = [...new Set((arr||[]).filter(Boolean))];
-    input.disabled = data.length===0;
-    if(document.activeElement!==input) input.value='';
-    selected=null;
-    render(input.value);
-  }
-  function getValue(){ return selected || input.value.trim(); }
-  function setValue(v){ selected=v||null; input.value=v??''; render(input.value); el.dispatchEvent(new CustomEvent('change',{detail:v})); }
-
-  input.addEventListener('focus', ()=>{ el.classList.add('open'); render(input.value); Floating.open(el); });
-  input.addEventListener('input', ()=>{ el.classList.add('open'); render(input.value); Floating.open(el); });
-  input.addEventListener('keydown', (e)=>{
-    if(e.key==='Enter'){
-      const first=(Floating.isInsideFloating(document.activeElement)?document:el).querySelector('.item');
-      if(first) first.click();
-    }
-  });
-
-  ['pointerdown','mousedown','click','touchstart'].forEach(evt=>{
-    list.addEventListener(evt, e=>e.stopPropagation(), {passive:true});
-    input.addEventListener(evt, e=>e.stopPropagation(), {passive:true});
-  });
-
-  setItems(items);
-  return { setItems, getValue, setValue, root: el, input, list };
-}
-
-/* ------------------------------
-   요소 참조
------------------------------- */
-const dropdownMenu   = document.getElementById("dropdownMenu");
-const nextDropdowns  = document.getElementById("nextDropdowns");
-const summary        = document.getElementById("selectionSummary");
-const nextSummary    = document.getElementById("nextSelectionSummary");
-
-const countryCombo = makeCombo(document.getElementById('countryCombo'));
-const regionCombo  = makeCombo(document.getElementById('regionCombo'));
-const companyCombo = makeCombo(document.getElementById('companyCombo'));
-const typeCombo    = makeCombo(document.getElementById('typeCombo'), ['20FT','40HC','CONSOLE']);
-const cbmSelect    = document.getElementById('cbmSelect');
-
-const thirdDropdowns = document.getElementById('thirdDropdowns');
-const thirdSummary   = document.getElementById('thirdSelectionSummary');
-const poeCombo       = makeCombo(document.getElementById('poeCombo'));
-
-let isThirdVisible   = false;
-let isDropdownVisible=false;
-let isNextVisible=false;
-
-function closeAllCombos(){
-  const combos = [countryCombo, regionCombo, companyCombo, typeCombo, poeCombo].filter(Boolean);
-  combos.forEach(c=>{
-    try{
-      c.root.classList.remove('open');
-      Floating.close(c.root);
-    }catch(_){}
-  });
-}
-['dropdownMenu','nextDropdowns','thirdDropdowns'].forEach(id=>{
-  const container = document.getElementById(id);
-  if(!container) return;
-  container.addEventListener('pointerdown', (e)=>{
-    const t = e.target;
-    if (t.closest('.combo') || (Floating?.isInsideFloating?.(t))) return;
-    closeAllCombos();
-    container.querySelectorAll('select').forEach(sel => sel.blur());
-  }, { passive:true });
-});
-
-document.getElementById('btnSelectFirst')?.addEventListener('click', ()=>{ closeFirst(); });
-document.getElementById('btnSelectSecond')?.addEventListener('click', ()=>{ closeSecond(); });
-document.getElementById('btnSelectThird')?.addEventListener('click', ()=>{ closeThird(); });
-
-function openFirst(){
-  dropdownMenu.classList.add('show');
-  summary.classList.remove('show');
-  nextDropdowns.classList.remove('show');
-  nextSummary.classList.remove('show');
-  isDropdownVisible=true;
-}
-function closeFirst(){
-  dropdownMenu.classList.remove('show');
-  isDropdownVisible=false;
-  setTimeout(()=>{ showFirstSummary(); openSecond(); }, 200);
-}
-function openSecond(){
-  nextDropdowns.classList.add('show');
-  nextSummary.classList.remove('show');
-  isNextVisible=true;
-}
-function closeSecond(){
-  nextDropdowns.classList.remove('show');
-  isNextVisible=false;
-  setTimeout(()=>{
-    const t   = typeCombo.getValue() || '미선택';
-    const cbmText = cbmSelect?.value
-      ? (cbmSelect.options[cbmSelect.selectedIndex]?.text || cbmSelect.value)
-      : '미선택';
-    const text = `${esc(cbmText)} CBM (${esc(t)})`;
-    nextSummary.innerHTML = `<span class="summary-hot">${text}</span>`;
-    nextSummary.classList.add('show');
-    openThird();
-  }, 200);
-}
-function openThird(){
-  thirdDropdowns.classList.add('show');
-  thirdSummary.classList.remove('show');
-  isThirdVisible = true;
-  document.querySelector('.action-row.center')?.classList.remove('revealed');
-}
-function closeThird(){
-  thirdDropdowns.classList.remove('show');
-  isThirdVisible = false;
-  setTimeout(()=>{
-    const comp = (companyCombo.getValue() || '미선택');
-    const poe  = (poeCombo.getValue()     || '미선택');
-    const text = `${esc(comp)} (POE: ${esc(poe)})`;
-    thirdSummary.innerHTML = `<span class="summary-hot">${text}</span>`;
-    thirdSummary.classList.add('show');
-    document.querySelector('.action-row.center')?.classList.add('revealed');
-  }, 200);
-}
-
-function showFirstSummary(){
-  const c = countryCombo.getValue();
-  const r = regionCombo.getValue();
-  if (!summary) return;
-  if (!c && !r) return;
-  const text = `[${esc(r)}, ${esc(c)}]`;
-  summary.innerHTML = `<span class="summary-hot">${text}</span>`;
-  summary.classList.add('show');
-}
-
-let MAP_MODAL_OPEN = false;
-document.addEventListener('pointerdown', (e)=>{
-  if (MAP_MODAL_OPEN) return;
-  if (isDropdownVisible) {
-    const insideDropdown = dropdownMenu.contains(e.target);
-    const insideFloating = Floating?.isInsideFloating?.(e.target);
-    if (!insideDropdown && !insideFloating) closeFirst();
-  }
-  if (isNextVisible) {
-    const inside2 = nextDropdowns.contains(e.target);
-    if (!inside2) closeSecond();
-  }
-  if (isThirdVisible) {
-    const inside3 = thirdDropdowns.contains(e.target);
-    if (!inside3) closeThird();
-  }
-}, { passive:true });
-
-/* ------------------------------
-   API 연동
------------------------------- */
-async function loadCountries(){
-  try{
-    const r = await fetch(`${BASE}/api/debug/config`);
-    const j = await r.json();
-    const countries = j.countries || Object.keys(j.dbStructure||{}) || [];
-    countryCombo.setItems(countries);
-  }catch(e){ countryCombo.setItems([]); }
-}
-countryCombo.root.addEventListener('change', async ()=>{
-  const country = countryCombo.getValue();
-  regionCombo.setItems([]); companyCombo.setItems([]); poeCombo.setItems([]);
-  regionCombo.input.disabled = true; companyCombo.input.disabled = true; poeCombo.input.disabled = true;
-  if(!country) return;
-  try{
-    const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`);
-    const j = await r.json();
-    regionCombo.setItems(j.regions||[]);
-    regionCombo.input.disabled = false;
-  }catch(e){ regionCombo.setItems([]); }
-  updateCargoTypeOptions();
-  // 지도 국가 마커 갱신
-  try{ setMapCountry(country); }catch(_){}
-});
-regionCombo.root.addEventListener('change', async ()=>{
-  const country = countryCombo.getValue();
-  const region  = regionCombo.getValue();
-  companyCombo.setItems([]); companyCombo.input.disabled = true;
-  poeCombo.setItems([]);     poeCombo.input.disabled     = true;
-  if(!country || !region) return;
-  try{
-    const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
-    const r = await fetch(url);
-    const j = await r.json();
-    const companies = (j.companies || []).filter(Boolean);
-    companyCombo.setItems(companies);
-    companyCombo.input.disabled = companies.length === 0;
-  }catch(e){
-    companyCombo.setItems([]);
-    companyCombo.input.disabled = true;
-  }
-  updateCargoTypeOptions();
-});
-companyCombo.root.addEventListener('change', async ()=>{
-  const country = countryCombo.getValue();
-  const region  = regionCombo.getValue();
-  const company = companyCombo.getValue();
-  poeCombo.setItems([]); poeCombo.input.disabled = true;
-  if(!country || !region || !company) return;
-  try{
-    const url = `${BASE}/api/poe/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=data`;
-    const r   = await fetch(url);
-    const j   = await r.json();
-    const poes = (j.poes || []).filter(Boolean);
-    poeCombo.setItems(poes);
-    poeCombo.input.disabled = poes.length === 0 ? true : false;
-  }catch(e){
-    poeCombo.setItems([]);
-    poeCombo.input.disabled = true;
-  }
-  updateCargoTypeOptions();
-});
-
-/* ------------------------------
-   화물타입 & 컨테이너 타입 & CBM
------------------------------- */
-function setCargoTypeOptions(values){
-  const el = document.getElementById('cargoTypeSelect');
-  if(!el) return;
-  const opts = ['<option value="">화물타입 선택</option>']
-    .concat((values||[]).map(v=>`<option value="${String(v)}">${String(v)}</option>`));
-  el.innerHTML = opts.join('');
-}
-function updateCargoTypeOptions(){
-  const country = window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value?.trim();
-  const region  = window.regionCombo?.getValue?.()  || document.querySelector('#regionCombo input')?.value?.trim();
-  const company = window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value?.trim();
-  let values = ['DIPLOMAT','NON-DIPLOMAT'];
-  setCargoTypeOptions(values);
-  toggleFetchVisibility?.();
-}
-function setOptions(selectEl, values, placeholder='CBM 선택'){
-  const opts = ['<option value="'+placeholder+'">'+placeholder+'</option>']
-   .concat(values.map(v=>`<option value="${String(v)}">${String(v)}</option>`));
-  selectEl.innerHTML = opts.join('');
-}
-function fillCbmByType(type){
-  if(!cbmSelect) return;
-  const T=(type||'').toUpperCase();
-  let values=[];
-  if(!T){ setOptions(cbmSelect,[], 'CBM 선택'); return; }
-  if(T==='CONSOLE'){ values = Array.from({length:30},(_,i)=>i+1); }
-  else { values = [5,10,15,20,25,30,35,40]; }
-  setOptions(cbmSelect, values);
-}
-typeCombo.root.addEventListener('change', ()=> fillCbmByType(typeCombo.getValue()) );
-
-/* =========================================================
-   지도 — 좌측 패널에 항상 표시
-========================================================= */
-// ✅ 이 두 함수를 그대로 교체해 넣으세요.
-function loadCssOnce(href){
-  return new Promise((res, rej)=>{
-    if (document.querySelector(`link[href="${href}"]`)) return res();
-    const l = document.createElement('link');
-    l.rel = 'stylesheet';
-    l.href = href;
-    l.onload = res;
-    l.onerror = rej;
-    document.head.appendChild(l);
-  });
-}
-
-function loadJsOnce(src){
-  return new Promise((res, rej)=>{
-    if (document.querySelector(`script[src="${src}"]`)) return res();
-    const s = document.createElement('script');
-    s.src = src;
-    s.onload = res;
-    s.onerror = rej;
-    document.head.appendChild(s);
-  });
-}
-
-const LCSS  = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-const LJS   = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-const GCSS  = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css";
-const GJS   = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js";
-
-function getCountry(){ if (window.countryCombo?.getValue) return window.countryCombo.getValue(); const el = document.querySelector('#countryCombo input'); return el?.value?.trim() || ''; }
-function getRegion(){  if (window.regionCombo?.getValue)  return window.regionCombo.getValue();  const el = document.querySelector('#regionCombo input');  return el?.value?.trim() || ''; }
-function setRegion(v){ if (window.regionCombo?.setValue)  return window.regionCombo.setValue(v);  const el = document.querySelector('#regionCombo input');  if(el){ el.value = v; el.dispatchEvent(new Event('input')); } }
-/* 보강 */
-(function hardenSetRegion(){
-  const _orig = window.setRegion;
-  window.setRegion = function(v){
-    if (window.regionCombo?.setValue) {
-      regionCombo.setValue(v);
-      try { regionCombo.el?.dispatchEvent?.(new Event('change', {bubbles:true})); } catch(e){}
-      try { regionCombo.el?.dispatchEvent?.(new Event('input',  {bubbles:true})); } catch(e){}
-      return;
-    }
-    const el = document.querySelector('#regionCombo input');
-    if (el){
-      el.value = v;
-      el.dispatchEvent(new Event('input',  {bubbles:true}));
-      el.dispatchEvent(new Event('change', {bubbles:true}));
-      return;
-    }
-    const selEl = document.getElementById('regionSelect') || document.querySelector('select#regionSelect, select[name="region"]');
-    if (selEl){
-      let opt = Array.from(selEl.options).find(o => (o.value === v) || (o.text.trim() === v));
-      if (!opt) { opt = new Option(v, v, true, true); selEl.add(opt); }
-      selEl.value = opt.value;
-      selEl.dispatchEvent(new Event('change', {bubbles:true}));
-      selEl.dispatchEvent(new Event('input',  {bubbles:true}));
-      return;
-    }
-    _orig?.(v);
-  };
-})();
-
-let map, markerLayer, geocoder, mapInited=false, mapData=null, tmpSearch=null;
-const pinReg    = '#2563eb';
-const pinSearch = '#ef4444';
-
-function makeSvgPinIcon(color, withLabel = false, labelText = "") {
-  const svg = `<svg class="pin-svg" viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="${color}" d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/>
-    </svg>`;
-
-  const labelHtml = withLabel
-    ? `<div class="pin-label">${String(labelText).replace(/[&<>"']/g, m => (
-        { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[m]
-      ))}</div>`
-    : "";
-
-  const html = `<div class="pin-wrap">${svg}${labelHtml}</div>`;
-  
-  return L.divIcon({ className: "", html, iconSize: [26, 26], iconAnchor: [13, 26] });
-}
-
-/* modal은 사용하지 않지만, 동일 ID 버튼을 눌렀을 때 지도 영역으로 스크롤 */
-function ensureModal(){}
-function openModal(){
-  document.getElementById('mpkMap')?.scrollIntoView({behavior:'smooth', block:'center'});
-}
-function closeModal(){}
-
-async function ensureMapReady() {
-  if (!mapInited) {
-    await loadCssOnce(LCSS);
-    await loadJsOnce(LJS);
-    await loadCssOnce(GCSS);
-    await loadJsOnce(GJS);
-
-    const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]);
-    map = L.map('mpkMap', {
-      center: [20, 0],
-      zoom: 2,
-      worldCopyJump: false,
-      maxBounds: worldBounds,
-      maxBoundsViscosity: 1.0
-    });
-
-    L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      { attribution: '&copy; OSM', noWrap: true, bounds: worldBounds }
-    ).addTo(map);
-
-    markerLayer = L.layerGroup().addTo(map);
-
-    geocoder = L.Control.geocoder({ defaultMarkGeocode: false })
-      .on('markgeocode', (e) => {
-        const c = e.geocode.center;
-        if (tmpSearch) {
-          map.removeLayer(tmpSearch);
-          tmpSearch = null;
-        }
-        tmpSearch = L.marker(c, { icon: makeSvgPinIcon(pinSearch, false) }).addTo(map);
-
-        const gEl = document.querySelector('.leaflet-control-geocoder');
-        if (gEl) gEl.style.display = 'block';
-
-        map.setView(c, 9);
-        window.__selectedPlace = { name: null, lat: c.lat, lng: c.lng };
-
-        const pts = __countryPoints;
-        if (pts?.length) {
-          const hit = findNearest(c.lat, c.lng, pts);
-          if (hit?.point) {
-            setRegion(hit.point.name);
-            toast(`가장 가까운 ${hit.point.name} 지역을 선택하였습니다. (~${hit.distanceKm.toFixed(1)}km)`, { sticky: true });
-            dropdownMenu?.classList.add('show');
-            isDropdownVisible = true;
-          }
-          if (hit?.point?.name) window.__selectedPlace.name = hit.point.name;
-        }
-      })
-      .addTo(map);
-
-    try {
-      const r = await fetch('./map.json', { cache: 'no-store' });
-      mapData = await r.json();
-    } catch (e) {
-      console.warn('map.json 로드 실패:', e);
-      mapData = {};
-    }
-
-    mapInited = true;
-  }
-
-  setTimeout(() => map.invalidateSize(), 50);
-}
-
-
-let __countryPoints = [];
-function normalizeCountryKey(raw){ return raw ? String(raw).trim() : ''; }
-function setMapCountry(country) {
-  if (!mapInited) return;
-  markerLayer.clearLayers();
-  __countryPoints = [];
-  if (!mapData) return;
-
-  const key = normalizeCountryKey(country);
-  if (!mapData[key]) {
-    console.warn('No map data for country:', country, '→ normalized:', key);
-    toast(`해당 국가 데이터가 없습니다: ${country}`, {sticky:true});
-    return;
-    }
-  const pts = mapData[key];
-  const bounds = [];
-  pts.forEach(p => {
-    const m = L.marker([p.lat, p.lng], { icon: makeSvgPinIcon(pinReg, false) })
-      .addTo(markerLayer);
-    m.on('click', () => {
-      setRegion(p.name);
-      toast(`지역 선택: ${p.name}`);
-      dropdownMenu?.classList.add('show');
-      isDropdownVisible = true;
-    });
-    __countryPoints.push({ ...p, marker: m });
-    bounds.push([p.lat, p.lng]);
-  });
-  if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
-  }
-
-function toast(msg, {sticky=false, timeout=1500}={}) {
-  if (window.__sticky) { window.__sticky.remove(); window.__sticky = null; }
-  if (sticky) {
-    const el = document.createElement('div');
-      el.innerHTML = `<div style="position:fixed;left:50%;top:33vh;transform:translate(-50%,-50%);
-        background:rgba(17,17,17,.92);color:#fff;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.15);
-        box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:10000;font-size:14px;line-height:1.4;display:flex;gap:12px;align-items:center;
-        max-width:min(90vw,640px);text-align:center"><span>${msg}</span>
-        <button type="button" style="background:#fff;color:#111;border:0;border-radius:10px;padding:6px 12px;cursor:pointer;">닫기</button></div>`;
-    el.querySelector('button').onclick = ()=>{ el.remove(); window.__sticky=null; };
-    document.body.appendChild(el); window.__sticky = el; return;
-  }
-  const d = document.createElement('div');
-  d.textContent = msg;
-  d.style.cssText = `position:fixed;left:50%;top:33vh;transform:translate(-50%,-50%);
-    background:rgba(0,0,0,.85);color:#fff;padding:10px 14px;border-radius:12px;z-index:10000;font-size:14px;line-height:1.4;
-    box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:min(90vw,640px);text-align:center`;
-  document.body.appendChild(d); setTimeout(()=>d.remove(), timeout);
-}
-function haversineKm(aLat,aLng,bLat,bLng){ const R=6371, dLat=(bLat-aLat)*Math.PI/180, dLng=(bLng-aLng)*Math.PI/180; const A=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(A)); }
-function findNearest(lat,lng,pts){ if(!pts?.length) return null; let best=null,bd=Infinity; for(const p of pts){ const d=haversineKm(lat,lng,p.lat,p.lng); if(d<bd){best=p;bd=d;}  return {point:best,distanceKm:bd}; }
-
-/* 지도 버튼 → 좌측 지도 영역으로 포커스 */
-(function wireOpenButton(){
-  const btn = document.getElementById('btnSelectOnMap');
-  if (!btn) return;
-  btn.addEventListener('click', async ()=>{
-    await ensureMapReady();
-    const c = getCountry();
-    if (c) setMapCountry(c);
-    openModal();
-  });
-})();
-
-/* ------------------------------
-   초기화
------------------------------- */
-window.addEventListener('DOMContentLoaded', async ()=>{
-  try{ await loadCountries(); }catch(_){}
-  try{ fillCbmByType(typeCombo.getValue() || '20FT'); }catch(_){}
-  try{ openFirst(); }catch(_){}
-  try{ updateCargoTypeOptions(); }catch(_){}
-
-  // 지도 초기화
-  try{
-    await ensureMapReady();
-    const c = getCountry();
-    if (c) setMapCountry(c);
-  }catch(_){}
-});
-
-/* 조회 버튼 & 결과 렌더 */
-const actionRowCenter = document.querySelector('.action-row.center');
-function allReady() {
-  const country = window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value?.trim();
-  const region  = window.regionCombo?.getValue?.()  || document.querySelector('#regionCombo input')?.value?.trim();
-  const company = window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value?.trim();
-  const type    = window.typeCombo?.getValue?.()    || document.querySelector('#typeCombo input')?.value?.trim() || '20FT';
-  const cargo   = document.getElementById('cargoTypeSelect')?.value || '';
-  const cbmSel  = document.getElementById('cbmSelect');
-  const cbmOk   = (String(type).toUpperCase()==='CONSOLE') ? !!cbmSel?.value : true;
-  return !!country && !!company && !!cargo && cbmOk;
-}
-function toggleFetchVisibility() {
-  if (!actionRowCenter) return;
-  actionRowCenter.classList.toggle('show', allReady());
-}
-['countryCombo','regionCombo','companyCombo','poeCombo','typeCombo'].forEach(id=>{
-  const root = document.getElementById(id);
-  if (!root) return;
-  root.addEventListener('change', toggleFetchVisibility);
-});
-document.getElementById('cbmSelect')?.addEventListener('change', toggleFetchVisibility);
-document.getElementById('cargoTypeSelect')?.addEventListener('change', toggleFetchVisibility);
-window.addEventListener('DOMContentLoaded', ()=>{ toggleFetchVisibility(); });
-
-document.getElementById('btnFetch')?.addEventListener('click', async () => {
-  try{
-    const country = window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value?.trim();
-    const region  = window.regionCombo?.getValue?.()  || document.querySelector('#regionCombo input')?.value?.trim();
-    const company = window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value?.trim();
-    const type    = window.typeCombo?.getValue?.()    || document.querySelector('#typeCombo input')?.value?.trim() || '20FT';
-    const cbmSel  = document.getElementById('cbmSelect');
-    const cbm     = cbmSel?.value ? Number(cbmSel.value) : undefined;
-
-    if (!country){ alert('국가를 선택하세요.'); return; }
-    if (!company){ alert('업체를 선택하세요.'); return; }
-
-    const cargoSel = document.getElementById('cargoTypeSelect');
-    const roles = [];
-    const cargo = cargoSel?.value?.trim();
-    if (cargo) roles.push(cargo.toUpperCase());
-
-    const params = new URLSearchParams();
-    params.set('type', type);
-    params.set('company', company);
-    if (region) params.set('region', region);
-    if (roles.length) params.set('roles', roles.join(','));
-    if (!isNaN(cbm)) params.set('cbm', String(cbm));
-
-    const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
-    const res = await fetch(url);
-    const j   = await res.json();
-
-    __numberFormats = j?.numberFormats || {};
-
-    renderTable(j, type, Boolean(region));
-    const rs = document.getElementById('resultSection');
-    if (rs) rs.classList.add('show');
-  }catch(e){
-    console.error(e);
-    alert('조회 중 오류가 발생했습니다.');
-  }
-});
-
-summary?.addEventListener('click', (e)=>{
-  if (!(e.target instanceof HTMLElement)) return;
-  if (!e.target.classList.contains('summary-hot')) return;
-  openFirst();
-  document.getElementById('resultSection')?.classList.remove('show');
-  document.querySelector('.action-row.center')?.classList.remove('revealed');
-});
-nextSummary?.addEventListener('click', (e)=>{
-  if (!(e.target instanceof HTMLElement)) return;
-  if (!e.target.classList.contains('summary-hot')) return;
-  dropdownMenu?.classList.remove('show');
-  isDropdownVisible = false;
-  openSecond();
-  document.getElementById('resultSection')?.classList.remove('show');
-  document.querySelector('.action-row.center')?.classList.remove('revealed');
-});
-thirdSummary?.addEventListener('click', (e)=>{
-  if (!(e.target instanceof HTMLElement)) return;
-  if (!e.target.classList.contains('summary-hot')) return;
-  openThird();
-  document.getElementById('resultSection')?.classList.remove('show');
-  document.querySelector('.action-row.center')?.classList.remove('revealed');
-});
-
-/* ======== 표 렌더링 ======== */
-let __numberFormats = {};
-function esc(s){
-  return String(s == null ? '' : s).replace(/[&<>"']/g, m => (
-    { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[m]
-  ));
-}
-function formatAmount(n, columnKey){
-  if (n==null || n==='' || isNaN(Number(n))) return '';
-  const v = Number(n);
-  const fmt = __numberFormats?.[columnKey] || '';
-  if (/dollar|usd/i.test(fmt)) return '$' + v.toLocaleString('en-US');
-  if (/won|krw/i.test(fmt))    return '₩' + v.toLocaleString('ko-KR');
-  if (/euro|eur/i.test(fmt))   return '€' + v.toLocaleString('de-DE');
-  return v.toLocaleString();
-}
-function renderTable(data, type, isRegionFiltered){
-  const wrap = document.getElementById('tableWrap');
-  if (!wrap){ return; }
-  const rows = Array.isArray(data?.rows) ? data.rows : [];
-  if (!rows.length){
-    wrap.innerHTML = '<div class="muted">표시할 데이터가 없습니다.</div>';
-    return;
-  }
-  let thead = '<tr><th>항목</th>';
-  if (!isRegionFiltered) thead += '<th>지역</th>';
-  thead += `<th class="type-col">${esc(type)}</th><th>비고</th></tr>`;
-
-  let tbody = '';
-  for (const r of rows){
-    const amt = r?.[type];
-    const amtText = formatAmount(amt, type) || '-';
-    tbody += '<tr>';
-    tbody += `<td>${esc(r.item || '')}</td>`;
-    if (!isRegionFiltered) tbody += `<td>${esc(r.region || '')}</td>`;
-    tbody += `<td class="amt">${amtText}</td>`;
-    tbody += `<td>${r.extra || ''}</td>`;
-    tbody += '</tr>';
-  }
-  wrap.innerHTML = `
-    <table class="result-table">
-      <thead>${thead}</thead>
-      <tbody>${tbody}</tbody>
-    </table>`;
-}
-  </script>
 </body>
 </html>
