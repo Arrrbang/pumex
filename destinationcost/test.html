@@ -735,11 +735,20 @@ let map, markerLayer, geocoder, mapInited=false, mapData=null, tmpSearch=null;
 const pinReg    = '#2563eb';
 const pinSearch = '#ef4444';
 
-function makeSvgPinIcon(color, withLabel=false, labelText="") {
-  const svg = \`<svg class="pin-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="${color}" d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/></svg>\`;
-  const labelHtml = withLabel ? \`<div class="pin-label">${String(labelText).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}</div>\` : "";
-  const html = \`<div class="pin-wrap">${svg}${labelHtml}</div>\`;
-  return L.divIcon({ className: "", html, iconSize: [26,26], iconAnchor: [13,26] });
+function makeSvgPinIcon(color, withLabel = false, labelText = "") {
+  const svg = `<svg class="pin-svg" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="${color}" d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/>
+    </svg>`;
+
+  const labelHtml = withLabel
+    ? `<div class="pin-label">${String(labelText).replace(/[&<>"']/g, m => (
+        { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[m]
+      ))}</div>`
+    : "";
+
+  const html = `<div class="pin-wrap">${svg}${labelHtml}</div>`;
+  
+  return L.divIcon({ className: "", html, iconSize: [26, 26], iconAnchor: [13, 26] });
 }
 
 /* modal은 사용하지 않지만, 동일 ID 버튼을 눌렀을 때 지도 영역으로 스크롤 */
@@ -751,46 +760,70 @@ function closeModal(){}
 
 async function ensureMapReady() {
   if (!mapInited) {
-    await loadCssOnce(LCSS); await loadJsOnce(LJS);
-    await loadCssOnce(GCSS); await loadJsOnce(GJS);
+    await loadCssOnce(LCSS);
+    await loadJsOnce(LJS);
+    await loadCssOnce(GCSS);
+    await loadJsOnce(GJS);
 
-    const worldBounds = L.latLngBounds([[-85,-180],[85,180]]);
-    map = L.map('mpkMap', { center:[20,0], zoom:2, worldCopyJump:false, maxBounds:worldBounds, maxBoundsViscosity:1.0 });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OSM', noWrap:true, bounds:worldBounds }).addTo(map);
+    const worldBounds = L.latLngBounds([[-85, -180], [85, 180]]);
+    map = L.map('mpkMap', {
+      center: [20, 0],
+      zoom: 2,
+      worldCopyJump: false,
+      maxBounds: worldBounds,
+      maxBoundsViscosity: 1.0
+    });
+
+    L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      { attribution: '&copy; OSM', noWrap: true, bounds: worldBounds }
+    ).addTo(map);
+
     markerLayer = L.layerGroup().addTo(map);
 
-    geocoder = L.Control.geocoder({ defaultMarkGeocode:false })
-      .on('markgeocode', (e)=>{
+    geocoder = L.Control.geocoder({ defaultMarkGeocode: false })
+      .on('markgeocode', (e) => {
         const c = e.geocode.center;
-        if (tmpSearch) { map.removeLayer(tmpSearch); tmpSearch=null; }
-        tmpSearch = L.marker(c, {icon: makeSvgPinIcon(pinSearch,false)}).addTo(map);
+        if (tmpSearch) {
+          map.removeLayer(tmpSearch);
+          tmpSearch = null;
+        }
+        tmpSearch = L.marker(c, { icon: makeSvgPinIcon(pinSearch, false) }).addTo(map);
+
         const gEl = document.querySelector('.leaflet-control-geocoder');
         if (gEl) gEl.style.display = 'block';
+
         map.setView(c, 9);
         window.__selectedPlace = { name: null, lat: c.lat, lng: c.lng };
+
         const pts = __countryPoints;
         if (pts?.length) {
-          const hit = findNearest(c.lat,c.lng,pts);
+          const hit = findNearest(c.lat, c.lng, pts);
           if (hit?.point) {
             setRegion(hit.point.name);
-            toast(\`가장 가까운 ${hit.point.name} 지역을 선택하였습니다. (~${hit.distanceKm.toFixed(1)}km)\`, {sticky:true});
-            dropdownMenu?.classList.add('show'); isDropdownVisible = true;
+            toast(`가장 가까운 ${hit.point.name} 지역을 선택하였습니다. (~${hit.distanceKm.toFixed(1)}km)`, { sticky: true });
+            dropdownMenu?.classList.add('show');
+            isDropdownVisible = true;
           }
           if (hit?.point?.name) window.__selectedPlace.name = hit.point.name;
         }
-      }).addTo(map);
+      })
+      .addTo(map);
 
     try {
-      const r = await fetch('./map.json', { cache:'no-store' });
+      const r = await fetch('./map.json', { cache: 'no-store' });
       mapData = await r.json();
-    } catch(e) {
+    } catch (e) {
       console.warn('map.json 로드 실패:', e);
       mapData = {};
     }
+
     mapInited = true;
   }
-  setTimeout(()=> map.invalidateSize(), 50);
+
+  setTimeout(() => map.invalidateSize(), 50);
 }
+
 
 let __countryPoints = [];
 function normalizeCountryKey(raw){ return raw ? String(raw).trim() : ''; }
@@ -805,7 +838,7 @@ function setMapCountry(country) {
     console.warn('No map data for country:', country, '→ normalized:', key);
     toast(\`해당 국가 데이터가 없습니다: ${country}\`, {sticky:true});
     return;
-  }
+    }
   const pts = mapData[key];
   const bounds = [];
   pts.forEach(p => {
@@ -821,7 +854,7 @@ function setMapCountry(country) {
     bounds.push([p.lat, p.lng]);
   });
   if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
-}
+  }
 
 function toast(msg, {sticky=false, timeout=1500}={}) {
   if (window.__sticky) { window.__sticky.remove(); window.__sticky = null; }
@@ -964,7 +997,11 @@ thirdSummary?.addEventListener('click', (e)=>{
 
 /* ======== 표 렌더링 ======== */
 let __numberFormats = {};
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, m => (
+    { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[m]
+  ));
+}
 function formatAmount(n, columnKey){
   if (n==null || n==='' || isNaN(Number(n))) return '';
   const v = Number(n);
