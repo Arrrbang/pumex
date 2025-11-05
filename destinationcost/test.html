@@ -233,6 +233,232 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   const initial = getCountry();
   if (initial) setMapCountry(initial);
 });
+
+/* ===================== Notion 연동 드롭다운 로딩 (모달 無 버전) ===================== */
+/* 환경: 왼쪽 지도(#mpkMap)는 항상 표시 / 오른쪽 콤보/셀렉트는 기존 ID 재사용 */
+
+/* 0) 기본 설정 */
+const BASE = 'https://notion-api-hub.vercel.app';
+
+/* 1) 유틸: 콤보/셀렉트 안전 접근자 (커스텀 콤보가 있으면 우선 사용) */
+function getComboAPI(id){
+  const el = document.getElementById(id);
+  const input = el?.querySelector('input');
+  const list  = el?.querySelector('.list');
+  // 커스텀 콤보(기존 코드) 우선
+  if (window[id] && typeof window[id].setItems === 'function' && typeof window[id].getValue === 'function') {
+    return {
+      type:'custom',
+      setItems: (arr)=>window[id].setItems(arr),
+      setValue: (v)=>window[id].setValue?.(v),
+      getValue: ()=>window[id].getValue?.(),
+      enable:   (on)=>{ if (input) input.disabled = !on; }
+    };
+  }
+  // 폴백(간이 콤보)
+  return {
+    type:'fallback',
+    setItems: (arr)=>{
+      if (!list || !input) return;
+      list.innerHTML = arr.map(v=>`<div class="item" data-v="${v}">${v}</div>`).join('');
+      list.querySelectorAll('.item').forEach(it=>{
+        it.addEventListener('click', ()=>{
+          input.value = it.getAttribute('data-v') || '';
+          list.style.display = 'none';
+          input.dispatchEvent(new Event('change',{bubbles:true}));
+        });
+      });
+      // 입력 포커스 시 노출
+      input.addEventListener('focus', ()=>{ list.style.display='block'; });
+      input.addEventListener('input', ()=>{ list.style.display='block'; });
+      // 외부 클릭 닫기
+      document.addEventListener('pointerdown',(e)=>{
+        if(!el.contains(e.target)) list.style.display='none';
+      });
+    },
+    setValue: (v)=>{ if(input){ input.value = v; input.dispatchEvent(new Event('change',{bubbles:true})); } },
+    getValue: ()=> input?.value?.trim() || '',
+    enable:   (on)=>{ if (input) input.disabled = !on; }
+  };
+}
+
+function setSelectOptions(selectId, values){
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  sel.innerHTML = values.map(v=>`<option value="${v}">${v}</option>`).join('');
+}
+
+function getValue_soft(id){ // 콤보/인풋/셀렉트 모두 커버
+  const combo = getComboAPI(id);
+  const val1 = combo.getValue?.();
+  if (val1) return val1;
+  const sel = document.getElementById(id);
+  if (sel && 'value' in sel) return sel.value;
+  const inp = document.querySelector(`#${id} input`);
+  return inp?.value?.trim() || '';
+}
+
+/* 2) 고정 데이터: typeCombo = [20FT, 40HC, CONSOLE] */
+function setTypeComboFixed(){
+  const typeAPI = getComboAPI('typeCombo');
+  typeAPI.setItems(['20FT','40HC','CONSOLE']);
+  typeAPI.enable(true);
+  if (!typeAPI.getValue()) typeAPI.setValue('20FT');
+}
+
+/* 3) CBM: 1 ~ 60 생성 */
+function setCBMRange(){
+  const list = Array.from({length:60}, (_,i)=> String(i+1));
+  setSelectOptions('cbmSelect', list);
+}
+
+/* 4) 국가 목록 로드 */
+async function loadCountries(){
+  const countryAPI = getComboAPI('countryCombo');
+  try{
+    const r = await fetch(`${BASE}/api/debug/config`, {cache:'no-store'});
+    const j = await r.json();
+    const countries = j.countries || Object.keys(j.dbStructure||{}) || [];
+    countryAPI.setItems(countries);
+    countryAPI.enable(true);
+  }catch(e){
+    countryAPI.setItems([]); countryAPI.enable(true);
+    console.warn('loadCountries 실패:', e);
+  }
+}
+
+/* 5) 지역/업체/POE 로딩 체인 (index (70)의 흐름 유지, 단 모달 제거) */
+/* 지역 로딩: /api/regions/{country} */
+async function loadRegions(){
+  const country = getValue_soft('countryCombo');
+  const regionAPI = getComboAPI('regionCombo');
+  const companyAPI= getComboAPI('companyCombo');
+  const poeAPI    = getComboAPI('poeCombo');
+
+  regionAPI.setItems([]); regionAPI.enable(false);
+  companyAPI.setItems([]); companyAPI.enable(false);
+  poeAPI.setItems([]);     poeAPI.enable(false);
+  if(!country) return;
+
+  try{
+    const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`, {cache:'no-store'});
+    const j = await r.json();
+    const regions = j.regions || [];
+    regionAPI.setItems(regions);
+    regionAPI.enable(true);
+  }catch(e){
+    console.warn('loadRegions 실패:', e);
+    regionAPI.setItems([]); regionAPI.enable(false);
+  }
+}
+
+/* 업체 로딩: /api/companies/by-region?country=&region=&mode=options */
+async function loadCompanies(){
+  const country   = getValue_soft('countryCombo');
+  const region    = getValue_soft('regionCombo');
+  const companyAPI= getComboAPI('companyCombo');
+  const poeAPI    = getComboAPI('poeCombo');
+
+  companyAPI.setItems([]); companyAPI.enable(false);
+  poeAPI.setItems([]);     poeAPI.enable(false);
+  if(!country || !region) return;
+
+  try{
+    const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
+    const r = await fetch(url, {cache:'no-store'});
+    const j = await r.json();
+    const companies = (j.companies || []).filter(Boolean);
+    companyAPI.setItems(companies);
+    companyAPI.enable(companies.length>0);
+  }catch(e){
+    console.warn('loadCompanies 실패:', e);
+    companyAPI.setItems([]); companyAPI.enable(false);
+  }
+}
+
+/* POE 로딩 (권장: by-company, 폴백: by-region) */
+async function loadPOEs(){
+  const country   = getValue_soft('countryCombo');
+  const region    = getValue_soft('regionCombo');
+  const company   = getValue_soft('companyCombo');
+  const poeAPI    = getComboAPI('poeCombo');
+
+  poeAPI.setItems([]); poeAPI.enable(false);
+  if(!country || !region || !company) return;
+
+  try{
+    // 권장 엔드포인트
+    let url = `${BASE}/api/poe/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=options`;
+    let res = await fetch(url, {cache:'no-store'});
+    if (!res.ok) throw new Error('by-company not ok');
+    let j = await res.json();
+    let poes = (j.poes || j.POE || j.options || []).filter(Boolean);
+
+    // 폴백: by-region
+    if (!poes.length){
+      url = `${BASE}/api/poe/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
+      res = await fetch(url, {cache:'no-store'});
+      j = await res.json();
+      poes = (j.poes || j.POE || j.options || []).filter(Boolean);
+    }
+
+    poeAPI.setItems(poes);
+    poeAPI.enable(poes.length>0);
+  }catch(e){
+    console.warn('loadPOEs 실패:', e);
+    poeAPI.setItems([]); poeAPI.enable(false);
+  }
+}
+
+/* 6) 화물타입(DIPLOMAT/NON-DIPLOMAT) — index (70) 기본 분기 그대로 */
+function updateCargoTypeOptions(){
+  const values = ['DIPLOMAT','NON-DIPLOMAT']; // 필요 시 조건 분기 삽입 가능
+  const sel = document.getElementById('cargoTypeSelect');
+  if (sel){
+    sel.innerHTML = values.map(v=>`<option value="${v}">${v}</option>`).join('');
+  }
+}
+
+/* 7) 이벤트 연결 */
+function wireEvents(){
+  // 국가 변경 → 지역 로딩
+  const ccEl = document.querySelector('#countryCombo input') || document.querySelector('#countryCombo');
+  ccEl?.addEventListener('change', async ()=>{
+    await loadRegions();
+    updateCargoTypeOptions();
+  });
+
+  // 지역 변경 → 업체 로딩
+  const rcEl = document.querySelector('#regionCombo input') || document.querySelector('#regionCombo');
+  rcEl?.addEventListener('change', async ()=>{
+    await loadCompanies();
+    updateCargoTypeOptions();
+  });
+
+  // 업체 변경 → POE 로딩
+  const compEl = document.querySelector('#companyCombo input') || document.querySelector('#companyCombo');
+  compEl?.addEventListener('change', async ()=>{
+    await loadPOEs();
+    updateCargoTypeOptions();
+  });
+
+  // typeCombo는 고정 3종이므로 별도 이벤트 불필요
+}
+
+/* 8) 초기화 */
+window.addEventListener('DOMContentLoaded', async ()=>{
+  // 고정 세팅
+  setTypeComboFixed();   // 20FT / 40HC / CONSOLE
+  setCBMRange();         // 1 ~ 60
+  updateCargoTypeOptions();
+
+  // 데이터 로드
+  await loadCountries();
+
+  // 이벤트
+  wireEvents();
+});
+
 </script>
 
 </body>
