@@ -1,0 +1,182 @@
+/* ===== 토큰 */
+:root{
+  --bg: #0b0f14;
+  --fg: #eef2f7;
+  --muted: #cbd5e1;
+
+  --primary: #1F9461;
+  --border: rgba(255,255,255,0.18);
+  --surface: rgba(255,255,255,0.06);
+
+  --header-h: 3.5rem;
+  --container-max: 1200px;
+  --gutter: 20px;
+
+  --control-bg: #fff;
+  --control-fg: #333;
+  --control-border: #1F9461;
+  --control-radius: .6rem;
+
+  --table-header: #D1FAE5;
+  --table-text:   #14532D;
+}
+
+/* ===== 베이스 */
+*{ box-sizing: border-box; }
+html{ font-size: clamp(14px, 1.2vw, 16px); }
+body{
+  margin:0; color:var(--fg); background:var(--bg); line-height:1.5;
+  font-family:"Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, "Apple SD Gothic Neo", sans-serif;
+}
+
+/* ===== 상단 헤더 */
+.site-header{
+  position: sticky; top: 0;
+  background: rgba(0,0,0,.7);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+}
+.container{ max-width: var(--container-max); margin: 0 auto; padding-inline: var(--gutter); }
+.header-inner{
+  display:grid; grid-template-columns:auto 1fr auto; align-items:center; column-gap: 12px;
+  min-height: var(--header-h);
+}
+.brand__logo{ height: calc(var(--header-h)*0.65); width:auto; display:block; object-fit:contain; }
+.header__title{ color:#fff; font-weight:700; text-decoration:none; }
+.header__title:hover{ text-decoration:underline; }
+.header__nav{ display:flex; gap:12px; }
+
+/* ===== 앱 셸 레이아웃 (좌:지도 / 우:폼) */
+.app-shell{ padding: 20px 0 28px; }
+.app-main{
+  display:grid;
+  grid-template-columns: minmax(420px, 1.2fr) minmax(460px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.left-pane, .right-pane{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22);
+  overflow: hidden;
+}
+
+/* 지도 영역 */
+.map-canvas{ height: 640px; background:#0f1720; position:relative; }
+.map-placeholder{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  color:#94a3b8; font-weight:600; letter-spacing:.02em;
+  border: 2px dashed rgba(148,163,184,.25);
+  margin: 12px;
+  border-radius: 12px;
+}
+
+/* ===== 오른쪽 패널 내부 여백 */
+.right-pane{ padding: 14px 16px; }
+
+/* ===== 기존 드롭다운/콤보 스타일 (ORI 톤 유지) */
+.selection-summary{
+  text-align:center; font-weight:700; color:#000; font-size:1.2rem;
+  margin: .25rem 0 .75rem;
+  opacity:.95;
+}
+.selection-summary .summary-hot{
+  display:inline-block; padding: 2px 4px; border-radius:.25rem; cursor:pointer;
+}
+
+.dropdown-container{ display:flex; justify-content:center; align-items:center; margin-top: 0; position:relative; }
+.dropdown{
+  text-align:center; overflow:hidden; max-height:none; opacity:1; transform:none;
+  display:flex; flex-direction:column; gap: 1rem; width: 100%;
+  background: rgba(255,255,255,0.82);
+  border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  backdrop-filter: blur(8px);
+}
+.dropdown-inner{ padding: 1rem 1.2rem; }
+
+.dropdown-label, .dropdown-label-row .label-text{
+  display:block; text-align:left; margin: 0 0 8px; font-weight:600; color:#000; font-size:1rem;
+}
+.dropdown-label-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:.25rem; }
+.dropdown-label-row .label-text{ margin-right:auto; }
+
+.select-btn{
+  border-radius: 2rem; padding:.4rem 1.1rem; min-width:8.5rem;
+  border: 2px solid var(--primary); background: var(--primary);
+  color:#fff; font-weight:700; font-size:.95rem; cursor:pointer;
+}
+.select-btn:hover{ background:#16724a; }
+
+.dropdown-select,
+input[type="text"],
+input[type="number"]{
+  width:100%; padding:.6rem 1rem; font-size:1rem;
+  border: 2px solid var(--control-border); border-radius: var(--control-radius);
+  background: var(--control-bg); color: var(--control-fg);
+}
+
+.combo{ position:relative; width:100%; }
+.combo input{
+  width:100%; padding:.6rem 1rem; font-size:1rem;
+  border: 2px solid var(--control-border); border-radius: var(--control-radius);
+  background: var(--control-bg); color: var(--control-fg);
+}
+.combo .list{
+  position:absolute; top: calc(100% + 6px); left:0; width:100%;
+  max-height: 240px; overflow:auto;
+  background: var(--control-bg);
+  border: 2px solid var(--control-border);
+  border-radius: var(--control-radius);
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  z-index: 1000; display:none;
+}
+.combo.open .list{ display:block; }
+.combo .list .item{ padding:.55rem .8rem; cursor:pointer; }
+.combo .list .item:hover{ background: rgba(31,148,97,.08); }
+.combo .list .item.is-selected{ background: var(--table-header); color: var(--table-text); }
+
+/* 지도 버튼 */
+.map-button-inline{
+  background: var(--primary); color:#fff; font-weight:600; font-size:.9rem;
+  padding: .2rem .6rem; border:none; border-radius:.4rem; cursor:pointer;
+}
+.map-button-inline:hover{ background:#16724a; }
+
+/* 액션/조회 버튼 */
+.action-row{ display:flex; justify-content:flex-end; margin: 12px 0 8px; }
+.action-row.center{ justify-content:center; margin: 1.25rem 0 1rem; }
+.primary-btn{
+  border-radius: 2rem; padding:.5rem 1.25rem; min-width:10rem;
+  border:2px solid var(--primary); background:var(--primary);
+  color:#fff; font-weight:700; cursor:pointer;
+}
+.primary-btn:hover{ background:#16724a; }
+
+/* 결과 테이블(간단) */
+.result-section{ display:block; padding: 0 0 1rem; }
+.result-container{
+  max-width: 100%;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid #e5e7eb; border-radius: 12px; padding: 1rem 1.25rem;
+}
+.table-wrap{ width:100%; overflow:auto; }
+.result-table{
+  width:100%; border-collapse:separate; border-spacing:0; table-layout: fixed;
+  background:#fff; color:#111; border-radius: 10px; overflow:hidden;
+}
+.result-table th, .result-table td{
+  border: 1px solid #F5F5F5; padding: .6rem .75rem; text-align:left; vertical-align:top;
+}
+.result-table thead th{ background:#153A47; color:#F5F5F5; font-weight:700; }
+.result-table tbody td:first-child{ background:#153A47; color:#F5F5F5; font-weight:700; text-align:center; }
+.result-table thead th:first-child{ text-align:center; }
+.result-table td.amt{ white-space:nowrap; text-align:center; font-variant-numeric: tabular-nums; }
+
+/* 반응형 (좁은 화면) */
+@media (max-width: 1024px){
+  .app-main{
+    grid-template-columns: 1fr;
+  }
+  .map-canvas{ height: 360px; }
+}
