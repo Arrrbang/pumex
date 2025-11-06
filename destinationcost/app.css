@@ -258,3 +258,58 @@ input[type="number"]{
   color: #333;
 }
 
+/* ==================== 메인 컨테이너 톤 적용 ==================== */
+/* app-main + container 조합에 유리 패널(반투명+블러) 느낌 부여 */
+.app-main.container{
+  background: rgba(255,255,255,0.82);   /* 참고 CSS의 메인 컨테이너 톤 */
+  backdrop-filter: blur(6px);
+  border-radius: 1rem;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22); /* var(--shadow-2)와 유사 */
+  border: 1px solid var(--border);
+  padding: 1rem 1.25rem;                /* 내부 여백 */
+}
+
+/* app-main 안쪽 그리드 여백은 유지 */
+.app-main{
+  gap: 20px; /* 필요 시 조절 */
+}
+
+/* ==================== 오른쪽 패널을 완전 투명 처리 ==================== */
+.right-pane{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 14px 0;       /* 오른쪽 패널 안쪽 여백은 최소만 */
+}
+
+/* 왼쪽 지도 카드는 기존 톤 유지(필요시만) */
+.left-pane{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22);
+  overflow: hidden;
+}
+
+/* ==================== 상단바 기본 톤 (참고 CSS와 동일 구조) ==================== */
+.site-header{
+  position: sticky; top: 0;
+  background: rgba(0,0,0,0.7);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+}
+.header-inner{
+  display: grid; grid-template-columns: auto 1fr auto;
+  align-items: center; column-gap: 1rem;
+  min-height: 3.5rem; /* var(--header-h) */
+  padding-block: .35rem; /* 살짝 세로 여백 */
+}
+.site-header .container{ max-width: none; width:100%; margin:0; padding-left:0; }
+.brand{ display:inline-flex; align-items:center; }
+.brand__logo{ height: calc(3.5rem * 0.65); width:auto; display:block; object-fit:contain; padding-left:1rem; margin-right:1rem; }
+.header__title{
+  justify-self: start; margin: 0; font-weight: 700; letter-spacing: .02em;
+  color: #fff; text-decoration: none; font-size: clamp(1rem, 1.8vw, 1.25rem);
+}
+.header__title:hover{ text-decoration: underline; }
+.header__nav{ justify-self:end; display:inline-flex; gap: 1rem; }
