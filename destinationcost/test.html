@@ -427,16 +427,33 @@ async function loadPOEs(){
 }
 
 /* 6) 화물타입(DIPLOMAT/NON-DIPLOMAT) — index (70) 기본 분기 그대로 */
-function updateCargoTypeOptions(){
-  const values = ['DIPLOMAT','NON-DIPLOMAT']; // 필요 시 조건 분기 삽입 가능
+function setCargoTypeOptions(values){
   const sel = document.getElementById('cargoTypeSelect');
-  if (sel){
-    sel.innerHTML = [
-      `<option value="" disabled selected hidden>화물 타입 선택</option>`,
-      ...values.map(v=>`<option value="${v}">${v}</option>`)
-    ].join('');
+  if (!sel) return;
+  sel.innerHTML = [
+    `<option value="" disabled selected hidden>화물 타입 선택</option>`,
+    ...(values || []).map(v => `<option value="${v}">${v}</option>`)
+  ].join('');
+}
+
+async function loadCargoTypesFromNotion(){
+  const country = (window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value || '').trim();
+  if (!country) { setCargoTypeOptions([]); return; }
+
+  try{
+    const res = await fetch(`${BASE}/api/cargo-types/${encodeURIComponent(country)}`, { cache:'no-store' });
+    if (!res.ok) throw new Error('cargo-types endpoint not ok');
+    const j = await res.json();
+    const list = (j.types || []).filter(Boolean);
+    setCargoTypeOptions(list);
+  }catch(e){
+    console.warn('loadCargoTypesFromNotion failed:', e);
+    // 폴백(혹시 대비): 기존 하드코딩
+    setCargoTypeOptions(['DIPLOMAT','NON-DIPLOMAT']);
   }
 }
+
+
 
 /* 7) 이벤트 연결 */
 function wireEvents(){
@@ -519,7 +536,22 @@ function zoomToRegion(regionName, {fallbackZoom=10} = {}){
     console.warn('zoomToRegion: 지역을 찾지 못했습니다 →', regionName);
   }
 }
+window.addEventListener('DOMContentLoaded', () => {
+  // 초기 1회
+  loadCargoTypesFromNotion();
 
+  // 나라 변경 → 화물타입 목록 갱신
+  const ccEl = document.querySelector('#countryCombo input') || document.querySelector('#countryCombo');
+  ccEl?.addEventListener('change', loadCargoTypesFromNotion);
+
+  // (선택) 지역/업체 변경에도 재호출 하고 싶다면:
+  const rcEl = document.querySelector('#regionCombo input') || document.querySelector('#regionCombo');
+  rcEl?.addEventListener('change', loadCargoTypesFromNotion);
+  const compEl = document.querySelector('#companyCombo input') || document.querySelector('#companyCombo');
+  compEl?.addEventListener('change', loadCargoTypesFromNotion);
+});
+
+    
 </script>
 
 </body>
