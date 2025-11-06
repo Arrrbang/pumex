@@ -79,9 +79,10 @@
           </div>
           
           <div class="combo-line">
-            <select id="cargoTypeSelect" class="dropdown-select" required>
-              <option value="" disabled selected hidden>화물 타입 선택</option>
-            </select>
+            <div class="combo" id="cargoTypeCombo">
+              <input type="text" placeholder="화물 타입 선택" autocomplete="off" disabled />
+              <div class="list"></div>
+            </div>
           </div>
           
         </div>
@@ -250,25 +251,25 @@ const BASE = 'https://notion-api-hub.vercel.app';
 
 /* 1) 유틸: 콤보/셀렉트 안전 접근자 (커스텀 콤보가 있으면 우선 사용) */
 function getComboAPI(id){
-  const el = document.getElementById(id);
-  const input = el?.querySelector('input');
-  const list  = el?.querySelector('.list');
-  // 커스텀 콤보(기존 코드) 우선
-  if (window[id] && typeof window[id].setItems === 'function' && typeof window[id].getValue === 'function') {
+  const root = document.getElementById(id);
+  const input = root?.querySelector('input');
+  const list  = root?.querySelector('.list');
+
+  // 기존 커스텀 콤보 객체가 있다면 우선 사용
+  if (window[id] && typeof window[id].setItems === 'function') {
     return {
-      type:'custom',
       setItems: (arr)=>window[id].setItems(arr),
       setValue: (v)=>window[id].setValue?.(v),
       getValue: ()=>window[id].getValue?.(),
       enable:   (on)=>{ if (input) input.disabled = !on; }
     };
   }
-  // 폴백(간이 콤보)
+
+  // 폴백: 간단 콤보
   return {
-    type:'fallback',
     setItems: (arr)=>{
       if (!list || !input) return;
-      list.innerHTML = arr.map(v=>`<div class="item" data-v="${v}">${v}</div>`).join('');
+      list.innerHTML = (arr||[]).map(v=>`<div class="item" data-v="${v}">${v}</div>`).join('');
       list.querySelectorAll('.item').forEach(it=>{
         it.addEventListener('click', ()=>{
           input.value = it.getAttribute('data-v') || '';
@@ -276,19 +277,16 @@ function getComboAPI(id){
           input.dispatchEvent(new Event('change',{bubbles:true}));
         });
       });
-      // 입력 포커스 시 노출
       input.addEventListener('focus', ()=>{ list.style.display='block'; });
       input.addEventListener('input', ()=>{ list.style.display='block'; });
-      // 외부 클릭 닫기
-      document.addEventListener('pointerdown',(e)=>{
-        if(!el.contains(e.target)) list.style.display='none';
-      });
+      document.addEventListener('pointerdown',(e)=>{ if (!root.contains(e.target)) list.style.display='none'; });
     },
     setValue: (v)=>{ if(input){ input.value = v; input.dispatchEvent(new Event('change',{bubbles:true})); } },
     getValue: ()=> input?.value?.trim() || '',
     enable:   (on)=>{ if (input) input.disabled = !on; }
   };
 }
+
 
 function setSelectOptions(selectId, values){
   const sel = document.getElementById(selectId);
@@ -428,31 +426,36 @@ async function loadPOEs(){
 }
 
 /* 6) 화물타입(DIPLOMAT/NON-DIPLOMAT) — index (70) 기본 분기 그대로 */
-function setCargoTypeOptions(values){
-  const sel = document.getElementById('cargoTypeSelect');
-  if (!sel) return;
-  sel.innerHTML = [
-    `<option value="" disabled selected hidden>화물 타입 선택</option>`,
-    ...(values || []).map(v => `<option value="${v}">${v}</option>`)
-  ].join('');
+
+function setCargoTypeCombo(items){
+  const api = getComboAPI('cargoTypeCombo');
+  api.setItems(items || []);
+  api.enable(!!(items && items.length));
+  // 기본값 자동선택 없음 (사용자 직접 선택)
 }
 
+/* 노션에서 화물타입 목록 불러오기 (파트너처럼) */
 async function loadCargoTypesFromNotion(){
   const country = (window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value || '').trim();
-  if (!country) { setCargoTypeOptions([]); return; }
+  if (!country){ setCargoTypeCombo([]); return; }
 
   try{
-    const res = await fetch(`${BASE}/api/cargo-types/${encodeURIComponent(country)}`, { cache:'no-store' });
-    if (!res.ok) throw new Error('cargo-types endpoint not ok');
+    // ⛳ 백엔드의 화물타입 목록 엔드포인트 (파트너/POE와 동일 패턴)
+    // 예시: /api/cargo-types/:country  또는 /api/cargo-types?country=...
+    const url = `${BASE}/api/cargo-types/${encodeURIComponent(country)}`;
+    const res = await fetch(url, { cache:'no-store' });
+    if (!res.ok) throw new Error('cargo-types not ok');
     const j = await res.json();
-    const list = (j.types || []).filter(Boolean);
-    setCargoTypeOptions(list);
+    const types = (j.types || j.options || []).filter(Boolean);
+
+    setCargoTypeCombo(types);
   }catch(e){
     console.warn('loadCargoTypesFromNotion failed:', e);
-    // 폴백(혹시 대비): 기존 하드코딩
-    setCargoTypeOptions(['DIPLOMAT','NON-DIPLOMAT']);
+    // 폴백(혹시 대비) — 하드코딩
+    setCargoTypeCombo(['DIPLOMAT','NON-DIPLOMAT']);
   }
 }
+
 
 
 
@@ -542,16 +545,19 @@ window.addEventListener('DOMContentLoaded', () => {
   // 초기 1회
   loadCargoTypesFromNotion();
 
-  // 나라 변경 → 화물타입 목록 갱신
-  const ccEl = document.querySelector('#countryCombo input') || document.querySelector('#countryCombo');
-  ccEl?.addEventListener('change', loadCargoTypesFromNotion);
+  // 나라 변경 → 화물타입 갱신
+  (document.querySelector('#countryCombo input') || document.querySelector('#countryCombo'))
+    ?.addEventListener('change', loadCargoTypesFromNotion);
 
-  // (선택) 지역/업체 변경에도 재호출 하고 싶다면:
-  const rcEl = document.querySelector('#regionCombo input') || document.querySelector('#regionCombo');
-  rcEl?.addEventListener('change', loadCargoTypesFromNotion);
-  const compEl = document.querySelector('#companyCombo input') || document.querySelector('#companyCombo');
-  compEl?.addEventListener('change', loadCargoTypesFromNotion);
+  // 지역 변경 → 화물타입 갱신 (선택)
+  (document.querySelector('#regionCombo input') || document.querySelector('#regionCombo'))
+    ?.addEventListener('change', loadCargoTypesFromNotion);
+
+  // 파트너 변경 → 화물타입 갱신 (선택)
+  (document.querySelector('#companyCombo input') || document.querySelector('#companyCombo'))
+    ?.addEventListener('change', loadCargoTypesFromNotion);
 });
+
 
     
 </script>
