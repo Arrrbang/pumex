@@ -430,8 +430,8 @@ async function loadPOEs(){
 function setCargoTypeCombo(items){
   const api = getComboAPI('cargoTypeCombo');
   api.setItems(items || []);
+  api.setValue?.('');
   api.enable(!!(items && items.length));
-  // 기본값 자동선택 없음 (사용자 직접 선택)
 }
 
 /* 노션에서 화물타입 목록 불러오기 (파트너처럼) */
@@ -465,9 +465,12 @@ async function loadCargoTypesByPartner(){
         const rows = j2?.data || j2?.items || j2?.results || [];
         const bucket = new Set();
         for (const row of rows) {
-          const ms = row?.properties?.["화물타입"]?.multi_select || [];
-          ms.forEach(it => it?.name && bucket.add(it.name));
-          if (Array.isArray(row?.roles)) row.roles.forEach(x => x && bucket.add(String(x)));
+       const ms = row?.properties?.["화물타입"]?.multi_select || [];
+       ms.forEach(it => it?.name && bucket.add(it.name));
+       // 2) 백엔드 가공 필드들(있을 때만)
+       if (Array.isArray(row?.roles))        row.roles.forEach(x => x && bucket.add(String(x)));
+       if (Array.isArray(row?.cargoTypes))   row.cargoTypes.forEach(x => x && bucket.add(String(x)));
+       if (row?.cargoType)                   bucket.add(String(row.cargoType));
         }
         list = [...bucket].sort((a,b)=> a.localeCompare(b,'ko'));
       }
