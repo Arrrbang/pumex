@@ -427,61 +427,42 @@ async function loadPOEs(){
 
 /* 6) 화물타입(DIPLOMAT/NON-DIPLOMAT) — index (70) 기본 분기 그대로 */
 
-function setCargoTypeCombo(items){
-  const api = getComboAPI('cargoTypeCombo');
+function setCargoTypeComboItems(items){
+  const api = getComboAPI('cargoTypeCombo');   // ← 커스텀 콤보(ID: cargoTypeCombo) 기준
   api.setItems(items || []);
-  api.setValue?.('');
-  api.enable(!!(items && items.length));
+  api.setValue?.('');                          // 이전 선택값 제거 (자동선택 금지)
+  api.enable(!!(items && items.length));       // 목록이 있을 때만 활성화
 }
 
 /* 노션에서 화물타입 목록 불러오기 (파트너처럼) */
 /* 파트너 기준으로 화물타입 수집: by-company → (폴백) costs 목록 집계 */
-async function loadCargoTypesByPartner(){
+// ✅ 파트너 속성이 일치하는 화물타입만 가져오기
+async function loadCargoTypes_forPartner(){
   const country = (window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value || '').trim();
-  const region  = (window.regionCombo ?.getValue?.() || document.querySelector('#regionCombo input') ?.value || '').trim();
-  const company = (window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value || '').trim();
+  const partner = (window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value || '').trim();
 
-  // 아직 선택 미완료면 비움
-  if (!country || !region || !company) { setCargoTypeCombo([]); return; }
+  // 파트너 미선택이면 비우고 비활성화
+  if (!country || !partner){
+    setCargoTypeComboItems([]);       // 커스텀 콤보 쓰는 경우
+    // setCargoTypeSelectItems([]);   // select 쓰는 경우
+    return;
+  }
 
-  try {
-    // 1) 우선: by-company 전용 라우트가 있다면 사용
-    let list = [];
-    try {
-      const u1 = `${BASE}/api/cargo-types/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=options`;
-      const r1 = await fetch(u1, { cache:'no-store' });
-      if (r1.ok) {
-        const j1 = await r1.json();
-        list = (j1.types || j1.options || []).filter(Boolean);
-      }
-    } catch(_) { /* 무시하고 폴백 진행 */ }
+  try{
+    // ⛳ 파트너 전용 엔드포인트 (파트너 콤보의 /by-region과 동일 패턴)
+    const url = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&partner=${encodeURIComponent(partner)}&mode=options`;
+    const res = await fetch(url, { cache:'no-store' });
+    if (!res.ok) throw new Error('cargo-types/by-partner not ok');
+    const j   = await res.json();
+    const list = (j.types || j.options || []).filter(Boolean);
 
-    // 2) 폴백: 회사/지역 필터로 costs 목록을 불러와 "화물타입"만 집계
-    if (!list.length) {
-      const u2 = `${BASE}/api/costs/${encodeURIComponent(country)}?region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=data`;
-      const r2 = await fetch(u2, { cache:'no-store' });
-      if (r2.ok) {
-        const j2   = await r2.json();
-        const rows = j2?.data || j2?.items || j2?.results || [];
-        const bucket = new Set();
-        for (const row of rows) {
-       const ms = row?.properties?.["화물타입"]?.multi_select || [];
-       ms.forEach(it => it?.name && bucket.add(it.name));
-       // 2) 백엔드 가공 필드들(있을 때만)
-       if (Array.isArray(row?.roles))        row.roles.forEach(x => x && bucket.add(String(x)));
-       if (Array.isArray(row?.cargoTypes))   row.cargoTypes.forEach(x => x && bucket.add(String(x)));
-       if (row?.cargoType)                   bucket.add(String(row.cargoType));
-        }
-        list = [...bucket].sort((a,b)=> a.localeCompare(b,'ko'));
-      }
-    }
-
-    // 3) 최종 세팅 (혹시라도 비면 안전 폴백)
-    if (!list.length) list = ['DIPLOMAT','NON-DIPLOMAT'];
-    setCargoTypeCombo(list);
-  } catch (e) {
-    console.warn('loadCargoTypesByPartner failed:', e);
-    setCargoTypeCombo(['DIPLOMAT','NON-DIPLOMAT']);
+    setCargoTypeComboItems(list);       // 커스텀 콤보
+    // setCargoTypeSelectItems(list);   // select 버전
+  }catch(e){
+    console.warn('loadCargoTypes_forPartner failed:', e);
+    // 실패 시엔 비워둠(자동 선택 없음). 필요하면 안내 토스트만 띄워도 됨.
+    setCargoTypeComboItems([]);
+    // setCargoTypeSelectItems([]);
   }
 }
 
@@ -489,47 +470,49 @@ async function loadCargoTypesByPartner(){
 
 
 
+
 /* 7) 이벤트 연결 */
 function wireEvents(){
-  // 국가 변경 → 지역 로딩
-  const ccEl = document.querySelector('#countryCombo input') || document.querySelector('#countryCombo');
+  const ccEl   = document.querySelector('#countryCombo input') || document.querySelector('#countryCombo');
+  const rcEl   = document.querySelector('#regionCombo input')  || document.querySelector('#regionCombo');
+  const compEl = document.querySelector('#companyCombo input') || document.querySelector('#companyCombo');
+
+  // 국가 변경 → 지역 로드 + 화물타입 리셋
   ccEl?.addEventListener('change', async ()=>{
     await loadRegions();
-    loadCargoTypesByPartner();   // ← 함수명 교체
+    setCargoTypeComboItems([]);   // ← 리셋 (파트너 선택 전이므로 비활성)
+    // setCargoTypeSelectItems([]);
   });
 
-  // 지역 변경 → 업체 로딩
-  const rcEl = document.querySelector('#regionCombo input') || document.querySelector('#regionCombo');
+  // 지역 변경 → 업체 로드 + 화물타입 리셋
   rcEl?.addEventListener('change', async ()=>{
     await loadCompanies();
-    loadCargoTypesByPartner();   // ← 함수명 교체
+    setCargoTypeComboItems([]);   // ← 리셋
+    // setCargoTypeSelectItems([]);
     const region = (window.regionCombo?.getValue?.() || document.querySelector('#regionCombo input')?.value || '').trim();
     if (region) zoomToRegion(region, { fallbackZoom: 10 });
   });
 
-  // 업체 변경 → POE 로딩
-  const compEl = document.querySelector('#companyCombo input') || document.querySelector('#companyCombo');
+  // ✅ 업체(파트너) 변경 → 화물타입 로드 (핵심)
   compEl?.addEventListener('change', async ()=>{
-    await loadPOEs();
-    loadCargoTypesByPartner();   // ← 함수명 교체
+    await loadPOEs();                 // 기존 흐름 유지
+    loadCargoTypes_forPartner();      // ← 여기서 실제 옵션 채움
   });
-
-  // typeCombo는 고정 3종이므로 별도 이벤트 불필요
 }
 
+
 /* 8) 초기화 */
-  window.addEventListener('DOMContentLoaded', async ()=>{
-    // 고정 세팅
-    setTypeComboFixed();   // 20FT / 40HC / CONSOLE
-    setCBMRange();         // 1 ~ 60
-    loadCargoTypesByPartner();  // ← 함수명 교체
-  
-    // 데이터 로드
-    await loadCountries();
-  
-    // 이벤트
-    wireEvents();
-  });
+window.addEventListener('DOMContentLoaded', async ()=>{
+  setTypeComboFixed();   // 20FT/40HC/CONSOLE (자동선택 없음)
+  setCBMRange();         // 1~60 + placeholder 유지
+
+  await loadCountries();
+  wireEvents();
+
+  // ✅ 초기에도 파트너 값이 들어있으면 한번 로드
+  loadCargoTypes_forPartner();
+});
+
 
 
 /* 지역명으로 지도 포커싱 */
