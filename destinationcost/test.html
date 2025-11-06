@@ -111,16 +111,13 @@
         <div class="action-row center">
           <button id="btnFetch" class="primary-btn" type="button">조회</button>
         </div>
-
-        <!-- 결과 섹션 -->
-        <section id="resultSection" class="result-section">
-          <div class="result-container">
-            <div id="tableWrap" class="table-wrap"></div>
-          </div>
-        </section>
-
       </section>
     </div>
+    <section id="resultSection" class="result-section">
+      <div class="result-container">
+        <div id="tableWrap" class="table-wrap"></div>
+      </div>
+    </section>
   </main>
 
   <script>
@@ -569,7 +566,96 @@ function zoomToRegion(regionName, {fallbackZoom=10} = {}){
     console.warn('zoomToRegion: 지역을 찾지 못했습니다 →', regionName);
   }
 }
+    
+document.getElementById('btnFetch')?.addEventListener('click', async () => {
+  try{
+    // 선택된 값 읽기
+    const country = window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value?.trim();
+    const region  = window.regionCombo?.getValue?.()  || document.querySelector('#regionCombo input')?.value?.trim();
+    const company = window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value?.trim();
+    const type    = window.typeCombo?.getValue?.()    || document.querySelector('#typeCombo input')?.value?.trim() || '20FT';
+    const cbmSel  = document.getElementById('cbmSelect');
+    const cbm     = cbmSel?.value ? Number(cbmSel.value) : undefined;
+    const cargo   = document.getElementById('cargoTypeSelect')?.value?.trim();
 
+    if (!country){ alert('국가를 선택하세요.'); return; }
+    if (!company){ alert('업체를 선택하세요.'); return; }
+
+    const roles = cargo ? [cargo.toUpperCase()] : [];
+    const params = new URLSearchParams();
+    params.set('type', type);
+    params.set('company', company);
+    if (region) params.set('region', region);
+    if (roles.length) params.set('roles', roles.join(','));
+    if (!isNaN(cbm)) params.set('cbm', String(cbm));
+
+    const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
+    const res = await fetch(url);
+    const j   = await res.json();
+
+    __numberFormats = j?.numberFormats || {};
+
+    renderTable(j, type, Boolean(region));
+    document.getElementById('resultSection')?.classList.add('show');    
+  }catch(e){
+    console.error(e);
+    alert('조회 중 오류가 발생했습니다.');
+  }
+});
+
+    
+// Notion 숫자 포맷 메타 저장용 (백엔드 /api/costs 응답에 포함됨)
+let __numberFormats = {};
+
+function esc(s){ 
+  return String(s==null?'':s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+}
+
+function formatAmount(n, columnKey){
+  if (n==null || n==='' || isNaN(Number(n))) return '';
+  const v = Number(n);
+  const fmt = __numberFormats?.[columnKey] || '';
+  if (/dollar|usd/i.test(fmt)) return '$' + v.toLocaleString('en-US');
+  if (/won|krw/i.test(fmt))    return '₩' + v.toLocaleString('ko-KR');
+  if (/euro|eur/i.test(fmt))   return '€' + v.toLocaleString('de-DE');
+  return v.toLocaleString();
+}
+
+function renderTable(data, type, isRegionFiltered){
+  const wrap = document.getElementById('tableWrap');
+  if (!wrap){ return; }
+
+  const rows = Array.isArray(data?.rows) ? data.rows : [];
+  if (!rows.length){
+    wrap.innerHTML = '<div class="muted">표시할 데이터가 없습니다.</div>';
+    return;
+  }
+
+  // 헤더 구성
+  let thead = '<tr><th>항목</th>';
+  if (!isRegionFiltered) thead += '<th>지역</th>';
+  thead += `<th class="type-col">${esc(type)}</th><th>비고</th></tr>`;
+
+  // 바디 구성
+  let tbody = '';
+  for (const r of rows){
+    const amt = r?.[type];
+    const amtText = formatAmount(amt, type) || '-';
+    tbody += '<tr>';
+    tbody += `<td>${esc(r.item || '')}</td>`;
+    if (!isRegionFiltered) tbody += `<td>${esc(r.region || '')}</td>`;
+    tbody += `<td class="amt">${amtText}</td>`;
+    tbody += `<td>${r.extra || ''}</td>`;
+    tbody += '</tr>';
+  }
+
+  wrap.innerHTML = `
+    <table class="result-table">
+      <thead>${thead}</thead>
+      <tbody>${tbody}</tbody>
+    </table>
+  `;
+}
 
     
 </script>
