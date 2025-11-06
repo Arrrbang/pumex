@@ -225,11 +225,11 @@ function setMapCountry(country){
   if (bounds.length) map.fitBounds(bounds, { padding:[20,20] });
 }
 
-/* ===== 바인딩: 페이지 로드시 지도 항상 보이기 + 국가 바뀌면 마커 갱신 ===== */
+// ===== 바인딩: 페이지 로드시 지도 항상 보이기 + 국가 바뀌면 마커 갱신 =====
 window.addEventListener('DOMContentLoaded', async ()=>{
   try{ await initAlwaysOnMap(); }catch(_){}
-  // 나라 바뀌면 지도 갱신
-  const cc = document.querySelector('#countryCombo');
+  // 나라 바뀌면 지도 갱신 (input에 리스너!)
+  const cc = document.querySelector('#countryCombo input') || document.querySelector('#countryCombo');
   if (cc){
     cc.addEventListener('change', ()=>{
       const c = getCountry();
@@ -240,6 +240,7 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   const initial = getCountry();
   if (initial) setMapCountry(initial);
 });
+
 
 /* ===================== Notion 연동 드롭다운 로딩 (모달 無 버전) ===================== */
 /* 환경: 왼쪽 지도(#mpkMap)는 항상 표시 / 오른쪽 콤보/셀렉트는 기존 ID 재사용 */
@@ -461,14 +462,14 @@ function wireEvents(){
   const ccEl = document.querySelector('#countryCombo input') || document.querySelector('#countryCombo');
   ccEl?.addEventListener('change', async ()=>{
     await loadRegions();
-    updateCargoTypeOptions();
+    loadCargoTypesFromNotion();   // ← 함수명 교체
   });
 
   // 지역 변경 → 업체 로딩
   const rcEl = document.querySelector('#regionCombo input') || document.querySelector('#regionCombo');
   rcEl?.addEventListener('change', async ()=>{
     await loadCompanies();
-    updateCargoTypeOptions();
+    loadCargoTypesFromNotion();   // ← 함수명 교체
     const region = (window.regionCombo?.getValue?.() || document.querySelector('#regionCombo input')?.value || '').trim();
     if (region) zoomToRegion(region, { fallbackZoom: 10 });
   });
@@ -477,25 +478,26 @@ function wireEvents(){
   const compEl = document.querySelector('#companyCombo input') || document.querySelector('#companyCombo');
   compEl?.addEventListener('change', async ()=>{
     await loadPOEs();
-    updateCargoTypeOptions();
+    loadCargoTypesFromNotion();   // ← 함수명 교체
   });
 
   // typeCombo는 고정 3종이므로 별도 이벤트 불필요
 }
 
 /* 8) 초기화 */
-window.addEventListener('DOMContentLoaded', async ()=>{
-  // 고정 세팅
-  setTypeComboFixed();   // 20FT / 40HC / CONSOLE
-  setCBMRange();         // 1 ~ 60
-  updateCargoTypeOptions();
+  window.addEventListener('DOMContentLoaded', async ()=>{
+    // 고정 세팅
+    setTypeComboFixed();   // 20FT / 40HC / CONSOLE
+    setCBMRange();         // 1 ~ 60
+    loadCargoTypesFromNotion();  // ← 함수명 교체
+  
+    // 데이터 로드
+    await loadCountries();
+  
+    // 이벤트
+    wireEvents();
+  });
 
-  // 데이터 로드
-  await loadCountries();
-
-  // 이벤트
-  wireEvents();
-});
 
 /* 지역명으로 지도 포커싱 */
 function zoomToRegion(regionName, {fallbackZoom=10} = {}){
