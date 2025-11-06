@@ -292,7 +292,10 @@ function getComboAPI(id){
 function setSelectOptions(selectId, values){
   const sel = document.getElementById(selectId);
   if (!sel) return;
-  sel.innerHTML = values.map(v=>`<option value="${v}">${v}</option>`).join('');
+    sel.innerHTML = [
+      `<option value="" disabled selected hidden>화물 타입 선택</option>`,
+      ...values.map(v=>`<option value="${v}">${v}</option>`)
+    ].join('');
 }
 
 function getValue_soft(id){ // 콤보/인풋/셀렉트 모두 커버
@@ -315,8 +318,14 @@ function setTypeComboFixed(){
 
 /* 3) CBM: 1 ~ 60 생성 */
 function setCBMRange(){
-  const list = Array.from({length:60}, (_,i)=> String(i+1));
-  setSelectOptions('cbmSelect', list);
+  const values = Array.from({length:60}, (_,i)=> i + 1);
+  const sel = document.getElementById('cbmSelect');
+  if (sel){
+    sel.innerHTML = [
+      `<option value="" disabled selected hidden>CBM 선택</option>`,
+      ...values.map(v => `<option value="${v}">${v}</option>`)
+    ].join('');
+  }
 }
 
 /* 4) 국가 목록 로드 */
@@ -422,7 +431,10 @@ function updateCargoTypeOptions(){
   const values = ['DIPLOMAT','NON-DIPLOMAT']; // 필요 시 조건 분기 삽입 가능
   const sel = document.getElementById('cargoTypeSelect');
   if (sel){
-    sel.innerHTML = values.map(v=>`<option value="${v}">${v}</option>`).join('');
+    sel.innerHTML = [
+      `<option value="" disabled selected hidden>화물 타입 선택</option>`,
+      ...values.map(v=>`<option value="${v}">${v}</option>`)
+    ].join('');
   }
 }
 
