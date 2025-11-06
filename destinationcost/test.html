@@ -437,38 +437,69 @@ function setCargoTypeComboItems(items){
 /* 노션에서 화물타입 목록 불러오기 (파트너처럼) */
 /* 파트너 기준으로 화물타입 수집: by-company → (폴백) costs 목록 집계 */
 // ✅ 파트너 속성이 일치하는 화물타입만 가져오기
+// 파트너 기준 화물타입 로드 (region → partner → costs 폴백)
 async function loadCargoTypes_forPartner(){
   const country = (window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value || '').trim();
+  const region  = (window.regionCombo ?.getValue?.() || document.querySelector('#regionCombo  input')?.value || '').trim();
   const partner = (window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value || '').trim();
 
-  // 파트너 미선택이면 비우고 비활성화
+  // 파트너가 없으면 비활성화
   if (!country || !partner){
-    setCargoTypeComboItems([]);       // 커스텀 콤보 쓰는 경우
-    // setCargoTypeSelectItems([]);   // select 쓰는 경우
+    setCargoTypeComboItems([]);
     return;
   }
 
-  try{
-    // ⛳ 파트너 전용 엔드포인트 (파트너 콤보의 /by-region과 동일 패턴)
-    const url = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&partner=${encodeURIComponent(partner)}&mode=options`;
+  const tryFetch = async (url) => {
     const res = await fetch(url, { cache:'no-store' });
-    if (!res.ok) throw new Error('cargo-types/by-partner not ok');
-    const j   = await res.json();
-    const list = (j.types || j.options || []).filter(Boolean);
+    if (!res.ok) return [];
+    const j = await res.json();
+    const list = (j.types || j.options || j.roles || []).filter(Boolean);
+    return list;
+  };
 
-    setCargoTypeComboItems(list);       // 커스텀 콤보
-    // setCargoTypeSelectItems(list);   // select 버전
+  let list = [];
+
+  try{
+    // 1) by-partner + region (백엔드가 region을 요구할 수 있음)
+    if (region){
+      const u1 = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&partner=${encodeURIComponent(partner)}&mode=options`;
+      console.log('[cargoTypes] try:', u1);
+      list = await tryFetch(u1);
+    }
+
+    // 2) by-partner (region 없이도 지원할 경우)
+    if (!list.length){
+      const u2 = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&partner=${encodeURIComponent(partner)}&mode=options`;
+      console.log('[cargoTypes] try:', u2);
+      list = await tryFetch(u2);
+    }
+
+    // 3) 폴백: costs 목록에서 "화물타입"만 집계
+    if (!list.length){
+      const u3 = `${BASE}/api/costs/${encodeURIComponent(country)}?company=${encodeURIComponent(partner)}${region ? `&region=${encodeURIComponent(region)}` : ''}&mode=data`;
+      console.log('[cargoTypes] fallback:', u3);
+      const res = await fetch(u3, { cache:'no-store' });
+      if (res.ok){
+        const j  = await res.json();
+        const rows = j?.data || j?.items || j?.results || [];
+        const bucket = new Set();
+        for (const row of rows){
+          const ms = row?.properties?.["화물타입"]?.multi_select || [];
+          ms.forEach(it => it?.name && bucket.add(it.name));
+          if (Array.isArray(row?.roles))      row.roles.forEach(x => x && bucket.add(String(x)));
+          if (Array.isArray(row?.cargoTypes)) row.cargoTypes.forEach(x => x && bucket.add(String(x)));
+          if (row?.cargoType)                 bucket.add(String(row.cargoType));
+        }
+        list = [...bucket].sort((a,b)=> a.localeCompare(b,'ko'));
+      }
+    }
+
+    setCargoTypeComboItems(list);
   }catch(e){
-    console.warn('loadCargoTypes_forPartner failed:', e);
-    // 실패 시엔 비워둠(자동 선택 없음). 필요하면 안내 토스트만 띄워도 됨.
+    console.warn('loadCargoTypes_forPartner error:', e);
     setCargoTypeComboItems([]);
-    // setCargoTypeSelectItems([]);
   }
 }
-
-
-
-
 
 
 /* 7) 이벤트 연결 */
