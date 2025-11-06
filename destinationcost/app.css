@@ -312,3 +312,6 @@ input[type="number"]{
 }
 .header__title:hover{ text-decoration: underline; }
 .header__nav{ justify-self:end; display:inline-flex; gap: 1rem; }
+
+/* 커스텀 콤보 placeholder 색상 통일 */
+.combo input::placeholder { color:#94a3b8; opacity:1; }
