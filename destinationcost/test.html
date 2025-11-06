@@ -554,22 +554,6 @@ function zoomToRegion(regionName, {fallbackZoom=10} = {}){
     console.warn('zoomToRegion: 지역을 찾지 못했습니다 →', regionName);
   }
 }
-window.addEventListener('DOMContentLoaded', () => {
-  // 초기 1회
-  loadCargoTypesByPartner();
-
-  // 나라 변경 → 화물타입 갱신
-  (document.querySelector('#countryCombo input') || document.querySelector('#countryCombo'))
-    ?.addEventListener('change', loadCargoTypesByPartner);
-
-  // 지역 변경 → 화물타입 갱신 (선택)
-  (document.querySelector('#regionCombo input') || document.querySelector('#regionCombo'))
-    ?.addEventListener('change', loadCargoTypesByPartner);
-
-  // 파트너 변경 → 화물타입 갱신 (선택)
-  (document.querySelector('#companyCombo input') || document.querySelector('#companyCombo'))
-    ?.addEventListener('change', loadCargoTypesByPartner);
-});
 
 
     
