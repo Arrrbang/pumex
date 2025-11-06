@@ -57,7 +57,6 @@ body::before{
 }
 
 body::after{
-  /* 그라디언트 + 살짝 어둡게 오버레이 */
   content: "";
   position: fixed;
   inset: 0;
