@@ -456,7 +456,7 @@ async function loadCargoTypes_forPartner(){
   try{
     // 1) ✅ 백엔드에 구현된 by-partner 라우트 먼저 시도
     //    (/api/cargo-types/by-partner?country=&partner=&region=)
-    let url = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&partner=${encodeURIComponent(partner)}${region ? `&region=${encodeURIComponent(region)}` : ''}&mode=options`;
+    let url = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&company=${encodeURIComponent(partner)}${region ? `&region=${encodeURIComponent(region)}` : ''}&mode=options`;
     let j = await fetchJson(url);
     if (j) list = (j.types || j.options || []).filter(Boolean);
 
