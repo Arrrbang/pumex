@@ -110,6 +110,7 @@ body::after{
   border-radius: 12px;
 }
 
+
 /* ===== 오른쪽 패널 내부 여백 */
 .right-pane{ padding: 14px 16px; }
 
@@ -147,12 +148,24 @@ body::after{
 .dropdown-label-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:.25rem; }
 .dropdown-label-row .label-text{ margin-right:auto; }
 
+
 .select-btn{
   border-radius: 2rem; padding:.4rem 1.1rem; min-width:8.5rem;
   border: 2px solid var(--primary); background: var(--primary);
   color:#fff; font-weight:700; font-size:.95rem; cursor:pointer;
 }
 .select-btn:hover{ background:#16724a; }
+
+/* Placeholder 스타일 맞추기 (선택 전에는 폰트 색 연하게) */
+.dropdown-select:invalid,
+.dropdown-select option[disabled][selected] {
+  color: #94a3b8; /* 연한 회색 — 기존 콤보박스 placeholder와 일치 */
+}
+
+/* 선택된 값일 경우 기본 색상으로 유지 */
+.dropdown-select:not(:invalid) {
+  color: #333; /* 기존 입력 필드 텍스트 색상 */
+}
 
 .dropdown-select,
 input[type="text"],
