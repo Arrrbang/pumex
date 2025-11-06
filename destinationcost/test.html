@@ -435,26 +435,53 @@ function setCargoTypeCombo(items){
 }
 
 /* 노션에서 화물타입 목록 불러오기 (파트너처럼) */
-async function loadCargoTypesFromNotion(){
+/* 파트너 기준으로 화물타입 수집: by-company → (폴백) costs 목록 집계 */
+async function loadCargoTypesByPartner(){
   const country = (window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value || '').trim();
-  if (!country){ setCargoTypeCombo([]); return; }
+  const region  = (window.regionCombo ?.getValue?.() || document.querySelector('#regionCombo input') ?.value || '').trim();
+  const company = (window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value || '').trim();
 
-  try{
-    // ⛳ 백엔드의 화물타입 목록 엔드포인트 (파트너/POE와 동일 패턴)
-    // 예시: /api/cargo-types/:country  또는 /api/cargo-types?country=...
-    const url = `${BASE}/api/cargo-types/${encodeURIComponent(country)}`;
-    const res = await fetch(url, { cache:'no-store' });
-    if (!res.ok) throw new Error('cargo-types not ok');
-    const j = await res.json();
-    const types = (j.types || j.options || []).filter(Boolean);
+  // 아직 선택 미완료면 비움
+  if (!country || !region || !company) { setCargoTypeCombo([]); return; }
 
-    setCargoTypeCombo(types);
-  }catch(e){
-    console.warn('loadCargoTypesFromNotion failed:', e);
-    // 폴백(혹시 대비) — 하드코딩
+  try {
+    // 1) 우선: by-company 전용 라우트가 있다면 사용
+    let list = [];
+    try {
+      const u1 = `${BASE}/api/cargo-types/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=options`;
+      const r1 = await fetch(u1, { cache:'no-store' });
+      if (r1.ok) {
+        const j1 = await r1.json();
+        list = (j1.types || j1.options || []).filter(Boolean);
+      }
+    } catch(_) { /* 무시하고 폴백 진행 */ }
+
+    // 2) 폴백: 회사/지역 필터로 costs 목록을 불러와 "화물타입"만 집계
+    if (!list.length) {
+      const u2 = `${BASE}/api/costs/${encodeURIComponent(country)}?region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=data`;
+      const r2 = await fetch(u2, { cache:'no-store' });
+      if (r2.ok) {
+        const j2   = await r2.json();
+        const rows = j2?.data || j2?.items || j2?.results || [];
+        const bucket = new Set();
+        for (const row of rows) {
+          const ms = row?.properties?.["화물타입"]?.multi_select || [];
+          ms.forEach(it => it?.name && bucket.add(it.name));
+          if (Array.isArray(row?.roles)) row.roles.forEach(x => x && bucket.add(String(x)));
+        }
+        list = [...bucket].sort((a,b)=> a.localeCompare(b,'ko'));
+      }
+    }
+
+    // 3) 최종 세팅 (혹시라도 비면 안전 폴백)
+    if (!list.length) list = ['DIPLOMAT','NON-DIPLOMAT'];
+    setCargoTypeCombo(list);
+  } catch (e) {
+    console.warn('loadCargoTypesByPartner failed:', e);
     setCargoTypeCombo(['DIPLOMAT','NON-DIPLOMAT']);
   }
 }
+
 
 
 
@@ -465,14 +492,14 @@ function wireEvents(){
   const ccEl = document.querySelector('#countryCombo input') || document.querySelector('#countryCombo');
   ccEl?.addEventListener('change', async ()=>{
     await loadRegions();
-    loadCargoTypesFromNotion();   // ← 함수명 교체
+    loadCargoTypesByPartner();   // ← 함수명 교체
   });
 
   // 지역 변경 → 업체 로딩
   const rcEl = document.querySelector('#regionCombo input') || document.querySelector('#regionCombo');
   rcEl?.addEventListener('change', async ()=>{
     await loadCompanies();
-    loadCargoTypesFromNotion();   // ← 함수명 교체
+    loadCargoTypesByPartner();   // ← 함수명 교체
     const region = (window.regionCombo?.getValue?.() || document.querySelector('#regionCombo input')?.value || '').trim();
     if (region) zoomToRegion(region, { fallbackZoom: 10 });
   });
@@ -481,7 +508,7 @@ function wireEvents(){
   const compEl = document.querySelector('#companyCombo input') || document.querySelector('#companyCombo');
   compEl?.addEventListener('change', async ()=>{
     await loadPOEs();
-    loadCargoTypesFromNotion();   // ← 함수명 교체
+    loadCargoTypesByPartner();   // ← 함수명 교체
   });
 
   // typeCombo는 고정 3종이므로 별도 이벤트 불필요
@@ -492,7 +519,7 @@ function wireEvents(){
     // 고정 세팅
     setTypeComboFixed();   // 20FT / 40HC / CONSOLE
     setCBMRange();         // 1 ~ 60
-    loadCargoTypesFromNotion();  // ← 함수명 교체
+    loadCargoTypesByPartner();  // ← 함수명 교체
   
     // 데이터 로드
     await loadCountries();
@@ -543,19 +570,19 @@ function zoomToRegion(regionName, {fallbackZoom=10} = {}){
 }
 window.addEventListener('DOMContentLoaded', () => {
   // 초기 1회
-  loadCargoTypesFromNotion();
+  loadCargoTypesByPartner();
 
   // 나라 변경 → 화물타입 갱신
   (document.querySelector('#countryCombo input') || document.querySelector('#countryCombo'))
-    ?.addEventListener('change', loadCargoTypesFromNotion);
+    ?.addEventListener('change', loadCargoTypesByPartner);
 
   // 지역 변경 → 화물타입 갱신 (선택)
   (document.querySelector('#regionCombo input') || document.querySelector('#regionCombo'))
-    ?.addEventListener('change', loadCargoTypesFromNotion);
+    ?.addEventListener('change', loadCargoTypesByPartner);
 
   // 파트너 변경 → 화물타입 갱신 (선택)
   (document.querySelector('#companyCombo input') || document.querySelector('#companyCombo'))
-    ?.addEventListener('change', loadCargoTypesFromNotion);
+    ?.addEventListener('change', loadCargoTypesByPartner);
 });
 
 
