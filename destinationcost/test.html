@@ -16,15 +16,15 @@
 <body>
 
   <!-- 상단 헤더 (간단 버전) -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <a class="brand" href="#">
-        <img src="https://arrrbang.github.io/pumex/image/pumexlogonew.png" alt="PUMEX Logo" class="brand__logo" />
-      </a>
-      <a class="header__title" href="#">도착지 비용 계산</a>
-      <nav class="header__nav" aria-label="상단 링크"></nav>
-    </div>
-  </header>
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="#">
+      <img src="https://arrrbang.github.io/pumex/image/pumexlogonew.png" alt="PUMEX Logo" class="brand__logo" />
+    </a>
+    <a class="header__title" href="#">도착지 비용 계산</a>
+    <nav class="header__nav" aria-label="상단 링크"></nav>
+  </div>
+</header>
 
   <!-- 메인 앱 셸 -->
   <main class="app-shell">
@@ -62,7 +62,7 @@
 
         <!-- 2차 선택: 업체/POE -->
         <div class="dropdown-container">
-          <label class="dropdown-label" for="companyCombo">[2] 파트너/POE 선택</label>
+          <label class="dropdown-label" for="companyCombo">[2] 파트너/POE/화물타입 선택</label>
         
           <div class="combo-line">
             <div class="combo" id="companyCombo">
@@ -77,18 +77,18 @@
               <div class="list"></div>
             </div>
           </div>
+          
+          <div class="combo-line">
+            <select id="cargoTypeSelect" class="dropdown-select" required>
+              <option value="" disabled selected hidden>화물 타입 선택</option>
+            </select>
+          </div>
+          
         </div>
     
         <!-- 3차 선택 -->
         <div class="dropdown-container">
-          <label class="dropdown-label" for="cargoTypeSelect">[3] 화물/컨테이너/CBM 선택</label>
-        
-          <div class="combo-line">
-            <select id="cargoTypeSelect" class="dropdown-select" required>
-              <option value="" disabled selected hidden>화물 타입 선택</option>
-              <!-- JS로 추가될 옵션: DIPLOMAT / NON-DIPLOMAT -->
-            </select>
-          </div>
+          <label class="dropdown-label" for="cargoTypeSelect">[3] 컨테이너 타입/CBM 선택</label>
         
           <div class="combo-line">
             <div class="combo" id="typeCombo">
