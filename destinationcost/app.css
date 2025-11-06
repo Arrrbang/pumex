@@ -422,4 +422,20 @@ input[type="number"]{
   padding: 1rem 1.25rem;
   overflow: hidden;
 }
+.action-row.center {
+  opacity: 0;
+  transform: translateY(22px);
+  pointer-events: none;
+  transition: opacity .45s ease, transform .45s ease;
+}
+
+.action-row.center.show {
+  display: flex;
+}
+
+.action-row.center.revealed {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
 
