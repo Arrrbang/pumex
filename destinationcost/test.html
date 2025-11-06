@@ -434,43 +434,55 @@ function setCargoTypeComboItems(items){
   api.enable(!!(items && items.length));       // 목록이 있을 때만 활성화
 }
 
-/* 노션에서 화물타입 목록 불러오기 (파트너처럼) */
-/* 파트너 기준으로 화물타입 수집: by-company → (폴백) costs 목록 집계 */
-// ✅ 파트너 속성이 일치하는 화물타입만 가져오기
-// 파트너 기준 화물타입 로드 (region → partner → costs 폴백)
-// 파트너 기준 화물타입 로드: costs 목록에서 "화물타입"만 집계 (by-partner 호출 제거)
+// 파트너 기준 화물타입 로드: by-partner (region 포함) → (폴백) /api/costs 집계
 async function loadCargoTypes_forPartner(){
   const country = (window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value || '').trim();
   const region  = (window.regionCombo ?.getValue?.() || document.querySelector('#regionCombo  input')?.value || '').trim();
   const partner = (window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value || '').trim();
 
-  if (!country || !partner){ setCargoTypeComboItems([]); return; }
+  if (!country || !partner){
+    setCargoTypeComboItems([]); // 비우고 비활성화
+    return;
+  }
+
+  const fetchJson = async (url) => {
+    const res = await fetch(url, { cache:'no-store' });
+    if (!res.ok) return null;
+    return res.json();
+  };
+
+  let list = [];
 
   try{
-    const u = `${BASE}/api/costs/${encodeURIComponent(country)}?company=${encodeURIComponent(partner)}${region ? `&region=${encodeURIComponent(region)}` : ''}&mode=data`;
-    const res = await fetch(u, { cache:'no-store' });
-    if (!res.ok){ setCargoTypeComboItems([]); return; }
+    // 1) ✅ 백엔드에 구현된 by-partner 라우트 먼저 시도
+    //    (/api/cargo-types/by-partner?country=&partner=&region=)
+    let url = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&partner=${encodeURIComponent(partner)}${region ? `&region=${encodeURIComponent(region)}` : ''}&mode=options`;
+    let j = await fetchJson(url);
+    if (j) list = (j.types || j.options || []).filter(Boolean);
 
-    const j = await res.json();
-    const rows = j?.rows || j?.data || j?.items || j?.results || [];
-
-    // "화물타입"만 집계 (multi_select 우선, 보조 필드도 합산)
-    const bucket = new Set();
-    for (const row of rows){
-      const ms = row?.properties?.["화물타입"]?.multi_select || [];
-      ms.forEach(it => it?.name && bucket.add(it.name));
-      if (Array.isArray(row?.roles))      row.roles.forEach(x => x && bucket.add(String(x)));
-      if (Array.isArray(row?.cargoTypes)) row.cargoTypes.forEach(x => x && bucket.add(String(x)));
-      if (row?.cargoType)                 bucket.add(String(row.cargoType));
+    // 2) 폴백: /api/costs 에서 해당 파트너 행들만 조회하여 "화물타입"을 집계
+    if (!list.length){
+      url = `${BASE}/api/costs/${encodeURIComponent(country)}?company=${encodeURIComponent(partner)}${region ? `&region=${encodeURIComponent(region)}` : ''}&mode=data`;
+      j = await fetchJson(url);
+      const rows = j?.rows || j?.data || j?.items || j?.results || [];
+      const bucket = new Set();
+      for (const row of rows){
+        const ms = row?.properties?.["화물타입"]?.multi_select || [];
+        ms.forEach(it => it?.name && bucket.add(it.name));
+        if (Array.isArray(row?.roles))      row.roles.forEach(x => x && bucket.add(String(x)));
+        if (Array.isArray(row?.cargoTypes)) row.cargoTypes.forEach(x => x && bucket.add(String(x)));
+        if (row?.cargoType)                 bucket.add(String(row.cargoType));
+      }
+      list = [...bucket].sort((a,b)=> a.localeCompare(b,'ko'));
     }
 
-    const list = [...bucket].sort((a,b)=> a.localeCompare(b,'ko'));
-    setCargoTypeComboItems(list); // ← 리스트가 1개 이상이면 자동 enable(true)
+    setCargoTypeComboItems(list); // 목록이 1개 이상이면 자동 enable(true)
   }catch(e){
     console.warn('loadCargoTypes_forPartner error:', e);
     setCargoTypeComboItems([]);
   }
 }
+
 
 
 
