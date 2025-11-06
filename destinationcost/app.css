@@ -239,3 +239,22 @@ input[type="number"]{
   }
   .map-canvas{ height: 360px; }
 }
+
+/* ===================== placeholder 스타일 통일 ===================== */
+
+/* 커스텀 combo input placeholder 색상 */
+.combo input::placeholder {
+  color: #94a3b8 !important; /* 기존 연회색 */
+  opacity: 1; /* 일부 브라우저가 opacity를 낮게 적용하는 것 대비 */
+}
+
+/* select placeholder (첫 번째 disabled 옵션) 색상 */
+.dropdown-select option[disabled][selected][hidden] {
+  color: #94a3b8 !important;
+}
+
+/* 선택 완료된 select 값은 정상 색상 */
+.dropdown-select:not(:invalid) {
+  color: #333;
+}
+
