@@ -40,7 +40,7 @@ html{ font-size: clamp(14px, 1.2vw, 16px); }
 body{
   padding-top: var(--header-h);  /* 헤더만큼만 정확히 내리기 */
   position: relative;
-  background: var(--bg);
+  background: #F2F5FA;
   min-height: calc(100dvh - var(--header-h));
 }
 
@@ -114,13 +114,15 @@ body::after{
 /* 3) 앱 레이아웃: 좌(지도) / 우(폼)                                           */
 /* ========================================================================== */
 .app-shell{
-  background: #F2F5FA !important;  /* 밝은 회색 */
+  background: 
+    linear-gradient(rgba(3, 19, 48, 0.7), rgba(3, 19, 48, 0.7)), /* ✅ 70% 짙은 청색 오버레이 */
+    url('https://arrrbang.github.io/pumex/image/costbackground.jpg') center/cover no-repeat; /* ✅ 배경 이미지 */
   box-shadow: none !important;
   border: 1px solid rgba(0, 0, 0, 0.12); /*테두리 색 높을 수록 진한 색*/
   backdrop-filter: blur(4px); /*테두리 블러효과*/
-  border-radius: 12px;
-  padding: 16px;                    /* 테두리 안쪽 여백 */
-  max-width: 1200px; /* 기존 컨테이너 폭 */
+  border-radius: 1rem;
+  padding: 1rem;                    /* 테두리 안쪽 여백 */
+  max-width: 86rem; /* 기존 컨테이너 폭 */
   width: 100%;      /* 필요 시 */
   margin: 1.5rem auto 0; /* 상(1.5rem) 좌우(auto) 하(0)로 명시 */
 }
