@@ -122,138 +122,72 @@
   </main>
 
   <script>
-/** ======================= 상시 노출 지도 (좌측 #mpkMap) ======================= */
-/* Leaflet & Geocoder 동적 로더 */
-function loadCssOnce(href){ return new Promise((res, rej)=>{ if(document.querySelector(`link[href="${href}"]`)) return res(); const l=document.createElement('link'); l.rel='stylesheet'; l.href=href; l.onload=res; l.onerror=rej; document.head.appendChild(l); }); }
-function loadJsOnce(src){  return new Promise((res, rej)=>{ if(document.querySelector(`script[src="${src}"]`)) return res(); const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+<script>
+/* ============================================================================
+   0) 전역 상수 / 공통 유틸
+   - CDN 경로, API BASE, 이스케이프/토스트/거리계산 등
+   ========================================================================== */
+const BASE = 'https://notion-api-hub.vercel.app';
 
 const LCSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
 const LJS  = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
 const GCSS = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css";
 const GJS  = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js";
 
-/* 콤보 편의 함수(이미 페이지에 makeCombo가 있다면 생략 가능) */
-function getCountry(){ const el = document.querySelector('#countryCombo input'); return el?.value?.trim() || ''; }
-function getRegion(){  const el = document.querySelector('#regionCombo input');  return el?.value?.trim() || ''; }
-function setRegion(v){
-  const combo = document.querySelector('#regionCombo input');
-  if (combo){ combo.value = v; combo.dispatchEvent(new Event('input',{bubbles:true})); combo.dispatchEvent(new Event('change',{bubbles:true})); }
-  zoomToRegion(v, { fallbackZoom: 10 });
-}
-
-/* 간단 토스트 */
-function toast(msg){ try{ const d=document.createElement('div'); d.textContent=msg; d.style.cssText="position:fixed;left:50%;top:32vh;transform:translate(-50%,-50%);background:rgba(0,0,0,.82);color:#fff;padding:10px 14px;border-radius:10px;z-index:9999;font-size:14px;box-shadow:0 10px 24px rgba(0,0,0,.35)"; document.body.appendChild(d); setTimeout(()=>d.remove(),1500);}catch(_){} }
-
-/* 거리 계산 & 최근접 찾기 */
-function haversineKm(aLat,aLng,bLat,bLng){ const R=6371, dLat=(bLat-aLat)*Math.PI/180, dLng=(bLng-aLng)*Math.PI/180; const A=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(A)); }
-function findNearest(lat,lng,pts){ if(!pts?.length) return null; let best=null,bd=Infinity; for(const p of pts){ const d=haversineKm(lat,lng,p.lat,p.lng); if(d<bd){best=p;bd=d;} } return {point:best,distanceKm:bd}; }
-
-/* 지도 상태 */
-let map, markerLayer, geocoder, mapInited=false, mapData=null, tmpSearch=null;
-const pinReg    = '#2563eb';
-const pinSearch = '#ef4444';
-
-/* 커스텀 핀 */
-function makeSvgPinIcon(color) {
-  const svg = `<svg class="pin-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="${color}" d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/></svg>`;
-  return L.divIcon({ className: "", html:`<div class="pin-wrap">${svg}</div>`, iconSize:[26,26], iconAnchor:[13,26] });
-}
-
-/* 국가 키 보정(필요 시 별칭 매핑 추가) */
-function normalizeCountryKey(raw){ return String(raw||'').trim(); }
-
-/* ===== 핵심: 좌측 #mpkMap에 지도 초기화 ===== */
-async function initAlwaysOnMap(){
-  if (mapInited) return;
-  await loadCssOnce(LCSS); await loadJsOnce(LJS);
-  await loadCssOnce(GCSS); await loadJsOnce(GJS);
-
-  const worldBounds = L.latLngBounds([[-85,-180],[85,180]]);
-  map = L.map('mpkMap', { center:[20,0], zoom:2, worldCopyJump:false, maxBounds:worldBounds, maxBoundsViscosity:1.0 });
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OSM', noWrap:true, bounds:worldBounds }).addTo(map);
-  markerLayer = L.layerGroup().addTo(map);
-
-  /* 검색 박스(지오코더) */
-  geocoder = L.Control.geocoder({ defaultMarkGeocode:false })
-    .on('markgeocode', (e)=>{
-      const c = e.geocode.center;
-      if (tmpSearch) { map.removeLayer(tmpSearch); tmpSearch=null; }
-      tmpSearch = L.marker(c, {icon: makeSvgPinIcon(pinSearch)}).addTo(map);
-      map.setView(c, 9);
-
-      // 최근접 등록 지역 자동 선택
-      const hit = findNearest(c.lat, c.lng, __countryPoints);
-      if (hit?.point){
-        setRegion(hit.point.name);
-        toast(`가장 가까운 등록 지역: ${hit.point.name} (~${hit.distanceKm.toFixed(1)}km)`);
-      }
-    }).addTo(map);
-
-  /* 국가별 포인트 데이터 로드 (index(70)과 동일 경로 규칙) */
-  try{
-    const r = await fetch('./map.json', {cache:'no-store'});
-    mapData = await r.json();
-  }catch(e){
-    console.warn('map.json 로드 실패:', e);
-    mapData = {};
-  }
-
-  mapInited = true;
-  setTimeout(()=> map.invalidateSize(), 100);
-}
-
-/* 선택 국가의 마커 세팅 (index(70)에서 사용하던 로직을 상시 지도용으로) */
-let __countryPoints = [];
-function setMapCountry(country){
-  if (!mapInited) return;
-  markerLayer.clearLayers();
-  __countryPoints = [];
-  if (!mapData) return;
-
-  const key = normalizeCountryKey(country);
-  const pts = mapData[key];
-  if (!pts || !pts.length){ toast(`해당 국가 데이터가 없습니다: ${country}`); return; }
-
-  const bounds = [];
-  pts.forEach(p=>{
-    const m = L.marker([p.lat, p.lng], { icon: makeSvgPinIcon(pinReg) }).addTo(markerLayer);
-    m.on('click', ()=>{ setRegion(p.name); toast(`지역 선택: ${p.name}`); });
-    __countryPoints.push({ ...p, marker:m });
-    bounds.push([p.lat, p.lng]);
+function loadCssOnce(href){
+  return new Promise((res, rej)=>{
+    if (document.querySelector(`link[href="${href}"]`)) return res();
+    const l = document.createElement('link');
+    l.rel='stylesheet'; l.href=href; l.onload=res; l.onerror=rej; document.head.appendChild(l);
   });
-  if (bounds.length) map.fitBounds(bounds, { padding:[20,20] });
+}
+function loadJsOnce(src){
+  return new Promise((res, rej)=>{
+    if (document.querySelector(`script[src="${src}"]`)) return res();
+    const s = document.createElement('script');
+    s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s);
+  });
 }
 
-// ===== 바인딩: 페이지 로드시 지도 항상 보이기 + 국가 바뀌면 마커 갱신 =====
-window.addEventListener('DOMContentLoaded', async ()=>{
-  try{ await initAlwaysOnMap(); }catch(_){}
-  // 나라 바뀌면 지도 갱신 (input에 리스너!)
-  const cc = document.querySelector('#countryCombo input') || document.querySelector('#countryCombo');
-  if (cc){
-    cc.addEventListener('change', ()=>{
-      const c = getCountry();
-      if (c) setMapCountry(c);
-    });
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+}
+function toast(msg){
+  try{
+    const d=document.createElement('div');
+    d.textContent=msg;
+    d.style.cssText="position:fixed;left:50%;top:32vh;transform:translate(-50%,-50%);background:rgba(0,0,0,.82);color:#fff;padding:10px 14px;border-radius:10px;z-index:9999;font-size:14px;box-shadow:0 10px 24px rgba(0,0,0,.35)";
+    document.body.appendChild(d);
+    setTimeout(()=>d.remove(),1500);
+  }catch(_){}
+}
+function haversineKm(aLat,aLng,bLat,bLng){
+  const R=6371, dLat=(bLat-aLat)*Math.PI/180, dLng=(bLng-aLng)*Math.PI/180;
+  const A=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(A));
+}
+function findNearest(lat,lng,pts){
+  if(!pts?.length) return null;
+  let best=null,bd=Infinity;
+  for(const p of pts){
+    const d=haversineKm(lat,lng,p.lat,p.lng);
+    if(d<bd){best=p;bd=d;}
   }
-  // 이미 국가가 입력돼 있다면 즉시 반영
-  const initial = getCountry();
-  if (initial) setMapCountry(initial);
-});
+  return {point:best,distanceKm:bd};
+}
 
-
-/* ===================== Notion 연동 드롭다운 로딩 (모달 無 버전) ===================== */
-/* 환경: 왼쪽 지도(#mpkMap)는 항상 표시 / 오른쪽 콤보/셀렉트는 기존 ID 재사용 */
-
-/* 0) 기본 설정 */
-const BASE = 'https://notion-api-hub.vercel.app';
-
-/* 1) 유틸: 콤보/셀렉트 안전 접근자 (커스텀 콤보가 있으면 우선 사용) */
+/* ============================================================================
+   1) 커스텀 콤보/셀렉트 접근자
+   - getComboAPI: 페이지에 이미 커스텀 콤보가 있으면 우선 사용
+   - getValue_soft: 콤보/인풋/셀렉트 통합 읽기
+   - setSelectOptions: select용 옵션 세팅(필요 시)
+   ========================================================================== */
 function getComboAPI(id){
   const root = document.getElementById(id);
   const input = root?.querySelector('input');
   const list  = root?.querySelector('.list');
 
-  // 기존 커스텀 콤보 객체가 있다면 우선 사용
+  // 기존 커스텀 콤보 객체가 있으면 우선 사용
   if (window[id] && typeof window[id].setItems === 'function') {
     return {
       setItems: (arr)=>window[id].setItems(arr),
@@ -263,7 +197,7 @@ function getComboAPI(id){
     };
   }
 
-  // 폴백: 간단 콤보
+  // 폴백: 간단 콤보(이 페이지 단독으로도 동작하도록)
   return {
     setItems: (arr)=>{
       if (!list || !input) return;
@@ -284,18 +218,15 @@ function getComboAPI(id){
     enable:   (on)=>{ if (input) input.disabled = !on; }
   };
 }
-
-
 function setSelectOptions(selectId, values){
   const sel = document.getElementById(selectId);
   if (!sel) return;
-    sel.innerHTML = [
-      `<option value="" disabled selected hidden>화물 타입 선택</option>`,
-      ...values.map(v=>`<option value="${v}">${v}</option>`)
-    ].join('');
+  sel.innerHTML = [
+    `<option value="" disabled selected hidden>화물 타입 선택</option>`,
+    ...values.map(v=>`<option value="${v}">${v}</option>`)
+  ].join('');
 }
-
-function getValue_soft(id){ // 콤보/인풋/셀렉트 모두 커버
+function getValue_soft(id){
   const combo = getComboAPI(id);
   const val1 = combo.getValue?.();
   if (val1) return val1;
@@ -305,15 +236,136 @@ function getValue_soft(id){ // 콤보/인풋/셀렉트 모두 커버
   return inp?.value?.trim() || '';
 }
 
-/* 2) 고정 데이터: typeCombo = [20FT, 40HC, CONSOLE] */
+/* ============================================================================
+   2) 좌측 Leaflet 지도 (상시 노출)
+   - initAlwaysOnMap: Leaflet/Geocoder 로드 + 지도 초기화
+   - setMapCountry: map.json의 국가 포인트 마커 세팅
+   - zoomToRegion: 지역명으로 지도 줌(정확/부분 일치)
+   ========================================================================== */
+let map, markerLayer, geocoder, mapInited=false, mapData=null, tmpSearch=null;
+let __countryPoints = [];
+const pinReg    = '#2563eb';
+const pinSearch = '#ef4444';
+
+function makeSvgPinIcon(color){
+  const svg = `<svg class="pin-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="${color}" d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/></svg>`;
+  return L.divIcon({ className:"", html:`<div class="pin-wrap">${svg}</div>`, iconSize:[26,26], iconAnchor:[13,26] });
+}
+function normalizeCountryKey(raw){ return String(raw||'').trim(); }
+
+async function initAlwaysOnMap(){
+  if (mapInited) return;
+  await loadCssOnce(LCSS); await loadJsOnce(LJS);
+  await loadCssOnce(GCSS); await loadJsOnce(GJS);
+
+  const worldBounds = L.latLngBounds([[-85,-180],[85,180]]);
+  map = L.map('mpkMap', { center:[20,0], zoom:2, worldCopyJump:false, maxBounds:worldBounds, maxBoundsViscosity:1.0 });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OSM', noWrap:true, bounds:worldBounds }).addTo(map);
+  markerLayer = L.layerGroup().addTo(map);
+
+  // 지오코더
+  geocoder = L.Control.geocoder({ defaultMarkGeocode:false })
+    .on('markgeocode', (e)=>{
+      const c = e.geocode.center;
+      if (tmpSearch) { map.removeLayer(tmpSearch); tmpSearch=null; }
+      tmpSearch = L.marker(c, {icon: makeSvgPinIcon(pinSearch)}).addTo(map);
+      map.setView(c, 9);
+
+      // 최근접 등록 지역 자동 선택
+      const hit = findNearest(c.lat, c.lng, __countryPoints);
+      if (hit?.point){
+        setRegion(hit.point.name);
+        toast(`가장 가까운 등록 지역: ${hit.point.name} (~${hit.distanceKm.toFixed(1)}km)`);
+      }
+    }).addTo(map);
+
+  // 국가별 포인트 데이터 로드
+  try{
+    const r = await fetch('./map.json', {cache:'no-store'});
+    mapData = await r.json();
+  }catch(e){
+    console.warn('map.json 로드 실패:', e);
+    mapData = {};
+  }
+
+  mapInited = true;
+  setTimeout(()=> map.invalidateSize(), 100);
+}
+function setMapCountry(country){
+  if (!mapInited) return;
+  markerLayer.clearLayers();
+  __countryPoints = [];
+  if (!mapData) return;
+  const key = normalizeCountryKey(country);
+  const pts = mapData[key];
+  if (!pts || !pts.length){ toast(`해당 국가 데이터가 없습니다: ${country}`); return; }
+
+  const bounds = [];
+  pts.forEach(p=>{
+    const m = L.marker([p.lat, p.lng], { icon: makeSvgPinIcon(pinReg) }).addTo(markerLayer);
+    m.on('click', ()=>{ setRegion(p.name); toast(`지역 선택: ${p.name}`); });
+    __countryPoints.push({ ...p, marker:m });
+    bounds.push([p.lat, p.lng]);
+  });
+  if (bounds.length) map.fitBounds(bounds, { padding:[20,20] });
+}
+function zoomToRegion(regionName, {fallbackZoom=10} = {}){
+  if (!map || !regionName) return;
+  const name = String(regionName).trim();
+  if (!name) return;
+
+  // 1) 현재 국가 마커 목록에서 정확 일치
+  let hit = __countryPoints?.find(p => {
+    const a = (p.name || '').replace(/,/g,'').trim().toLowerCase();
+    const b = name.replace(/,/g,'').trim().toLowerCase();
+    return a === b;
+  });
+  // 2) 부분 일치
+  if (!hit && Array.isArray(__countryPoints)) {
+    const b = name.replace(/,/g,'').trim().toLowerCase();
+    hit = __countryPoints.find(p => (p.name||'').toLowerCase().includes(b));
+  }
+  // 3) map.json 원본에서 탐색
+  if (!hit) {
+    const country = getValue_soft('countryCombo');
+    const key = normalizeCountryKey(country);
+    const pts = mapData?.[key] || [];
+    const b = name.replace(/,/g,'').trim().toLowerCase();
+    hit = pts.find(p => (p.name||'').replace(/,/g,'').trim().toLowerCase() === b)
+        || pts.find(p => (p.name||'').toLowerCase().includes(b));
+  }
+  if (hit && Number.isFinite(hit.lat) && Number.isFinite(hit.lng)) {
+    map.setView([hit.lat, hit.lng], fallbackZoom, { animate:true });
+    try { hit.marker?.openPopup?.(); } catch(_){}
+  } else {
+    console.warn('zoomToRegion: 지역을 찾지 못했습니다 →', regionName);
+  }
+}
+
+/* 국가/지역 값 접근자 + 지역 세터 (지도 줌 포함) */
+function getCountry(){ const el = document.querySelector('#countryCombo input'); return el?.value?.trim() || ''; }
+function getRegion(){  const el = document.querySelector('#regionCombo input');  return el?.value?.trim() || ''; }
+function setRegion(v){
+  const combo = document.querySelector('#regionCombo input');
+  if (combo){
+    combo.value = v;
+    combo.dispatchEvent(new Event('input',{bubbles:true}));
+    combo.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  zoomToRegion(v, { fallbackZoom: 10 });
+}
+
+/* ============================================================================
+   3) 고정 옵션 / 초기 데이터 로딩
+   - 컨테이너 타입: 20FT/40HC/CONSOLE
+   - CBM: 1~60
+   - 국가 목록
+   ========================================================================== */
 function setTypeComboFixed(){
   const typeAPI = getComboAPI('typeCombo');
   typeAPI.setItems(['20FT','40HC','CONSOLE']);
-  typeAPI.enable(true);
+  typeAPI.enable(true); // 기본값 자동 선택 없음
 }
-
-
-/* 3) CBM: 1 ~ 60 생성 */
 function setCBMRange(){
   const values = Array.from({length:60}, (_,i)=> i + 1);
   const sel = document.getElementById('cbmSelect');
@@ -324,8 +376,6 @@ function setCBMRange(){
     ].join('');
   }
 }
-
-/* 4) 국가 목록 로드 */
 async function loadCountries(){
   const countryAPI = getComboAPI('countryCombo');
   try{
@@ -340,14 +390,20 @@ async function loadCountries(){
   }
 }
 
-/* 5) 지역/업체/POE 로딩 체인 (index (70)의 흐름 유지, 단 모달 제거) */
-/* 지역 로딩: /api/regions/{country} */
+/* ============================================================================
+   4) Notion 연동: 지역/업체/POE/화물타입 로더
+   - 지역: /api/regions/:country
+   - 업체: /api/companies/by-region?country=&region=&mode=options
+   -  POE: /api/poe/by-company (폴백: /api/poe/by-region)
+   - 화물타입: /api/cargo-types/by-partner?country=&company=&region= (폴백: /api/costs 집계)
+   ========================================================================== */
 async function loadRegions(){
   const country = getValue_soft('countryCombo');
   const regionAPI = getComboAPI('regionCombo');
   const companyAPI= getComboAPI('companyCombo');
   const poeAPI    = getComboAPI('poeCombo');
 
+  // 하위 의존 콤보 초기화/비활성
   regionAPI.setItems([]); regionAPI.enable(false);
   companyAPI.setItems([]); companyAPI.enable(false);
   poeAPI.setItems([]);     poeAPI.enable(false);
@@ -364,8 +420,6 @@ async function loadRegions(){
     regionAPI.setItems([]); regionAPI.enable(false);
   }
 }
-
-/* 업체 로딩: /api/companies/by-region?country=&region=&mode=options */
 async function loadCompanies(){
   const country   = getValue_soft('countryCombo');
   const region    = getValue_soft('regionCombo');
@@ -388,8 +442,6 @@ async function loadCompanies(){
     companyAPI.setItems([]); companyAPI.enable(false);
   }
 }
-
-/* POE 로딩 (권장: by-company, 폴백: by-region) */
 async function loadPOEs(){
   const country   = getValue_soft('countryCombo');
   const region    = getValue_soft('regionCombo');
@@ -400,7 +452,7 @@ async function loadPOEs(){
   if(!country || !region || !company) return;
 
   try{
-    // 권장 엔드포인트
+    // 권장: by-company
     let url = `${BASE}/api/poe/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=options`;
     let res = await fetch(url, {cache:'no-store'});
     if (!res.ok) throw new Error('by-company not ok');
@@ -423,37 +475,29 @@ async function loadPOEs(){
   }
 }
 
-/* 6) 화물타입(DIPLOMAT/NON-DIPLOMAT) — index (70) 기본 분기 그대로 */
-
+/* 화물타입: 파트너 기준 + 폴백 집계 */
 function setCargoTypeComboItems(items){
-  const api = getComboAPI('cargoTypeCombo');   // ← 커스텀 콤보(ID: cargoTypeCombo) 기준
+  const api = getComboAPI('cargoTypeCombo');
   api.setItems(items || []);
-  api.setValue?.('');                          // 이전 선택값 제거 (자동선택 금지)
-  api.enable(!!(items && items.length));       // 목록이 있을 때만 활성화
+  api.setValue?.('');                  // 이전 선택 제거(자동선택 금지)
+  api.enable(!!(items && items.length));
 }
-
-// 파트너 기준 화물타입 로드: by-partner (region 포함) → (폴백) /api/costs 집계
 async function loadCargoTypes_forPartner(){
-  const country = (window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value || '').trim();
-  const region  = (window.regionCombo ?.getValue?.() || document.querySelector('#regionCombo  input')?.value || '').trim();
-  const partner = (window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value || '').trim();
+  const country = getValue_soft('countryCombo');
+  const region  = getValue_soft('regionCombo');
+  const partner = getValue_soft('companyCombo');
 
-  if (!country || !partner){
-    setCargoTypeComboItems([]); // 비우고 비활성화
-    return;
-  }
+  if (!country || !partner){ setCargoTypeComboItems([]); return; }
 
   const fetchJson = async (url) => {
     const res = await fetch(url, { cache:'no-store' });
     if (!res.ok) return null;
     return res.json();
   };
-
   let list = [];
 
   try{
-    // 1) ✅ 백엔드에 구현된 by-partner 라우트 먼저 시도
-    //    (/api/cargo-types/by-partner?country=&partner=&region=)
+    // 1) by-partner (region 포함)
     let url = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&company=${encodeURIComponent(partner)}${region ? `&region=${encodeURIComponent(region)}` : ''}&mode=options`;
     let j = await fetchJson(url);
     if (j) list = (j.types || j.options || []).filter(Boolean);
@@ -474,143 +518,18 @@ async function loadCargoTypes_forPartner(){
       list = [...bucket].sort((a,b)=> a.localeCompare(b,'ko'));
     }
 
-    setCargoTypeComboItems(list); // 목록이 1개 이상이면 자동 enable(true)
+    setCargoTypeComboItems(list);
   }catch(e){
     console.warn('loadCargoTypes_forPartner error:', e);
     setCargoTypeComboItems([]);
   }
 }
 
-
-
-
-/* 7) 이벤트 연결 */
-function wireEvents(){
-  const ccEl   = document.querySelector('#countryCombo input') || document.querySelector('#countryCombo');
-  const rcEl   = document.querySelector('#regionCombo input')  || document.querySelector('#regionCombo');
-  const compEl = document.querySelector('#companyCombo input') || document.querySelector('#companyCombo');
-
-  // 국가 변경 → 지역 로드 + 화물타입 리셋
-  ccEl?.addEventListener('change', async ()=>{
-    await loadRegions();
-    setCargoTypeComboItems([]);   // ← 리셋 (파트너 선택 전이므로 비활성)
-    // setCargoTypeSelectItems([]);
-  });
-
-  // 지역 변경 → 업체 로드 + 화물타입 리셋
-  rcEl?.addEventListener('change', async ()=>{
-    await loadCompanies();
-    setCargoTypeComboItems([]);   // ← 리셋
-    // setCargoTypeSelectItems([]);
-    const region = (window.regionCombo?.getValue?.() || document.querySelector('#regionCombo input')?.value || '').trim();
-    if (region) zoomToRegion(region, { fallbackZoom: 10 });
-  });
-
-  // ✅ 업체(파트너) 변경 → 화물타입 로드 (핵심)
-  compEl?.addEventListener('change', async ()=>{
-    await loadPOEs();                 // 기존 흐름 유지
-    loadCargoTypes_forPartner();      // ← 여기서 실제 옵션 채움
-  });
-}
-
-
-/* 8) 초기화 */
-window.addEventListener('DOMContentLoaded', async ()=>{
-  setTypeComboFixed();   // 20FT/40HC/CONSOLE (자동선택 없음)
-  setCBMRange();         // 1~60 + placeholder 유지
-
-  await loadCountries();
-  wireEvents();
-
-  // ✅ 초기에도 파트너 값이 들어있으면 한번 로드
-  loadCargoTypes_forPartner();
-});
-
-
-
-/* 지역명으로 지도 포커싱 */
-function zoomToRegion(regionName, {fallbackZoom=10} = {}){
-  if (!map || !regionName) return;
-
-  const name = String(regionName).trim();
-  if (!name) return;
-
-  // 1) 현재 국가 마커들 목록(__countryPoints)에서 먼저 찾기
-  let hit = __countryPoints?.find(p => {
-    const a = (p.name || '').replace(/,/g,'').trim().toLowerCase();
-    const b = name.replace(/,/g,'').trim().toLowerCase();
-    return a === b;
-  });
-
-  // 2) 못 찾으면 부분일치 시도
-  if (!hit && Array.isArray(__countryPoints)) {
-    const b = name.replace(/,/g,'').trim().toLowerCase();
-    hit = __countryPoints.find(p => (p.name||'').toLowerCase().includes(b));
-  }
-
-  // 3) 그래도 못 찾으면 (현재 선택 국가의 map.json 원본)에서 탐색
-  if (!hit) {
-    const country = (window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value || '').trim();
-    const key = normalizeCountryKey(country);
-    const pts = mapData?.[key] || [];
-    const b = name.replace(/,/g,'').trim().toLowerCase();
-    hit = pts.find(p => (p.name||'').replace(/,/g,'').trim().toLowerCase() === b)
-       || pts.find(p => (p.name||'').toLowerCase().includes(b));
-  }
-
-  if (hit && Number.isFinite(hit.lat) && Number.isFinite(hit.lng)) {
-    map.setView([hit.lat, hit.lng], fallbackZoom, { animate:true });
-    // 선택된 마커가 이미 있으면 살짝 강조(선택 사항)
-    try { hit.marker?.openPopup?.(); } catch(_){}
-  } else {
-    // 못 찾는 경우는 거의 없겠지만, 로깅만 남김
-    console.warn('zoomToRegion: 지역을 찾지 못했습니다 →', regionName);
-  }
-}
-    
-document.getElementById('btnFetch')?.addEventListener('click', async () => {
-  try{
-    // 선택된 값 읽기
-    const country = window.countryCombo?.getValue?.() || document.querySelector('#countryCombo input')?.value?.trim();
-    const region  = window.regionCombo?.getValue?.()  || document.querySelector('#regionCombo input')?.value?.trim();
-    const company = window.companyCombo?.getValue?.() || document.querySelector('#companyCombo input')?.value?.trim();
-    const type    = window.typeCombo?.getValue?.()    || document.querySelector('#typeCombo input')?.value?.trim() || '20FT';
-    const cbmSel  = document.getElementById('cbmSelect');
-    const cbm     = cbmSel?.value ? Number(cbmSel.value) : undefined;
-    const cargo   = document.getElementById('cargoTypeSelect')?.value?.trim();
-
-    if (!country){ alert('국가를 선택하세요.'); return; }
-    if (!company){ alert('업체를 선택하세요.'); return; }
-
-    const roles = cargo ? [cargo.toUpperCase()] : [];
-    const params = new URLSearchParams();
-    params.set('type', type);
-    params.set('company', company);
-    if (region) params.set('region', region);
-    if (roles.length) params.set('roles', roles.join(','));
-    if (!isNaN(cbm)) params.set('cbm', String(cbm));
-
-    const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
-    const res = await fetch(url);
-    const j   = await res.json();
-
-    __numberFormats = j?.numberFormats || {};
-
-    renderTable(j, type, Boolean(region));
-    document.getElementById('resultSection')?.classList.add('show');    
-  }catch(e){
-    console.error(e);
-    alert('조회 중 오류가 발생했습니다.');
-  }
-});
-
-    
-// Notion 숫자 포맷 메타 저장용 (백엔드 /api/costs 응답에 포함됨)
-let __numberFormats = {};
-
-function esc(s){ 
-  return String(s==null?'':s).replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
-}
+/* ============================================================================
+   5) 결과 렌더링 (표)
+   - /api/costs 응답 기반 표 생성
+   ========================================================================== */
+let __numberFormats = {};  // Notion 숫자 포맷 메타 (백엔드에서 내려줌)
 
 function formatAmount(n, columnKey){
   if (n==null || n==='' || isNaN(Number(n))) return '';
@@ -621,10 +540,9 @@ function formatAmount(n, columnKey){
   if (/euro|eur/i.test(fmt))   return '€' + v.toLocaleString('de-DE');
   return v.toLocaleString();
 }
-
 function renderTable(data, type, isRegionFiltered){
   const wrap = document.getElementById('tableWrap');
-  if (!wrap){ return; }
+  if (!wrap) return;
 
   const rows = Array.isArray(data?.rows) ? data.rows : [];
   if (!rows.length){
@@ -632,12 +550,12 @@ function renderTable(data, type, isRegionFiltered){
     return;
   }
 
-  // 헤더 구성
+  // 헤더
   let thead = '<tr><th>항목</th>';
   if (!isRegionFiltered) thead += '<th>지역</th>';
   thead += `<th class="type-col">${esc(type)}</th><th>비고</th></tr>`;
 
-  // 바디 구성
+  // 바디
   let tbody = '';
   for (const r of rows){
     const amt = r?.[type];
@@ -658,7 +576,105 @@ function renderTable(data, type, isRegionFiltered){
   `;
 }
 
-    
+/* ============================================================================
+   6) 이벤트 바인딩
+   - 국가 변경 → 지역 로드 + 지도 갱신 + 화물타입 리셋
+   - 지역 변경 → 업체 로드 + 지도 줌 + 화물타입 리셋
+   - 업체 변경 → POE 로드 + 화물타입 로드(핵심)
+   - 조회 버튼 → /api/costs 조회 + 테이블 렌더 + 결과 섹션 표시
+   ========================================================================== */
+function wireEvents(){
+  const ccEl   = document.querySelector('#countryCombo input') || document.getElementById('countryCombo');
+  const rcEl   = document.querySelector('#regionCombo input')  || document.getElementById('regionCombo');
+  const compEl = document.querySelector('#companyCombo input') || document.getElementById('companyCombo');
+
+  // 국가 변경
+  ccEl?.addEventListener('change', async ()=>{
+    await loadRegions();
+    setCargoTypeComboItems([]); // 파트너 선택 전 → 비활성
+    const c = getCountry();
+    if (c) setMapCountry(c);
+  });
+
+  // 지역 변경
+  rcEl?.addEventListener('change', async ()=>{
+    await loadCompanies();
+    setCargoTypeComboItems([]); // 파트너 선택 전 → 비활성
+    const region = getRegion();
+    if (region) zoomToRegion(region, { fallbackZoom: 10 });
+  });
+
+  // 업체(파트너) 변경
+  compEl?.addEventListener('change', async ()=>{
+    await loadPOEs();
+    loadCargoTypes_forPartner(); // ← 여기서 실제 화물타입 옵션 채움
+  });
+
+  // 조회 버튼
+  document.getElementById('btnFetch')?.addEventListener('click', async ()=>{
+    try{
+      const country = getValue_soft('countryCombo');
+      const region  = getValue_soft('regionCombo');
+      const company = getValue_soft('companyCombo');
+      const type    = getValue_soft('typeCombo') || '20FT';
+      const cbmSel  = document.getElementById('cbmSelect');
+      const cbm     = cbmSel?.value ? Number(cbmSel.value) : undefined;
+      const cargo   = getValue_soft('cargoTypeCombo'); // 커스텀 콤보 기준
+
+      if (!country){ alert('국가를 선택하세요.'); return; }
+      if (!company){ alert('업체를 선택하세요.'); return; }
+
+      const roles = cargo ? [cargo.toUpperCase()] : [];
+      const params = new URLSearchParams();
+      params.set('type', type);
+      params.set('company', company);
+      if (region) params.set('region', region);
+      if (roles.length) params.set('roles', roles.join(','));
+      if (!isNaN(cbm)) params.set('cbm', String(cbm));
+
+      const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
+      const res = await fetch(url, { cache:'no-store' });
+      const j   = await res.json();
+
+      __numberFormats = j?.numberFormats || {};
+
+      renderTable(j, type, Boolean(region));
+      document.getElementById('resultSection')?.classList.add('show');
+      document.querySelector('.action-row.center')?.classList.add('show','revealed');
+    }catch(e){
+      console.error(e);
+      alert('조회 중 오류가 발생했습니다.');
+    }
+  });
+}
+
+/* ============================================================================
+   7) 초기화 (단 한 번)
+   - 지도 초기화
+   - 고정 옵션 세팅(type/CBM)
+   - 국가 목록 로딩
+   - 바인딩
+   - 초기 값 있었다면 지도/화물타입 선반영
+   ========================================================================== */
+window.addEventListener('DOMContentLoaded', async ()=>{
+  // 지도
+  try{ await initAlwaysOnMap(); }catch(_){}
+
+  // 고정 옵션
+  setTypeComboFixed();   // 20FT / 40HC / CONSOLE
+  setCBMRange();         // 1 ~ 60 (placeholder 유지)
+
+  // 국가 로딩 + 바인딩
+  await loadCountries();
+  wireEvents();
+
+  // 초기 국가가 있으면 지도 반영
+  const initialCountry = getCountry();
+  if (initialCountry) setMapCountry(initialCountry);
+
+  // 초기 파트너가 있으면 화물타입 선로딩
+  loadCargoTypes_forPartner();
+});
 </script>
 
 </body>
