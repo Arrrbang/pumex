@@ -112,13 +112,36 @@
       </div>
       </section>
     </div>
-    <section id="resultSection" class="result-section">
-      <div class="result-container">
-        <div id="tableWrap" class="table-wrap"></div>
-      </div>
-    </section>
   </main>
-
+  
+  <!-- ✅ 접힘 상태에서 보여줄 요약 바 (처음엔 숨김) -->
+  <section id="collapsedSummary" class="collapsed-summary" hidden>
+    <div class="container">
+      <div class="chips">
+        <button class="chip" data-key="region">
+          <span class="k">지역</span><span class="v" id="sumRegion">-</span>
+        </button>
+        <button class="chip" data-key="country">
+          <span class="k">국가</span><span class="v" id="sumCountry">-</span>
+        </button>
+        <button class="chip" data-key="cbm">
+          <span class="k">CBM/컨테이너</span><span class="v" id="sumCbmType">-</span>
+        </button>
+        <button class="chip" data-key="company">
+          <span class="k">파트너</span><span class="v" id="sumCompany">-</span>
+        </button>
+      </div>
+      <div class="hint">요약을 클릭하면 선택 컨테이너가 다시 열립니다.</div>
+    </div>
+  </section>
+  
+  <!-- ✅ 결과 표 (항상 app-shell 바깥) -->
+  <section id="resultSection" class="result-section">
+    <div class="result-container container">
+      <div id="tableWrap" class="table-wrap"></div>
+    </div>
+  </section>
+  
 <script>
 /* ============================================================================
    0) 전역 상수 / 공통 유틸
@@ -574,7 +597,36 @@ function renderTable(data, type, isRegionFiltered){
 }
 
 /* ============================================================================
-   6) 이벤트 바인딩
+   6) 조회 후 접힘 기능 및 요약 생성
+   ========================================================================== */
+function fillAndShowSummary({country, region, cbm, type, company}){
+  // 값 채우기
+  document.getElementById('sumCountry').textContent = country || '-';
+  document.getElementById('sumRegion').textContent  = region  || '(전체)';
+  const cbmTxt = type ? (cbm ? `${cbm} CBM / ${type}` : `${type}`) : (cbm ? `${cbm} CBM` : '-');
+  document.getElementById('sumCbmType').textContent = cbmTxt;
+  document.getElementById('sumCompany').textContent = company || '-';
+
+  // app-shell 접고 요약 보이기
+  document.querySelector('.app-shell')?.classList.add('collapsed');
+  const bar = document.getElementById('collapsedSummary');
+  if (bar) bar.hidden = false;
+
+  // 결과 섹션으로 포커스 이동(선택)
+  document.getElementById('resultSection')?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function openAppShellFromSummary(){
+  document.querySelector('.app-shell')?.classList.remove('collapsed');
+  const bar = document.getElementById('collapsedSummary');
+  if (bar) bar.hidden = true;
+
+  // 다시 폼 위치로 이동(선택)
+  document.querySelector('.app-shell')?.scrollIntoView({behavior:'smooth', block:'start'});
+}
+  
+/* ============================================================================
+   7) 이벤트 바인딩
    - 국가 변경 → 지역 로드 + 지도 갱신 + 화물타입 리셋
    - 지역 변경 → 업체 로드 + 지도 줌 + 화물타입 리셋
    - 업체 변경 → POE 로드 + 화물타입 로드(핵심)
@@ -616,11 +668,11 @@ function wireEvents(){
       const type    = getValue_soft('typeCombo') || '20FT';
       const cbmSel  = document.getElementById('cbmSelect');
       const cbm     = cbmSel?.value ? Number(cbmSel.value) : undefined;
-      const cargo   = getValue_soft('cargoTypeCombo'); // 커스텀 콤보 기준
-
+      const cargo   = getValue_soft('cargoTypeCombo');
+  
       if (!country){ alert('국가를 선택하세요.'); return; }
       if (!company){ alert('업체를 선택하세요.'); return; }
-
+  
       const roles = cargo ? [cargo.toUpperCase()] : [];
       const params = new URLSearchParams();
       params.set('type', type);
@@ -628,22 +680,30 @@ function wireEvents(){
       if (region) params.set('region', region);
       if (roles.length) params.set('roles', roles.join(','));
       if (!isNaN(cbm)) params.set('cbm', String(cbm));
-
+  
       const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
       const res = await fetch(url, { cache:'no-store' });
       const j   = await res.json();
-
+  
       __numberFormats = j?.numberFormats || {};
-
+  
       renderTable(j, type, Boolean(region));
       document.getElementById('resultSection')?.classList.add('show');
       document.querySelector('.action-row.center')?.classList.add('show','revealed');
+  
+      /* ✅ 여기부터: 접기 + 요약 바 채우고 표시 */
+      fillAndShowSummary({
+        country,
+        region,
+        cbm,
+        type,
+        company
+      });
     }catch(e){
       console.error(e);
       alert('조회 중 오류가 발생했습니다.');
     }
   });
-}
 
 /* ============================================================================
    7) 초기화 (단 한 번)
@@ -671,6 +731,10 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 
   // 초기 파트너가 있으면 화물타입 선로딩
   loadCargoTypes_forPartner();
+
+  // 요약 바 클릭 → 다시 펼치기
+  const sumEl = document.getElementById('collapsedSummary');
+  if (sumEl) sumEl.addEventListener('click', openAppShellFromSummary);
 });
 </script>
 
