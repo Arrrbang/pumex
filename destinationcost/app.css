@@ -37,6 +37,7 @@ html{ font-size: clamp(14px, 1.2vw, 16px); }
 
 /* ===== 고정 배경 레이어 ===== */
 body{
+  padding-top: 64px;
   position: relative;
   background: var(--bg); /* 기존 단색 배경 유지 (이미지 로딩 전 깔림) */
   min-height: 100dvh;
@@ -66,12 +67,38 @@ body::after{
 
 
 /* ===== 상단 헤더 */
-.site-header{
-  position: sticky; top: 0;
-  background: rgba(0,0,0,.7);
-  border-bottom: 1px solid var(--border);
-  z-index: 10;
+.site-header {
+  position: fixed;
+  top: 0; left: 0; width: 100%; z-index: 999;
+  background: rgba(21, 40, 51, 0.82);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
+.site-header .header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.site-header .logo img {
+  height: 36px;
+  display: block;
+}
+
+.nav-links a {
+  color: #cbd5e1;
+  margin-left: 1rem;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+
+.nav-links a:hover {
+  color: #ffffff;
+}
+
 .container{ max-width: var(--container-max); margin: 0 auto; padding-inline: var(--gutter); }
 .header-inner{
   display:grid; grid-template-columns:auto 1fr auto; align-items:center; column-gap: 12px;
@@ -288,29 +315,6 @@ input[type="number"]{
   box-shadow: 0 10px 24px rgba(0,0,0,.22);
   overflow: hidden;
 }
-
-/* ==================== 상단바 기본 톤 (참고 CSS와 동일 구조) ==================== */
-.site-header{
-  position: sticky; top: 0;
-  background: rgba(0,0,0,0.7);
-  border-bottom: 1px solid var(--border);
-  z-index: 10;
-}
-.header-inner{
-  display: grid; grid-template-columns: auto 1fr auto;
-  align-items: center; column-gap: 1rem;
-  min-height: 3.5rem; /* var(--header-h) */
-  padding-block: .35rem; /* 살짝 세로 여백 */
-}
-.site-header .container{ max-width: none; width:100%; margin:0; padding-left:0; }
-.brand{ display:inline-flex; align-items:center; }
-.brand__logo{ height: calc(3.5rem * 0.65); width:auto; display:block; object-fit:contain; padding-left:1rem; margin-right:1rem; }
-.header__title{
-  justify-self: start; margin: 0; font-weight: 700; letter-spacing: .02em;
-  color: #fff; text-decoration: none; font-size: clamp(1rem, 1.8vw, 1.25rem);
-}
-.header__title:hover{ text-decoration: underline; }
-.header__nav{ justify-self:end; display:inline-flex; gap: 1rem; }
 
 /* 커스텀 콤보 placeholder 색상 통일 */
 .combo input::placeholder { color:#94a3b8; opacity:1; }
