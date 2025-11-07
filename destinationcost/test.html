@@ -599,28 +599,43 @@ function renderTable(data, type, isRegionFiltered){
    6) 조회 후 접힘 기능 및 요약 생성
    ========================================================================== */
 function fillAndShowSummary({country, region, cbm, type, company}){
-  // 값 채우기
+  // 요약 채우기
   document.getElementById('sumCountry').textContent = country || '-';
   document.getElementById('sumRegion').textContent  = region  || '(전체)';
   const cbmTxt = type ? (cbm ? `${cbm} CBM / ${type}` : `${type}`) : (cbm ? `${cbm} CBM` : '-');
   document.getElementById('sumCbmType').textContent = cbmTxt;
   document.getElementById('sumCompany').textContent = company || '-';
 
-  // app-shell 접고 요약 보이기
-  document.querySelector('.app-shell')?.classList.add('collapsed');
+  // 모션: 위로 사라지듯 접힘 → 접힌 상태로 전환
+  const shell = document.querySelector('.app-shell');
+  if (shell){
+    shell.classList.remove('expanding');     // 열리는 모션 제거
+    shell.classList.add('collapsing');       // 닫힘 모션 시작
+    setTimeout(()=>{
+      shell.classList.remove('collapsing');
+      shell.classList.add('collapsed');      // 최종 접힘
+    }, 280); // CSS .28s와 동일
+  }
+
+  // 요약 바 표시 + 결과로 스크롤
   const bar = document.getElementById('collapsedSummary');
   if (bar) bar.hidden = false;
-
-  // 결과 섹션으로 포커스 이동(선택)
   document.getElementById('resultSection')?.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function openAppShellFromSummary(){
-  document.querySelector('.app-shell')?.classList.remove('collapsed');
+  const shell = document.querySelector('.app-shell');
+  if (shell){
+    // 먼저 보이게 한 뒤 열리는 모션
+    shell.classList.remove('collapsed');
+    shell.classList.add('expanding');
+    setTimeout(()=>{
+      shell.classList.remove('expanding'); // 모션 종료 후 정착
+    }, 320); // CSS .32s와 동일
+  }
+  // 요약 바 숨김 + 폼 위치로 스크롤
   const bar = document.getElementById('collapsedSummary');
   if (bar) bar.hidden = true;
-
-  // 다시 폼 위치로 이동(선택)
   document.querySelector('.app-shell')?.scrollIntoView({behavior:'smooth', block:'start'});
 }
   
