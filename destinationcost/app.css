@@ -74,14 +74,28 @@ body::after{
   align-items: center;
   text-align: left; /* 중앙 정렬 방지 */
 }
-.site-header .header-inner{
-  height: 100%;
-  display:flex; 
-  align-items:center; 
-  justify-content: flex-start !important; /* 좌측으로만 정렬 */
-  padding-left: 3rem; /*좌측 여백 확보*/
-  gap: 12px;
+
+.site-header .logo img{
+  height:2rem; 
+  display:block; 
 }
+
+.site-header .container,
+.site-header .header-inner {
+  max-width: none;   /* 기존 1200px 같은 제한 해제 */
+  width: 100%;       /* 가로 100% 채우기 */
+  margin: 0;         /* 중앙정렬 해제 */
+  padding-left: 3rem;/* 좌측 여백 (원하면 조정) */
+  padding-right: 2rem;
+}
+
+.site-header .header-inner {
+  display: flex;
+  justify-content: flex-start;  /* 좌측 정렬 */
+  align-items: center;          /* 세로 가운데 */
+  gap: 12px;                    /* 로고-타이틀 간격 */
+}
+
 .site-title {
   font-size: 1.3rem;         /* 일반 텍스트 대비 */
   font-weight: 800;        /* 강한 볼드 */
@@ -89,13 +103,8 @@ body::after{
   letter-spacing: 0.02em;  /* 글자 간격 약간 띄움 */
   margin-left: 12px; /* 로고와 제목 사이 간격 */
   white-space: nowrap;     /* 줄바꿈 방지 */
-  padding-left: 3rem;           /* 왼쪽 공백 추가 */
 }
 
-.site-header .logo img{
-  height:2rem; 
-  display:block; 
-}
 .nav-links a{
   color:#cbd5e1; margin-left:1rem; font-size:.95rem; text-decoration:none; transition: color .2s ease;
 }
