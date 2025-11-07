@@ -146,6 +146,8 @@
    0) 전역 상수 / 공통 유틸
    - CDN 경로, API BASE, 이스케이프/토스트/거리계산 등
    ========================================================================== */
+let __summaryClickLocked = false;
+  
 const BASE = 'https://notion-api-hub.vercel.app';
 
 const LCSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
@@ -668,11 +670,20 @@ async function fillAndShowSummary({country, region, cbm, type, company}){
   // 2) 요약 바 표시 (등장 모션)
   const bar = document.getElementById('collapsedSummary');
   if (bar){
+    __summaryClickLocked = true;                 // ✅ 잠금 시작
     bar.hidden = false;
     bar.classList.add('reveal');
+    bar.style.pointerEvents = 'none';            // ✅ 클릭 차단
+
     // 스크롤 이동은 요약 노출 후
     document.getElementById('resultSection')?.scrollIntoView({behavior:'smooth', block:'start'});
-    setTimeout(()=>bar.classList.remove('reveal'), 300);
+
+    // 아주 짧은 지연 후 클릭 허용
+    setTimeout(()=>{
+      bar.classList.remove('reveal');
+      bar.style.pointerEvents = 'auto';          // ✅ 클릭 허용
+      __summaryClickLocked = false;              // ✅ 잠금 해제
+    }, 280); // CSS 애니메이션(≈0.28~0.32s)과 맞춤
   }
 }
 
@@ -796,8 +807,12 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 
   // 요약 바 클릭 → 다시 펼치기
   const sumEl = document.getElementById('collapsedSummary');
-  if (sumEl) sumEl.addEventListener('click', openAppShellFromSummary);
-});
+  if (sumEl) {
+    sumEl.addEventListener('click', (e)=>{
+      if (__summaryClickLocked) return;
+      openAppShellFromSummary();
+    });
+  }
 </script>
 
 </body>
