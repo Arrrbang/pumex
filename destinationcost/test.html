@@ -195,6 +195,7 @@ function findNearest(lat,lng,pts){
   return {point:best,distanceKm:bd};
 }
 
+  
 /* ============================================================================
    1) 커스텀 콤보/셀렉트 접근자
    - getComboAPI: 페이지에 이미 커스텀 콤보가 있으면 우선 사용
@@ -598,46 +599,92 @@ function renderTable(data, type, isRegionFiltered){
 /* ============================================================================
    6) 조회 후 접힘 기능 및 요약 생성
    ========================================================================== */
-function fillAndShowSummary({country, region, cbm, type, company}){
-  // 요약 채우기
+
+function collapseShell(){
+  return new Promise((resolve)=>{
+    const shell = document.querySelector('.app-shell');
+    if (!shell) return resolve();
+
+    // 현재 높이를 픽셀로 고정 → 1프레임 뒤 0으로 트랜지션
+    shell.classList.remove('is-collapsed','is-expanding');
+    shell.style.display = 'block'; // 보장
+    const h = shell.scrollHeight;
+    shell.style.maxHeight = h + 'px';
+
+    requestAnimationFrame(()=>{
+      shell.classList.add('is-collapsing');
+      shell.style.maxHeight = '0px';
+    });
+
+    const onEnd = (e)=>{
+      if (e.propertyName !== 'max-height') return;
+      shell.removeEventListener('transitionend', onEnd);
+      shell.classList.remove('is-collapsing');
+      shell.classList.add('is-collapsed');
+      shell.style.maxHeight = ''; // 정리
+      resolve();
+    };
+    shell.addEventListener('transitionend', onEnd);
+  });
+}
+
+function expandShell(){
+  return new Promise((resolve)=>{
+    const shell = document.querySelector('.app-shell');
+    if (!shell) return resolve();
+
+    shell.classList.remove('is-collapsed');
+    shell.style.display = 'block'; // 보장
+    shell.style.maxHeight = '0px';
+
+    requestAnimationFrame(()=>{
+      shell.classList.add('is-expanding');
+      const h = shell.scrollHeight;
+      shell.style.maxHeight = h + 'px';
+    });
+
+    const onEnd = (e)=>{
+      if (e.propertyName !== 'max-height') return;
+      shell.removeEventListener('transitionend', onEnd);
+      shell.classList.remove('is-expanding');
+      shell.style.maxHeight = ''; // 자동 높이로 복구
+      resolve();
+    };
+    shell.addEventListener('transitionend', onEnd);
+  });
+}
+  
+async function fillAndShowSummary({country, region, cbm, type, company}){
+  // 요약 값 채우기
   document.getElementById('sumCountry').textContent = country || '-';
   document.getElementById('sumRegion').textContent  = region  || '(전체)';
   const cbmTxt = type ? (cbm ? `${cbm} CBM / ${type}` : `${type}`) : (cbm ? `${cbm} CBM` : '-');
   document.getElementById('sumCbmType').textContent = cbmTxt;
   document.getElementById('sumCompany').textContent = company || '-';
 
-  // 모션: 위로 사라지듯 접힘 → 접힌 상태로 전환
-  const shell = document.querySelector('.app-shell');
-  if (shell){
-    shell.classList.remove('expanding');     // 열리는 모션 제거
-    shell.classList.add('collapsing');       // 닫힘 모션 시작
-    setTimeout(()=>{
-      shell.classList.remove('collapsing');
-      shell.classList.add('collapsed');      // 최종 접힘
-    }, 280); // CSS .28s와 동일
-  }
+  // 1) app-shell 부드럽게 접기(완료까지 대기)
+  await collapseShell();
 
-  // 요약 바 표시 + 결과로 스크롤
+  // 2) 요약 바 표시 (등장 모션)
   const bar = document.getElementById('collapsedSummary');
-  if (bar) bar.hidden = false;
-  document.getElementById('resultSection')?.scrollIntoView({behavior:'smooth', block:'start'});
+  if (bar){
+    bar.hidden = false;
+    bar.classList.add('reveal');
+    // 스크롤 이동은 요약 노출 후
+    document.getElementById('resultSection')?.scrollIntoView({behavior:'smooth', block:'start'});
+    setTimeout(()=>bar.classList.remove('reveal'), 300);
+  }
 }
 
-function openAppShellFromSummary(){
-  const shell = document.querySelector('.app-shell');
-  if (shell){
-    // 먼저 보이게 한 뒤 열리는 모션
-    shell.classList.remove('collapsed');
-    shell.classList.add('expanding');
-    setTimeout(()=>{
-      shell.classList.remove('expanding'); // 모션 종료 후 정착
-    }, 320); // CSS .32s와 동일
-  }
-  // 요약 바 숨김 + 폼 위치로 스크롤
+async function openAppShellFromSummary(){
   const bar = document.getElementById('collapsedSummary');
-  if (bar) bar.hidden = true;
+  if (bar) bar.hidden = true; // 요약 먼저 숨김
+
+  await expandShell();        // app-shell 부드럽게 펼치기
+
   document.querySelector('.app-shell')?.scrollIntoView({behavior:'smooth', block:'start'});
 }
+
   
 /* ============================================================================
    7) 이벤트 바인딩
