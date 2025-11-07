@@ -147,6 +147,7 @@
    - CDN 경로, API BASE, 이스케이프/토스트/거리계산 등
    ========================================================================== */
 let __summaryClickLocked = false;
+let __justCollapsedAt = 0;
   
 const BASE = 'https://notion-api-hub.vercel.app';
 
@@ -657,35 +658,39 @@ function expandShell(){
 }
   
 async function fillAndShowSummary({country, region, cbm, type, company}){
-  // 요약 값 채우기
+  // 요약 텍스트 채우기
   document.getElementById('sumCountry').textContent = country || '-';
   document.getElementById('sumRegion').textContent  = region  || '(전체)';
   const cbmTxt = type ? (cbm ? `${cbm} CBM / ${type}` : `${type}`) : (cbm ? `${cbm} CBM` : '-');
   document.getElementById('sumCbmType').textContent = cbmTxt;
   document.getElementById('sumCompany').textContent = company || '-';
 
-  // 1) app-shell 부드럽게 접기(완료까지 대기)
+  // 1) 먼저 완전히 접힘을 보장 (끝날 때까지 대기)
   await collapseShell();
+  __justCollapsedAt = performance.now();
 
-  // 2) 요약 바 표시 (등장 모션)
+  // 2) 같은 클릭이 요약 바에 닿지 않도록 잠깐 잠금
   const bar = document.getElementById('collapsedSummary');
   if (bar){
-    __summaryClickLocked = true;                 // ✅ 잠금 시작
-    bar.hidden = false;
-    bar.classList.add('reveal');
-    bar.style.pointerEvents = 'none';            // ✅ 클릭 차단
+    __summaryClickLocked = true;
+    // 다음 프레임에 표시(클릭 버블과 분리)
+    requestAnimationFrame(()=>{
+      bar.hidden = false;
+      bar.classList.add('reveal');
+      bar.style.pointerEvents = 'none';
+      // 결과로 스크롤 이동
+      document.getElementById('resultSection')?.scrollIntoView({behavior:'smooth', block:'start'});
 
-    // 스크롤 이동은 요약 노출 후
-    document.getElementById('resultSection')?.scrollIntoView({behavior:'smooth', block:'start'});
-
-    // 아주 짧은 지연 후 클릭 허용
-    setTimeout(()=>{
-      bar.classList.remove('reveal');
-      bar.style.pointerEvents = 'auto';          // ✅ 클릭 허용
-      __summaryClickLocked = false;              // ✅ 잠금 해제
-    }, 280); // CSS 애니메이션(≈0.28~0.32s)과 맞춤
+      // 320ms 뒤에 클릭 허용
+      setTimeout(()=>{
+        bar.classList.remove('reveal');
+        bar.style.pointerEvents = 'auto';
+        __summaryClickLocked = false;
+      }, 320);
+    });
   }
 }
+
 
 async function openAppShellFromSummary(){
   const bar = document.getElementById('collapsedSummary');
@@ -809,7 +814,13 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   const sumEl = document.getElementById('collapsedSummary');
   if (sumEl) {
     sumEl.addEventListener('click', (e)=>{
+      // 막 뜬 직후의 같은 클릭 방지
       if (__summaryClickLocked) return;
+      if (performance.now() - __justCollapsedAt < 450) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
       openAppShellFromSummary();
     });
   }
