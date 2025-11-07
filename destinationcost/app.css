@@ -139,8 +139,25 @@ body::after{
   padding-top: var(--gutter);
   padding-bottom: var(--gutter);
   box-sizing: border-box; 
+  overflow: hidden;  
+  transition: max-height .36s ease, 
+              opacity .24s ease;
+  will-change: max-height, opacity;
+}
+.app-shell.is-collapsing{
+  opacity: 0;
+  /* max-height는 JS에서 0px로 설정 */
 }
 
+/* 접힌 상태(완전히 숨김 처리) */
+.app-shell.is-collapsed{
+  display: none;
+}
+.app-shell.is-expanding{
+  display: block;
+  opacity: 1;
+  /* max-height는 JS에서 내용 높이(px)로 설정 */
+}
 .app-main{
   display:grid;
   grid-template-columns: 1.857fr 1fr; /* 약 65% / 35% 비율 */
@@ -366,6 +383,9 @@ input[type="number"]{
   padding: 0 !important;
   margin: 0 !important;
   border: 0 !important;
+}
+.collapsed-summary.reveal{
+  animation: sum-slide-down .28s ease both;
 }
 /* ========================================================================== */
 /* 6) 반응형                                                                   */
