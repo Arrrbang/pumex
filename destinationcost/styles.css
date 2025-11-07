@@ -1,238 +1,211 @@
-/* ==========================================================================
-   0) 토큰(색/간격/라운드)
-   ========================================================================== */
+/* ===== 토큰 */
 :root{
-  /* 다크톤 배경 + 로그인 페이지 톤과 맞춤 */
   --bg: #0b0f14;
   --fg: #eef2f7;
   --muted: #cbd5e1;
 
-  /* 포인트/테두리 */
-  --primary: #1F9461;              /* 초록 포인트 (CBM/콤보 공통) */
+  --primary: #1F9461;
   --border: rgba(255,255,255,0.18);
   --surface: rgba(255,255,255,0.06);
-  --surface-strong: rgba(255,255,255,0.12);
-  --shadow-1: 0 1px 2px rgba(0,0,0,.12);
-  --shadow-2: 0 10px 30px rgba(0,0,0,.35);
 
-  /* 컴포넌트 공통 값 */
-  --control-bg: #fff;              /* 입력/리스트 배경 */
-  --control-fg: #333;              /* 입력/리스트 텍스트 */
-  --control-border: #1F9461;       /* 입력/리스트 테두리 */
+  --header-h: 3.5rem;
+  --container-max: 1200px;
+  --gutter: 20px;
+
+  --control-bg: #fff;
+  --control-fg: #333;
+  --control-border: #1F9461;
   --control-radius: .6rem;
 
-  /* 간격/레이아웃 */
-  --space-8: 0.5rem;
-  --space-12: 0.75rem;
-  --space-16: 1rem;
-  --space-24: 1.5rem;
-  --header-h: 3.5rem;
-  --container-max: 90rem;
-  --gutter: var(--space-24);
-  --label-bottom-gap: 8px;
-  --group-vertical-gap: 14px;
-
-  /* 테이블 하이라이트 */
   --table-header: #D1FAE5;
   --table-text:   #14532D;
+
+  /* ✅ 기존 INDEX.HTML 배경 이미지 경로로 교체 */
+  --bg-image-url: url('https://arrrbang.github.io/pumex/image/costbackground.jpg');
+
+  /* 오버레이/블러 조절용 */
+  --bg-overlay: linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,.40));
+  --bg-blur: 0px;            /* 필요하면 4px~8px 정도로 올려도 됨 */
+  --bg-darken: rgba(255,255,255,0);
 }
 
-/* ==========================================================================
-   1) 베이스 / 레이아웃
-   ========================================================================== */
+
+
+/* ===== 베이스 */
 *{ box-sizing: border-box; }
 html{ font-size: clamp(14px, 1.2vw, 16px); }
+
+/* ===== 고정 배경 레이어 ===== */
 body{
-  margin: 0;
-  color: var(--fg);
-  background: var(--bg);
-  line-height: 1.5;
-  font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto, "Apple SD Gothic Neo", sans-serif;
-}
-.container{ max-width: var(--container-max); margin-inline: auto; padding-inline: var(--gutter); }
-.section{ padding-block: clamp(2rem, 5vw, 4rem); }
 
-/* 배경 이미지 레이어 */
-.page-bg{
-  position: fixed; inset: 0;
-  background-image: url("https://arrrbang.github.io/pumex/image/costbackground.jpg");
-  background-size: cover; background-position: center;
-  filter: saturate(1) brightness(.9);
+  position: relative;
+  background: var(--bg); /* 기존 단색 배경 유지 (이미지 로딩 전 깔림) */
+  min-height: 100dvh;
+}
+
+body::before{
+  content: "";
+  position: fixed;
+  inset: 0;
   z-index: -2;
-}
-.page-bg::after{
-  content:""; position:absolute; inset:0;
-  background: rgba(255,255,255,0.4); z-index:-1;
+  background-image: var(--bg-image-url);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter: blur(var(--bg-blur));
+  transform: translateZ(0); /* 렌더링 보정 */
 }
 
-/* ==========================================================================
-   2) 상단 바
-   ========================================================================== */
+body::after{
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--bg-overlay), var(--bg-darken);
+}
+
+
+/* ===== 상단 헤더 */
 .site-header{
   position: sticky; top: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,.7);
   border-bottom: 1px solid var(--border);
   z-index: 10;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
+
+
+
+
+.container{ max-width: var(--container-max); margin: 0 auto; padding-inline: var(--gutter); }
 .header-inner{
-  display: grid; grid-template-columns: auto 1fr auto;
-  align-items: center; column-gap: var(--space-16);
+  display:grid; grid-template-columns:auto 1fr auto; align-items:center; column-gap: 12px;
   min-height: var(--header-h);
-  padding-block: calc((var(--header-h) - 2.8rem)/2);
 }
-.site-header .container{ max-width: none; width:100%; margin:0; padding-left:0; }
-.brand{ display:inline-flex; align-items:center; justify-content:flex-start; }
-.brand__logo{ height: calc(var(--header-h) * 0.65); width:auto; display:block; object-fit:contain; padding-left:1rem; margin-right:1rem; }
-.header__title{
-  justify-self: start; margin: 0; font-weight: 700; letter-spacing: .02em;
-  color: #fff; text-decoration: none; font-size: clamp(1rem, 1.8vw, 1.25rem);
+.brand__logo{ height: calc(var(--header-h)*0.65); width:auto; display:block; object-fit:contain; }
+.header__title{ color:#fff; font-weight:700; text-decoration:none; }
+.header__title:hover{ text-decoration:underline; }
+.header__nav{ display:flex; gap:12px; }
+
+/* ===== 앱 셸 레이아웃 (좌:지도 / 우:폼) */
+.app-shell{ padding: 20px 0 28px; }
+.app-main{
+  display:grid;
+  grid-template-columns: minmax(420px, 1.2fr) minmax(460px, 1fr);
+  gap: 20px;
+  align-items: start;
 }
-.header__title:hover{ text-decoration: underline; }
-.header__nav{ justify-self:end; display:inline-flex; gap: var(--space-16); }
-
-/* ==========================================================================
-   3) 드롭다운 컨테이너의 선택 버튼 디자인 
-   ========================================================================== */
-
-.select-btn{
-  border-radius: 2rem;
-  padding: .35rem 1.1rem;         /* ← 더 낮은 높이 */
-  min-width: 8.5rem;              /* ← 조회보다 조금 짧게 */
-  border: 2px solid var(--primary);
-  background: var(--primary);
-  color:#fff; font-weight:700; font-size: .95rem;
-  cursor:pointer; transition: background .2s ease, transform .08s ease;
+.left-pane, .right-pane{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22);
+  overflow: hidden;
 }
-.select-btn:hover{ background:#16724a; }
-.select-btn:active{ transform: translateY(1px); }
 
-/* ==========================================================================
-   4) 드롭다운 패널(1단계/2단계) — 레이아웃 흔들림 최소화
-   ========================================================================== */
-.dropdown-container{ display:flex; justify-content:center; align-items:center; margin-top: 0; position:relative; }
+/* 지도 영역 */
+.map-canvas{ height: 640px; background:#0f1720; position:relative; }
+.map-placeholder{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  color:#94a3b8; font-weight:600; letter-spacing:.02em;
+  border: 2px dashed rgba(148,163,184,.25);
+  margin: 12px;
+  border-radius: 12px;
+}
+
+
+/* ===== 오른쪽 패널 내부 여백 */
+.right-pane{ padding: 14px 16px; }
+
+/* ===== 기존 드롭다운/콤보 스타일 (ORI 톤 유지) */
+.selection-summary{
+  text-align:center; font-weight:700; color:#000; font-size:1.2rem;
+  margin: .25rem 0 .75rem;
+  opacity:.95;
+}
+.selection-summary .summary-hot{
+  display:inline-block; padding: 2px 4px; border-radius:.25rem; cursor:pointer;
+}
+
+.dropdown-container{
+  display: flex;
+  flex-direction: column; /* ← 세로 배치 */
+  gap: 12px;
+}
+
+/* 선택사항: 줄 간격 조정이 필요하면 */
+.combo-line{ width: 100%; }
+
 .dropdown{
-  text-align:center; overflow:hidden; max-height:0; opacity:0; transform: translateY(-10px);
-  transition: max-height .45s ease, opacity .45s ease, transform .45s ease;
-  display:flex; flex-direction:column; gap: 1rem; width: 28rem;
-  background: rgba(255,255,255,0.75);
+  text-align:center; overflow:hidden; max-height:none; opacity:1; transform:none;
+  display:flex; flex-direction:column; gap: 1rem; width: 100%;
+  background: rgba(255,255,255,0.82);
   border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   backdrop-filter: blur(8px);
-  padding:0; margin:0; /* 패딩은 내부로 */
 }
-.dropdown.show{ opacity:1; transform: translateY(0); max-height: 1000px; }
-.dropdown-inner{
-  padding: 1rem 1.2rem;
-  opacity: 0; transform: translateY(-6px);
-  transition: opacity .35s ease, transform .35s ease; will-change: opacity, transform;
-}
-.dropdown.show .dropdown-inner{ opacity:1; transform: translateY(0); }
+.dropdown-inner{ padding: 1rem 1.2rem; }
 
-/* 라벨/요약 */
 .dropdown-label, .dropdown-label-row .label-text{
-  display: block;
-  text-align: left;
-  margin: 0 0 var(--label-bottom-gap);
-  font-weight:600;
-  color: #000;
-  font-size: 1rem;
+  display:block; text-align:left; margin: 0 0 8px; font-weight:600; color:#000; font-size:1rem;
 }
-.dropdown-label-row{
-  display:flex; justify-content:space-between; align-items:center;
-  margin-bottom: .25rem;
-}
-/* 추가: 라벨이 연달아 나올 때 위쪽 여백 조금 주기 */
-.dropdown-inner > .dropdown-label,
-.dropdown-inner > .dropdown-label-row{
-  margin-top: 6px;
-}
-
-.selection-summary{
-  text-align:center; font-weight:700; color:#000; font-size: 1.4rem;
-  margin-top: .5rem; margin-bottom: .8rem;
-  opacity:0; transform: translateY(-10px);
-  transition: all .4s ease;
-  pointer-events: none;
-}
-.selection-summary.show{ opacity:1; transform: translateY(0); }
-
-.selection-summary .summary-hot{
-  pointer-events: auto;         /* ← 이 영역만 클릭 허용 */
-  display: inline-block;
-  padding: 2px 4px;
-  border-radius: .25rem;
-  cursor: pointer;
-}
-.selection-summary .summary-hot:focus-visible{
-  outline: 3px solid rgba(35,155,103,.35);
-  outline-offset: 2px;
-  border-radius: .25rem;
-}
-/* 추가: 라벨 아래 컨트롤(콤보/셀렉트/인풋)과의 세로 간격 확보 */
-.dropdown .combo,
-.dropdown .dropdown-select,
-.dropdown input[type="text"],
-.dropdown input[type="number"]{
-  margin-bottom: var(--group-vertical-gap);
-}
-
-/* 추가: “지역 선택” 라벨은 왼쪽 고정, 버튼은 오른쪽으로 밀기 */
-.dropdown-label-row .label-text{ margin-right: auto; }
+.dropdown-label-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:.25rem; }
+.dropdown-label-row .label-text{ margin-right:auto; }
 
 
-/* 지도 버튼 */
-.map-button-inline{
-  background: var(--primary); color:#fff; font-weight:600; font-size:.9rem;
-  padding: .2rem .6rem; border:none; border-radius:.4rem; cursor:pointer;
-  transition: background .25s ease, transform .1s ease; white-space:nowrap;
+.select-btn{
+  border-radius: 2rem; padding:.4rem 1.1rem; min-width:8.5rem;
+  border: 2px solid var(--primary); background: var(--primary);
+  color:#fff; font-weight:700; font-size:.95rem; cursor:pointer;
 }
-.map-button-inline:hover{ background:#16724a; }
-.map-button-inline:active{ transform: scale(.97); }
+.select-btn:hover{ background:#16724a; }
 
-/* ==========================================================================
-   5) 폼 컨트롤 — CBM 드롭다운(select) + 텍스트 입력
-   ========================================================================== */
+/* Placeholder 스타일 맞추기 (선택 전에는 폰트 색 연하게) */
+.dropdown-select:invalid,
+.dropdown-select option[disabled][selected] {
+  color: #94a3b8; /* 연한 회색 — 기존 콤보박스 placeholder와 일치 */
+}
+
+/* 선택된 값일 경우 기본 색상으로 유지 */
+.dropdown-select:not(:invalid) {
+  color: #333; /* 기존 입력 필드 텍스트 색상 */
+}
+
 .dropdown-select,
 input[type="text"],
 input[type="number"]{
-  width:100%; padding: .6rem 1rem; font-size:1rem;
-  border: 2px solid var(--control-border);
-  border-radius: var(--control-radius);
-  background: var(--control-bg);
-  color: var(--control-fg);
-  outline: none; transition: border-color .15s, box-shadow .15s;
-  font-family: inherit;
+  width:100%; padding:.6rem 1rem; font-size:1rem;
+  border: 2px solid var(--control-border); border-radius: var(--control-radius);
+  background: var(--control-bg); color: var(--control-fg);
 }
-.dropdown-select:focus,
-input[type="text"]:focus,
-input[type="number"]:focus{
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(20,83,45,.12);
-}
-input::placeholder{ color: var(--muted); opacity: 1; }
 
-/* ==========================================================================
-   6) 콤보박스 — 입력 + 리스트(포털 대응)
-   ========================================================================== */
-/* 컨테이너 */
 .combo{ position:relative; width:100%; }
-
-/* 입력 — CBM 드롭다운과 동일한 외형 */
 .combo input{
-  width:100%; padding: .6rem 1rem; font-size:1rem;
-  border: 2px solid var(--control-border);
-  border-radius: var(--control-radius);
-  background: var(--control-bg);
-  color: var(--control-fg);
-  outline:none; transition: border-color .15s, box-shadow .15s;
-  font-family: inherit;
+  width:100%; padding:.6rem 1rem; font-size:1rem;
+  border: 2px solid var(--control-border); border-radius: var(--control-radius);
+  background: var(--control-bg); color: var(--control-fg);
 }
-.combo input:focus{
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(20,83,45,.12);
-}
-.combo input::placeholder{ color: var(--muted); opacity: 1; }
-
-/* 리스트(콤보 내부에 붙을 때) */
 .combo .list{
   position:absolute; top: calc(100% + 6px); left:0; width:100%;
   max-height: 240px; overflow:auto;
@@ -243,42 +216,132 @@ input::placeholder{ color: var(--muted); opacity: 1; }
   z-index: 1000; display:none;
 }
 .combo.open .list{ display:block; }
+.combo .list .item{ padding:.55rem .8rem; cursor:pointer; }
+.combo .list .item:hover{ background: rgba(31,148,97,.08); }
+.combo .list .item.is-selected{ background: var(--table-header); color: var(--table-text); }
 
-/* 리스트(포털로 body에 떠 있을 때) */
-.list[data-__float="1"]{
-  background: var(--control-bg);
-  border: 2px solid var(--control-border);
-  border-radius: var(--control-radius);
-  box-shadow: 0 4px 12px rgba(0,0,0,.2);
-  z-index: 1200;
-  max-height: 240px; overflow:auto;
+/* 지도 버튼 */
+.map-button-inline{
+  background: var(--primary); color:#fff; font-weight:600; font-size:.9rem;
+  padding: .2rem .6rem; border:none; border-radius:.4rem; cursor:pointer;
+}
+.map-button-inline:hover{ background:#16724a; }
+
+/* 액션/조회 버튼 */
+.action-row{ display:flex; justify-content:flex-end; margin: 12px 0 8px; }
+.action-row.center{ justify-content:center; margin: 1.25rem 0 1rem; }
+.primary-btn{
+  border-radius: 2rem; padding:.5rem 1.25rem; min-width:10rem;
+  border:2px solid var(--primary); background:var(--primary);
+  color:#fff; font-weight:700; cursor:pointer;
+}
+.primary-btn:hover{ background:#16724a; }
+
+/* 결과 테이블(간단) */
+.result-section{ display:block; padding: 0 0 1rem; }
+.result-container{
+  max-width: 100%;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid #e5e7eb; border-radius: 12px; padding: 1rem 1.25rem;
+}
+.table-wrap{ width:100%; overflow:auto; }
+.result-table{
+  width:100%; border-collapse:separate; border-spacing:0; table-layout: fixed;
+  background:#fff; color:#111; border-radius: 10px; overflow:hidden;
+}
+.result-table th, .result-table td{
+  border: 1px solid #F5F5F5; padding: .6rem .75rem; text-align:left; vertical-align:top;
+}
+.result-table thead th{ background:#153A47; color:#F5F5F5; font-weight:700; }
+.result-table tbody td:first-child{ background:#153A47; color:#F5F5F5; font-weight:700; text-align:center; }
+.result-table thead th:first-child{ text-align:center; }
+.result-table td.amt{ white-space:nowrap; text-align:center; font-variant-numeric: tabular-nums; }
+
+/* 반응형 (좁은 화면) */
+@media (max-width: 1024px){
+  .app-main{
+    grid-template-columns: 1fr;
+  }
+  .map-canvas{ height: 360px; }
 }
 
-/* 항목 시인성 — CBM 드롭다운과 동일 톤 */
-.combo .list .item,
-.list[data-__float="1"] .item{
-  padding: .55rem .8rem; cursor: pointer; line-height: 1.4;
-  color: var(--control-fg); background: var(--control-bg); font-size:1rem;
-}
-.combo .list .item:hover,
-.list[data-__float="1"] .item:hover{ background: rgba(31,148,97,.08); }
-.combo .list .item.is-selected,
-.list[data-__float="1"] .item.is-selected{
-  background: var(--table-header); color: var(--table-text);
+/* ===================== placeholder 스타일 통일 ===================== */
+
+/* 커스텀 combo input placeholder 색상 */
+.combo input::placeholder {
+  color: #94a3b8 !important; /* 기존 연회색 */
+  opacity: 1; /* 일부 브라우저가 opacity를 낮게 적용하는 것 대비 */
 }
 
-/* 포털 래퍼(스크립트용) */
-.combo-float-wrap{ position:fixed; z-index: 1200; left:0; top:0; width:0; height:0; }
+/* select placeholder (첫 번째 disabled 옵션) 색상 */
+.dropdown-select option[disabled][selected][hidden] {
+  color: #94a3b8 !important;
+}
 
-/* 스크롤바 톤 */
-.combo .list::-webkit-scrollbar,
-.list[data-__float="1"]::-webkit-scrollbar{ width: 8px; }
-.combo .list::-webkit-scrollbar-thumb,
-.list[data-__float="1"]::-webkit-scrollbar-thumb{ background: rgba(20,83,45,.35); border-radius: 8px; }
+/* 선택 완료된 select 값은 정상 색상 */
+.dropdown-select:not(:invalid) {
+  color: #333;
+}
 
-/* ==========================================================================
-   7) 결과 리스트(요금 표기)
-   ========================================================================== */
+/* ==================== 메인 컨테이너 톤 적용 ==================== */
+/* app-main + container 조합에 유리 패널(반투명+블러) 느낌 부여 */
+.app-main.container{
+  background: rgba(255,255,255,0.82);   /* 참고 CSS의 메인 컨테이너 톤 */
+  backdrop-filter: blur(6px);
+  border-radius: 1rem;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22); /* var(--shadow-2)와 유사 */
+  border: 1px solid var(--border);
+  padding: 1rem 1.25rem;                /* 내부 여백 */
+}
+
+/* app-main 안쪽 그리드 여백은 유지 */
+.app-main{
+  gap: 20px; /* 필요 시 조절 */
+}
+
+/* ==================== 오른쪽 패널을 완전 투명 처리 ==================== */
+.right-pane{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 14px 0;       /* 오른쪽 패널 안쪽 여백은 최소만 */
+}
+
+/* 왼쪽 지도 카드는 기존 톤 유지(필요시만) */
+.left-pane{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.22);
+  overflow: hidden;
+}
+
+/* ==================== 상단바 기본 톤 (참고 CSS와 동일 구조) ==================== */
+.site-header{
+  position: sticky; top: 0;
+  background: rgba(0,0,0,0.7);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+}
+.header-inner{
+  display: grid; grid-template-columns: auto 1fr auto;
+  align-items: center; column-gap: 1rem;
+  min-height: 3.5rem; /* var(--header-h) */
+  padding-block: .35rem; /* 살짝 세로 여백 */
+}
+.site-header .container{ max-width: none; width:100%; margin:0; padding-left:0; }
+.brand{ display:inline-flex; align-items:center; }
+.brand__logo{ height: calc(3.5rem * 0.65); width:auto; display:block; object-fit:contain; padding-left:1rem; margin-right:1rem; }
+.header__title{
+  justify-self: start; margin: 0; font-weight: 700; letter-spacing: .02em;
+  color: #fff; text-decoration: none; font-size: clamp(1rem, 1.8vw, 1.25rem);
+}
+.header__title:hover{ text-decoration: underline; }
+.header__nav{ justify-self:end; display:inline-flex; gap: 1rem; }
+
+/* 커스텀 콤보 placeholder 색상 통일 */
+.combo input::placeholder { color:#94a3b8; opacity:1; }
+
 /* === 결과 표/버튼 최소 스타일 === */
 
 .action-row{
@@ -371,10 +434,6 @@ input::placeholder{ color: var(--muted); opacity: 1; }
 .result-table tbody td:nth-child(3){ width: auto; }  /* 비고 */
 
 
- /* 지역 필터가 적용된 조회의 경우(단일 지역): 2열이 컨테이너 타입, 3열이 비고 */
- /* 이 경우를 별도 대응하려면 렌더 시 테이블에 is-region-filtered 같은 클래스를 달아 조건부로 재정의하면 됩니다. */
-
-
 .result-section{ display:none; padding: 0 1rem 2rem; }
 .result-section.show{ display:block; }
 
@@ -389,11 +448,20 @@ input::placeholder{ color: var(--muted); opacity: 1; }
   padding: 1rem 1.25rem;
   overflow: hidden;
 }
-
-/* ==========================================================================
-   8) 접근성
-   ========================================================================== */
-:focus-visible{
-  outline: 3px solid rgba(35,155,103,.35);
-  outline-offset: 2px; border-radius: .5rem;
+.action-row.center {
+  opacity: 0;
+  transform: translateY(22px);
+  pointer-events: none;
+  transition: opacity .45s ease, transform .45s ease;
 }
+
+.action-row.center.show {
+  display: flex;
+}
+
+.action-row.center.revealed {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+~
