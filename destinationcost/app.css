@@ -96,7 +96,8 @@ body::after{
 .app-shell{
   background: #FCFCFC !important;  /* 아이보리 */
   box-shadow: none !important;
-  border: 1px solid #4b5563;        /* 진회색(약 Tailwind gray-600 톤) */
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(4px); /*테두리 블러효과*/
   border-radius: 12px;
   padding: 16px;                    /* 테두리 안쪽 여백 */
   max-width: 1200px; /* 기존 컨테이너 폭 */
