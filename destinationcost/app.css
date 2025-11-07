@@ -140,8 +140,7 @@ body::after{
   padding-bottom: var(--gutter);
   box-sizing: border-box; 
   overflow: hidden;  
-  transition: max-height .36s ease, 
-              opacity .24s ease;
+  transition: max-height .36s ease, opacity .24s ease;
   will-change: max-height, opacity;
 }
 .app-shell.is-collapsing{
