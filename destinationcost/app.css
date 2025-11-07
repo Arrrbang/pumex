@@ -66,14 +66,24 @@ body::after{
 /* ========================================================================== */
 .site-header{
   position: fixed; top:0; left:0; width:100%; z-index:999;
-  background: rgba(21,40,51,0.82);
+  background: #153A47 !important;
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 .site-header .header-inner{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:.75rem 1rem; max-width:1200px; margin:0 auto;
+  display:flex; 
+  align-items:center; 
+  justify-content:flex-start;
+  gap: 12px;
 }
+.site-title {
+  font-size: 2rem;         /* 일반 텍스트 대비 약 2배 */
+  font-weight: 800;        /* 강한 볼드 */
+  color: #ffffff;          /* 흰색 텍스트 */
+  letter-spacing: 0.02em;  /* 글자 간격 약간 띄움 */
+  white-space: nowrap;     /* 줄바꿈 방지 */
+}
+
 .site-header .logo img{ height:36px; display:block; }
 .nav-links a{
   color:#cbd5e1; margin-left:1rem; font-size:.95rem; text-decoration:none; transition: color .2s ease;
@@ -83,7 +93,13 @@ body::after{
 /* ========================================================================== */
 /* 3) 앱 레이아웃: 좌(지도) / 우(폼)                                           */
 /* ========================================================================== */
-.app-shell{ padding: 20px 0 28px; }
+.app-shell{
+  background: #FFF8E7 !important;  /* 아이보리 */
+  box-shadow: none !important;
+  border: 1px solid #4b5563;        /* 진회색(약 Tailwind gray-600 톤) */
+  border-radius: 12px;
+  padding: 16px;                    /* 테두리 안쪽 여백 */
+}
 
 .app-main{
   display:grid;
@@ -93,12 +109,11 @@ body::after{
 
 /* 메인 컨테이너에 유리 패널 톤 (오른쪽 패널은 투명) */
 .app-main.container{
-  background: rgba(255,255,255,0.82);
-  backdrop-filter: blur(6px);
+  background: transparent !important;
   border-radius: 1rem;
-  box-shadow: 0 10px 24px rgba(0,0,0,.22);
-  border: 1px solid var(--border);
-  padding: 1rem 1.25rem;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
 }
 
 /* 왼쪽 지도 카드(톤 유지), 오른쪽 패널은 투명 처리 */
@@ -199,13 +214,8 @@ input[type="number"]{
 .result-section{ display:none; padding:0 1rem 2rem; }
 .result-section.show{ display:block; }
 .result-container{
-  max-width:64rem; margin:0 auto;
-  background: rgba(255,255,255,0.82);
-  backdrop-filter: blur(6px);
-  border-radius:1rem;
-  box-shadow: 0 10px 24px rgba(0,0,0,.22);
-  border:1px solid var(--border);
-  padding:1rem 1.25rem; overflow:hidden;
+  background: transparent !important;
+  backdrop-filter: none !important;
 }
 .table-wrap{ width:100%; overflow:auto; border-radius:inherit; }
 .result-table{
