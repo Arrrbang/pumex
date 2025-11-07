@@ -156,6 +156,7 @@ const SHELL_STATES = Object.freeze({
 let __shellState = SHELL_STATES.OPEN;     // 시작은 열린 상태
 let __summaryClickLocked = false;         // 요약바 클릭 잠금
 let __justCollapsedAt = 0;                // 마지막 접힘 시각(ms)
+let __allowExpand = false;
   
 const BASE = 'https://notion-api-hub.vercel.app';
 
@@ -616,7 +617,6 @@ function collapseShell(){
     const shell = document.querySelector('.app-shell');
     if (!shell) return resolve();
 
-    // 이미 접힘/접는 중이면 재호출 무시
     if (__shellState === SHELL_STATES.COLLAPSED || __shellState === SHELL_STATES.COLLAPSING) {
       return resolve();
     }
@@ -639,6 +639,7 @@ function collapseShell(){
       shell.classList.remove('is-collapsing');
       shell.classList.add('is-collapsed');
       shell.style.maxHeight = '';
++     shell.style.display = 'none';   // ✅ 접힌 직후, 완전 잠금
       __shellState = SHELL_STATES.COLLAPSED;
       __justCollapsedAt = performance.now();
       resolve();
@@ -652,9 +653,8 @@ function expandShell(){
     const shell = document.querySelector('.app-shell');
     if (!shell) return resolve();
 
-    // ✅ 요약 클릭 외에는 열리지 않도록 강력 가드
-    // 접힌 상태가 아닐 땐 열지 않음
-    if (__shellState !== SHELL_STATES.COLLAPSED) {
+  // ✅ 요약 클릭으로 허용된 상황 + 실제 접힌 상태에서만 열기
+     if (!__allowExpand || __shellState !== SHELL_STATES.COLLAPSED) {
       return resolve();
     }
 
@@ -676,6 +676,7 @@ function expandShell(){
       shell.classList.remove('is-expanding');
       shell.style.maxHeight = '';
       __shellState = SHELL_STATES.OPEN;
+      __allowExpand = false; // ✅ 한 번 열면 다시 잠금
       resolve();
     };
     shell.addEventListener('transitionend', onEnd);
@@ -846,6 +847,7 @@ window.addEventListener('DOMContentLoaded', async ()=>{
         return;
       }
       // ✅ 오직 요약 클릭에서만 확실히 열기
+      __allowExpand = true;         // ✅ 이때만 펼침 허용
       expandShell().then(()=>{
         sumEl.hidden = true; // 요약 숨김
         document.querySelector('.app-shell')?.scrollIntoView({behavior:'smooth', block:'start'});
