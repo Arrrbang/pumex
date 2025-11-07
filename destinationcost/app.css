@@ -24,10 +24,9 @@
   --bg-image-url: url('https://arrrbang.github.io/pumex/image/costbackground.jpg');
 
   /* 오버레이/블러 조절용 */
-  --bg-overlay: radial-gradient(1200px 700px at 70% 20%, rgba(20,83,45,.22), transparent 60%),
-                linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.65));
+  --bg-overlay: linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,.40));
   --bg-blur: 0px;            /* 필요하면 4px~8px 정도로 올려도 됨 */
-  --bg-darken: rgba(0,0,0,.10); /* 배경 위 살짝 어둡게 */
+  --bg-darken: rgba(255,255,255,0);
 }
 
 
