@@ -761,7 +761,12 @@ function wireEvents(){
   });
 
   // 조회 버튼
-  document.getElementById('btnFetch')?.addEventListener('click', async ()=>{
+  document.getElementById('btnFetch')?.addEventListener('click', async (ev)=>{
+    ev.preventDefault();                // 폼 기본동작 방지(안전)
+    const btn = ev.currentTarget;
+    if (btn.disabled) return;           // 중복 클릭 방지
+    btn.disabled = true;
+  
     try{
       const country = getValue_soft('countryCombo');
       const region  = getValue_soft('regionCombo');
@@ -787,22 +792,17 @@ function wireEvents(){
       const j   = await res.json();
   
       __numberFormats = j?.numberFormats || {};
-  
       renderTable(j, type, Boolean(region));
       document.getElementById('resultSection')?.classList.add('show');
       document.querySelector('.action-row.center')?.classList.add('show','revealed');
   
-      /* ✅ 여기부터: 접기 + 요약 바 채우고 표시 */
-      fillAndShowSummary({
-        country,
-        region,
-        cbm,
-        type,
-        company
-      });
+      // ✅ 접고 요약 노출
+      await fillAndShowSummary({ country, region, cbm, type, company });
     }catch(e){
       console.error(e);
       alert('조회 중 오류가 발생했습니다.');
+    }finally{
+      btn.disabled = false;
     }
   });
 }
@@ -833,24 +833,6 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 
   // 초기 파트너가 있으면 화물타입 선로딩
   loadCargoTypes_forPartner();
-
-  document.getElementById('btnFetch')?.addEventListener('click', async (ev)=>{
-    ev.preventDefault();  // ✅ 폼 submit/기본 동작 방지
-
-    try{
-      // ... 기존 조회 파라미터 수집/요청/표 렌더 ...
-      renderTable(j, type, Boolean(region));
-      document.getElementById('resultSection')?.classList.add('show');
-      document.querySelector('.action-row.center')?.classList.add('show','revealed');
-
-      // ✅ 여기서만 접고 요약 노출
-      fillAndShowSummary({ country, region, cbm, type, company });
-
-    }catch(e){
-      console.error(e);
-      alert('조회 중 오류가 발생했습니다.');
-    }
-  });
   
   // 요약 바 클릭 → 다시 펼치기
   const sumEl = document.getElementById('collapsedSummary');
