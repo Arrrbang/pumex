@@ -639,7 +639,7 @@ function collapseShell(){
       shell.classList.remove('is-collapsing');
       shell.classList.add('is-collapsed');
       shell.style.maxHeight = '';
-+     shell.style.display = 'none';   // ✅ 접힌 직후, 완전 잠금
+     shell.style.display = 'none';   // ✅ 접힌 직후, 완전 잠금
       __shellState = SHELL_STATES.COLLAPSED;
       __justCollapsedAt = performance.now();
       resolve();
