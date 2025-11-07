@@ -146,8 +146,16 @@
    0) 전역 상수 / 공통 유틸
    - CDN 경로, API BASE, 이스케이프/토스트/거리계산 등
    ========================================================================== */
-let __summaryClickLocked = false;
-let __justCollapsedAt = 0;
+const SHELL_STATES = Object.freeze({
+  OPEN: 'OPEN',
+  COLLAPSING: 'COLLAPSING',
+  COLLAPSED: 'COLLAPSED',
+  EXPANDING: 'EXPANDING',
+});
+
+let __shellState = SHELL_STATES.OPEN;     // 시작은 열린 상태
+let __summaryClickLocked = false;         // 요약바 클릭 잠금
+let __justCollapsedAt = 0;                // 마지막 접힘 시각(ms)
   
 const BASE = 'https://notion-api-hub.vercel.app';
 
@@ -608,9 +616,15 @@ function collapseShell(){
     const shell = document.querySelector('.app-shell');
     if (!shell) return resolve();
 
-    // 현재 높이를 픽셀로 고정 → 1프레임 뒤 0으로 트랜지션
+    // 이미 접힘/접는 중이면 재호출 무시
+    if (__shellState === SHELL_STATES.COLLAPSED || __shellState === SHELL_STATES.COLLAPSING) {
+      return resolve();
+    }
+
+    __shellState = SHELL_STATES.COLLAPSING;
+
     shell.classList.remove('is-collapsed','is-expanding');
-    shell.style.display = 'block'; // 보장
+    shell.style.display = 'block';
     const h = shell.scrollHeight;
     shell.style.maxHeight = h + 'px';
 
@@ -624,7 +638,9 @@ function collapseShell(){
       shell.removeEventListener('transitionend', onEnd);
       shell.classList.remove('is-collapsing');
       shell.classList.add('is-collapsed');
-      shell.style.maxHeight = ''; // 정리
+      shell.style.maxHeight = '';
+      __shellState = SHELL_STATES.COLLAPSED;
+      __justCollapsedAt = performance.now();
       resolve();
     };
     shell.addEventListener('transitionend', onEnd);
@@ -636,8 +652,16 @@ function expandShell(){
     const shell = document.querySelector('.app-shell');
     if (!shell) return resolve();
 
+    // ✅ 요약 클릭 외에는 열리지 않도록 강력 가드
+    // 접힌 상태가 아닐 땐 열지 않음
+    if (__shellState !== SHELL_STATES.COLLAPSED) {
+      return resolve();
+    }
+
+    __shellState = SHELL_STATES.EXPANDING;
+
     shell.classList.remove('is-collapsed');
-    shell.style.display = 'block'; // 보장
+    shell.style.display = 'block';
     shell.style.maxHeight = '0px';
 
     requestAnimationFrame(()=>{
@@ -650,7 +674,8 @@ function expandShell(){
       if (e.propertyName !== 'max-height') return;
       shell.removeEventListener('transitionend', onEnd);
       shell.classList.remove('is-expanding');
-      shell.style.maxHeight = ''; // 자동 높이로 복구
+      shell.style.maxHeight = '';
+      __shellState = SHELL_STATES.OPEN;
       resolve();
     };
     shell.addEventListener('transitionend', onEnd);
@@ -667,29 +692,28 @@ async function fillAndShowSummary({country, region, cbm, type, company}){
 
   // 1) 먼저 완전히 접힘을 보장 (끝날 때까지 대기)
   await collapseShell();
-  __justCollapsedAt = performance.now();
 
-  // 2) 같은 클릭이 요약 바에 닿지 않도록 잠깐 잠금
+  // 2) 요약 바 표시 (같은 클릭 전파 방지)
   const bar = document.getElementById('collapsedSummary');
   if (bar){
-    __summaryClickLocked = true;
-    // 다음 프레임에 표시(클릭 버블과 분리)
+    __summaryClickLocked = true;         // 잠깐 잠금
     requestAnimationFrame(()=>{
       bar.hidden = false;
       bar.classList.add('reveal');
       bar.style.pointerEvents = 'none';
-      // 결과로 스크롤 이동
+
+      // 결과로 스크롤
       document.getElementById('resultSection')?.scrollIntoView({behavior:'smooth', block:'start'});
 
-      // 320ms 뒤에 클릭 허용
       setTimeout(()=>{
         bar.classList.remove('reveal');
         bar.style.pointerEvents = 'auto';
-        __summaryClickLocked = false;
-      }, 320);
+        __summaryClickLocked = false;    // 잠금 해제
+      }, 320); // CSS 애니메이션과 맞춤
     });
   }
 }
+
 
 
 async function openAppShellFromSummary(){
@@ -810,18 +834,40 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   // 초기 파트너가 있으면 화물타입 선로딩
   loadCargoTypes_forPartner();
 
+  document.getElementById('btnFetch')?.addEventListener('click', async (ev)=>{
+    ev.preventDefault();  // ✅ 폼 submit/기본 동작 방지
+
+    try{
+      // ... 기존 조회 파라미터 수집/요청/표 렌더 ...
+      renderTable(j, type, Boolean(region));
+      document.getElementById('resultSection')?.classList.add('show');
+      document.querySelector('.action-row.center')?.classList.add('show','revealed');
+
+      // ✅ 여기서만 접고 요약 노출
+      fillAndShowSummary({ country, region, cbm, type, company });
+
+    }catch(e){
+      console.error(e);
+      alert('조회 중 오류가 발생했습니다.');
+    }
+  });
+  
   // 요약 바 클릭 → 다시 펼치기
   const sumEl = document.getElementById('collapsedSummary');
   if (sumEl) {
     sumEl.addEventListener('click', (e)=>{
-      // 막 뜬 직후의 같은 클릭 방지
+      // 방금 접힌 직후 같은 클릭이 전파되는 경우 차단
       if (__summaryClickLocked) return;
       if (performance.now() - __justCollapsedAt < 450) {
         e.preventDefault();
         e.stopPropagation();
         return;
       }
-      openAppShellFromSummary();
+      // ✅ 오직 요약 클릭에서만 확실히 열기
+      expandShell().then(()=>{
+        sumEl.hidden = true; // 요약 숨김
+        document.querySelector('.app-shell')?.scrollIntoView({behavior:'smooth', block:'start'});
+      });
     });
   }
 });
