@@ -207,10 +207,10 @@ body::after{
 .dropdown-label{
   display:block; 
   text-align:left; 
-  margin: 1rem 0 4px;
+  margin: 1.75rem 0 4px;
   font-weight:600; 
   color:#ffffff; 
-  font-size:1.5rem;
+  font-size:1.3rem;
   letter-spacing: 0.02em;
 }
 
