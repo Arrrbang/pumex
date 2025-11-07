@@ -204,7 +204,15 @@ body::after{
   backdrop-filter: blur(8px);
 }
 .dropdown-inner{ padding: 1rem 1.2rem; }
-.dropdown-label{ display:block; text-align:left; margin:0 0 8px; font-weight:600; color:#000; font-size:1rem; }
+.dropdown-label{
+  display:block; 
+  text-align:left; 
+  margin: 1rem 0 4px;
+  font-weight:600; 
+  color:#ffffff; 
+  font-size:1.5rem;
+  letter-spacing: 0.02em;
+}
 
 .dropdown-select,
 input[type="text"],
