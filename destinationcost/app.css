@@ -23,7 +23,7 @@
   --table-text:   #14532D;
 
   /* INDEX.HTML과 동일한 배경 이미지 적용 */
-  --bg-image-url: url('https://arrrbang.github.io/pumex/image/costbackground.jpg');
+  --bg-image-url: none;
 
   /* 밝은 오버레이(= styles(22).css 느낌), 블러는 필요 시 조절 */
   --bg-overlay: linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,.40));
@@ -44,18 +44,18 @@ body{
   min-height: calc(100dvh - var(--header-h));
 }
 
-/* 배경 이미지 */
+/* 전체 배경 이미지/오버레이 끄기 */
 body::before{
-  content:""; position:fixed; inset:0; z-index:-2;
-  background-image: var(--bg-image-url);
-  background-position:center; background-repeat:no-repeat; background-size:cover;
-  filter: blur(var(--bg-blur));
-  transform: translateZ(0);
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  filter: none !important;
+  transform: none !important;
 }
-/* 밝은 오버레이 */
 body::after{
-  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
-  background: var(--bg-overlay), var(--bg-darken);
+  content: none !important;
+  display: none !important;
+  background: none !important;
 }
 
 /* 공통 컨테이너 */
@@ -115,8 +115,8 @@ body::after{
 /* ========================================================================== */
 .app-shell{
   background: 
-    linear-gradient(rgba(3, 19, 48, 0.7), rgba(3, 19, 48, 0.7)), /* ✅ 70% 짙은 청색 오버레이 */
-    url('https://arrrbang.github.io/pumex/image/costbackground.jpg') center/cover no-repeat; /* ✅ 배경 이미지 */
+    linear-gradient(rgba(1, 16, 65, 0.8), rgba(1, 16, 65, 0.8)), /* 80% 투명 오버레이 */
+    url('https://arrrbang.github.io/pumex/image/costbackground.jpg') center/cover no-repeat; /* 배경 이미지 */
   box-shadow: none !important;
   border: 1px solid rgba(0, 0, 0, 0.12); /*테두리 색 높을 수록 진한 색*/
   backdrop-filter: blur(4px); /*테두리 블러효과*/
