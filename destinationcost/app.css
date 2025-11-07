@@ -308,7 +308,7 @@ input[type="number"]{
   z-index: 10;
   display: flex;              /* 중앙 배치 */
   justify-content: center;    /* 가로 중앙 */
-  background: #0e1a2b; /* 어두운 남색 톤 */
+  background: transparent;
   border-bottom: 1px solid rgba(255,255,255,0.12);
   padding: .75rem 0 .5rem;
   border: 0;
