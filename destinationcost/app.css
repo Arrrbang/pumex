@@ -311,9 +311,15 @@ input[type="number"]{
 .result-table thead th:nth-child(1),
 .result-table tbody td:nth-child(1){ width:20%; }
 .result-table thead th:nth-child(2),
-.result-table tbody td:nth-child(2){ width:18%; }
+.result-table tbody td:nth-child(2){ width:10%; }
 .result-table thead th:nth-child(3),
 .result-table tbody td:nth-child(3){ width:auto; }
+
+/* 2열 헤더(지역 또는 타입)도 가운데 정렬 */
+.result-table thead th:nth-child(2){ text-align: center; }
+
+/* 타입 헤더(th)는 class="type-col"로 들어오므로 확실히 가운데 */
+.result-table thead th.type-col{ text-align: center; }
 
 /* ========================================================================== */
 /* 5-1) 요약 바 부분                                                           */
