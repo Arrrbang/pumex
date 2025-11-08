@@ -392,8 +392,82 @@ input[type="number"]{
 .collapsed-summary.reveal{
   animation: sum-slide-down .28s ease both;
 }
+
+#collapsedPanel { display:block; }
+
+/* 혹시 .collapsed-summary .container 가 flex-row 라면 세로로 강제 */
+#collapsedPanel .collapsed-summary .container{
+  display:flex;
+  flex-direction:column;
+  gap:12px;  /* 요약 아래 여백 */
+}
+
+/* 결과 섹션은 전체 너비로 줄세우기 */
+#collapsedPanel .result-section{ 
+  display:block; 
+  width:100%; 
+  margin-top:12px; 
+}
+
 /* ========================================================================== */
-/* 6) 반응형                                                                   */
+/* 6) 노션 로드중 표시                                                          */
+/* 🔄 콤보 로딩 상태 표시                                                       */
+/* 🔄 공통: 콤보 로딩 상태 표시 (왼쪽)                                            */                                         
+/* ========================================================================== */
+
+.combo {
+  position: relative;
+}
+.combo.is-loading input {
+  padding-left: 36px; /* ← 왼쪽에 스피너 자리 확보 */
+}
+.combo.is-loading::after {
+  content: "";
+  position: absolute;
+  left: 10px;            /* ← 왼쪽 배치 */
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  opacity: .85;
+  animation: spin 0.8s linear infinite;
+  pointer-events: none;
+}
+
+/* 🔽 기본 <select>에 로딩 표시(선택 사항)
+   setSelectLoading('cbmSelect', true/false) 로 토글
+*/
+.dropdown-select.is-loading {
+  position: relative;    /* 자체 기준점 */
+  background-image: none !important;
+  padding-left: 36px;    /* ← 왼쪽에 스피너 자리 확보 */
+}
+.dropdown-select.is-loading + .select-spinner {
+  position: absolute;
+  left: 10px;            /* ← 왼쪽 배치 */
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  pointer-events: none;
+}
+
+/* 회전 애니메이션 */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
+
+/* ========================================================================== */
+/* 반응형                                                                   */
 /* ========================================================================== */
 @media (max-width: 1024px){
   .app-main{ grid-template-columns: 1fr; }
