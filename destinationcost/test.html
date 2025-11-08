@@ -157,6 +157,7 @@ let __shellState = SHELL_STATES.OPEN;     // 시작은 열린 상태
 let __summaryClickLocked = false;         // 요약바 클릭 잠금
 let __justCollapsedAt = 0;                // 마지막 접힘 시각(ms)
 let __allowExpand = false;
+let __defaultCurrency = '';   // ← 기본 통화(폴백) 저장
   
 const BASE = 'https://notion-api-hub.vercel.app';
 
@@ -567,11 +568,26 @@ function formatAmount(n, columnKey){
   if (n==null || n==='' || isNaN(Number(n))) return '';
   const v = Number(n);
   const fmt = __numberFormats?.[columnKey] || '';
+
+  // 1) Notion 포맷 우선
   if (/dollar|usd/i.test(fmt)) return '$' + v.toLocaleString('en-US');
   if (/won|krw/i.test(fmt))    return '₩' + v.toLocaleString('ko-KR');
   if (/euro|eur/i.test(fmt))   return '€' + v.toLocaleString('de-DE');
+
+  // 2) 폴백: 기본 통화(__defaultCurrency) 사용 (특히 CONSOLE 합계에 대비)
+  if (__defaultCurrency){
+    const code = String(__defaultCurrency).toUpperCase();
+    if (code === 'USD') return '$' + v.toLocaleString('en-US');
+    if (code === 'KRW') return '₩' + v.toLocaleString('ko-KR');
+    if (code === 'EUR') return '€' + v.toLocaleString('de-DE');
+    // 알 수 없는 통화코드면 코드 표시
+    return v.toLocaleString() + ' ' + code;
+  }
+
+  // 3) 최종 폴백: 그냥 숫자 포맷
   return v.toLocaleString();
 }
+
 function renderTable(data, type, isRegionFiltered){
   const wrap = document.getElementById('tableWrap');
   if (!wrap) return;
@@ -791,7 +807,9 @@ function wireEvents(){
       const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
       const res = await fetch(url, { cache:'no-store' });
       const j   = await res.json();
-  
+
+
+      __defaultCurrency  = (j?.currency || j?.currencyCode || j?.meta?.currency || j?.meta?.currencyCode || '').toString();
       __numberFormats = j?.numberFormats || {};
       renderTable(j, type, Boolean(region));
       document.getElementById('resultSection')?.classList.add('show');
