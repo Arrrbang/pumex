@@ -169,6 +169,29 @@ const LJS  = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
 const GCSS = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css";
 const GJS  = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js";
 
+// ✅ 특정 콤보 루트(#id)에 로딩 스피너 on/off
+function setComboLoading(id, on){
+  const root = document.getElementById(id);
+  if (!root) return;
+  root.classList.toggle('is-loading', !!on);
+}
+
+// (옵션) 기본 <select>에 로딩 스피너 표시하고 싶을 때 사용
+function setSelectLoading(selectId, on){
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  sel.classList.toggle('is-loading', !!on);
+  // 이미 존재하는 스피너 제거
+  const next = sel.nextElementSibling;
+  if (next && next.classList.contains('select-spinner')) next.remove();
+  // on이면 인접 요소로 스피너 엘리먼트 추가
+  if (on){
+    const sp = document.createElement('span');
+    sp.className = 'select-spinner';
+    sel.insertAdjacentElement('afterend', sp);
+  }
+}
+
 function loadCssOnce(href){
   return new Promise((res, rej)=>{
     if (document.querySelector(`link[href="${href}"]`)) return res();
@@ -414,6 +437,7 @@ function setCBMRange(){
 }
 async function loadCountries(){
   const countryAPI = getComboAPI('countryCombo');
+  setComboLoading('countryCombo', true); // 🔄 on
   try{
     const r = await fetch(`${BASE}/api/debug/config`, {cache:'no-store'});
     const j = await r.json();
@@ -423,8 +447,11 @@ async function loadCountries(){
   }catch(e){
     countryAPI.setItems([]); countryAPI.enable(true);
     console.warn('loadCountries 실패:', e);
+  }finally{
+    setComboLoading('countryCombo', false); // 🔄 off
   }
 }
+
 
 /* ============================================================================
    4) Notion 연동: 지역/업체/POE/화물타입 로더
@@ -439,12 +466,12 @@ async function loadRegions(){
   const companyAPI= getComboAPI('companyCombo');
   const poeAPI    = getComboAPI('poeCombo');
 
-  // 하위 의존 콤보 초기화/비활성
   regionAPI.setItems([]); regionAPI.enable(false);
   companyAPI.setItems([]); companyAPI.enable(false);
   poeAPI.setItems([]);     poeAPI.enable(false);
   if(!country) return;
 
+  setComboLoading('regionCombo', true); // 🔄 on
   try{
     const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`, {cache:'no-store'});
     const j = await r.json();
@@ -454,8 +481,11 @@ async function loadRegions(){
   }catch(e){
     console.warn('loadRegions 실패:', e);
     regionAPI.setItems([]); regionAPI.enable(false);
+  }finally{
+    setComboLoading('regionCombo', false); // 🔄 off
   }
 }
+
 async function loadCompanies(){
   const country   = getValue_soft('countryCombo');
   const region    = getValue_soft('regionCombo');
@@ -466,6 +496,7 @@ async function loadCompanies(){
   poeAPI.setItems([]);     poeAPI.enable(false);
   if(!country || !region) return;
 
+  setComboLoading('companyCombo', true); // 🔄 on
   try{
     const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
     const r = await fetch(url, {cache:'no-store'});
@@ -476,26 +507,29 @@ async function loadCompanies(){
   }catch(e){
     console.warn('loadCompanies 실패:', e);
     companyAPI.setItems([]); companyAPI.enable(false);
+  }finally{
+    setComboLoading('companyCombo', false); // 🔄 off
   }
 }
+
 async function loadPOEs(){
   const country   = getValue_soft('countryCombo');
   const region    = getValue_soft('regionCombo');
   const company   = getValue_soft('companyCombo');
   const poeAPI    = getComboAPI('poeCombo');
 
-  poeAPI.setItems([]); poeAPI.enable(false);
+  // 선택값만 지우고(원하시는 현재 정책) 비활성화는 하지 않음
+  poeAPI.setValue?.('');
   if(!country || !region || !company) return;
 
+  setComboLoading('poeCombo', true); // 🔄 on
   try{
-    // 권장: by-company
     let url = `${BASE}/api/poe/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=options`;
     let res = await fetch(url, {cache:'no-store'});
     if (!res.ok) throw new Error('by-company not ok');
     let j = await res.json();
     let poes = (j.poes || j.POE || j.options || []).filter(Boolean);
 
-    // 폴백: by-region
     if (!poes.length){
       url = `${BASE}/api/poe/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
       res = await fetch(url, {cache:'no-store'});
@@ -507,9 +541,13 @@ async function loadPOEs(){
     poeAPI.enable(poes.length>0);
   }catch(e){
     console.warn('loadPOEs 실패:', e);
-    poeAPI.setItems([]); poeAPI.enable(false);
+    poeAPI.setItems([]); // 유지 원하면 삭제 가능
+    // poeAPI.enable(false); // 비활성화를 원치 않으면 주석 유지
+  }finally{
+    setComboLoading('poeCombo', false); // 🔄 off
   }
 }
+
 
 /* 화물타입: 파트너 기준 + 폴백 집계 */
 function setCargoTypeComboItems(items){
@@ -523,6 +561,9 @@ async function loadCargoTypes_forPartner(){
   const region  = getValue_soft('regionCombo');
   const partner = getValue_soft('companyCombo');
 
+  // 선택값만 초기화, 아이템/활성 상태는 유지
+  const cargoAPI = getComboAPI('cargoTypeCombo');
+  cargoAPI.setValue?.('');
   if (!country || !partner){ setCargoTypeComboItems([]); return; }
 
   const fetchJson = async (url) => {
@@ -530,15 +571,14 @@ async function loadCargoTypes_forPartner(){
     if (!res.ok) return null;
     return res.json();
   };
-  let list = [];
 
+  setComboLoading('cargoTypeCombo', true); // 🔄 on
+  let list = [];
   try{
-    // 1) by-partner (region 포함)
     let url = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&company=${encodeURIComponent(partner)}${region ? `&region=${encodeURIComponent(region)}` : ''}&mode=options`;
     let j = await fetchJson(url);
     if (j) list = (j.types || j.options || []).filter(Boolean);
 
-    // 2) 폴백: /api/costs 에서 해당 파트너 행들만 조회하여 "화물타입"을 집계
     if (!list.length){
       url = `${BASE}/api/costs/${encodeURIComponent(country)}?company=${encodeURIComponent(partner)}${region ? `&region=${encodeURIComponent(region)}` : ''}&mode=data`;
       j = await fetchJson(url);
@@ -553,13 +593,15 @@ async function loadCargoTypes_forPartner(){
       }
       list = [...bucket].sort((a,b)=> a.localeCompare(b,'ko'));
     }
-
-    setCargoTypeComboItems(list);
+    setCargoTypeComboItems(list); // 내부에서 enable 처리
   }catch(e){
     console.warn('loadCargoTypes_forPartner error:', e);
     setCargoTypeComboItems([]);
+  }finally{
+    setComboLoading('cargoTypeCombo', false); // 🔄 off
   }
 }
+
 
 /* ============================================================================
    5) 결과 렌더링 (표)
