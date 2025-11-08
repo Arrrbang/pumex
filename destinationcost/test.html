@@ -564,10 +564,19 @@ async function loadCargoTypes_forPartner(){
    ========================================================================== */
 let __numberFormats = {};  // Notion 숫자 포맷 메타 (백엔드에서 내려줌)
 
+function getFmt(columnKey){
+  const k = String(columnKey || '');
+  // 기본/대문자/소문자 키 모두 탐색
+  return (__numberFormats?.[k])
+      || (__numberFormats?.[k.toUpperCase()])
+      || (__numberFormats?.[k.toLowerCase()])
+      || '';
+}
+
 function formatAmount(n, columnKey){
   if (n==null || n==='' || isNaN(Number(n))) return '';
   const v = Number(n);
-  const fmt = __numberFormats?.[columnKey] || '';
+  const fmt = getFmt(columnKey);
 
   // 1) Notion 포맷 우선
   if (/dollar|usd/i.test(fmt)) return '$' + v.toLocaleString('en-US');
@@ -807,10 +816,41 @@ function wireEvents(){
       const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
       const res = await fetch(url, { cache:'no-store' });
       const j   = await res.json();
-
-
-      __defaultCurrency  = (j?.currency || j?.currencyCode || j?.meta?.currency || j?.meta?.currencyCode || '').toString();
+      
+      // 우선 응답의 numberFormats 보관
       __numberFormats = j?.numberFormats || {};
+      
+      // 선택한 타입(20FT/40HC/CONSOLE)에 특화된 통화코드 우선 추출
+      const typeCurrency =
+        (j?.currencyByType?.[type])
+        || (j?.meta?.currencyByType?.[type])
+        || (j?.columns?.[type]?.currency || j?.columns?.[type]?.currencyCode)
+        || (j?.headers?.[type]?.currency || j?.headers?.[type]?.currencyCode)
+        || '';
+      
+      // 전역 기본 통화: 응답 전역 → 타입별 → 메타 순으로 채택
+      __defaultCurrency = (
+        j?.currency
+        || j?.currencyCode
+        || typeCurrency
+        || j?.meta?.currency
+        || j?.meta?.currencyCode
+        || ''
+      ).toString();
+      
+      // 그래도 비어 있으면, 포맷 텍스트를 스캔해서 추론(USD/KRW/EUR)
+      if (!__defaultCurrency){
+        const probe = [
+          getFmt(type),           // 현재 선택 타입의 포맷
+          getFmt('20FT'),
+          getFmt('40HC'),
+          getFmt('CONSOLE')
+        ].join(' ');
+        if (/usd|dollar/i.test(probe)) __defaultCurrency = 'USD';
+        else if (/krw|won/i.test(probe)) __defaultCurrency = 'KRW';
+        else if (/eur|euro/i.test(probe)) __defaultCurrency = 'EUR';
+      }
+
       renderTable(j, type, Boolean(region));
       document.getElementById('resultSection')?.classList.add('show');
       document.querySelector('.action-row.center')?.classList.add('show','revealed');
