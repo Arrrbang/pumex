@@ -114,32 +114,35 @@
     </div>
   </main>
   
+  <section id="collapsedPanel" hidden></section>
   <!-- ✅ 접힘 상태에서 보여줄 요약 바 (처음엔 숨김) -->
-  <section id="collapsedSummary" class="collapsed-summary" hidden>
-    <div class="container">
-      <div class="chips">
-        <button class="chip" data-key="country">
-          <span class="k">국가</span><span class="v" id="sumCountry">-</span>
-        </button>
-        <button class="chip" data-key="region">
-          <span class="k">지역</span><span class="v" id="sumRegion">-</span>
-        </button>
-        <button class="chip" data-key="cbm">
-          <span class="k">CBM/컨테이너</span><span class="v" id="sumCbmType">-</span>
-        </button>
-        <button class="chip" data-key="company">
-          <span class="k">파트너</span><span class="v" id="sumCompany">-</span>
-        </button>
+    <section id="collapsedSummary" class="collapsed-summary" hidden>
+      <div class="container">
+        <div class="chips">
+          <button class="chip" data-key="country">
+            <span class="k">국가</span><span class="v" id="sumCountry">-</span>
+          </button>
+          <button class="chip" data-key="region">
+            <span class="k">지역</span><span class="v" id="sumRegion">-</span>
+          </button>
+          <button class="chip" data-key="cbm">
+            <span class="k">CBM/컨테이너</span><span class="v" id="sumCbmType">-</span>
+          </button>
+          <button class="chip" data-key="company">
+            <span class="k">파트너</span><span class="v" id="sumCompany">-</span>
+          </button>
+        </div>
       </div>
-    </div>
+    </section>
+      <section id="resultSection" class="result-section" hidden>
+        <div class="result-container container">
+          <div id="tableWrap" class="table-wrap"></div>
+        </div>
+      </section>
   </section>
   
   <!-- ✅ 결과 표 (항상 app-shell 바깥) -->
-  <section id="resultSection" class="result-section">
-    <div class="result-container container">
-      <div id="tableWrap" class="table-wrap"></div>
-    </div>
-  </section>
+
   
 <script>
 /* ============================================================================
@@ -772,19 +775,40 @@ function wireEvents(){
     if (c) setMapCountry(c);
   });
 
-  // 지역 변경
-  rcEl?.addEventListener('change', async ()=>{
+    // 지역 변경
+    rcEl?.addEventListener('change', async ()=>{
+    // 1) 하위 콤보들 "먼저" 초기화 + 비활성화 + 값 비우기
+    const companyAPI = getComboAPI('companyCombo');
+    const poeAPI     = getComboAPI('poeCombo');
+    const cargoAPI   = getComboAPI('cargoTypeCombo');
+
+    companyAPI.setItems([]); companyAPI.setValue?.(''); companyAPI.enable(false);
+    poeAPI.setItems([]);     poeAPI.setValue?.('');     poeAPI.enable(false);
+    cargoAPI.setItems([]);   cargoAPI.setValue?.('');   cargoAPI.enable(false);
+
+    // 2) 지역 기반으로 업체 재로딩 (여기서 companies 있으면 enable(true) 됨)
     await loadCompanies();
-    setCargoTypeComboItems([]); // 파트너 선택 전 → 비활성
+
+    // 3) 지도 줌 처리
     const region = getRegion();
     if (region) zoomToRegion(region, { fallbackZoom: 10 });
-  });
+    });
 
-  // 업체(파트너) 변경
-  compEl?.addEventListener('change', async ()=>{
-    await loadPOEs();
-    loadCargoTypes_forPartner(); // ← 여기서 실제 화물타입 옵션 채움
-  });
+
+    // 업체(파트너) 변경
+    compEl?.addEventListener('change', async ()=>{
+    const poeAPI   = getComboAPI('poeCombo');
+    const cargoAPI = getComboAPI('cargoTypeCombo');
+
+    // ✅ 선택값만 초기화(아이템/활성 상태는 유지)
+    poeAPI.setValue?.('');
+    cargoAPI.setValue?.('');
+
+    // 새 파트너 기준으로 목록 갱신 (잠깐 로딩될 수 있음)
+    await loadPOEs();                 // 끝나면 아이템 재세팅 + enable(조건부)
+    await loadCargoTypes_forPartner();
+    });
+
 
   // 조회 버튼
   document.getElementById('btnFetch')?.addEventListener('click', async (ev)=>{
@@ -852,6 +876,7 @@ function wireEvents(){
       }
 
       renderTable(j, type, Boolean(region));
+      showResultSection(true);
       document.getElementById('resultSection')?.classList.add('show');
       document.querySelector('.action-row.center')?.classList.add('show','revealed');
   
@@ -906,6 +931,7 @@ window.addEventListener('DOMContentLoaded', async ()=>{
       }
       // ✅ 오직 요약 클릭에서만 확실히 열기
       __allowExpand = true;         // ✅ 이때만 펼침 허용
+      showResultSection(false);
       expandShell().then(()=>{
         sumEl.hidden = true; // 요약 숨김
         document.querySelector('.app-shell')?.scrollIntoView({behavior:'smooth', block:'start'});
@@ -913,6 +939,24 @@ window.addEventListener('DOMContentLoaded', async ()=>{
     });
   }
 });
+
+function showResultSection(show){
+  const sec = document.getElementById('resultSection');
+  if(!sec) return;
+  if(show){
+    sec.hidden = false;
+    sec.classList.add('show');
+  }else{
+    sec.classList.remove('show');
+    sec.hidden = true;
+  }
+}
+
+function showCollapsedPanel(show){
+  const panel = document.getElementById('collapsedPanel');
+  panel.hidden = !show;
+}
+
 </script>
 
 </body>
