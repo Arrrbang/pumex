@@ -224,6 +224,42 @@ function toast(msg){
     setTimeout(()=>d.remove(),1500);
   }catch(_){}
 }
+
+/* ✅ 한글/영문 공통 정렬 헬퍼(가나다, a-z) */
+function sortKoAZ(arr){
+  return (arr||[]).slice().filter(Boolean)
+    .sort((a,b)=> String(a).localeCompare(String(b),'ko',{sensitivity:'base'}));
+}
+
+/* ✅ regionCombo 전용: 타이핑 시 '가장 일치'가 맨 위로 오도록 재정렬 */
+function enhanceTypeAhead(id, baseItems){
+  const root  = document.getElementById(id);
+  const input = root?.querySelector('input');
+  const api   = getComboAPI(id);
+  if (!root || !input || !api?.setItems) return;
+
+  const baseSorted = sortKoAZ(baseItems);
+  api.setItems(baseSorted); // 타이핑 전: 전체 가나다/a-z 순
+
+  input.addEventListener('input', ()=>{
+    const q = String(input.value||'').trim().toLowerCase();
+    if (!q){ api.setItems(baseSorted); return; }
+
+    // 점수: 접두어(0) > 부분일치(100+index) > 불일치(∞)
+    const matched = [];
+    const unmatched = [];
+    for (const v of baseSorted){
+      const s = String(v).toLowerCase();
+      const idx = s.indexOf(q);
+      if (idx === -1){ unmatched.push(v); continue; }
+      const score = (idx === 0) ? 0 : (100 + idx);
+      matched.push({v, score});
+    }
+    matched.sort((a,b)=> (a.score-b.score) || a.v.localeCompare(b.v,'ko',{sensitivity:'base'}));
+    api.setItems([...matched.map(x=>x.v), ...unmatched]); // 가장 일치가 맨 위
+  }, {passive:true});
+}
+
 function haversineKm(aLat,aLng,bLat,bLng){
   const R=6371, dLat=(bLat-aLat)*Math.PI/180, dLng=(bLng-aLng)*Math.PI/180;
   const A=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2;
@@ -446,9 +482,10 @@ async function loadCountries(){
   try{
     const r = await fetch(`${BASE}/api/debug/config`, {cache:'no-store'});
     const j = await r.json();
-    const countries = j.countries || Object.keys(j.dbStructure||{}) || [];
+    const countries = sortKoAZ(j.countries || Object.keys(j.dbStructure||{}) || []);
     countryAPI.setItems(countries);
     countryAPI.enable(true);
+    enhanceTypeAhead('countryCombo', countries);
   }catch(e){
     countryAPI.setItems([]); countryAPI.enable(true);
     console.warn('loadCountries 실패:', e);
@@ -480,9 +517,10 @@ async function loadRegions(){
   try{
     const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`, {cache:'no-store'});
     const j = await r.json();
-    const regions = j.regions || [];
+    const regions = sortKoAZ(j.regions || []);
     regionAPI.setItems(regions);
     regionAPI.enable(true);
+    enhanceTypeAhead('regionCombo', regions);
   }catch(e){
     console.warn('loadRegions 실패:', e);
     regionAPI.setItems([]); regionAPI.enable(false);
