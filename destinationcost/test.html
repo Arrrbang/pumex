@@ -108,7 +108,7 @@
 
         <!-- 조회 버튼 -->
       <div class="action-row center show revealed">
-        <button id="btnFetch" class="primary-btn" type="button">조회</button>
+        <button id="btnFetch" class="primary-btn"><span class="label">조회</span></button>
       </div>
       </section>
     </div>
@@ -706,11 +706,37 @@ function mergeRowsKeepingOrder(primary, extra){
   (extra||[]).forEach(r=>{ const k=keyOf(r); if(!seen.has(k)){ seen.add(k); out.push(r);} });
   return out;
 }
+/* ✅ '순서' 숫자 기준 정렬 유틸 (없으면 맨 아래) */
+function getOrderNumber(row){
+  // 1) 직접 키 우선
+  const direct = row?.순서 ?? row?.order ?? row?.Order ?? row?.ORD ?? row?.index ?? row?.seq;
+  let n = direct;
+  // 2) Notion properties 안에서 탐색
+  if (n == null){
+    const props = row?.properties || {};
+    const keys = ['순서','order','Order','ORD','Index','index','Seq','seq'];
+    for (const k of keys){
+      const v = props?.[k];
+      const num = (v && typeof v === 'object') ? (v.number ?? v.value) : v;
+      if (num != null){ n = num; break; }
+    }
+  }
+  const x = Number(n);
+  return Number.isFinite(x) ? x : Infinity;
+}
+function sortByOrder(rows){
+  return (rows||[])
+    .map((r,i)=>({r,i,ord:getOrderNumber(r)}))
+    .sort((a,b)=> (a.ord - b.ord) || (a.i - b.i))  // 순서 → 원래 순서(안정성)
+    .map(x=>x.r);
+}
 function renderTable(data, type, isRegionFiltered){
   const wrap = document.getElementById('tableWrap');
   if (!wrap) return;
 
-  const rows = Array.isArray(data?.rows) ? data.rows : [];
+  let rows = Array.isArray(data?.rows) ? data.rows : [];
+  // ✅ '순서' 숫자 기준으로 정렬
+  rows = sortByOrder(rows);
   if (!rows.length){
     wrap.innerHTML = '<div class="muted">표시할 데이터가 없습니다.</div>';
     return;
@@ -922,6 +948,7 @@ function wireEvents(){
     const btn = ev.currentTarget;
     if (btn.disabled) return;           // 중복 클릭 방지
     btn.disabled = true;
+    btn.classList.add('is-loading');    // ✅ 스피너 on
   
     try{
       const country = getValue_soft('countryCombo');
@@ -1005,6 +1032,7 @@ function wireEvents(){
       alert('조회 중 오류가 발생했습니다.');
     }finally{
       btn.disabled = false;
+      btn.classList.remove('is-loading'); // ✅ 스피너 off
     }
   });
 }
