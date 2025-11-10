@@ -281,12 +281,57 @@ input[type="number"]{
 .action-row{ display:flex; justify-content:flex-end; margin:12px 0 8px; }
 .action-row.center{ display:flex; justify-content:center; align-items:center; margin:2rem auto 1.5rem; }
 .primary-btn{
-  border-radius:2rem; padding:.5rem 1.25rem; min-width:10rem;
-  border:2px solid var(--primary); background:var(--primary);
-  color:#fff; font-weight:700; cursor:pointer; transition: background .2s ease, transform .08s ease;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius:2rem;
+  padding:.5rem 1.25rem;
+  min-width:10rem;
+  border:2px solid var(--primary);
+  background:var(--primary);
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+  transition: background .2s ease, transform .08s ease;
+  text-align: center;
+}
+/* ✅ 글씨가 항상 수평 완전 중앙에 오도록 보정 */
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+.primary-btn span.label {
+  display: inline-block;
+  transform: translateX(-4px); /* 시각적 중심 보정값 */
+}
+
+.primary-btn.is-loading span.label {
+  transform: translateX(4px); /* 스피너가 생길 때 오른쪽 여백 균형 */
 }
 .primary-btn:hover{ background:#16724a; }
 .primary-btn:active{ transform: translateY(1px); }
+
+/* ✅ 조회 버튼 로딩 스피너 (왼쪽에 표시, 버튼 크기 불변) */
+.primary-btn.is-loading{ cursor: progress; opacity: .96; }
+.primary-btn.is-loading::before{
+  content:"";
+  position:absolute;
+  left: 10px;
+  top: 50%;
+  width: 16px;
+  height:16px;
+  margin-top:-8px;
+  border: 2px solid rgba(255,255,255,.95);
+  border-top-color: transparent;       /* 회전 공백 부분 */
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  pointer-events: none;
+}
 
 /* 결과 섹션 (표) */
 .result-section{ display:none; padding:0 1rem 2rem; }
@@ -473,5 +518,6 @@ input[type="number"]{
   .app-main{ grid-template-columns: 1fr; }
   .map-canvas{ height:360px; }
 }
+
 
 
