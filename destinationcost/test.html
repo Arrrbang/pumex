@@ -684,7 +684,28 @@ function formatAmount(n, columnKey){
   // 3) 최종 폴백: 그냥 숫자 포맷
   return v.toLocaleString();
 }
-
+/* ✅ 지역 공란 판별 + 행 머지(중복 방지) */
+function isEmptyRegionRow(row){
+  // 응답 스키마 방어적으로 처리
+  const direct = row?.region ?? row?.Region ?? row?.지역;
+  const propKo = row?.properties?.지역?.select?.name;
+  const v = (direct != null ? direct : propKo) ?? '';
+  return String(v).trim() === '';
+}
+function mergeRowsKeepingOrder(primary, extra){
+  const out = [];
+  const seen = new Set();
+  const keyOf = (r)=>{
+    // 가능한 식별자 우선 사용
+    const id = r?.id || r?._id || r?.uuid || '';
+    const item = r?.item || r?.항목 || '';
+    const region = r?.region ?? r?.Region ?? r?.지역 ?? '';
+    return id ? `id:${id}` : `k:${item}||${region}`;
+  };
+  (primary||[]).forEach(r=>{ const k=keyOf(r); if(!seen.has(k)){ seen.add(k); out.push(r);} });
+  (extra||[]).forEach(r=>{ const k=keyOf(r); if(!seen.has(k)){ seen.add(k); out.push(r);} });
+  return out;
+}
 function renderTable(data, type, isRegionFiltered){
   const wrap = document.getElementById('tableWrap');
   if (!wrap) return;
@@ -922,9 +943,21 @@ function wireEvents(){
       if (roles.length) params.set('roles', roles.join(','));
       if (!isNaN(cbm)) params.set('cbm', String(cbm));
   
-      const url = `${BASE}/api/costs/${encodeURIComponent(country)}?${params.toString()}`;
+      const baseUrl = `${BASE}/api/costs/${encodeURIComponent(country)}`;
+      const url = `${baseUrl}?${params.toString()}`;
       const res = await fetch(url, { cache:'no-store' });
       const j   = await res.json();
+
+      // ✅ 지역 선택 시: "지역 비어있는 행" 추가 포함 로직
+      if (region){
+        const paramsAll = new URLSearchParams(params);
+        paramsAll.delete('region');                 // 전체(지역 미지정) 조회
+        const resAll = await fetch(`${baseUrl}?${paramsAll.toString()}`, { cache:'no-store' });
+        const jAll   = await resAll.json().catch(()=>({}));
+        const emptyRows = (Array.isArray(jAll?.rows) ? jAll.rows : []).filter(isEmptyRegionRow);
+        const primRows  = Array.isArray(j?.rows) ? j.rows : [];
+        j.rows = mergeRowsKeepingOrder(primRows, emptyRows);
+      }
       
       // 우선 응답의 numberFormats 보관
       __numberFormats = j?.numberFormats || {};
