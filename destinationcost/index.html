@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css" rel="stylesheet" />
 
   <!-- 메인 스타일 -->
   <link rel="stylesheet" href="./app.css" />
@@ -31,14 +32,15 @@
 
       <!-- 왼쪽: 지도 영역 -->
       <section class="left-pane">
-        <!-- Leaflet 지도용 컨테이너 (JS 붙일 때 그대로 사용) -->
-        <div id="mpkMap" class="map-canvas" aria-label="지도 영역">
-          <div class="map-placeholder">지도(Leaflet)가 여기에 표시됩니다.</div>
-        </div>
+        <div class="pane-title">지도에서 지역 검색</div>
+            <div id="mpkMap" class="map-canvas" aria-label="지도 영역">
+            <div class="map-placeholder">지도(Leaflet)가 여기에 표시됩니다.</div>
+            </div>
       </section>
 
       <!-- 오른쪽: 폼(드롭다운/콤보박스) -->
       <section class="right-pane">
+        <div class="pane-title">화물 정보 입력</div>
 
         <!-- 1차: 국가/지역 -->
         <div class="dropdown-container">
@@ -362,6 +364,32 @@ async function initAlwaysOnMap(){
   map = L.map('mpkMap', { center:[20,0], zoom:2, worldCopyJump:false, maxBounds:worldBounds, maxBoundsViscosity:1.0 });
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OSM', noWrap:true, bounds:worldBounds }).addTo(map);
   markerLayer = L.layerGroup().addTo(map);
+
+  /* ===========================================================
+     지도 폭을 컨테이너에 맞추고, 줌아웃 시 컨테이너를 꽉 채우도록 설정
+     =========================================================== */
+  const WORLD = L.latLngBounds([-85, -180], [85, 180]);
+
+  function fitMinZoomToContainer({ cover = true } = {}) {
+    // 컨테이너 크기에 맞춰 최소 줌 계산
+    map.invalidateSize();
+
+    // cover=true → 여백 없이 꽉 채우기 (약간 잘릴 수 있음)
+    const z = map.getBoundsZoom(WORLD, cover);
+    map.setMinZoom(z);                // 최소 줌 고정
+    map.setMaxBounds(WORLD);          // 지도 이동 제한
+    map.options.maxBoundsViscosity = 1.0;
+
+    // 현재 중심 유지한 채 컨테이너에 맞게 보기 조정
+    const center = map.getCenter();
+    map.setView(center || [0, 0], z);
+  }
+
+  // 페이지 로딩 완료 후 컨테이너 크기에 맞춰 한 번 실행
+  requestAnimationFrame(() => fitMinZoomToContainer({ cover: true }));
+
+  // 창 크기 변경 시 재계산
+  window.addEventListener('resize', () => fitMinZoomToContainer({ cover: true }));
 
   // 지오코더
   geocoder = L.Control.geocoder({ defaultMarkGeocode:false })
