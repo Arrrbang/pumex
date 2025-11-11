@@ -1,250 +1,277 @@
 /* ========================================================================== */
-/* 0) 토큰 (색/간격/레이어) — styles(22).css 톤 맞춤                         */
+/* 0) 토큰 (색/간격/레이어) — styles(22).css 톤 유지 + 변수 중복 정리               */
+/*    - 중복된 --gutter, --header-h, shell 관련 변수 통합                         */
+/*    - 디자인 변경 없이 변수만 정리                                              */
 /* ========================================================================== */
 :root{
-  --bg: #0b0f14;                /* 배경 기본색 (이미지 로딩 전) */
-  --fg: #eef2f7;
-  --muted: #cbd5e1;
-  --btn-radius: 12px; /* 버튼과 요약바가 같은 반경을 쓰도록 기본값 */
+  /* 기본 배경/전경 */
+  --bg: #0b0f14;               /* 전체 배경 기본색 */
+  --fg: #eef2f7;               /* 기본 텍스트 컬러 */
+  --muted: #cbd5e1;            /* 보조 텍스트 컬러 */
+  --btn-radius: 12px;          /* 버튼/요약바 공통 반경 */
 
-  --primary: #1F9461;
-  --border: rgba(255,255,255,0.18);
-  --surface: rgba(255,255,255,0.06);
+  /* 브랜드/선/표면 */
+  --primary: #1F9461;          /* 메인 포인트 컬러 */
+  --border: rgba(255,255,255,0.18); /* 유리패널 테두리 */
+  --surface: rgba(255,255,255,0.06);/* 유리패널 배경 */
 
-  --header-h: 3rem;
-  --container-max: 1200px;
-  --gutter: 20px;
+  /* 레이아웃 */
+  --header-h: 3rem;            /* 헤더 높이(고정) */
+  --container-max: 1200px;     /* .container 최대폭 */
+  --gutter: 1.25rem;           /* 좌우 여백 & 그리드 간격 */
 
-  --control-bg: #fff;
-  --control-fg: #333;
-  --control-border: #1F9461;
-  --control-radius: .6rem;
+  /* 폼 컨트롤 */
+  --control-bg: #fff;          /* 입력 배경 */
+  --control-fg: #333;          /* 입력 전경 */
+  --control-border: rgba(105,130,100,0.3);   /* 드롭다운 입력 테두리 */
+  --control-radius: .3rem;     /* 입력 모서리 */
 
-  --table-header: #D1FAE5;
-  --table-text:   #14532D;
+  /* 표 */
+  --table-header: #D1FAE5;     /* 선택 강조 배경 */
+  --table-text:   #14532D;     /* 선택 강조 전경 */
 
-  --shell-max: 75rem;     /* 1200px = 75rem */
-  --gutter: 1.25rem;      /* 좌우 여백 & 그리드 간격 (원하면 1rem~1.5rem 조정) */
-  --header-h: 3rem;       /* header 실제 높이와 일치시켜 유지 */
-  
-  /* INDEX.HTML과 동일한 배경 이미지 적용 */
+  /* 배경 이미지/오버레이 (필요 시 변경) */
   --bg-image-url: none;
-
-  /* 밝은 오버레이(= styles(22).css 느낌), 블러는 필요 시 조절 */
   --bg-overlay: linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,.40));
-  --bg-blur: 0px;        /* 0~8px 사이에서 필요 시만 */
+  --bg-blur: 0px;
   --bg-darken: rgba(255,255,255,0);
 }
 
 /* ========================================================================== */
-/* 1) 기본 구조 + 페이지 배경                                                  */
+/* 1) 기본 구조 + 페이지 배경                                                     */
 /* ========================================================================== */
 *{ box-sizing: border-box; }
 html{ font-size: clamp(14px, 1.2vw, 16px); }
 
 body{
-  padding-top: var(--header-h);  /* 헤더만큼만 정확히 내리기 */
+  padding-top: var(--header-h);             /* 헤더만큼 내림 */
   position: relative;
-  background: #F2F5FA;
+  background: #F2F5FA;                      /* 페이지 배경색 */
   min-height: calc(100dvh - var(--header-h));
 }
 
-/* 전체 배경 이미지/오버레이 끄기 */
-body::before{
+/* 전체 배경 이미지/오버레이 끄기(본 페이지는 고정 컬러 배경) */
+body::before,
+body::after{
   content: none !important;
   display: none !important;
   background: none !important;
   filter: none !important;
   transform: none !important;
 }
-body::after{
-  content: none !important;
-  display: none !important;
-  background: none !important;
-}
 
 /* 공통 컨테이너 */
-.container{ max-width: var(--container-max); margin: 0 auto; padding-inline: var(--gutter); }
+.container{ 
+  max-width: var(--container-max); 
+  margin: 0 auto; 
+  padding-inline: var(--gutter); 
+}
 
 /* ========================================================================== */
-/* 2) 상단 헤더 — styles(22).css 톤 복제                                       */
+/* 2) 상단 헤더 — styles(22).css 톤 복제                                          */
 /* ========================================================================== */
 .site-header{
   position: fixed; top:0; left:0; width:100%; z-index:999;
-  background: #153A47 !important;
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  height: 3rem; /*높이 지정*/
-  display: flex;
-  align-items: center;
-  text-align: left; /* 중앙 정렬 방지 */
+  background: #ffffff !important;                  /* 불투명 상단 바 */
+  backdrop-filter: blur(12px);                     /* 분위기만 유지 */
+  border-bottom: 1px solid rgba(0,0,0,.08) !important;
+  height: var(--header-h);
+  display: flex; align-items: center; text-align: left;
 }
 
 .site-header .logo img{
-  height:2rem; 
-  display:block; 
+  height:2rem; display:block;
 }
 
 .site-header .container,
 .site-header .header-inner {
-  max-width: none;   /* 기존 1200px 같은 제한 해제 */
-  width: 100%;       /* 가로 100% 채우기 */
-  margin: 0;         /* 중앙정렬 해제 */
-  padding-left: 3rem;/* 좌측 여백 (원하면 조정) */
-  padding-right: var(--gutter);
+  max-width: none; width: 100%; margin: 0;
+  padding-left: 3rem; padding-right: var(--gutter);
   box-sizing: border-box;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 12px;
+  display: flex; justify-content: flex-start; align-items: center; gap: 12px;
 }
 
 .site-header .header-inner {
-  display: flex;
-  justify-content: flex-start;  /* 좌측 정렬 */
-  align-items: center;          /* 세로 가운데 */
-  gap: 12px;                    /* 로고-타이틀 간격 */
+  justify-content: flex-start; align-items: center; gap: 12px;
 }
 
 .site-title {
-  font-size: 1.3rem;         /* 일반 텍스트 대비 */
-  font-weight: 800;        /* 강한 볼드 */
-  color: #ffffff;          /* 흰색 텍스트 */
-  letter-spacing: 0.02em;  /* 글자 간격 약간 띄움 */
-  margin-left: 12px; /* 로고와 제목 사이 간격 */
-  white-space: nowrap;     /* 줄바꿈 방지 */
+  font-size: 1.3rem; font-weight: 800; color: #111;
+  letter-spacing: 0.02em; margin-left: 12px; white-space: nowrap;
 }
 
-.nav-links a{
-  color:#cbd5e1; margin-left:1rem; font-size:.95rem; text-decoration:none; transition: color .2s ease;
-}
-.nav-links a:hover{ color:#fff; }
+.nav-links a{ color: #334155 !important; }
+.nav-links a:hover{ color: #000 !important; }
 
 /* ========================================================================== */
-/* 3) 앱 레이아웃: 좌(지도) / 우(폼)                                           */
+/* 3) 앱 레이아웃: 좌(지도) / 우(폼)                                             */
+/*    - .app-shell/.app-main 중복 선언 통합                                     */
+/*    - 높이/폭/간격 속성 일원화                                                */
 /* ========================================================================== */
 .app-shell{
-  background: 
-    linear-gradient(rgba(9, 33, 42, 0.8), rgba(9, 33, 42, 0.8)), /* 80% 투명 오버레이 */
-    url('https://arrrbang.github.io/pumex/image/costbackground.jpg') center/cover no-repeat; /* 배경 이미지 */
+  background: transparent !important;   /* 중앙 컨테이너 배경 제거 */
   box-shadow: none !important;
-  border: 1px solid rgba(0, 0, 0, 0.12); /*테두리 색 높을 수록 진한 색*/
-  backdrop-filter: blur(4px); /*테두리 블러효과*/
+  border: none !important;
+  backdrop-filter: none !important;
   border-radius: 1rem;
-  padding: 1rem;                    /* 테두리 안쪽 여백 */
-  max-width: var(--shell-max); /* 기존 컨테이너 폭 */
-  width: 100%;      /* 필요 시 */
-  margin: 1.5rem auto 0; /* 상(1.5rem) 좌우(auto) 하(0)로 명시 */
-  padding-right: var(--gutter);
   padding-top: var(--gutter);
+  padding-right: var(--gutter);
   padding-bottom: var(--gutter);
-  box-sizing: border-box; 
-  overflow: hidden;  
+  max-width: none !important;
+  width: 90vw !important;               /* 전체폭의 90% */
+  margin: 3rem auto 2rem auto !important;
+  box-sizing: border-box;
+  overflow: visible !important;
   transition: max-height .36s ease, opacity .24s ease;
   will-change: max-height, opacity;
+  height: 35rem !important;            /* 고정 높이(내부 컨텐츠 기준) */
 }
-.app-shell.is-collapsing{
-  opacity: 0;
-  /* max-height는 JS에서 0px로 설정 */
-}
+.app-shell.is-collapsing{ opacity: 0; } /* max-height는 JS 제어 */
+.app-shell.is-collapsed{ display: none; }
+.app-shell.is-expanding{ display: block; opacity: 1; }
 
-/* 접힌 상태(완전히 숨김 처리) */
-.app-shell.is-collapsed{
-  display: none;
-}
-.app-shell.is-expanding{
-  display: block;
-  opacity: 1;
-  /* max-height는 JS에서 내용 높이(px)로 설정 */
-}
+/* 앱 메인 그리드 */
 .app-main{
-  display:grid;
-  grid-template-columns: 1.857fr 1fr; /* 약 65% / 35% 비율 */
-  gap: var(--gutter);                  /* ✅ app-shell 패딩과 동일 간격 */
-  align-items: start;
-  width: 100%;
+  display: grid !important;
+  grid-template-columns: 7fr 3fr !important; /* left-pane과 right-pane의 비율 70% : 30% */
+  gap: 3rem !important;                      /* left-pane과 right-pane사이의 간격 */
+  align-items: stretch;
+  width: 100% !important;
 }
 
-/* 메인 컨테이너에 유리 패널 톤 (오른쪽 패널은 투명) */
-.app-main.container{
-  background: transparent !important;
-  border-radius: 1rem;
-  box-shadow: none !important;
-  border: none !important;
-  padding: 0 !important;
+/* app-shell 내부 .container는 좌우 패딩 제거 */
+.app-shell .container,
+.app-shell .app-main.container{
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0;
+  padding-right: 0;
 }
 
-/* === 접기/펼치기 상태 === */
-.app-shell.collapsed{
-  display: none; /* 간단/명확: 접힘 상태는 숨김 */
+/* 좌측/우측 패널 */
+.pane-title {
+  text-align: left;                /* 좌측 정렬 */
+  margin-left: 0rem;               /* 왼쪽 여백 */
+  font-size: 1.3rem;               /* 폰트 크기 */
+  font-weight: 700;                /* Semi-bold */
+  color: rgb(10, 10, 10);       /* 글자 색상 */
+  margin-bottom: 1rem;             /* 글씨 하단 마진  */
 }
-
-/* 왼쪽 지도 카드(톤 유지), 오른쪽 패널은 투명 처리 */
 .left-pane{
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: none !important; /* ✅ 그림자 제거 */
   overflow: hidden;
-  margin: 0;
 }
 .right-pane{
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 14px 0;
-  margin: 0;
+  align-self: center !important;      /* 우측 패널 수직 정렬 */
+}
+
+.left-pane,
+.right-pane {
+  background: #ffffff;                    ㅊ    /* 배경 흰색 */
+  border: 1px solid var(--control-border);     /* 테두리 색상 및 두께 */
+  border-radius: 0.8rem;                      /* 모서리 굴곡 */
+  padding: 1.1rem 1.5rem 1.5rem;              /* 상 좌우 하 패딩 */
+  box-shadow: none;       ㄴ                    /* 그림자 제거 */
+  height: auto;                               /* 높이 */
+  box-sizing: border-box;                     /* 패딩 포함 계산 */
+  display: flex;
+  flex-direction: column;
 }
 
 /* 지도 캔버스 */
 .map-canvas{ 
-  position:relative; 
-  height:640px; 
-  width: 100%;
+  position: relative; 
+  width: 100% !important;
+  height: clamp(360px, 60vh, 640px); /* 필요 시 높이 반응형 */
+  display: block;
   background:#0f1720; 
+  border-radius: 0.3rem;              /* ✅ 모서리 굴곡 추가 */
+  overflow: hidden;                   /* ✅ 둥근 모서리 바깥이 잘리도록 */
 }
 .map-placeholder{
-  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  position:absolute; inset:0; 
+  display:flex; align-items:center; justify-content:center;
   color:#94a3b8; font-weight:600; letter-spacing:.02em;
-  border:2px dashed rgba(148,163,184,.25); margin:12px; border-radius:12px;
+  border:2px dashed rgba(148,163,184,.25); margin:12px; border-radius:0.5rem;
 }
 
+#mpkMap .leaflet-tile-pane{
+  filter:
+    invert(1)
+    hue-rotate(185deg)
+    saturate(1.2)     /* ✅ 1.35 → 1.2 (채도 살짝 낮춤) */
+    brightness(1.60)  /* ✅ 0.92 → 1.05 (전체 밝기 조금 상승) */
+    contrast(1.08);
+  transform: translateZ(0); /* 크롬 렌더링 보정 */
+}
+#mpkMap::after{
+  content:"";
+  position:absolute; inset:0;
+  pointer-events:none;
+  background:#d4dff3;     /* 군청색 */
+  mix-blend-mode:multiply; /* 어두운 영역(바다) 강화 */
+  opacity:.55;             /* 진하기 조절 (0.4~0.7 사이 조정) */
+}
+
+/* 대륙 톤 띄우기: 하늘색 오버레이를 screen으로 */
+#mpkMap::before{
+  content:"";
+  position:absolute; inset:0;
+  pointer-events:none;
+  background:#AEE6FF;      /* 하늘색 */
+  mix-blend-mode:screen;   /* 밝은 영역(대륙) 띄우기 */
+  opacity:.35;             /* 0.15~0.35 사이로 취향 조정 */
+}
+
+/* 접기/펼치기 애니메이션(선택) */
+.app-shell.collapsing{ animation: shell-slide-up .28s ease forwards; }
+.app-shell.expanding{  animation: shell-slide-down .32s ease forwards; }
+
 /* ========================================================================== */
-/* 4) 드롭다운/콤보 (ORI 스타일 유지 + placeholder 톤 통일)                    */
+/* 4) 드롭다운/콤보 (ORI 스타일 유지 + placeholder 톤 통일)                      */
 /* ========================================================================== */
 .selection-summary{
   text-align:center; font-weight:700; color:#000; font-size:1.2rem;
   margin:.25rem 0 .75rem; opacity:.95;
 }
-.dropdown-container{ display:flex; flex-direction:column; gap:12px; }
+
+/* 콤보/드롭다운 레이아웃 */
+.dropdown-container{ 
+  display:flex; flex-direction:column; gap:0.5rem; 
+  margin-bottom: 1.5rem !important;
+}
 .combo-line{ width:100%; }
 
+/* 드롭다운 카드(유리패널 톤) */
 .dropdown{
   display:flex; flex-direction:column; gap:1rem; width:100%;
   background: rgba(255,255,255,0.82);
-  border-radius: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  border-radius: 0.5rem; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   backdrop-filter: blur(8px);
 }
 .dropdown-inner{ padding: 1rem 1.2rem; }
+
+/* 라벨(가독성 색상 보정 + 누락된 세미콜론 보완) */
 .dropdown-label{
-  display:block; 
-  text-align:left; 
-  margin: 1.75rem 0 4px;
-  font-weight:600; 
-  color:#ffffff; 
-  font-size:1.3rem;
+  display:block; text-align:left;
+  margin: 0 0 0;
+  font-weight:600;
+  color: rgba(50,50,50,0.75); 
+  font-size:1.15rem;
   letter-spacing: 0.02em;
 }
 
+/* 네이티브 셀렉트/인풋 공통 */
 .dropdown-select,
 input[type="text"],
 input[type="number"]{
   width:100%; padding:.6rem 1rem; font-size:1rem;
-  border:2px solid var(--control-border); border-radius: var(--control-radius);
+  border:1.5px solid var(--control-border); 
+  border-radius: var(--control-radius);
   background: var(--control-bg); color: var(--control-fg);
 }
 
-/* placeholder 색 통일(연회색) */
+/* placeholder/invalid 상태 통일 */
 .combo input::placeholder,
 .dropdown-select option[disabled][selected][hidden]{ color:#94a3b8 !important; }
 .dropdown-select:invalid{ color:#94a3b8; }
@@ -254,7 +281,7 @@ input[type="number"]{
 .combo{ position:relative; width:100%; }
 .combo input{
   width:100%; padding:.6rem 1rem; font-size:1rem;
-  border:2px solid var(--control-border); border-radius: var(--control-radius);
+  border:1.5px solid var(--control-border); border-radius: var(--control-radius);
   background: var(--control-bg); color: var(--control-fg);
 }
 .combo .list{
@@ -262,13 +289,13 @@ input[type="number"]{
   max-height:240px; overflow:auto; background:#fff;
   border:2px solid var(--control-border); border-radius: var(--control-radius);
   box-shadow: 0 4px 12px rgba(0,0,0,.2);
-  z-index:1000; display:none;                 /* JS가 focus/input 시 block 처리 */
+  z-index:1000; display:none;                 /* focus/input 시 block */
 }
 .combo .list .item{ padding:.55rem .8rem; cursor:pointer; }
 .combo .list .item:hover{ background: rgba(31,148,97,.08); }
 .combo .list .item.is-selected{ background: var(--table-header); color: var(--table-text); }
 
-/* 지도 액션 버튼(작게) */
+/* 지도 액션 버튼(소형) */
 .map-button-inline{
   background: var(--primary); color:#fff; font-weight:600; font-size:.9rem;
   padding:.2rem .6rem; border:none; border-radius:.4rem; cursor:pointer;
@@ -276,74 +303,61 @@ input[type="number"]{
 .map-button-inline:hover{ background:#16724a; }
 
 /* ========================================================================== */
-/* 5) 조회 버튼 & 결과 섹션                                                     */
+/* 5) 조회 버튼 & 결과 섹션                                                       */
 /* ========================================================================== */
-.action-row{ display:flex; justify-content:flex-end; margin:12px 0 8px; }
-.action-row.center{ display:flex; justify-content:center; align-items:center; margin:2rem auto 1.5rem; }
-.primary-btn{
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius:2rem;
-  padding:.5rem 1.25rem;
-  min-width:10rem;
-  border:2px solid var(--primary);
-  background:var(--primary);
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
-  transition: background .2s ease, transform .08s ease;
-  text-align: center;
+.action-row{                             /* 우측 정렬 액션 영역 */
+  display:flex; justify-content:flex-end; margin:12px 0 0; /* 하단 0 */
 }
-/* ✅ 글씨가 항상 수평 완전 중앙에 오도록 보정 */
+.action-row.center{                      /* 중앙 정렬 액션 영역 */
+  display:flex; justify-content:center; align-items:center; margin:2rem auto 0;
+}
+
+/* 기본 조회 버튼 */
 .primary-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  position: relative;
-}
-
-.primary-btn span.label {
-  display: inline-block;
-  transform: translateX(-4px); /* 시각적 중심 보정값 */
-}
-
-.primary-btn.is-loading span.label {
-  transform: translateX(4px); /* 스피너가 생길 때 오른쪽 여백 균형 */
+  position: relative;                  /* 내부 아이콘(로딩 스피너 등) 위치 기준 */
+  display: inline-flex;                /* 인라인 수준의 flex 컨테이너 */
+  align-items: center;                 /* 세로 가운데 정렬 */
+  justify-content: center;             /* 가로 가운데 정렬 */
+  border-radius: 2rem;                 /* 모서리 둥글게 */
+  padding: .2rem 1.25rem;              /* 상하 0.5rem, 좌우 1.25rem 여백 */
+  min-width: 17rem;                    /* 최소 버튼 폭 */
+  border: 2px solid var(--primary);    /* 버튼 테두리 색상 (메인 포인트 컬러) */
+  background: var(--primary);          /* 배경색 (메인 포인트 컬러) */
+  color: #fff;                         /* 글자색 흰색 */
+  font-weight: 600;                    /* 폰트 두께: Bold */
+  font-size: 1rem;                   /* ✅ 버튼 폰트 크기 */
+  cursor: pointer;                     /* 클릭 가능한 커서 표시 */
+  transition: background .2s ease, 
+              transform .08s ease;     /* 배경색, 눌림 애니메이션 */
+  text-align: center;                  /* 텍스트 가운데 정렬 */
 }
 .primary-btn:hover{ background:#16724a; }
 .primary-btn:active{ transform: translateY(1px); }
 
-/* ✅ 조회 버튼 로딩 스피너 (왼쪽에 표시, 버튼 크기 불변) */
+/* 글자 시각적 중심 보정 */
+.primary-btn span.label{ display:inline-block; transform: translateX(-4px); }
+.primary-btn.is-loading span.label{ transform: translateX(4px); }
+
+/* 로딩 스피너(왼쪽 아이콘 자리, 버튼 크기 불변) */
 .primary-btn.is-loading{ cursor: progress; opacity: .96; }
 .primary-btn.is-loading::before{
-  content:"";
-  position:absolute;
-  left: 10px;
-  top: 50%;
-  width: 16px;
-  height:16px;
-  margin-top:-8px;
-  border: 2px solid rgba(255,255,255,.95);
-  border-top-color: transparent;       /* 회전 공백 부분 */
-  border-radius: 50%;
-  animation: spin .8s linear infinite;
-  pointer-events: none;
+  content:""; position:absolute; left:10px; top:50%;
+  width:16px; height:16px; margin-top:-8px;
+  border: 2px solid rgba(255,255,255,.95); border-top-color: transparent;
+  border-radius: 50%; animation: spin .8s linear infinite; pointer-events:none;
 }
 
-/* 결과 섹션 (표) */
-.result-section{ display:none; padding:0 1rem 2rem; }
+/* 결과 섹션 */
+.result-section{ display:none; padding:.5rem 0 2rem; }
 .result-section.show{ display:block; }
-.result-container{
-  background: transparent !important;
-  backdrop-filter: none !important;
-}
+.result-container{ background: transparent !important; backdrop-filter: none !important; }
 .table-wrap{ width:100%; overflow:auto; border-radius:inherit; }
+
+/* 결과 표 */
 .result-table{
   width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed;
-  background:#fff; color:#111; border:none; border-radius: var(--control-radius); overflow:hidden; margin-top:8px;
+  background:#fff; color:#111; border:none; border-radius: var(--control-radius);
+  overflow:hidden; margin-top:8px;
 }
 .result-table th, .result-table td{
   border:1px solid #F5F5F5; padding:.6rem .75rem; text-align:left; vertical-align:top;
@@ -359,165 +373,80 @@ input[type="number"]{
 .result-table tbody td:nth-child(2){ width:10%; }
 .result-table thead th:nth-child(3),
 .result-table tbody td:nth-child(3){ width:auto; }
-
-/* 2열 헤더(지역 또는 타입)도 가운데 정렬 */
-.result-table thead th:nth-child(2){ text-align: center; }
-
-/* 타입 헤더(th)는 class="type-col"로 들어오므로 확실히 가운데 */
-.result-table thead th.type-col{ text-align: center; }
+/* 2열 헤더/타입 헤더 가운데 정렬 */
+.result-table thead th:nth-child(2),
+.result-table thead th.type-col{ text-align:center; }
 
 /* ========================================================================== */
-/* 5-1) 요약 바 부분                                                           */
+/* 5-1) 요약 바 (접힌 상태 표시)                                                  */
 /* ========================================================================== */
 .collapsed-summary{
-  position: sticky; 
-  top: var(--header-h);
-  z-index: 10;
-  display: flex;              /* 중앙 배치 */
-  justify-content: center;    /* 가로 중앙 */
-  background: transparent;
-  border-bottom: 1px solid rgba(255,255,255,0.12);
-  padding: .75rem 0 .5rem;
-  border: 0;
+  position: sticky; top: var(--header-h); z-index: 10;
+  display: flex; justify-content: center;
+  background: transparent; border: 0; padding: .75rem 0 .5rem;
 }
 .collapsed-summary .container{
-  display: flex;
-  flex-direction: column;
-  align-items: center;        /* 세로축도 중앙 */
-  gap: .35rem;
-  padding: .5rem .75rem;
-  background: #0e1a2b;        /* 기존 톤 유지(원하면 조정) */
+  display:flex; flex-direction:column; align-items:center; gap:.35rem;
+  padding:.5rem .75rem; background:#0e1a2b;
   border: 1px solid rgba(255,255,255,.14);
   border-radius: var(--btn-radius);
-  /* 내용 크기 기준(너무 길어지는 걸 막고 싶으면 max-width만 지정) */
-  width: max-content;
-  max-width: min(92vw, 75rem);
+  width: max-content; max-width: min(92vw, 75rem);
 }
-
-.collapsed-summary .chips{ 
-  display:flex; 
-  flex-wrap:wrap; 
-  gap:.5rem; 
-  align-items:center; 
-  justify-content:center;
-}
-
+.collapsed-summary .chips{ display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; justify-content:center; }
 .collapsed-summary .chip{
-  display:inline-flex; align-items:center; gap:.4rem;
-  padding:.35rem .6rem; border-radius:.75rem; cursor:pointer;
-  background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.14);
-  color:#e6edf5; font-weight:700; font-size:.95rem;
+  display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .6rem;
+  border-radius:.75rem; cursor:pointer; background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.14); color:#e6edf5; font-weight:700; font-size:.95rem;
 }
 .collapsed-summary .chip .k{ opacity:.75; font-weight:600; }
 .collapsed-summary .chip .v{ opacity:1; }
 .collapsed-summary .chip:hover{ background: rgba(255,255,255,.12); }
-.collapsed-summary .hint{
-  color:#a0b3ca; font-size:.85rem; opacity:.9;
-}
+.collapsed-summary .hint{ color:#a0b3ca; font-size:.85rem; opacity:.9; }
 
-.app-shell.collapsing{
-  animation: shell-slide-up .28s ease forwards;
+/* summary 표시/숨김 보정 */
+#collapsedSummary[hidden]{ 
+  display:none !important; visibility:hidden !important; height:0 !important;
+  padding:0 !important; margin:0 !important; border:0 !important;
 }
-.app-shell.expanding{
-  animation: shell-slide-down .32s ease forwards;
-}
-/* 결과 섹션이 app-shell 바깥이므로 상단/하단 여백 보정 */
-.result-section{ padding: .5rem 0 2rem; }
-
-/* hidden 속성이 붙어 있을 땐 어떤 규칙보다 우선해서 완전히 숨김 */
-#collapsedSummary[hidden]{
-  display: none !important;
-  visibility: hidden !important;
-  height: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: 0 !important;
-}
-.collapsed-summary.reveal{
-  animation: sum-slide-down .28s ease both;
-}
-
-#collapsedPanel { display:block; }
-
-/* 혹시 .collapsed-summary .container 가 flex-row 라면 세로로 강제 */
-#collapsedPanel .collapsed-summary .container{
-  display:flex;
-  flex-direction:column;
-  gap:12px;  /* 요약 아래 여백 */
-}
-
-/* 결과 섹션은 전체 너비로 줄세우기 */
-#collapsedPanel .result-section{ 
-  display:block; 
-  width:100%; 
-  margin-top:12px; 
-}
+.collapsed-summary.reveal{ animation: sum-slide-down .28s ease both; }
+#collapsedPanel{ display:block; }
+#collapsedPanel .collapsed-summary .container{ display:flex; flex-direction:column; gap:12px; }
+#collapsedPanel .result-section{ display:block; width:100%; margin-top:12px; }
 
 /* ========================================================================== */
-/* 6) 노션 로드중 표시                                                          */
-/* 🔄 콤보 로딩 상태 표시                                                       */
-/* 🔄 공통: 콤보 로딩 상태 표시 (왼쪽)                                            */                                         
+/* 6) 로딩 표시 (콤보/셀렉트)                                                     */
 /* ========================================================================== */
-
-.combo {
-  position: relative;
-}
-.combo.is-loading input {
-  padding-left: 36px; /* ← 왼쪽에 스피너 자리 확보 */
-}
-.combo.is-loading::after {
-  content: "";
-  position: absolute;
-  left: 10px;            /* ← 왼쪽 배치 */
-  top: 50%;
-  width: 16px;
-  height: 16px;
-  margin-top: -8px;
-  border: 2px solid currentColor;
-  border-top-color: transparent;
-  border-radius: 50%;
-  opacity: .85;
-  animation: spin 0.8s linear infinite;
-  pointer-events: none;
+.combo{ position: relative; }
+.combo.is-loading input{ padding-left: 36px; } /* 왼쪽 스피너 여백 */
+.combo.is-loading::after{
+  content:""; position:absolute; left:10px; top:50%;
+  width:16px; height:16px; margin-top:-8px;
+  border: 2px solid currentColor; border-top-color: transparent;
+  border-radius: 50%; opacity:.85; animation: spin .8s linear infinite; pointer-events:none;
 }
 
-/* 🔽 기본 <select>에 로딩 표시(선택 사항)
-   setSelectLoading('cbmSelect', true/false) 로 토글
-*/
-.dropdown-select.is-loading {
-  position: relative;    /* 자체 기준점 */
-  background-image: none !important;
-  padding-left: 36px;    /* ← 왼쪽에 스피너 자리 확보 */
+/* 네이티브 <select> 로딩(선택사항): setSelectLoading(id, bool)로 토글 */
+.dropdown-select.is-loading{
+  position: relative; background-image: none !important; padding-left: 36px;
 }
-.dropdown-select.is-loading + .select-spinner {
-  position: absolute;
-  left: 10px;            /* ← 왼쪽 배치 */
-  top: 50%;
-  width: 16px;
-  height: 16px;
-  margin-top: -8px;
-  border: 2px solid currentColor;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  pointer-events: none;
+.dropdown-select.is-loading + .select-spinner{
+  position: absolute; left:10px; top:50%; width:16px; height:16px; margin-top:-8px;
+  border: 1.5px solid currentColor; border-top-color: transparent; border-radius: 50%;
+  animation: spin 0.8s linear infinite; pointer-events: none;
 }
 
 /* 회전 애니메이션 */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-
+@keyframes spin { to { transform: rotate(360deg); } }
+/* (선택) app-shell 전환 애니메이션 키프레임 - JS에 맞춰 사용하세요
+@keyframes shell-slide-up{ to{ opacity:0; transform: translateY(-8px);} }
+@keyframes shell-slide-down{ from{ opacity:0; transform: translateY(-8px);} to{ opacity:1; transform: translateY(0);} }
+@keyframes sum-slide-down{ from{ opacity:0; transform: translateY(-6px);} to{ opacity:1; transform: translateY(0);} }
+*/
 
 /* ========================================================================== */
-/* 반응형                                                                   */
+/* 7) 반응형                                                                     */
 /* ========================================================================== */
 @media (max-width: 1024px){
-  .app-main{ grid-template-columns: 1fr; }
-  .map-canvas{ height:360px; }
+  .app-main{ grid-template-columns: 1fr !important; } /* 세로 스택 */
+  .map-canvas{ height:360px; }                        /* 모바일 지도 높이 축소 */
 }
-
-
-
