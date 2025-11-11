@@ -60,57 +60,62 @@
             </div>
           </div>
         </div>
+        <div class="combo-line">
+          <div class="cost button container" id=cost-button-container aria-label="비용 관련 동작 버튼">
+            <button id="costCheck" class="cost check cost-btn" type="button">비용 조회</button>
+            <button id="costPomparison" class="cost pomparison cost-btn" type="button">비용 비교</button>
+          </div>
+        </div>
 
-      <div class="one partner">
-        <!-- 2차 선택: 업체/POE -->
-        <div class="dropdown-container">
-          <label class="dropdown-label" for="companyCombo">파트너/POE/화물타입 선택</label>
-        
-          <div class="combo-line">
-            <div class="combo" id="companyCombo">
-              <input type="text" placeholder="파트너 선택" autocomplete="off" disabled>
-              <div class="list"></div>
-            </div>
-          </div>
-        
-          <div class="combo-line">
-            <div class="combo" id="poeCombo">
-              <input type="text" placeholder="POE 선택" autocomplete="off" disabled>
-              <div class="list"></div>
-            </div>
-          </div>
+        <div class="one partner" id="one-partner" hidden>
+          <!-- 2차 선택: 업체/POE -->
+          <div class="dropdown-container">
+            <label class="dropdown-label" for="companyCombo">파트너/POE/화물타입 선택</label>
           
-          <div class="combo-line">
-            <div class="combo" id="cargoTypeCombo">
-              <input type="text" placeholder="화물 타입 선택" autocomplete="off" disabled />
-              <div class="list"></div>
+            <div class="combo-line">
+              <div class="combo" id="companyCombo">
+                <input type="text" placeholder="파트너 선택" autocomplete="off" disabled>
+                <div class="list"></div>
+              </div>
+            </div>
+          
+            <div class="combo-line">
+              <div class="combo" id="poeCombo">
+                <input type="text" placeholder="POE 선택" autocomplete="off" disabled>
+                <div class="list"></div>
+              </div>
+            </div>
+            
+            <div class="combo-line">
+              <div class="combo" id="cargoTypeCombo">
+                <input type="text" placeholder="화물 타입 선택" autocomplete="off" disabled />
+                <div class="list"></div>
+              </div>
             </div>
           </div>
-        </div>
-        <!-- 3차 선택 -->
-        <div class="dropdown-container">
-          <label class="dropdown-label" for="cargoTypeSelect">컨테이너 타입/CBM 선택</label>
-        
-          <div class="combo-line">
-            <div class="combo" id="typeCombo">
-              <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" disabled>
-              <div class="list"></div>
+          <!-- 3차 선택 -->
+          <div class="dropdown-container">
+            <label class="dropdown-label" for="cargoTypeSelect">컨테이너 타입/CBM 선택</label>
+          
+            <div class="combo-line">
+              <div class="combo" id="typeCombo">
+                <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" disabled>
+                <div class="list"></div>
+              </div>
+            </div>
+          
+            <div class="combo-line">
+              <select id="cbmSelect" class="dropdown-select" required>
+                <option value="" disabled selected hidden>CBM 선택</option>
+              </select>
             </div>
           </div>
-        
-          <div class="combo-line">
-            <select id="cbmSelect" class="dropdown-select" required>
-              <option value="" disabled selected hidden>CBM 선택</option>
-            </select>
+
+          <!-- 조회 버튼 -->
+          <div class="action-row center show revealed">
+            <button id="btnFetch" class="primary-btn"><span class="label">조회</span></button>
           </div>
         </div>
-      </div>
-
-
-        <!-- 조회 버튼 -->
-      <div class="action-row center show revealed">
-        <button id="btnFetch" class="primary-btn"><span class="label">조회</span></button>
-      </div>
       </section>
     </div>
   </main>
@@ -276,7 +281,24 @@ function findNearest(lat,lng,pts){
   return {point:best,distanceKm:bd};
 }
 
-  
+
+/* ============================================================================
+  비용 조회 버튼 관련 로직
+   ========================================================================== */
+  function showPartnerContainer(){
+  const btnContainer = document.getElementById('cost-button-container');
+  const partnerContainer = document.getElementById('one-partner');
+
+  if (btnContainer) btnContainer.hidden = true;       // 버튼 컨테이너 숨김
+  if (partnerContainer){
+    partnerContainer.hidden = false;                  // 파트너 컨테이너 표시
+    partnerContainer.style.display = 'block';
+    partnerContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+// 두 버튼 모두 같은 동작
+document.getElementById('costCheck')?.addEventListener('click', showPartnerContainer);
 /* ============================================================================
    1) 커스텀 콤보/셀렉트 접근자
    - getComboAPI: 페이지에 이미 커스텀 콤보가 있으면 우선 사용
