@@ -124,7 +124,8 @@ body::after{
   overflow: visible !important;
   transition: max-height .36s ease, opacity .24s ease;
   will-change: max-height, opacity;
-  height: 35rem !important;            /* 고정 높이(내부 컨텐츠 기준) */
+  min-height: 43rem !important;            /* 고정 높이(내부 컨텐츠 기준) */
+  height: auto !important
 }
 .app-shell.is-collapsing{ opacity: 0; } /* max-height는 JS 제어 */
 .app-shell.is-collapsed{ display: none; }
@@ -137,6 +138,8 @@ body::after{
   gap: 3rem !important;                      /* left-pane과 right-pane사이의 간격 */
   align-items: stretch;
   width: 100% !important;
+  height: 100% !important;           /* 자식 그리드가 셸 높이 채움 */
+  min-height: inherit;
 }
 
 /* app-shell 내부 .container는 좌우 패딩 제거 */
@@ -159,33 +162,115 @@ body::after{
 }
 .left-pane{
   overflow: hidden;
+  height: 100% !important; 
 }
 .right-pane{
-  align-self: center !important;      /* 우측 패널 수직 정렬 */
+  justify-content: flex-start;
+  align-items: stretch;
+  min-height: 43rem !important;   /* 항상 최소 높이 확보 */
 }
 
 .left-pane,
 .right-pane {
-  background: #ffffff;                    ㅊ    /* 배경 흰색 */
+  background: #ffffff;                       /* 배경 흰색 */
   border: 1px solid var(--control-border);     /* 테두리 색상 및 두께 */
   border-radius: 0.8rem;                      /* 모서리 굴곡 */
   padding: 1.1rem 1.5rem 1.5rem;              /* 상 좌우 하 패딩 */
-  box-shadow: none;       ㄴ                    /* 그림자 제거 */
-  height: auto;                               /* 높이 */
+  box-shadow: none;                           /* 그림자 제거 */
+  height: 100% !important;                            /* 높이 */
   box-sizing: border-box;                     /* 패딩 포함 계산 */
   display: flex;
   flex-direction: column;
 }
 
+/* ========================================================================== */
+/* right pane 내부 버튼 (가격 조회, 가격 비교)                                    */
+/* ========================================================================== */
+.cost.button.container{
+  width: 100%;                 /* combo-line과 동일 폭 */
+  display: flex;               /* 한 줄에 두 버튼 */
+  align-items: center;
+  justify-content: center;     /* 가운데 정렬 (두 버튼이 중앙에 오도록) */
+  gap: 2rem;                   /* 버튼 사이 간격 */
+  padding-inline: 1rem;        /* 좌우 패딩 1rem */
+  box-sizing: border-box;
+  /* 필요 시 줄바꿈 방지 */
+  flex-wrap: nowrap;
+}
+
+/* 공통 버튼 룩앤필 */
+.cost-btn{
+  flex: 1 1 0;
+  background: var(--primary, #1F9461);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  border: 2px solid var(--primary, #1F9461);
+  border-radius: 1rem;              /* 모서리 곡률 1rem */
+  padding: .3rem 1rem;
+  min-width: 9.5rem;                /* 텍스트 길이 균형용 */
+  text-align: center;
+  cursor: pointer;
+  transition: background .18s ease, transform .06s ease, box-shadow .18s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;              /* 반드시 한 줄 유지 */
+  margin-bottom : 1.5rem ;
+}
+
+/* 인터랙션 */
+.cost-btn:hover{
+  background: #16724a;              /* 살짝 진한 호버 */
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+.cost-btn:active{
+  transform: translateY(1px);
+}
+
+/* 접근성: 키보드 포커스 */
+.cost-btn:focus-visible{
+  outline: 3px solid rgba(31,148,97,.35);
+  outline-offset: 2px;
+}
+/* ============================================================================
+  비용 조회 버튼 관련 로직
+   ========================================================================== */
+#one-partner[hidden]{
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+#cost-button-container[hidden]{
+  display: none !important;
+}
+#one-partner{
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+#one-partner[hidden]{
+  display: block !important;    /* 자리 유지 (숨김상태에서도 공간 확보) */
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+#one-partner:not([hidden]){
+  visibility: visible;
+  opacity: 1;
+}
 /* 지도 캔버스 */
 .map-canvas{ 
+  flex: 1 1 auto;
   position: relative; 
   width: 100% !important;
-  height: clamp(360px, 60vh, 640px); /* 필요 시 높이 반응형 */
+  height: 100% !important;   /* 기존 clamp 높이 대신 패널 채우기 */
   display: block;
   background:#0f1720; 
   border-radius: 0.3rem;              /* ✅ 모서리 굴곡 추가 */
   overflow: hidden;                   /* ✅ 둥근 모서리 바깥이 잘리도록 */
+  min-height: 24rem;
+  height: clamp(24rem, 60vh, 43rem);
 }
 .map-placeholder{
   position:absolute; inset:0; 
@@ -466,7 +551,12 @@ input[type="number"]{
 /* 7) 반응형                                                                     */
 /* ========================================================================== */
 @media (max-width: 1024px){
-  .app-main{ grid-template-columns: 1fr !important; } /* 세로 스택 */
-  .map-canvas{ height:360px; }                        /* 모바일 지도 높이 축소 */
+  .app-main{
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  .left-pane .map-canvas{
+    min-height: 22rem;
+    height: clamp(22rem, 55vh, 40rem);
+  }
 }
-
