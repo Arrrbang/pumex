@@ -1,3 +1,11 @@
+/* =====================================================================
+   CSS DEDUPE RESULT (latest overrides kept)
+   - 기준: 동일한 선택자 문자열의 최상위 블록은 마지막(아래쪽)만 유지
+   - 유사하지만 다른 선택자는 보존 (id/클래스 불일치 시 유지)
+   - 중복 정리된 선택자 수: 2
+   - 주석과 블록 외 텍스트는 원본 유지
+   ===================================================================== */
+
 /* ========================================================================== */
 /* 0) 토큰 (색/간격/레이어) — styles(22).css 톤 유지 + 변수 중복 정리               */
 /*    - 중복된 --gutter, --header-h, shell 관련 변수 통합                         */
@@ -170,18 +178,7 @@ body::after{
   min-height: 43rem !important;   /* 항상 최소 높이 확보 */
 }
 
-.left-pane,
-.right-pane {
-  background: #ffffff;                       /* 배경 흰색 */
-  border: 1px solid var(--control-border);     /* 테두리 색상 및 두께 */
-  border-radius: 0.8rem;                      /* 모서리 굴곡 */
-  padding: 1.1rem 1.5rem 1.5rem;              /* 상 좌우 하 패딩 */
-  box-shadow: none;                           /* 그림자 제거 */
-  height: 100% !important;                            /* 높이 */
-  box-sizing: border-box;                     /* 패딩 포함 계산 */
-  display: flex;
-  flex-direction: column;
-}
+
 
 /* ========================================================================== */
 /* right pane 내부 버튼 (가격 조회, 가격 비교)                                    */
@@ -220,11 +217,6 @@ body::after{
   margin-bottom : 1.5rem ;
 }
 
-/* 인터랙션 */
-.cost-btn:hover{
-  background: #16724a;              /* 살짝 진한 호버 */
-  box-shadow: 0 4px 12px rgba(0,0,0,.12);
-}
 .cost-btn:active{
   transform: translateY(1px);
 }
@@ -369,13 +361,7 @@ input[type="number"]{
   border:1.5px solid var(--control-border); border-radius: var(--control-radius);
   background: var(--control-bg); color: var(--control-fg);
 }
-.combo .list{
-  position:absolute; top: calc(100% + 6px); left:0; width:100%;
-  max-height:240px; overflow:auto; background:#fff;
-  border:2px solid var(--control-border); border-radius: var(--control-radius);
-  box-shadow: 0 4px 12px rgba(0,0,0,.2);
-  z-index:1000; display:none;                 /* focus/input 시 block */
-}
+
 .combo .list .item{ padding:.55rem .8rem; cursor:pointer; }
 .combo .list .item:hover{ background: rgba(31,148,97,.08); }
 .combo .list .item.is-selected{ background: var(--table-header); color: var(--table-text); }
@@ -547,16 +533,369 @@ input[type="number"]{
 @keyframes sum-slide-down{ from{ opacity:0; transform: translateY(-6px);} to{ opacity:1; transform: translateY(0);} }
 */
 
-/* ========================================================================== */
-/* 7) 반응형                                                                     */
-/* ========================================================================== */
-@media (max-width: 1024px){
-  .app-main{
-    grid-template-columns: 1fr !important;
-    gap: 1.5rem !important;
-  }
-  .left-pane .map-canvas{
-    min-height: 22rem;
-    height: clamp(22rem, 55vh, 40rem);
+
+
+
+/* ==========================================================================
+    ★★★★2025/11/12 패치내역 (1)
+    ========================================================================== */
+
+/* ─────────────────────────────────────────────
+   1) ONE-PARTNER가 자리 차지하지 않도록 (공간 예약 제거)
+   ───────────────────────────────────────────── */
+#one-partner[hidden]{
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+/* (참고) 필요 시 함께 숨김 유지 */
+#cost-button-container[hidden]{ display: none !important; }
+
+/* ─────────────────────────────────────────────
+   2) app-shell/좌우 패널의 '강제 높이' 해제 → 내용 기준 자동 높이
+   ───────────────────────────────────────────── */
+.app-shell{
+  min-height: 0 !important;    /* 기존 43rem 고정 해제 */
+  height: auto !important;      /* 내용 높이만큼 */
+  margin-top: calc(var(--header-h) + 1rem) !important; /* 상단 정렬 느낌 강화 */
+}
+
+.left-pane,
+.right-pane{
+  height: auto !important;      /* 패널 강제 높이 해제 */
+  min-height: 0 !important;
+  background: #ffffff;                       /* 배경 흰색 */
+  border: 1px solid var(--control-border);     /* 테두리 색상 및 두께 */
+  border-radius: 0.8rem;                      /* 모서리 굴곡 */
+  padding: 1.1rem 1.5rem 1.5rem;              /* 상 좌우 하 패딩 */
+  box-shadow: none;                           /* 그림자 제거 */
+  height: 100% !important;                            /* 높이 */
+  box-sizing: border-box;                     /* 패딩 포함 계산 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 그리드 정렬을 상단 기준으로 (양 패널이 서로 높이 강제 맞춤되지 않게) */
+.app-main{
+  align-items: start !important; /* Grid 컨테이너의 세로 정렬을 상단으로 */
+}
+
+/* ─────────────────────────────────────────────
+   3) 지도 영역은 항상 '고정 높이' 유지 (right-pane 변화와 무관)
+   ───────────────────────────────────────────── */
+/* 필요에 따라 값만 조정: 36rem 고정 예시 */
+.map-canvas{
+  height: 36rem !important;     /* 오른쪽 높이에 영향 받지 않음 */
+  min-height: 36rem !important;
+  max-height: 36rem !important;
+}
+
+/* ==========================================================================
+    ★★★★2025/11/12 패치내역 (1) left/right pane 컨테이너 가로폭 고정
+    ========================================================================== */
+    /* 1) 스크롤바 등장해도 vw 변동 없게: 폭은 컨테이너 % 기반으로 */
+html{ scrollbar-gutter: stable both-edges; } /* 레이아웃 흔들림 방지 */
+.app-shell{
+  width: 90% !important;              /* 90vw → 100% */
+  max-width: none !important; /* 1200px 상한 유지 */
+}
+
+/* 2) 내용이 넓어도 트랙이 밖으로 밀리지 않게: minmax(0, fr) */
+.app-main{
+  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr) !important;
+  /* 좁은 화면에서 내용이 트랙 너비를 강제로 키우는 걸 방지 */
+}
+
+/* 3) 우측 내용이 넓어져도 전체를 밀지 않게 */
+.right-pane{ overflow: hidden !important; }   /* 외곽 밀림 방지 */
+.table-wrap{ overflow-x: auto !important; }   /* 표는 내부에서 스크롤 */
+
+/* 4) 로딩 상태 버튼 폭 흔들림 방지 (스피너 자리 항상 확보) */
+.primary-btn{
+  padding-left: calc(1.25rem + 20px) !important; /* 스피너 공간 고정 */
+}
+.primary-btn::before{ left: 10px !important; }   /* 스피너 위치 고정 */
+.primary-btn span.label{ transform: none !important; } /* 좌우 흔들림 제거 */
+
+/* ==========================================================================
+    ★★★★2025/11/12 패치내역 (2) 가격 비교 부분 컨테이너 추가
+    ========================================================================== */
+
+.combo-line-row {
+  display: flex;
+  flex-direction: row;     /* 가로 배치 */
+  align-items: flex-start; /* 위 기준 정렬 */
+  justify-content: space-between;
+  gap: 1rem;               /* 콤보 간 간격 */
+  width: 100%;
+}
+
+/* 두 콤보가 균등하게 폭 나누도록 */
+.combo-line-row .combo-line {
+  flex: 1;
+}
+
+/* ==========================================================================
+    ★★★★2025/11/12 패치내역 (3) 지역 드롭다운 길이 수정
+    ========================================================================== */
+/* 드롭다운 리스트가 컨테이너 밖으로 떠도 보이게 */
+.right-pane,
+.left-pane,
+.app-main,
+.app-shell{
+  overflow: visible !important;
+}
+
+/* 겹침 순서 보장 */
+.app-shell,
+.right-pane,
+.left-pane{
+  position: relative; 
+  z-index: 1;
+}
+
+/* 콤보 리스트가 위로 떠서 잘리지 않게 */
+.combo { position: relative; }
+.combo .list{
+  z-index: 2000;                 /* 주변 요소보다 높게 */
+  max-height: calc(1.8rem * 12 + 1rem); /* ≈ 12개 보이는 높이 */
+  overflow-y: auto;              /* 스크롤 */
+  overscroll-behavior: contain;  /* 페이지 스크롤로 전파 방지 */
+  position:absolute; top: calc(100% + 6px); left:0; width:100%;
+  border:2px solid var(--control-border); border-radius: var(--control-radius);
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  z-index:1000; display:none;  
+  position:absolute; top: calc(100% + 6px); left:0; width:100%;
+  max-height:240px; overflow:auto; background:#fff;
+  border:2px solid var(--control-border); border-radius: var(--control-radius);
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  z-index:1000; display:none;     
+}
+
+/* ==========================================================================
+    ★★★★2025/11/12 패치내역 (4) 비용 조회, 비용 비교 버튼 디자인 변경 
+    ========================================================================== */
+    /* 탭 바 전체 라인 */
+.cost.button.container{
+  position: relative;
+  justify-content: flex-start;     /* 왼쪽 정렬 */
+  gap: 0;                          /* 탭은 붙여서 */
+  padding-inline: 0;
+  margin-bottom: 1rem;
+}
+
+/* 하단 얇은 라인(컨테이너 전체를 가로지르는 선) */
+.cost.button.container::after{
+  content:"";
+  position:absolute; left:0; right:0; bottom:0.25rem;
+  height:1px;
+  background: rgba(0,0,0,.25);
+  z-index: 0;
+}
+
+/* 탭 버튼 공통 룩앤필 */
+.cost-btn{
+  position: relative;
+  z-index: 1;                      /* 하단 라인 위에 오도록 */
+  background: #fff;                /* 탭 면색 */
+  color: #b10e0e;                  /* 예시: 사진처럼 붉은 계열 타이틀 */
+  border: 1px solid rgba(0,0,0,.2);
+  border-bottom: none;             /* 아래는 비워서 라인과 이어지게 */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding: .55rem 1.25rem;
+  min-width: auto;
+  margin: 0 1.25rem 0 0;           /* 탭 사이 간격 */
+  box-shadow: none;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+
+/* 활성 탭 */
+.cost-btn.is-active{
+  color: #b10e0e;
+  border-color: rgba(0,0,0,.35);
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+/* 비활성 탭은 라인과 살짝 띄워 보이도록 */
+.cost-btn:not(.is-active){
+  opacity: .9;
+}
+
+/* ▼ 비용 조회/비교: 컨테이너 아래 직선 + 상단만 라운드 + hover/active 부각 */
+#cost-button-container{
+  position: relative;
+  display: flex;           /* 기존 정렬 유지 */
+  align-items: flex-end;   /* 버튼 하단 기준을 라인에 맞춤 */
+  gap: 2rem;
+  padding: .4rem 1rem 0;   /* 위 살짝 여백, 아래는 라인에 밀착 */
+  background: transparent; /* 기본은 투명 */
+  border-radius: .5rem .5rem 0 0;   /* 위쪽만 0.5rem 곡률 */
+  z-index: 1;              /* 하단 라인 위 */
+  transition: background .18s ease, box-shadow .18s ease;
+}
+
+/* 하단 얇은 직선: '버튼의 가장 아래'에 정확히 맞춤 */
+#cost-button-container::after{
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: rgba(0,0,0,.25);
+  z-index: 0; /* 컨테이너 뒤쪽 */
+}
+
+/* 마우스 오버/포커스/활성(자식 버튼에 .is-active가 있으면) 시 컨테이너 부각 */
+#cost-button-container:hover,
+#cost-button-container:focus-within,
+#cost-button-container:has(.cost-btn.is-active){
+  background: #fff;                     /* 컨테이너를 흰색으로 채움 */
+  box-shadow: 1px -3px 12px rgba(0,0,0,.12); /* x=1, y=-3 오프셋 그림자 */
+}
+
+/* 버튼은 컨테이너 위로 '올라온' 느낌을 주도록 살짝 위계 조정 */
+#cost-button-container .cost-btn{
+  position: relative;
+  z-index: 2;                 /* 컨테이너(배경/그림자)보다 위 */
+  background-clip: padding-box;
+}
+
+/* (선택) 버튼 클릭(활성) 시 컨테이너 효과를 강제 트리거하고 싶다면 */
+#costCheck:active ~ .cost-btn,
+#costPomparison:active ~ .cost-btn{
+  /* no-op: 컨테이너에 위 상태가 이미 적용됨 (:focus-within 으로도 충분) */
+}
+
+/* ─────────────────────────────────────────────
+   0) 컨테이너에 걸린 hover/active 효과 제거(덮어쓰기)
+   ───────────────────────────────────────────── */
+/* 기존에 컨테이너에 적용되던 배경/그림자 효과를 무력화 */
+#cost-button-container:hover,
+#cost-button-container:focus-within,
+#cost-button-container:has(.cost-btn.is-active){
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 하단 얇은 직선은 그대로 유지 (버튼 ‘아래’ 기준선) */
+#cost-button-container{
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 2rem;
+  padding: .4rem 1rem 0;
+  border-radius: .5rem .5rem 0 0;           /* 위쪽만 0.5rem */
+  background: transparent;                  /* 기본 투명 */
+  z-index: 1;
+}
+#cost-button-container::after{
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;             /* 버튼 ‘맨 아래’에 맞춘 선 */
+  height: 1px;
+  background: rgba(0,0,0,.25);
+  z-index: 0;
+}
+
+/* ─────────────────────────────────────────────
+   1) 버튼 기본 상태: 투명(아래 선이 비치도록)
+   ───────────────────────────────────────────── */
+#cost-button-container .cost-btn{
+  position: relative;
+  z-index: 2;                                /* 기준선 위로 */
+  background: transparent;                   /* ★ 기본 투명 */
+  color: rgb(70, 130, 180, 1);
+  border: 1px solid rgba(0,0,0,.2);
+  border-bottom: none;                       /* 아래는 비워서 선과 맞닿는 느낌 */
+  border-top-left-radius: .5rem;
+  border-top-right-radius: .5rem;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding: .55rem 1.25rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  box-shadow: none;
+  transition: background .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+/* ─────────────────────────────────────────────
+   2) 버튼별 hover/active/focus 효과
+      - 버튼을 ‘흰색으로 채우고’
+      - 그림자: x=1, y=-3
+      - 컨테이너가 아닌 ‘각 버튼’에만 적용
+   ───────────────────────────────────────────── */
+#cost-button-container .cost-btn:hover,
+#cost-button-container .cost-btn:focus-visible,
+#cost-button-container .cost-btn.is-active,
+#cost-button-container .cost-btn:active{
+  background: #fff;                          /* ★ 버튼만 흰색으로 채움 */
+  border-color: rgba(0,0,0,.35);
+  box-shadow: 1px -3px 12px rgba(0,0,0,.12); /* ★ x=1, y=-3 */
+}
+
+/* two-partner도 hidden 시 완전히 숨김 */
+#two-partner[hidden]{
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── 비교 결과 레이아웃 ───────────────────────────────────────── */
+.compare-wrap{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.compare-col{
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  min-width: 0;           /* 긴 표 내용 줄바꿈/스크롤 안정화 */
+}
+.compare-head{
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #111;
+  letter-spacing: .01em;
+  padding: .25rem .25rem .25rem 0;
+}
+
+/* 표 감싸는 상자 스크롤 안정화 */
+#tableWrapA, #tableWrapB{
+  width: 100%;
+  overflow: auto;
+  border-radius: var(--control-radius);
+}
+
+/* 좁은 화면에서는 1열 스택 */
+@media (max-width: 900px){
+  .compare-wrap{ grid-template-columns: 1fr; }
+  .compare-col .compare-head::after{
+    content:""; display:block; height:1px; background:rgba(0,0,0,.08);
+    margin:.35rem 0 .1rem;
   }
 }
+
+/* 결과 섹션 토글 공통 (기존 result-section 규칙 유지) */
+#resultSectionCompare[hidden]{ display:none !important; }
+
+/* 버튼 스피너 상태 */
+.primary-btn.is-loading {
+  position: relative;
+  pointer-events: none;
+}
+.primary-btn.is-loading .label { opacity: .85; }
+.primary-btn.is-loading::after{
+  content:"";
+  position:absolute; right:.6rem; top:50%; transform:translateY(-50%);
+  width:1em; height:1em; border:.18em solid rgba(0,0,0,.15); border-top-color: currentColor;
+  border-radius:50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
