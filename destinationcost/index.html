@@ -358,7 +358,71 @@ function findNearest(lat,lng,pts){
   return {point:best,distanceKm:bd};
 }
 
+/* ============================================================================
+  비용 조회/비교 디자인 관련 로직
+   ========================================================================== */
+// 탭 활성화 표시만 토글 (컨테이너/섹션 표시 로직은 기존 유지)
+(function(){
+  const btnCheck = document.getElementById('costCheck');
+  const btnComp  = document.getElementById('costComparison');
 
+  function activate(btn){
+    [btnCheck, btnComp].forEach(b=> b?.classList.remove('is-active'));
+    btn?.classList.add('is-active');
+  }
+
+  btnCheck?.addEventListener('click', ()=> activate(btnCheck));
+  btnComp?.addEventListener('click', ()=> activate(btnComp));
+
+})();
+
+(() => {
+  const btnCheck = document.getElementById('costCheck');        // 비용 조회
+  const btnComp  = document.getElementById('costComparison');    // 비용 비교
+  const one      = document.getElementById('one-partner');       // 단일 조회 섹션
+  const two      = document.getElementById('two-partner');       // 비교 섹션
+
+  // 버튼 활성 표시
+  function setActive(btn){
+    [btnCheck, btnComp].forEach(b => b?.classList.remove('is-active'));
+    btn?.classList.add('is-active');
+  }
+
+  // 공통 토글 함수
+  function showPanel(which){
+    const showOne = (which === 'one');
+
+    if (one) one.hidden = !showOne;
+    if (two) two.hidden = showOne;
+
+    // 접근성 상태 업데이트
+    btnCheck?.setAttribute('aria-expanded', String(showOne));
+    btnComp ?.setAttribute('aria-expanded', String(!showOne));
+
+    // 스크롤 포커스(선택)
+    (showOne ? one : two)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // 이벤트 바인딩
+  btnCheck?.addEventListener('click', () => {
+    setActive(btnCheck);
+    showPanel('one');
+    // 필요 시 one-partner 초기화 로직 호출
+    if (typeof showPartnerContainer === 'function') {
+    try { showPartnerContainer(); } catch {}
+    }
+  });
+
+  btnComp?.addEventListener('click', () => {
+    setActive(btnComp);
+    showPanel('two');
+    // 필요 시 two-partner(A/B) 초기화 로직 호출
+    if (typeof showTwoPartnerContainer === 'function') {
+      try { showTwoPartnerContainer(); } catch {}
+    }
+  });
+})();
+  
 /* ============================================================================
   비용 조회 버튼 관련 로직
    ========================================================================== */
@@ -374,8 +438,9 @@ function findNearest(lat,lng,pts){
   }
 }
 
-// 두 버튼 모두 같은 동작
 document.getElementById('costCheck')?.addEventListener('click', showPartnerContainer);
+
+
 /* ============================================================================
    1) 커스텀 콤보/셀렉트 접근자
    - getComboAPI: 페이지에 이미 커스텀 콤보가 있으면 우선 사용
