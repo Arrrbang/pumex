@@ -2,126 +2,762 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>로그인</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>도착지 비용 계산 (one-partner 분리 버전-수정)</title>
+
+  <!-- 폰트 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- 메인 스타일 -->
+  <link rel="stylesheet" href="./app.css" />
 </head>
 <body>
-  <!-- 전체 배경 -->
-  <div class="page-bg" aria-hidden="true"></div>
 
-  <header class="container site-header" aria-label="헤더">
-    <a class="brand" href="#">PUMEX</a>
-  </header>
+<header class="site-header">
+  <div class="container header-inner">
+    <div class="logo">
+      <img src="https://arrrbang.github.io/pumex/image/pumexlogonew.png" alt="PUMEX Logo">
+    </div>
+    <div class="site-title">도착지 비용 계산</div>
+  </div>
+</header>
 
-  <main class="container section" role="main">
-    <div class="auth">
-      <div class="auth__logo" aria-hidden="true">
-        <div class="auth__logo-inner"></div>
+<main class="app-shell">
+  <div class="app-main container">
+
+    <!-- 왼쪽: 지도 영역 -->
+    <section class="left-pane">
+      <div class="pane-title">지도에서 지역 검색</div>
+      <div id="mpkMap" class="map-canvas" aria-label="지도 영역">
+        <div class="map-placeholder">지도(Leaflet)가 여기에 표시됩니다.</div>
+      </div>
+    </section>
+
+    <!-- 오른쪽: 폼 영역 -->
+    <section class="right-pane">
+      <div class="pane-title">화물 정보 입력</div>
+
+      <!-- 1차: 국가/지역 -->
+      <div class="dropdown-container">
+        <label class="dropdown-label" for="countryCombo">국가/지역 선택</label>
+
+        <div class="combo-line">
+          <div class="combo" id="countryCombo">
+            <input type="text" placeholder="국가 선택" autocomplete="off">
+            <div class="list"></div>
+          </div>
+        </div>
+
+        <div class="combo-line">
+          <div class="combo" id="regionCombo">
+            <input type="text" placeholder="배송 지역 선택" autocomplete="off" disabled>
+            <div class="list"></div>
+          </div>
+        </div>
       </div>
 
-      <h1 class="auth__title">로그인</h1>
+      <div class="combo-line">
+        <div class="cost button container" id="cost-button-container" aria-label="비용 관련 동작 버튼">
+          <button id="costCheck" class="cost check cost-btn" type="button">비용 조회</button>
+          <button id="costComparison" class="cost pomparison cost-btn" type="button">비용 비교</button>
+        </div>
+      </div>
 
-      <form class="auth__form" action="#" method="post" novalidate>
-        <label class="field">
-          <span class="field__label">USER NAME</span>
-          <input class="field__input" type="text" name="username" placeholder="아이디를 입력하세요" autocomplete="username" required>
-        </label>
-        
-        <label class="field password-field">
-          <span class="field__label">PASS WORD</span>
-          <input class="field__input" type="password" name="password" placeholder="비밀번호를 입력하세요" autocomplete="current-password" required>
-          <div id="caps-lock-warning">Caps Lock이 켜져 있습니다.</div>
-        </label>
+      <!-- one-partner -->
+      <div class="one partner" id="one-partner" hidden>
+        <!-- 2차 선택: 업체/POE -->
+        <div class="dropdown-container">
+          <label class="dropdown-label" for="companyCombo">파트너/POE/화물타입 선택</label>
 
-        <label class="toggle">
-          <input class="toggle__input" type="checkbox" name="remember" />
-          <span class="toggle__track" aria-hidden="true">
-            <span class="toggle__thumb"></span>
-          </span>
-          <span class="toggle__text">로그인 정보 저장</span>
-        </label>
+          <div class="combo-line">
+            <div class="combo" id="companyCombo">
+              <input type="text" placeholder="파트너 선택" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
+          </div>
 
-        <button class="btn btn--primary" type="submit">LOG IN</button>
-      </form>
+          <div class="combo-line">
+            <div class="combo" id="poeCombo">
+              <input type="text" placeholder="POE 선택" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
+          </div>
+
+          <div class="combo-line">
+            <div class="combo" id="cargoTypeCombo">
+              <input type="text" placeholder="화물 타입 선택" autocomplete="off" disabled />
+              <div class="list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3차 선택 -->
+        <div class="dropdown-container">
+          <label class="dropdown-label" for="cargoTypeSelect">컨테이너 타입/CBM 선택</label>
+
+          <div class="combo-line">
+            <div class="combo" id="typeCombo">
+              <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
+          </div>
+
+          <div class="combo-line">
+            <select id="cbmSelect" class="dropdown-select" required>
+              <option value="" disabled selected hidden>CBM 선택</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 조회 버튼 -->
+        <div class="action-row center show revealed">
+          <button id="btnFetch" class="primary-btn"><span class="label">조회</span></button>
+        </div>
+      </div>
+
+      <!-- two-partner (원본 유지) -->
+      <div class="two partner" id="two-partner" hidden>
+        <div class="dropdown-container">
+          <label class="dropdown-label" for="companyCombo">파트너/POE/화물타입 선택</label>
+          <div class="combo-line-row">
+            <div class="combo" id="companyComboA">
+              <input type="text" placeholder="파트너 선택" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
+            <div class="combo" id="companyComboB">
+              <input type="text" placeholder="파트너 선택" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
+          </div>
+          <div class="combo-line-row">
+            <div class="combo" id="poeComboA">
+              <input type="text" placeholder="POE 선택" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
+            <div class="combo" id="poeComboB">
+              <input type="text" placeholder="POE 선택" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
+          </div>
+          <div class="combo-line-row">
+            <div class="combo" id="cargoTypeComboA">
+              <input type="text" placeholder="화물 타입 선택" autocomplete="off" disabled />
+              <div class="list"></div>
+            </div>
+            <div class="combo" id="cargoTypeComboB">
+              <input type="text" placeholder="화물 타입 선택" autocomplete="off" disabled />
+              <div class="list"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dropdown-container">
+          <label class="dropdown-label" for="cargoTypeSelect">컨테이너 타입/CBM 선택</label>
+          <div class="combo-line">
+            <div class="combo" id="typeCombo2">
+              <input type="text" placeholder="20FT / 40HC / CONSOLE" autocomplete="off" disabled>
+              <div class="list"></div>
+            </div>
+          </div>
+          <div class="combo-line">
+            <select id="cbmSelect2" class="dropdown-select" required>
+              <option value="" disabled selected hidden>CBM 선택</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="action-row center show revealed">
+          <button id="btnFetchTwo" class="primary-btn"><span class="label">조회</span></button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<section id="collapsedPanel" hidden></section>
+<section id="collapsedSummary" class="collapsed-summary" hidden>
+  <div class="container">
+    <div class="chips">
+      <button class="chip" data-key="country">
+        <span class="k">국가</span><span class="v" id="sumCountry">-</span>
+      </button>
+      <button class="chip" data-key="region">
+        <span class="k">지역</span><span class="v" id="sumRegion">-</span>
+      </button>
+      <button class="chip" data-key="cbm">
+        <span class="k">CBM/컨테이너</span><span class="v" id="sumCbmType">-</span>
+      </button>
+      <button class="chip" data-key="company">
+        <span class="k">파트너</span><span class="v" id="sumCompany">-</span>
+      </button>
     </div>
-  </main>
-  
+  </div>
+</section>
+
+<section id="resultSection" class="result-section" hidden>
+  <section id="currencySection" class="result-currency" hidden>
+    <div class="container currency-bar">
+      <span id="currencyRate" class="currency-rate">-</span>
+
+      <select id="currencySelect" class="dropdown-select currency-select">
+      </select>
+    </div>
+  </section>
+  <div class="result-container container">
+    <div id="tableWrap" class="table-wrap"></div>
+  </div>
+</section>
+
+<section id="resultSectionCompare" class="result-section" hidden>
+  <div class="result-container container compare-wrap">
+
+    <!-- A 컬럼 -->
+    <div class="compare-col">
+      <div class="compare-head">A</div>
+
+      <!-- 🔹 A 전용 환율 + 좁은 드롭다운 -->
+      <div class="currency-bar">
+        <span id="currencyRateA" class="currency-rate">-</span>
+        <select id="currencySelectA" class="dropdown-select currency-select">
+          <!-- currency-converter.js 가 채움 -->
+        </select>
+      </div>
+
+      <div id="tableWrapA" class="table-wrap"></div>
+    </div>
+
+    <!-- B 컬럼 -->
+    <div class="compare-col">
+      <div class="compare-head">B</div>
+
+      <!-- 🔹 B 전용 환율 + 좁은 드롭다운 -->
+      <div class="currency-bar">
+        <span id="currencyRateB" class="currency-rate">-</span>
+        <select id="currencySelectB" class="dropdown-select currency-select">
+          <!-- currency-converter.js 가 채움 -->
+        </select>
+      </div>
+
+      <div id="tableWrapB" class="table-wrap"></div>
+    </div>
+
+  </div>
+</section>
+
+
+
+<!-- =========================== 로그인 스크립트 =========================== -->
+<script src="../common/js/login.js"></script>
+<!-- ====================================================================== -->
+
+<script src="./unified-partners.js"></script>
+<script src="./currency-converter.js"></script>
 <script>
-  const usernameInput = document.querySelector('input[name="username"]');
-  const passwordInput = document.querySelector('input[name="password"]');
-  const rememberToggle = document.querySelector('input[name="remember"]');
-  const loginForm = document.querySelector('.auth__form');
-
-  // 🔹 페이지 로드 시 저장된 정보 불러오기
-  window.addEventListener('DOMContentLoaded', () => {
-    const savedUsername = localStorage.getItem('savedUsername');
-    const savedPassword = localStorage.getItem('savedPassword');
-    const rememberState = localStorage.getItem('rememberState') === 'true';
-
-    if (rememberState && savedUsername && savedPassword) {
-      usernameInput.value = savedUsername;
-      passwordInput.value = savedPassword;
-      rememberToggle.checked = true;
-    }
-  });
-
-  // 🔹 Caps Lock 감지 (기존 코드 유지)
-  const capsLockWarning = document.getElementById('caps-lock-warning');
-  passwordInput.addEventListener('keydown', (event) => {
-    if (event.getModifierState('CapsLock')) {
-      capsLockWarning.style.display = 'block';
-    } else {
-      capsLockWarning.style.display = 'none';
-    }
-  });
-  passwordInput.addEventListener('blur', () => {
-    capsLockWarning.style.display = 'none';
-  });
-
-  // 🔹 로그인 제출 이벤트
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-
-    try {
-      const response = await fetch('https://backend-beta-lemon.vercel.app/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        // ✅ 로그인 유지가 켜져 있을 경우
-        if (rememberToggle.checked) {
-          localStorage.setItem('savedUsername', username);
-          localStorage.setItem('savedPassword', password);
-          localStorage.setItem('rememberState', 'true');
-        } else {
-          // ❌ 체크 안되어 있으면 저장 안 함
-          localStorage.removeItem('savedUsername');
-          localStorage.removeItem('savedPassword');
-          localStorage.setItem('rememberState', 'false');
-        }
-
-        // JWT 토큰 저장 및 이동
-        localStorage.setItem('token', result.token);
-        window.location.href = 'https://arrrbang.github.io/pumex/destinationcost/index.html';
-      } else {
-        alert('아이디 또는 비밀번호가 올바르지 않습니다.');
-      }
-    } catch (error) {
-      alert('서버 오류가 발생했습니다. 다시 시도해주세요.');
-    }
-  });
+  window.CostUI?.one?.init();   // one-partner
+  window.CostUI?.twoA?.init();  // two-partner A
+  window.CostUI?.twoB?.init();  // two-partner B
 </script>
 
+
+<!-- ✅ 나머지 전부(원본에서 one-partner에 포함되지 않은 로직만 유지) -->
+<script>
+/* ============================================================================
+   0) 전역 상태 (one-partner-js와 중복되지 않는 부분)
+   ========================================================================== */
+
+  const BASE = 'https://notion-api-hub.vercel.app';   // ✅ 전역 BASE 선언 (inline 로더들이 사용)
+  /* ============================================================================
+     0) 전역 상태 (one-partner-js와 중복되지 않는 부분)
+     ========================================================================== */
+  const SHELL_STATES = Object.freeze({
+    OPEN: 'OPEN',
+    COLLAPSING: 'COLLAPSING',
+    COLLAPSED: 'COLLAPSED',
+    EXPANDING: 'EXPANDING',
+  });
+let __shellState = SHELL_STATES.OPEN;
+let __summaryClickLocked = false;
+let __justCollapsedAt = 0;
+let __allowExpand = false;
+
+/* 선택 전용 로딩 스피너(used elsewhere) */
+function setSelectLoading(selectId, on){
+  const sel = document.getElementById(selectId);
+  if (!sel) return;
+  sel.classList.toggle('is-loading', !!on);
+  const next = sel.nextElementSibling;
+  if (next && next.classList.contains('select-spinner')) next.remove();
+  if (on){
+    const sp = document.createElement('span');
+    sp.className = 'select-spinner';
+    sel.insertAdjacentElement('afterend', sp);
+  }
+}
+// ✅ .combo용 간단 스피너 (countryCombo / regionCombo 전용)
+function setComboLoadingFor(id, on){
+  const root = document.getElementById(id);
+  if (!root) return;
+  root.classList.toggle('is-loading', !!on);
+}
+
+
+/* 외부 스크립트/스타일 로더 */
+function loadCssOnce(href){
+  return new Promise((res, rej)=>{
+    if (document.querySelector(`link[href="${href}"]`)) return res();
+    const l = document.createElement('link');
+    l.rel='stylesheet'; l.href=href; l.onload=res; l.onerror=rej; document.head.appendChild(l);
+  });
+}
+function loadJsOnce(src){
+  return new Promise((res, rej)=>{
+    if (document.querySelector(`script[src="${src}"]`)) return res();
+    const s = document.createElement('script');
+    s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s);
+  });
+}
+
+/* 가나다/알파 정렬 + 타입어헤드(국가/지역용) */
+function sortKoAZ(arr){
+  return (arr||[]).slice().filter(Boolean)
+    .sort((a,b)=> String(a).localeCompare(String(b),'ko',{sensitivity:'base'}));
+}
+function enhanceTypeAhead(id, baseItems){
+  const root  = document.getElementById(id);
+  const input = root?.querySelector('input');
+  const api   = window[id] || null;
+  if (!root || !input) return;
+
+  const list  = root.querySelector('.list');
+  if (!list) return;
+
+  // 리스트에 항목 넣고, 클릭 바인딩까지 매번 다시 연결
+  const setItems = (arr)=>{
+    if (api && typeof api.setItems === 'function') {
+      api.setItems(arr);
+      return;
+    }
+    list.innerHTML = (arr||[]).map(v=>`<div class="item" data-v="${v}">${v}</div>`).join('');
+    // ✅ 클릭하면 값 반영 + 리스트 닫기 + change 이벤트 발생
+    list.querySelectorAll('.item').forEach(it=>{
+      it.addEventListener('click', ()=>{
+        input.value = it.getAttribute('data-v') || '';
+        list.style.display = 'none';
+        input.dispatchEvent(new Event('change',{bubbles:true}));
+      });
+    });
+  };
+
+  const baseSorted = sortKoAZ(baseItems);
+  setItems(baseSorted);
+
+  // ✅ 포커스/입력 시 리스트 표시
+  input.addEventListener('focus', ()=>{ list.style.display='block'; });
+  input.addEventListener('input', ()=>{
+    list.style.display='block';
+    const q = String(input.value||'').trim().toLowerCase();
+    if (!q){ setItems(baseSorted); return; }
+
+    const matched = [];
+    const unmatched = [];
+    for (const v of baseSorted){
+      const s = String(v).toLowerCase();
+      const idx = s.indexOf(q);
+      if (idx === -1){ unmatched.push(v); continue; }
+      const score = (idx === 0) ? 0 : (100 + idx);
+      matched.push({v, score});
+    }
+    matched.sort((a,b)=> (a.score-b.score) || a.v.localeCompare(b.v,'ko',{sensitivity:'base'}));
+    setItems([...matched.map(x=>x.v), ...unmatched]);
+  }, {passive:true});
+
+  // ✅ 바깥 클릭 시 닫기
+  document.addEventListener('pointerdown',(e)=>{
+    if (!root.contains(e.target)) list.style.display='none';
+  });
+}
+
+
+/* ============================================================================
+   1) 지도(Leaflet) - one-partner-js에는 없음
+   ========================================================================== */
+const LCSS = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+const LJS  = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+const GCSS = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css";
+const GJS  = "https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js";
+
+let map, markerLayer, geocoder, mapInited=false, mapData=null, tmpSearch=null;
+let __countryPoints = [];
+const pinReg    = '#2563eb';
+const pinSearch = '#ef4444';
+
+function makeSvgPinIcon(color){
+  const svg = `<svg class="pin-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="${color}" d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/></svg>`;
+  return L.divIcon({ className:"", html:`<div class="pin-wrap">${svg}</div>`, iconSize:[26,26], iconAnchor:[13,26] });
+}
+function normalizeCountryKey(raw){ return String(raw||'').trim(); }
+
+function haversineKm(aLat,aLng,bLat,bLng){
+  const R=6371, dLat=(bLat-aLat)*Math.PI/180, dLng=(bLng-aLng)*Math.PI/180;
+  const A=Math.sin(dLat/2)**2+Math.cos(aLat*Math.PI/180)*Math.cos(bLat*Math.PI/180)*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(A));
+}
+function findNearest(lat,lng,pts){
+  if(!pts?.length) return null;
+  let best=null,bd=Infinity;
+  for(const p of pts){
+    const d=haversineKm(lat,lng,p.lat,p.lng);
+    if(d<bd){best=p;bd=d;}
+  }
+  return {point:best,distanceKm:bd};
+}
+
+async function initAlwaysOnMap(){
+  if (mapInited) return;
+  await loadCssOnce(LCSS); await loadJsOnce(LJS);
+  await loadCssOnce(GCSS); await loadJsOnce(GJS);
+
+  const worldBounds = L.latLngBounds([[-85,-180],[85,180]]);
+  map = L.map('mpkMap', { center:[20,0], zoom:2, worldCopyJump:false, maxBounds:worldBounds, maxBoundsViscosity:1.0 });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OSM', noWrap:true, bounds:worldBounds }).addTo(map);
+  markerLayer = L.layerGroup().addTo(map);
+
+  const WORLD = L.latLngBounds([-85, -180], [85, 180]);
+  function fitMinZoomToContainer({ cover = true } = {}) {
+    map.invalidateSize();
+    const z = map.getBoundsZoom(WORLD, cover);
+    map.setMinZoom(z);
+    map.setMaxBounds(WORLD);
+    map.options.maxBoundsViscosity = 1.0;
+    const center = map.getCenter();
+    map.setView(center || [0, 0], z);
+  }
+  requestAnimationFrame(() => fitMinZoomToContainer({ cover: true }));
+  window.addEventListener('resize', () => fitMinZoomToContainer({ cover: true }));
+
+  geocoder = L.Control.geocoder({ defaultMarkGeocode:false })
+    .on('markgeocode', (e)=>{
+      const c = e.geocode.center;
+      if (tmpSearch) { map.removeLayer(tmpSearch); tmpSearch=null; }
+      tmpSearch = L.marker(c, {icon: makeSvgPinIcon(pinSearch)}).addTo(map);
+      map.setView(c, 9);
+
+      const hit = findNearest(c.lat, c.lng, __countryPoints);
+      if (hit?.point){
+        setRegion(hit.point.name);
+      }
+    }).addTo(map);
+
+  try{
+    const r = await fetch('./map.json', {cache:'no-store'});
+    mapData = await r.json();
+  }catch(e){
+    console.warn('map.json 로드 실패:', e);
+    mapData = {};
+  }
+
+  mapInited = true;
+  setTimeout(()=> map.invalidateSize(), 100);
+}
+function setMapCountry(country){
+  if (!mapInited) return;
+  markerLayer.clearLayers();
+  __countryPoints = [];
+  if (!mapData) return;
+  const key = normalizeCountryKey(country);
+  const pts = mapData[key];
+  if (!pts || !pts.length){ return; }
+
+  const bounds = [];
+  pts.forEach(p=>{
+    const m = L.marker([p.lat, p.lng], { icon: makeSvgPinIcon(pinReg) }).addTo(markerLayer);
+    m.on('click', ()=>{ setRegion(p.name); });
+    __countryPoints.push({ ...p, marker:m });
+    bounds.push([p.lat, p.lng]);
+  });
+  if (bounds.length) map.fitBounds(bounds, { padding:[20,20] });
+}
+function zoomToRegion(regionName, {fallbackZoom=10} = {}){
+  if (!map || !regionName) return;
+  const name = String(regionName).trim();
+  if (!name) return;
+
+  let hit = __countryPoints?.find(p => {
+    const a = (p.name || '').replace(/,/g,'').trim().toLowerCase();
+    const b = name.replace(/,/g,'').trim().toLowerCase();
+    return a === b;
+  });
+  if (!hit && Array.isArray(__countryPoints)) {
+    const b = name.replace(/,/g,'').trim().toLowerCase();
+    hit = __countryPoints.find(p => (p.name||'').toLowerCase().includes(b));
+  }
+  if (hit && Number.isFinite(hit.lat) && Number.isFinite(hit.lng)) {
+    map.setView([hit.lat, hit.lng], fallbackZoom, { animate:true });
+    try { hit.marker?.openPopup?.(); } catch(_){}
+  }
+}
+function getCountry(){ const el = document.querySelector('#countryCombo input'); return el?.value?.trim() || ''; }
+function getRegion(){  const el = document.querySelector('#regionCombo input');  return el?.value?.trim() || ''; }
+function setRegion(v){
+  const combo = document.querySelector('#regionCombo input');
+  if (combo){
+    combo.value = v;
+    combo.dispatchEvent(new Event('input',{bubbles:true}));
+    combo.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  zoomToRegion(v, { fallbackZoom: 10 });
+}
+
+/* ============================================================================
+   2) 패널 토글(비용 조회/비교 탭) - one-partner-js에 없음
+   ========================================================================== */
+(function(){
+  const btnCheck = document.getElementById('costCheck');
+  const btnComp  = document.getElementById('costComparison');
+
+  function activate(btn){
+    [btnCheck, btnComp].forEach(b=> b?.classList.remove('is-active'));
+    btn?.classList.add('is-active');
+  }
+
+  function showPanel(which){
+    const one = document.getElementById('one-partner');
+    const two = document.getElementById('two-partner');
+    const showOne = (which === 'one');
+    if (one) one.hidden = !showOne;
+    if (two) two.hidden = showOne;
+    btnCheck?.setAttribute('aria-expanded', String(showOne));
+    btnComp ?.setAttribute('aria-expanded', String(!showOne));
+    (showOne ? one : two)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  btnCheck?.addEventListener('click', () => { activate(btnCheck); showPanel('one'); });
+  btnComp ?.addEventListener('click', () => { activate(btnComp ); showPanel('two'); });
+})();
+
+/* 필요 시 one-partner 표시 전용 */
+function showPartnerContainer(){
+  const partnerContainer = document.getElementById('one-partner');
+  if (partnerContainer){
+    partnerContainer.hidden = false;
+    partnerContainer.style.display = 'block';
+    partnerContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+document.getElementById('costCheck')?.addEventListener('click', showPartnerContainer);
+
+/* ============================================================================
+   3) 셸 접힘/펼침 - one-partner-js에서 호출만 함
+   ========================================================================== */
+function collapseShell(){
+  return new Promise((resolve)=>{
+    const shell = document.querySelector('.app-shell');
+    if (!shell) return resolve();
+
+    if (__shellState === SHELL_STATES.COLLAPSED || __shellState === SHELL_STATES.COLLAPSING) {
+      return resolve();
+    }
+
+    __shellState = SHELL_STATES.COLLAPSING;
+
+    shell.classList.remove('is-collapsed','is-expanding');
+    shell.style.display = 'block';
+    const h = shell.scrollHeight;
+    shell.style.maxHeight = h + 'px';
+
+    requestAnimationFrame(()=>{
+      shell.classList.add('is-collapsing');
+      shell.style.maxHeight = '0px';
+    });
+
+    const onEnd = (e)=>{
+      if (e.propertyName !== 'max-height') return;
+      shell.removeEventListener('transitionend', onEnd);
+      shell.classList.remove('is-collapsing');
+      shell.classList.add('is-collapsed');
+      shell.style.maxHeight = '';
+      shell.style.display = 'none';
+      __shellState = SHELL_STATES.COLLAPSED;
+      __justCollapsedAt = performance.now();
+      resolve();
+    };
+    shell.addEventListener('transitionend', onEnd);
+  });
+}
+
+function expandShell(){
+  return new Promise((resolve)=>{
+    const shell = document.querySelector('.app-shell');
+    if (!shell) return resolve();
+    if (!__allowExpand || __shellState !== SHELL_STATES.COLLAPSED) {
+      return resolve();
+    }
+
+    __shellState = SHELL_STATES.EXPANDING;
+
+    shell.classList.remove('is-collapsed');
+    shell.style.display = 'block';
+    shell.style.maxHeight = '0px';
+
+    requestAnimationFrame(()=>{
+      shell.classList.add('is-expanding');
+      const h = shell.scrollHeight;
+      shell.style.maxHeight = h + 'px';
+    });
+
+    const onEnd = (e)=>{
+      if (e.propertyName !== 'max-height') return;
+      shell.removeEventListener('transitionend', onEnd);
+      shell.classList.remove('is-expanding');
+      shell.style.maxHeight = '';
+      __shellState = SHELL_STATES.OPEN;
+      __allowExpand = false;
+      resolve();
+    };
+    shell.addEventListener('transitionend', onEnd);
+  });
+}
+
+/* ============================================================================
+   4) 국가/지역 로딩 (one-partner-js에 없는 부분 유지)
+   ========================================================================== */
+async function loadCountries(){
+  const countryAPI = window['countryCombo'] || null;
+  const root = document.getElementById('countryCombo');
+  const input = root?.querySelector('input');
+
+  setComboLoadingFor('countryCombo', true);   // ✅ 스피너 on
+  try{
+    const r = await fetch(`${BASE}/api/debug/config`, {cache:'no-store'});
+    const j = await r.json();
+    const countries = sortKoAZ(j.countries || Object.keys(j.dbStructure||{}) || []);
+
+    // 간단 세팅
+    if (countryAPI && typeof countryAPI.setItems === 'function') countryAPI.setItems(countries);
+    else {
+      const list = root?.querySelector('.list');
+      if (input && list){
+        input.addEventListener('focus', ()=>{ list.style.display='block'; });
+        input.addEventListener('input', ()=>{ list.style.display='block'; });
+        document.addEventListener('pointerdown',(e)=>{
+          if (!root.contains(e.target)) list.style.display='none';
+        });
+      }
+    }
+    if (input) input.disabled = false;
+
+    enhanceTypeAhead('countryCombo', countries);
+  }catch(e){
+    console.warn('loadCountries 실패:', e);
+    if (input) input.disabled = false;
+  }finally{
+    setComboLoadingFor('countryCombo', false); // ✅ 스피너 off
+  }
+}
+
+
+async function loadRegions(){
+  const root = document.getElementById('regionCombo');
+  const input = root?.querySelector('input');
+  const list  = root?.querySelector('.list');
+  const country = getCountry();
+  if (!country || !list || !input) return;
+
+  setComboLoadingFor('regionCombo', true);   // ✅ 스피너 on
+  try{
+    const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`, {cache:'no-store'});
+    const j = await r.json();
+    const regions = sortKoAZ(j.regions || []);
+    list.innerHTML = regions.map(v=>`<div class="item" data-v="${v}">${v}</div>`).join('');
+    list.querySelectorAll('.item').forEach(it=>{
+      it.addEventListener('click', ()=>{
+        input.value = it.getAttribute('data-v') || '';
+        list.style.display = 'none';
+        input.dispatchEvent(new Event('change',{bubbles:true}));
+      });
+    });
+    input.disabled = false;
+    enhanceTypeAhead('regionCombo', regions);
+
+    if (input && list){
+      input.addEventListener('focus', ()=>{ list.style.display='block'; });
+      input.addEventListener('input', ()=>{ list.style.display='block'; });
+      document.addEventListener('pointerdown',(e)=>{
+        if (!root.contains(e.target)) list.style.display='none';
+      });
+    }
+  }catch(e){
+    console.warn('loadRegions 실패:', e);
+  }finally{
+    setComboLoadingFor('regionCombo', false); // ✅ 스피너 off
+  }
+}
+
+
+/* ============================================================================
+   5) 이벤트 바인딩(나머지 전부)
+   - 국가 변경: 지역 로드 + 지도 갱신
+   - 지역 변경: 지도 줌(업체/POE/화물타입 로드는 one-partner-js에서 처리)
+   - 요약 클릭 시 재오픈
+   ========================================================================== */
+function wireEventsRemainder(){
+  const ccEl = document.querySelector('#countryCombo input') || document.getElementById('countryCombo');
+  const rcEl = document.querySelector('#regionCombo input')  || document.getElementById('regionCombo');
+
+  ccEl?.addEventListener('change', async ()=>{
+    await loadRegions();
+    const c = getCountry();
+    if (c) setMapCountry(c);
+  });
+
+  rcEl?.addEventListener('change', async ()=>{
+    const region = getRegion();
+    if (region) zoomToRegion(region, { fallbackZoom: 10 });
+  });
+
+  const sumEl = document.getElementById('collapsedSummary');
+  if (sumEl) {
+    sumEl.addEventListener('click', (e)=>{
+      if (__summaryClickLocked) return;
+      if (performance.now() - __justCollapsedAt < 450) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      __allowExpand = true;
+      expandShell().then(()=>{
+        // ✅ 결과표/비교표도 같이 숨김
+        const r1 = document.getElementById('resultSection');
+        const r2 = document.getElementById('resultSectionCompare');
+        if (r1){ r1.classList.remove('show'); r1.hidden = true; }
+        if (r2){ r2.classList.remove('show'); r2.hidden = true; }
+
+        sumEl.hidden = true;
+        document.querySelector('.app-shell')?.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    });
+  }
+}
+
+/* ============================================================================
+   6) 초기화
+   ========================================================================== */
+window.addEventListener('DOMContentLoaded', async ()=>{
+  try{ await initAlwaysOnMap(); }catch(_){}
+  await loadCountries();
+  wireEventsRemainder();
+
+  // 초기 국가가 있으면 지도 반영
+  const initialCountry = getCountry();
+  if (initialCountry) setMapCountry(initialCountry);
+
+  // one-partner 초기화 (타입/CBM/이벤트 바인딩)
+    window.CostUI?.one?.init();
+    window.CostUI?.twoA?.init();
+    window.CostUI?.twoB?.init();
+});
+</script>
 </body>
 </html>
