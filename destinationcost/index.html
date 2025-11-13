@@ -197,6 +197,14 @@
 </section>
 
 <section id="resultSection" class="result-section" hidden>
+  <section id="currencySection" class="result-currency" hidden>
+    <div class="container currency-bar">
+      <span id="currencyRate" class="currency-rate">-</span>
+
+      <select id="currencySelect" class="dropdown-select currency-select">
+      </select>
+    </div>
+  </section>
   <div class="result-container container">
     <div id="tableWrap" class="table-wrap"></div>
   </div>
@@ -204,27 +212,54 @@
 
 <section id="resultSectionCompare" class="result-section" hidden>
   <div class="result-container container compare-wrap">
+
+    <!-- A 컬럼 -->
     <div class="compare-col">
       <div class="compare-head">A</div>
+
+      <!-- 🔹 A 전용 환율 + 좁은 드롭다운 -->
+      <div class="currency-bar">
+        <span id="currencyRateA" class="currency-rate">-</span>
+        <select id="currencySelectA" class="dropdown-select currency-select">
+          <!-- currency-converter.js 가 채움 -->
+        </select>
+      </div>
+
       <div id="tableWrapA" class="table-wrap"></div>
     </div>
+
+    <!-- B 컬럼 -->
     <div class="compare-col">
       <div class="compare-head">B</div>
+
+      <!-- 🔹 B 전용 환율 + 좁은 드롭다운 -->
+      <div class="currency-bar">
+        <span id="currencyRateB" class="currency-rate">-</span>
+        <select id="currencySelectB" class="dropdown-select currency-select">
+          <!-- currency-converter.js 가 채움 -->
+        </select>
+      </div>
+
       <div id="tableWrapB" class="table-wrap"></div>
     </div>
+
   </div>
 </section>
+
+
 
 <!-- =========================== 로그인 스크립트 =========================== -->
 <script src="../common/js/login.js"></script>
 <!-- ====================================================================== -->
 
 <script src="./unified-partners.js"></script>
+<script src="./currency-converter.js"></script>
 <script>
   window.CostUI?.one?.init();   // one-partner
   window.CostUI?.twoA?.init();  // two-partner A
   window.CostUI?.twoB?.init();  // two-partner B
 </script>
+
 
 <!-- ✅ 나머지 전부(원본에서 one-partner에 포함되지 않은 로직만 유지) -->
 <script>
@@ -726,3 +761,4 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
