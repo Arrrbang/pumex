@@ -510,6 +510,15 @@ function buildCbmTypeText(type, cbm){
             if (!company){ alert('업체를 선택하세요.'); return; }
 
             const data = await fetchCosts(country, region, company, cargo, type, cbm);
+
+            // ✅ one-partner일 때 요약칩 채우기
+            if (kind === 'one') {
+              setSummaryText('sumCountry', country || '-');
+              setSummaryText('sumRegion',  region  || '-');
+              setSummaryText('sumCbmType', buildCbmTypeText(type, cbm));
+              setSummaryText('sumCompany', company || '-');
+            }
+
             renderTableSingle(ids.tableWrap, data, type, Boolean(region)); // ← A는 tableWrapA, B는 tableWrapB
             showResultSection(true); // resultSectionCompare 표시 유지
 
