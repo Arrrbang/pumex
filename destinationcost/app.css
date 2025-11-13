@@ -443,6 +443,12 @@ input[type="number"]{
 .result-container{ background: transparent !important; backdrop-filter: none !important; }
 .table-wrap{ width:100%; overflow:auto; border-radius:inherit; }
 
+#resultSectionCompare .result-container.container.compare-wrap {
+  max-width: none;
+  width: 90%;          /* app-shell과 동일한 비율 */
+  margin-inline: auto; /* 중앙 정렬 */
+}
+
 /* 결과 표 */
 .result-table{
   width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed;
@@ -526,7 +532,11 @@ input[type="number"]{
 }
 
 /* 회전 애니메이션 */
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to { 
+    transform: rotate(360deg);  /* 세로 이동 빼고 회전만 */
+  }
+}
 /* (선택) app-shell 전환 애니메이션 키프레임 - JS에 맞춰 사용하세요
 @keyframes shell-slide-up{ to{ opacity:0; transform: translateY(-8px);} }
 @keyframes shell-slide-down{ from{ opacity:0; transform: translateY(-8px);} to{ opacity:1; transform: translateY(0);} }
@@ -884,18 +894,3 @@ html{ scrollbar-gutter: stable both-edges; } /* 레이아웃 흔들림 방지 */
 
 /* 결과 섹션 토글 공통 (기존 result-section 규칙 유지) */
 #resultSectionCompare[hidden]{ display:none !important; }
-
-/* 버튼 스피너 상태 */
-.primary-btn.is-loading {
-  position: relative;
-  pointer-events: none;
-}
-.primary-btn.is-loading .label { opacity: .85; }
-.primary-btn.is-loading::after{
-  content:"";
-  position:absolute; right:.6rem; top:50%; transform:translateY(-50%);
-  width:1em; height:1em; border:.18em solid rgba(0,0,0,.15); border-top-color: currentColor;
-  border-radius:50%;
-  animation: spin .8s linear infinite;
-}
-@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
