@@ -445,33 +445,140 @@ input[type="number"]{
 
 #resultSectionCompare .result-container.container.compare-wrap {
   max-width: none;
-  width: 90%;          /* app-shell과 동일한 비율 */
+  width: 98%;          /* app-shell과 동일한 비율 */
   margin-inline: auto; /* 중앙 정렬 */
 }
 
-/* 결과 표 */
+/* ==================================================================
+   결과 표 공통 디자인
+   ================================================================== */
 .result-table{
-  width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed;
-  background:#fff; color:#111; border:none; border-radius: var(--control-radius);
-  overflow:hidden; margin-top:8px;
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  table-layout:auto;
+  background:#fff;
+  color:#111;
+  border:none;
+  border-radius: var(--control-radius);
+  overflow:hidden;
+  margin-top:8px;
 }
-.result-table th, .result-table td{
-  border:1px solid #F5F5F5; padding:.6rem .75rem; text-align:left; vertical-align:top;
+
+.result-table th,
+.result-table td{
+  border:1px solid #F5F5F5;
+  padding:.6rem .75rem;
+  text-align:left;
+  vertical-align:top;
 }
-.result-table thead th{ background:#153A47; color:#F5F5F5; font-weight:700; }
-.result-table tbody td:first-child{ background:#153A47; color:#F5F5F5; font-weight:700; text-align:center; }
-.result-table thead th:first-child{ text-align:center; }
-.result-table td.amt{ white-space:nowrap; text-align:center; font-variant-numeric: tabular-nums; }
-/* 폭 튜닝: [항목 | 금액 | 비고] */
-.result-table thead th:nth-child(1),
-.result-table tbody td:nth-child(1){ width:20%; }
+
+/* 헤더 1~4열 전부 남색 */
+.result-table thead th{
+  background:#153A47;
+  color:#F5F5F5;
+  font-weight:700;
+}
+
+/* 금액 셀(3열 데이터)은 숫자 정렬/폰트 설정 */
+.result-table td.amt{
+  white-space:nowrap;
+  text-align:center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 금액 헤더(3열 헤더)는 가운데 정렬 */
+.result-table thead th.type-col{
+  text-align:center;
+}
+/* ==================================================================
+   폭 튜닝: [체크박스 | 항목 | 금액 | 비고] — colgroup 기반
+   ================================================================== */
+
+/* 1열 – 체크박스 (정사각형 느낌) */
+.result-table thead th.sel-col,
+.result-table tbody td.sel{
+  width:3rem;
+  min-width:3rem;
+  text-align:center;
+  padding-inline:.25rem;
+}
+
+/* 2열 – 항목
+   → 별도 width 지정 없이 컨텐츠 길이에 맞게(auto)
+   → 줄바꿈 없이 한 줄로, 우측 정렬 */
 .result-table thead th:nth-child(2),
-.result-table tbody td:nth-child(2){ width:10%; }
+.result-table tbody td:nth-child(2){
+  width: 1%;
+  white-space: nowrap;     /* 한 줄 유지 */
+  padding-left: .25rem;
+  padding-right: .25rem;
+  
+}
+
+/* 3열 – 금액 */
 .result-table thead th:nth-child(3),
-.result-table tbody td:nth-child(3){ width:auto; }
-/* 2열 헤더/타입 헤더 가운데 정렬 */
-.result-table thead th:nth-child(2),
-.result-table thead th.type-col{ text-align:center; }
+.result-table tbody td:nth-child(3){
+  min-width:12%;
+}
+
+/* 4열 – 비고 */
+.result-table thead th:nth-child(4),
+.result-table tbody td:nth-child(4){
+  max-width:80%;
+  min-width:50%;
+  word-wrap:break-word;
+  word-break:break-word;
+}
+
+/* ==================================================================
+   바디 색상: 1, 2열만 남색 배경
+   ================================================================== */
+
+/* 바디 1열(체크박스), 2열(항목) 남색 */
+.result-table tbody td.sel,
+.result-table tbody td:nth-child(2){
+  background:#153A47;
+  color:#F5F5F5;
+  font-weight:700;
+}
+
+/* 바디 1열 텍스트 정렬 유지(가운데) */
+.result-table tbody td.sel{
+  text-align:center;
+}
+
+
+/* ==========================================================================
+선택 합계 (표 우측 하단 숫자)
+========================================================================== */
+.result-total{
+  margin-top:.75rem;
+  text-align:right;
+}
+
+.result-total-label{
+  font-size:.9rem;
+  margin-right:.5rem;
+  vertical-align:middle;
+  opacity:.8;
+}
+
+.result-total-value{
+  font-size:2rem;            /* 요구하신 2rem 숫자 크기 */
+  font-weight:700;
+  vertical-align:middle;
+}
+
+.result-total-pass{
+  margin-left:.5rem;
+  vertical-align:middle;
+}
+
+/* 타입 헤더(금액 열 헤더)는 가운데 정렬 */
+.result-table thead th.type-col{
+  text-align:center;
+}
 
 /* ========================================================================== */
 /* 5-1) 요약 바 (접힌 상태 표시)                                                  */
@@ -894,3 +1001,30 @@ html{ scrollbar-gutter: stable both-edges; } /* 레이아웃 흔들림 방지 */
 
 /* 결과 섹션 토글 공통 (기존 result-section 규칙 유지) */
 #resultSectionCompare[hidden]{ display:none !important; }
+
+/* =========================================================
+   통화 선택 바 (환율 + 좁은 드롭다운)
+   ========================================================= */
+.result-currency .container,
+.currency-bar{
+  display:flex;
+  justify-content:flex-end;   /* 오른쪽 정렬 */
+  align-items:center;
+  gap:.4rem;
+}
+
+/* 환율 드롭다운: 다른 드롭다운과 스타일은 동일하되, 폭/높이만 살짝 줄임 */
+.currency-select{
+  width:7rem;          /* 좁게 */
+  min-width:7rem;
+  padding:.35rem .6rem;  /* 기본 .6rem 1rem 보다 조금 줄여서 높이만 낮게 */
+  font-size:.9rem;       /* 살짝 작은 폰트 */
+  text-align:center;
+}
+
+/* 환율 텍스트 (예: USD/EUR 0.9234) */
+.currency-rate{
+  font-size:.85rem;
+  color:rgb(50,50,50)
+  white-space:nowrap;
+}
