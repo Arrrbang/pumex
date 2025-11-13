@@ -126,32 +126,124 @@
   }
 
   // ---------------------------- 표 렌더 ----------------------------
-  function renderTableSingle(wrapId, data, type, isRegionFiltered){
-    const wrap = document.getElementById(wrapId);
-    if (!wrap) return;
-    let rows = Array.isArray(data?.rows) ? data.rows : [];
-    rows = sortByOrder(rows);
-    if (!rows.length){
-      wrap.innerHTML = '<div class="muted">표시할 데이터가 없습니다.</div>';
-      return;
-    }
-    let thead = '<tr><th>항목</th>';
-    if (!isRegionFiltered) thead += '<th>지역</th>';
-    thead += `<th class="type-col">${esc(type)}</th><th>비고</th></tr>`;
+    function renderTableSingle(wrapId, data, type, isRegionFiltered){
+      const wrap = document.getElementById(wrapId);
+      if (!wrap) return;
 
-    let tbody = '';
-    for (const r of rows){
-      const amt = r?.[type];
-      const amtText = formatAmount(amt, type) || '-';
-      tbody += '<tr>';
-      tbody += `<td>${esc(r.item || '')}</td>`;
-      if (!isRegionFiltered) tbody += `<td>${esc(r.region || '')}</td>`;
-      tbody += `<td class="amt">${amtText}</td>`;
-      tbody += `<td>${r.extra || ''}</td>`;
-      tbody += '</tr>';
+      let rows = Array.isArray(data?.rows) ? data.rows : [];
+      rows = sortByOrder(rows);
+      if (!rows.length){
+        wrap.innerHTML = '<div class="muted">표시할 데이터가 없습니다.</div>';
+        return;
+      }
+
+      // ✅ 헤더: [체크박스 | 항목 | 금액(type) | 비고]
+      let thead = '<tr>';
+      thead += '<th class="sel-col"></th>';                     // 체크박스 헤더(비움)
+      thead += '<th>항목</th>';
+      thead += `<th class="type-col">${esc(type)}</th>`;
+      thead += '<th>비고</th>';
+      thead += '</tr>';
+
+      // ✅ 바디
+      let tbody = '';
+      for (const r of rows){
+        const amt     = r?.[type];
+        const rawAmt  = Number(amt) || 0;
+        const amtText = formatAmount(amt, type) || '-';
+        const extra   = r.extra || ''; // 이미 r.extra는 HTML일 수 있으니 그대로 사용
+
+        tbody += '<tr>';
+        tbody += `<td class="sel">
+          <input type="checkbox"
+                class="row-check"
+                data-base-amt="${rawAmt}"
+                data-amt="${rawAmt}"
+                data-extra="${extra.replace(/"/g,'&quot;')}">
+        </td>`;
+        tbody += `<td>${esc(r.item || '')}</td>`;
+        tbody += `<td class="amt" data-raw="${rawAmt}" data-base-amt="${rawAmt}">${amtText}</td>`;
+        tbody += `<td>${extra}</td>`;
+        tbody += '</tr>';
+
+      }
+
+          // ✅ colgroup: 각 열 폭을 CSS에서 제어하기 쉽게 클래스로 나눔
+          const colgroup = `
+            <colgroup>
+              <col class="col-sel">
+              <col class="col-item">
+              <col class="col-amt">
+              <col class="col-extra">
+            </colgroup>
+          `;
+
+          const baseCur = (defaultCurrency.value || '').toString().toUpperCase();
+          const tableHtml = `
+            <table class="result-table" data-base-currency="${esc(baseCur)}">
+              ${colgroup}
+              <thead>${thead}</thead>
+              <tbody>${tbody}</tbody>
+            </table>
+          `;
+          const totalId = `${wrapId}Total`;
+
+
+      // ✅ 선택 합계 영역 (표 우측 하단)
+      const totalHtml = `
+        <div class="result-total" id="${totalId}">
+          <span class="result-total-label">선택 합계</span>
+          <span class="result-total-value">0</span>
+          <span class="result-total-pass"></span>
+        </div>
+      `;
+
+      wrap.innerHTML = tableHtml + totalHtml;
+
+      // ✅ 체크박스 변경 시 합계 계산
+      const table      = wrap.querySelector('table.result-table');
+      const totalBox   = wrap.querySelector('.result-total');
+      const totalValue = totalBox?.querySelector('.result-total-value');
+      const passEl     = totalBox?.querySelector('.result-total-pass');
+
+      if (!table || !totalBox || !totalValue) return;
+
+      const checkboxes = table.querySelectorAll('input.row-check');
+
+      const updateTotal = ()=>{
+        let sum = 0;
+        let passHtml = '';
+
+        checkboxes.forEach(cb => {
+          if (cb.checked){
+            const v = Number(cb.dataset.amt || '0');
+            if (Number.isFinite(v)) sum += v;
+
+            const pass = cb.dataset.pass;
+            if (!passHtml && pass){
+              passHtml = pass;    // ✅ 첫 번째 선택 행의 통과마크만 사용
+            }
+          }
+        });
+
+        const formatted =
+          (window.CurrencyConverter && window.CurrencyConverter.formatTotal(sum, type))
+          || (sum ? formatAmount(sum, type) : '0');
+
+        totalValue.textContent = formatted;
+
+
+        if (passEl){
+          passEl.innerHTML = passHtml || '';
+        }
+      };
+
+
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', updateTotal);
+      });
     }
-    wrap.innerHTML = `<table class="result-table"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
-  }
+
 
   // ---------------------------- 공통 API 호출 ----------------------------
   async function fetchCompanies(country, region){
@@ -232,15 +324,43 @@
     }
 
     // 통화 메타
+// 통화 메타
     Object.assign(numberFormats, j?.numberFormats || {});
+
+    // 1) 타입별 통화 코드 직접 시도
     const typeCurrency =
       (j?.currencyByType?.[type]) ||
       (j?.meta?.currencyByType?.[type]) ||
       (j?.columns?.[type]?.currency || j?.columns?.[type]?.currencyCode) ||
       (j?.headers?.[type]?.currency || j?.headers?.[type]?.currencyCode) || '';
+
+    // 2) numberFormats 포맷 문자열에서 통화 코드 추론
+    let inferredFromFmt = '';
+    if (!typeCurrency) {
+      const k = String(type || '');
+      const nf = j?.numberFormats || {};
+      const fmt = nf[k] || nf[k.toUpperCase()] || nf[k.toLowerCase()] || '';
+
+      if (/dollar|usd/i.test(fmt))      inferredFromFmt = 'USD';
+      else if (/won|krw/i.test(fmt))    inferredFromFmt = 'KRW';
+      else if (/euro|eur/i.test(fmt))   inferredFromFmt = 'EUR';
+      else if (/cad/i.test(fmt))        inferredFromFmt = 'CAD';
+    }
+
+    // 3) 최종 기본 통화 결정
+    //    👉 결과표에 표시되는 통화와 항상 같도록
     defaultCurrency.value = (
-      j?.currency || j?.currencyCode || typeCurrency || j?.meta?.currency || j?.meta?.currencyCode || ''
+      j?.currency ||
+      j?.currencyCode ||
+      typeCurrency ||
+      inferredFromFmt ||
+      j?.meta?.currency ||
+      j?.meta?.currencyCode ||
+      ''
     ).toString();
+
+    // 디버깅용(원하면 나중에 지워도 됨)
+    console.log('[CURRENCY] defaultCurrency =', defaultCurrency.value);
 
     return j;
   }
@@ -298,6 +418,8 @@ function buildCbmTypeText(type, cbm){
 
       renderTableSingle('tableWrapA', jA, type, Boolean(region));
       renderTableSingle('tableWrapB', jB, type, Boolean(region));
+
+      window.CurrencyConverter?.applyCurrent?.();
 
       // 비교 섹션 노출(단일 섹션은 숨김)
       const sec = document.getElementById('resultSectionCompare');
@@ -520,6 +642,7 @@ function buildCbmTypeText(type, cbm){
             }
 
             renderTableSingle(ids.tableWrap, data, type, Boolean(region)); // ← A는 tableWrapA, B는 tableWrapB
+            window.CurrencyConverter?.applyCurrent?.();
             showResultSection(true); // resultSectionCompare 표시 유지
 
             if (typeof window.collapseShell === 'function'){
