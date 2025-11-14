@@ -81,47 +81,6 @@ body::after{
 }
 
 /* ========================================================================== */
-/* 2) 상단 헤더 — styles(22).css 톤 복제                                          */
-/* ========================================================================== */
-header.site-header{
-  position: fixed;      /* 화면 상단에 고정 */
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;          /* 가로 전체 */
-  background: #fff;     /* 흰색 */
-  border-bottom: 1px solid #ddd;
-  padding: .75rem 1.25rem;
-  box-sizing: border-box;
-  z-index: 1000;        /* 맨 위에 표시 */
-}
-
-
-.site-header .logo img{
-  height:2rem; display:block;
-}
-
-.site-header .container,
-.site-header .header-inner {
-  max-width: none; width: 100%; margin: 0;
-  padding-left: 3rem; padding-right: var(--gutter);
-  box-sizing: border-box;
-  display: flex; justify-content: flex-start; align-items: center; gap: 12px;
-}
-
-.site-header .header-inner {
-  justify-content: flex-start; align-items: center; gap: 12px;
-}
-
-.site-title {
-  font-size: 1.3rem; font-weight: 800; color: #111;
-  letter-spacing: 0.02em; margin-left: 12px; white-space: nowrap;
-}
-
-.nav-links a{ color: #334155 !important; }
-.nav-links a:hover{ color: #000 !important; }
-
-/* ========================================================================== */
 /* 3) 앱 레이아웃: 좌(지도) / 우(폼)                                             */
 /*    - .app-shell/.app-main 중복 선언 통합                                     */
 /*    - 높이/폭/간격 속성 일원화                                                */
