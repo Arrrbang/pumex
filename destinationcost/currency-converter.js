@@ -7,7 +7,7 @@
   'use strict';
 
   const API_BASE = 'https://api.exchangerate-api.com/v4/latest/';
-  const EXTRA_CODES = ['KRW', 'USD', 'EUR', 'JPY', 'CAD', 'SAR', 'INR'];
+  const EXTRA_CODES = ['KRW', 'USD', 'EUR', 'JPY', 'CAD', 'SAR', 'IDR'];
 
   const state = {
     baseCurrency: null,      // Notion 에서 온 기본 통화 (예: USD)
