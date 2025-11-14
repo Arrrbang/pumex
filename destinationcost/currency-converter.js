@@ -348,10 +348,45 @@
 
 
   // unified-partners.js 에서 선택 합계 표시할 때 사용
+  // unified-partners.js 에서 선택 합계 표시할 때 사용 (단일 모드 기본)
   function formatTotal(sum /*, type */) {
     const select = document.getElementById('currencySelect');
-    const code = (select && select.value) ? select.value : (state.currentCurrency || state.baseCurrency);
+    const code =
+      (select && select.value)
+        ? select.value
+        : (state.currentCurrency || state.baseCurrency);
+
     if (!code) return null;
+    return formatCurrency(sum, code);
+  }
+
+  // 🔹 래퍼 기준으로 통화 코드 결정 (A/B 비교 포함)
+  function formatTotalForWrapper(sum, wrapperId) {
+    if (sum == null) return null;
+
+    let code = null;
+
+    // two-partner A/B 쪽은 각자 드롭다운을 우선 사용
+    if (wrapperId === 'tableWrapA') {
+      const selA = document.getElementById('currencySelectA');
+      if (selA && selA.value) code = selA.value;
+    } else if (wrapperId === 'tableWrapB') {
+      const selB = document.getElementById('currencySelectB');
+      if (selB && selB.value) code = selB.value;
+    } else {
+      // 그 외(단일 모드)는 기존 단일 드롭다운 우선
+      const sel = document.getElementById('currencySelect');
+      if (sel && sel.value) code = sel.value;
+    }
+
+    // 드롭다운 값이 없으면 현재/기본 통화로 fallback
+    if (!code) {
+      code = state.currentCurrency || state.baseCurrency;
+    }
+
+    if (!code) return null;
+    // 🔸 sum 은 이미 선택된 통화 기준으로 계산되어 있으므로
+    //     여기서는 포맷만 해주면 됨 (환율 재계산 필요 없음)
     return formatCurrency(sum, code);
   }
 
@@ -360,7 +395,9 @@
     init,
     applyCurrent,
     formatTotal,
+    formatTotalForWrapper,   // ⬅️ 새로 추가
   };
+
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
