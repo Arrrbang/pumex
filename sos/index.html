@@ -227,10 +227,10 @@
       return `${y}-${mm}-${dd}`;
     }
 
-    function isWeekendKST(y,m,d){
-      const s = formatDate(y,m,d);
-      const dt = new Date(s + "T00:00:00+09:00");
-      const day = dt.getUTCDay();
+    function isWeekendKST(y, monthIndex, d) {
+      // y: 연도, monthIndex: 0~11, d: 일
+      const dt = new Date(y, monthIndex, d); // 로컬 타임존 기준
+      const day = dt.getDay();               // 0=일, 6=토 (로컬 기준)
       return day === 0 || day === 6;
     }
 
