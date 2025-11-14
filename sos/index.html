@@ -290,16 +290,28 @@
       calTitle.textContent = `${year}년 ${month+1}월`;
     }
 
-    function updateStatus(){
-      if (!selectedDateStr) {
-        statusEl.textContent = '날짜를 선택해 주세요.';
-        return;
+      function updateStatus(){
+        if (!selectedDateStr) {
+          statusEl.textContent = '날짜를 선택해 주세요.';
+          return;
+        }
+      
+        const [y,m,d] = selectedDateStr.split('-').map(Number);
+        const weekend = isWeekendKST(y, m-1, d);
+      
+        const year = String(y);
+        const set  = holidaySets[year];              // Nager.Date로 받아온 공휴일 세트
+        const isHoliday = set ? set.has(selectedDateStr) : false;
+      
+        const isOffDay = weekend || isHoliday;       // ⭐ 토/일 + 법정 공휴일 = 전부 주말 취급
+      
+        const msg = isOffDay
+          ? '주말/공휴일 요금이 적용됩니다.'
+          : '주중 요금이 적용됩니다.';
+      
+        statusEl.innerHTML = `<strong>${selectedDateStr}</strong> - ${msg}`;
       }
-      const [y,m,d] = selectedDateStr.split('-').map(Number);
-      const weekend = isWeekendKST(y,m-1,d);
-      const msg = weekend ? '주말/공휴일 요금이 적용됩니다.' : '주중 요금이 적용됩니다.';
-      statusEl.innerHTML = `<strong>${selectedDateStr}</strong> - ${msg}`;
-    }
+
 
     document.getElementById('btnPrevMonth').addEventListener('click', ()=>{
       currentMonth--;
