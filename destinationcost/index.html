@@ -13,16 +13,9 @@
   <!-- 메인 스타일 -->
   <link rel="stylesheet" href="./app.css" />
 </head>
-<body>
 
-<header class="site-header">
-  <div class="container header-inner">
-    <div class="logo">
-      <img src="https://arrrbang.github.io/pumex/image/pumexlogonew.png" alt="PUMEX Logo">
-    </div>
-    <div class="site-title">도착지 비용 계산</div>
-  </div>
-</header>
+<body>
+<div id="header-placeholder"></div>
 
 <main class="app-shell">
   <div class="app-main container">
@@ -247,6 +240,15 @@
 </section>
 
 
+<script>
+  // header.html 자동 로드
+  fetch("./header.html")
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("header-placeholder").innerHTML = html;
+    })
+    .catch(err => console.error("헤더 로드 실패:", err));
+</script>
 
 <!-- =========================== 로그인 스크립트 =========================== -->
 <script src="../common/js/login.js"></script>
@@ -259,7 +261,6 @@
   window.CostUI?.twoA?.init();  // two-partner A
   window.CostUI?.twoB?.init();  // two-partner B
 </script>
-
 
 <!-- ✅ 나머지 전부(원본에서 one-partner에 포함되지 않은 로직만 유지) -->
 <script>
@@ -761,4 +762,5 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
 
