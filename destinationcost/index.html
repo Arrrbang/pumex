@@ -722,9 +722,11 @@ function wireEventsRemainder(){
     if (region) zoomToRegion(region, { fallbackZoom: 10 });
   });
 
-  const sumEl = document.getElementById('collapsedSummary');
-  if (sumEl) {
-    sumEl.addEventListener('click', (e)=>{
+  const sumRoot  = document.getElementById('collapsedSummary');       // 섹션 전체
+  const sumInner = sumRoot?.querySelector('.container');              // 안쪽 컨테이너
+  
+  if (sumRoot && sumInner) {
+    sumInner.addEventListener('click', (e)=>{
       if (__summaryClickLocked) return;
       if (performance.now() - __justCollapsedAt < 450) {
         e.preventDefault();
@@ -738,8 +740,9 @@ function wireEventsRemainder(){
         const r2 = document.getElementById('resultSectionCompare');
         if (r1){ r1.classList.remove('show'); r1.hidden = true; }
         if (r2){ r2.classList.remove('show'); r2.hidden = true; }
-
-        sumEl.hidden = true;
+  
+        // 섹션 전체는 여전히 숨김
+        sumRoot.hidden = true;
         document.querySelector('.app-shell')?.scrollIntoView({behavior:'smooth', block:'start'});
       });
     });
