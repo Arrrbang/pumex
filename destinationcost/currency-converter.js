@@ -1,6 +1,5 @@
 /* currency-converter.js
  * - 통화 드롭다운 생성
- * - Notion 기본 통화(+ KRW / USD / EUR / CAD) 옵션 제공
  * - 결과 표(.result-table) 금액/합계를 선택 통화로 변환
  * - unified-partners.js 의 renderTableSingle 와 연동
  */
@@ -8,7 +7,7 @@
   'use strict';
 
   const API_BASE = 'https://api.exchangerate-api.com/v4/latest/';
-  const EXTRA_CODES = ['KRW', 'USD', 'EUR', 'CAD'];
+  const EXTRA_CODES = ['KRW', 'USD', 'EUR', 'JPY', 'CAD', 'SAR', 'INR'];
 
   const state = {
     baseCurrency: null,      // Notion 에서 온 기본 통화 (예: USD)
@@ -75,16 +74,10 @@
     if (c === 'EUR') return '€' + v.toLocaleString('de-DE', { maximumFractionDigits: 2 });
     if (c === 'CAD') return 'C$' + v.toLocaleString('en-CA', { maximumFractionDigits: 2 });
     if (c === 'KRW') return '₩' + v.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
-    return v.toLocaleString() + (c ? ' ' + c : '');
-  }
-
-  function formatCurrency(amount, code) {
-    const v = Number(amount) || 0;
-    const c = (code || '').toUpperCase();
-    if (c === 'USD') return '$' + v.toLocaleString('en-US', { maximumFractionDigits: 2 });
-    if (c === 'EUR') return '€' + v.toLocaleString('de-DE', { maximumFractionDigits: 2 });
-    if (c === 'CAD') return 'C$' + v.toLocaleString('en-CA', { maximumFractionDigits: 2 });
-    if (c === 'KRW') return '₩' + v.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
+    if (c === 'SAR') return '﷼' + v.toLocaleString('ar-SA', { maximumFractionDigits: 2 });
+    if (c === 'IDR') return 'Rp' + v.toLocaleString('id-ID', { maximumFractionDigits: 2 });
+    if (c === 'CNY') return '¥' + v.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+    if (c === 'JPY') return '¥' + v.toLocaleString('ja-JP', { maximumFractionDigits: 0 });
     return v.toLocaleString() + (c ? ' ' + c : '');
   }
 
