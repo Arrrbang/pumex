@@ -51,8 +51,12 @@
 /* ========================================================================== */
 *{ box-sizing: border-box; }
 html{ font-size: clamp(14px, 1.2vw, 16px); }
-
+html, body{
+  margin: 0;
+  padding: 0;
+}
 body{
+  margin: 0;  
   padding-top: var(--header-h);             /* 헤더만큼 내림 */
   position: relative;
   background: #F2F5FA;                      /* 페이지 배경색 */
@@ -79,14 +83,19 @@ body::after{
 /* ========================================================================== */
 /* 2) 상단 헤더 — styles(22).css 톤 복제                                          */
 /* ========================================================================== */
-.site-header{
-  position: fixed; top:0; left:0; width:100%; z-index:999;
-  background: #ffffff !important;                  /* 불투명 상단 바 */
-  backdrop-filter: blur(12px);                     /* 분위기만 유지 */
-  border-bottom: 1px solid rgba(0,0,0,.08) !important;
-  height: var(--header-h);
-  display: flex; align-items: center; text-align: left;
+header.site-header{
+  position: fixed;      /* 화면 상단에 고정 */
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;          /* 가로 전체 */
+  background: #fff;     /* 흰색 */
+  border-bottom: 1px solid #ddd;
+  padding: .75rem 1.25rem;
+  box-sizing: border-box;
+  z-index: 1000;        /* 맨 위에 표시 */
 }
+
 
 .site-header .logo img{
   height:2rem; display:block;
@@ -585,7 +594,7 @@ input[type="number"]{
 /* 5-1) 요약 바 (접힌 상태 표시)                                                  */
 /* ========================================================================== */
 .collapsed-summary{
-  position: sticky; top: var(--header-h); z-index: 10;
+  position: sticky; top: calc(var(--header-h) + 1.5rem); z-index: 10;
   display: flex; justify-content: center;
   background: transparent; border: 0; padding: .75rem 0 .5rem;
 }
@@ -713,7 +722,7 @@ input[type="number"]{
     ★★★★2025/11/12 패치내역 (1) left/right pane 컨테이너 가로폭 고정
     ========================================================================== */
     /* 1) 스크롤바 등장해도 vw 변동 없게: 폭은 컨테이너 % 기반으로 */
-html{ scrollbar-gutter: stable both-edges; } /* 레이아웃 흔들림 방지 */
+/* html{ scrollbar-gutter: stable both-edges; }  스크롤 때문에 만들어둔 것 */
 .app-shell{
   width: 90% !important;              /* 90vw → 100% */
   max-width: none !important; /* 1200px 상한 유지 */
@@ -885,9 +894,9 @@ html{ scrollbar-gutter: stable both-edges; } /* 레이아웃 흔들림 방지 */
 
 /* (선택) 버튼 클릭(활성) 시 컨테이너 효과를 강제 트리거하고 싶다면 */
 #costCheck:active ~ .cost-btn,
-#costPomparison:active ~ .cost-btn{
+#costComparison:active ~ .cost-btn
   /* no-op: 컨테이너에 위 상태가 이미 적용됨 (:focus-within 으로도 충분) */
-}
+
 
 /* ─────────────────────────────────────────────
    0) 컨테이너에 걸린 hover/active 효과 제거(덮어쓰기)
@@ -1026,6 +1035,6 @@ html{ scrollbar-gutter: stable both-edges; } /* 레이아웃 흔들림 방지 */
 /* 환율 텍스트 (예: USD/EUR 0.9234) */
 .currency-rate{
   font-size:.85rem;
-  color:rgb(50,50,50)
+  color:rgb(50,50,50);
   white-space:nowrap;
 }
