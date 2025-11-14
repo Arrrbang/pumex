@@ -352,13 +352,13 @@
       }
       const type = typeSelect.value;
       const cbm  = cbmSelect.value;
-
+    
       btnFetch.disabled = true;
       btnFetch.textContent = '조회중...';
-
+    
       try{
         const params = new URLSearchParams({ date:selectedDateStr, type, cbm });
-        const res = await fetch(`/api/sos-rate?${params.toString()}`);
+        const res = await fetch(`${API_BASE}/api/sos-rate?${params.toString()}`);
         const data = await res.json();
 
         if (!res.ok || !data.ok){
