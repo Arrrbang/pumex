@@ -226,17 +226,27 @@
           }
         });
 
-        const formatted =
-          (window.CurrencyConverter && window.CurrencyConverter.formatTotal(sum, type))
-          || (sum ? formatAmount(sum, type) : '0');
+        let formatted = null;
+
+        // 🔹 A/B 비교 모드일 경우 각 래퍼(tableWrapA/B)에 맞는 드롭다운 통화 사용
+        if (window.CurrencyConverter && window.CurrencyConverter.formatTotalForWrapper) {
+          formatted = window.CurrencyConverter.formatTotalForWrapper(sum, wrapId);
+        } else if (window.CurrencyConverter && window.CurrencyConverter.formatTotal) {
+          // 🔹 구 버전 호환 (단일 모드)
+          formatted = window.CurrencyConverter.formatTotal(sum, type);
+        }
+
+        if (!formatted) {
+          formatted = sum ? formatAmount(sum, type) : '0';
+        }
 
         totalValue.textContent = formatted;
-
 
         if (passEl){
           passEl.innerHTML = passHtml || '';
         }
       };
+
 
 
       checkboxes.forEach(cb => {
