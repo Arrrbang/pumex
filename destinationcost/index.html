@@ -210,14 +210,16 @@
 
     <!-- A 컬럼 -->
     <div class="compare-col">
-      <div class="compare-head">A</div>
+      <div class="compare-top">
+        <div class="compare-head">A</div>
 
-      <!-- 🔹 A 전용 환율 + 좁은 드롭다운 -->
-      <div class="currency-bar">
-        <span id="currencyRateA" class="currency-rate">-</span>
-        <select id="currencySelectA" class="dropdown-select currency-select">
-          <!-- currency-converter.js 가 채움 -->
-        </select>
+        <!-- 🔹 A 전용 환율 + 좁은 드롭다운 -->
+        <div class="currency-bar">
+          <span id="currencyRateA" class="currency-rate">-</span>
+          <select id="currencySelectA" class="dropdown-select currency-select">
+            <!-- currency-converter.js 가 채움 -->
+          </select>
+        </div>
       </div>
 
       <div id="tableWrapA" class="table-wrap"></div>
@@ -225,14 +227,16 @@
 
     <!-- B 컬럼 -->
     <div class="compare-col">
-      <div class="compare-head">B</div>
+      <div class="compare-top">
+        <div class="compare-head">B</div>
 
-      <!-- 🔹 B 전용 환율 + 좁은 드롭다운 -->
-      <div class="currency-bar">
-        <span id="currencyRateB" class="currency-rate">-</span>
-        <select id="currencySelectB" class="dropdown-select currency-select">
-          <!-- currency-converter.js 가 채움 -->
-        </select>
+        <!-- 🔹 B 전용 환율 + 좁은 드롭다운 -->
+        <div class="currency-bar">
+          <span id="currencyRateB" class="currency-rate">-</span>
+          <select id="currencySelectB" class="dropdown-select currency-select">
+            <!-- currency-converter.js 가 채움 -->
+          </select>
+        </div>
       </div>
 
       <div id="tableWrapB" class="table-wrap"></div>
@@ -769,5 +773,6 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
 
 
