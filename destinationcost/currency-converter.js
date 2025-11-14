@@ -70,14 +70,14 @@
   function formatCurrency(amount, code) {
     const v = Number(amount) || 0;
     const c = (code || '').toUpperCase();
-    if (c === 'USD') return '$' + v.toLocaleString('en-US', { maximumFractionDigits: 2 });
-    if (c === 'EUR') return '€' + v.toLocaleString('de-DE', { maximumFractionDigits: 2 });
-    if (c === 'CAD') return 'C$' + v.toLocaleString('en-CA', { maximumFractionDigits: 2 });
-    if (c === 'KRW') return '₩' + v.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
-    if (c === 'SAR') return '﷼' + v.toLocaleString('ar-SA', { maximumFractionDigits: 2 });
-    if (c === 'IDR') return 'Rp' + v.toLocaleString('id-ID', { maximumFractionDigits: 2 });
-    if (c === 'CNY') return '¥' + v.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
-    if (c === 'JPY') return '¥' + v.toLocaleString('ja-JP', { maximumFractionDigits: 0 });
+    if (c === 'USD') return 'USD' + v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    if (c === 'EUR') return 'EUR' + v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    if (c === 'CAD') return 'CAD' + v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    if (c === 'KRW') return 'KRW' + v.toLocaleString('ko-KR', { maximumFractionDigits: 0 });
+    if (c === 'SAR') return 'SAR' + v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    if (c === 'IDR') return 'IDR' + v.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    if (c === 'CNY') return 'CNY' + v.toLocaleString('en-USN', { maximumFractionDigits: 2 });
+    if (c === 'JPY') return 'JPY' + v.toLocaleString('en-US', { maximumFractionDigits: 0 });
     return v.toLocaleString() + (c ? ' ' + c : '');
   }
 
