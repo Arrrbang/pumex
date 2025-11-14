@@ -8,7 +8,7 @@ const TRCMenu = document.getElementById("menu-TRC");
 const consoleMenu = document.getElementById("menu-console");
 
 // 연결될 URL
-const destinationURL = "https://arrrbang.github.io/pumex/destinationcost/index.html";
+const destinationURL = "https://arrrbang.github.io/pumex/destinationcost/";
 const pumexsosURL = "추후입력";
 const provincial_packing_feeURL = "추후입력";
 const TRCURL = "추후입력";
