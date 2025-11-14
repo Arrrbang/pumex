@@ -1,0 +1,57 @@
+/* ========== 헤더 전용 변수는 필요 시 여기에 둘 수 있음 ========== */
+:root{
+  --header-h: 3rem;
+  --gutter: 1.25rem;
+}
+
+/* ========== 기본 reset (html/body 여백 제거는 헤더와 직결됨) ========== */
+html, body{
+  margin: 0;
+  padding: 0;
+}
+
+/* ========== 헤더 영역 전체 ========== */
+header.site-header{
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: .75rem 1.25rem;
+  box-sizing: border-box;
+  z-index: 1000;
+}
+
+/* ========== 내부 레이아웃 ========== */
+.site-header .container,
+.site-header .header-inner{
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding-left: 3rem;
+  padding-right: var(--gutter);
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 12px;
+}
+
+.site-header .logo img{
+  height: 2rem;
+  display: block;
+}
+
+.site-title{
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: 0.02em;
+  margin-left: 12px;
+  white-space: nowrap;
+}
+
+/* ========== 헤더에서 body 아래로 밀어내기 ========== */
+body{
+  padding-top: var(--header-h);
+}
