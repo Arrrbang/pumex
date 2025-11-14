@@ -429,6 +429,11 @@ function buildCbmTypeText(type, cbm){
       renderTableSingle('tableWrapA', jA, type, Boolean(region));
       renderTableSingle('tableWrapB', jB, type, Boolean(region));
 
+      const headA = document.querySelector('#resultSectionCompare .compare-col:nth-child(1) .compare-head');
+      const headB = document.querySelector('#resultSectionCompare .compare-col:nth-child(2) .compare-head');
+      if (headA) headA.textContent = companyA || 'A';
+      if (headB) headB.textContent = companyB || 'B';
+      
       window.CurrencyConverter?.applyCurrent?.();
 
       // 비교 섹션 노출(단일 섹션은 숨김)
