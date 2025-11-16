@@ -4,6 +4,8 @@
   --container-max: 1200px;     /* .container 최대폭 */
   --gutter: 1.25rem;           /* 좌우 여백 */
 }
+*{ box-sizing: border-box; }
+html{ font-size: clamp(14px, 1.2vw, 16px); }
 
 /* ========== 기본 reset (html/body 여백 제거는 헤더와 직결됨) ========== */
 html, body{
