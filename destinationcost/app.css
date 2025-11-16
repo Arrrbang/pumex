@@ -323,7 +323,9 @@ input[type="number"]{
 }
 
 .combo .list .item{ padding:.55rem .8rem; cursor:pointer; }
-.combo .list .item:hover{ background: rgba(31,148,97,.08); }
+.combo-line .combo .list .item:hover {
+  background: transparent !important;
+}
 .combo .list .item.is-selected{ background: var(--table-header); color: var(--table-text); }
 
 /* 지도 액션 버튼(소형) */
