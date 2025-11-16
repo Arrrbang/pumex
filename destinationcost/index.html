@@ -402,7 +402,7 @@ let __countryPoints = [];
 const pinReg    = '#2563eb';
 const pinSearch = '#ef4444';
 
-let currentCountryMarker = null;
+let currentRegionMarker = null;
 
 function makeSvgPinIcon(color){
   const svg = `<svg class="pin-svg" viewBox="0 0 24 24" aria-hidden="true"><path fill="${color}" d="M12 2C8.134 2 5 5.134 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.866-3.134-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5a2.5 2.5 0 0 1 0 5z"/></svg>`;
@@ -477,7 +477,6 @@ function setMapCountry(country){
   markerLayer.clearLayers();
   __countryPoints = [];
   if (!mapData) return;
-
   const key = normalizeCountryKey(country);
   const pts = mapData[key];
   if (!pts || !pts.length){ return; }
@@ -489,32 +488,11 @@ function setMapCountry(country){
     __countryPoints.push({ ...p, marker:m });
     bounds.push([p.lat, p.lng]);
   });
-
-  if (bounds.length){
-    const boundsObj = L.latLngBounds(bounds);
-    const center = boundsObj.getCenter();
-
-    // 1) 전체 국가 영역 기준으로 먼저 맞추고
-    map.fitBounds(boundsObj, { padding:[20,20] });
-
-    // 2) 이전 국가 마커가 있으면 제거
-    if (currentCountryMarker){
-      map.removeLayer(currentCountryMarker);
-      currentCountryMarker = null;
-    }
-
-    // 3) 선택된 국가 중심에 🔴 빨간 마커 추가
-    currentCountryMarker = L.marker(center, { icon: makeSvgPinIcon(pinSearch) })
-      .addTo(markerLayer);
-
-    // 4) 줌을 한 단계 더 당겨서 조금 더 가까이 보기
-    const z = map.getZoom();
-    const targetZoom = Math.min(z + 1, 8);   // 필요하면 8 대신 9/10 으로 조절
-    map.setView(center, targetZoom, { animate:true });
-  }
+  if (bounds.length) map.fitBounds(bounds, { padding:[20,20] });
 }
 
-function zoomToRegion(regionName, {fallbackZoom=10} = {}){
+
+function zoomToRegion(regionName, {fallbackZoom=11} = {}){   // 🔎 기본 줌을 11로 조금 더 확대
   if (!map || !regionName) return;
   const name = String(regionName).trim();
   if (!name) return;
@@ -528,11 +506,28 @@ function zoomToRegion(regionName, {fallbackZoom=10} = {}){
     const b = name.replace(/,/g,'').trim().toLowerCase();
     hit = __countryPoints.find(p => (p.name||'').toLowerCase().includes(b));
   }
+
   if (hit && Number.isFinite(hit.lat) && Number.isFinite(hit.lng)) {
-    map.setView([hit.lat, hit.lng], fallbackZoom, { animate:true });
+    const target = [hit.lat, hit.lng];
+
+    // 1) 지도 뷰 이동
+    map.setView(target, fallbackZoom, { animate:true });
+
+    // 2) 기존 선택 마커 제거
+    if (currentRegionMarker){
+      try { markerLayer.removeLayer(currentRegionMarker); } catch(_){}
+      currentRegionMarker = null;
+    }
+
+    // 3) 선택된 지역 위치에 🔴 빨간 마커 추가
+    currentRegionMarker = L.marker(target, { icon: makeSvgPinIcon(pinSearch) })
+      .addTo(markerLayer);
+
+    // 4) 기존 파란 마커에 팝업이 있으면 열어주기(있으면)
     try { hit.marker?.openPopup?.(); } catch(_){}
   }
 }
+
 function getCountry(){ const el = document.querySelector('#countryCombo input'); return el?.value?.trim() || ''; }
 function getRegion(){  const el = document.querySelector('#regionCombo input');  return el?.value?.trim() || ''; }
 function setRegion(v){
@@ -542,7 +537,7 @@ function setRegion(v){
     combo.dispatchEvent(new Event('input',{bubbles:true}));
     combo.dispatchEvent(new Event('change',{bubbles:true}));
   }
-  zoomToRegion(v, { fallbackZoom: 10 });
+  zoomToRegion(v, { fallbackZoom: 12 });
 }
 
 /* ============================================================================
@@ -749,7 +744,7 @@ function wireEventsRemainder(){
 
   rcEl?.addEventListener('change', async ()=>{
     const region = getRegion();
-    if (region) zoomToRegion(region, { fallbackZoom: 10 });
+    if (region) zoomToRegion(region, { fallbackZoom: 12 });
   });
 
   const sumRoot  = document.getElementById('collapsedSummary');       // 섹션 전체
