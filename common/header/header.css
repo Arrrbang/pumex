@@ -1,6 +1,6 @@
 /* ========== 헤더 전용 변수는 필요 시 여기에 둘 수 있음 ========== */
 :root{
-  --header-h: 4rem;
+  --header-h: 3rem;
   --gutter: 1.25rem;
 }
 
@@ -8,6 +8,9 @@
 html, body{
   margin: 0;
   padding: 0;
+}
+body{
+  padding-top: var(--header-h);             /* 헤더만큼 내림 */
 }
 
 /* ========== 헤더 영역 전체 ========== */
