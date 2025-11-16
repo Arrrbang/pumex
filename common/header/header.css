@@ -1,7 +1,8 @@
 /* ========== 헤더 전용 변수는 필요 시 여기에 둘 수 있음 ========== */
 :root{
-  --header-h: 3rem;
-  --gutter: 1.25rem;
+  --header-h: 3rem;            /* 헤더 높이 */
+  --container-max: 1200px;     /* .container 최대폭 */
+  --gutter: 1.25rem;           /* 좌우 여백 */
 }
 
 /* ========== 기본 reset (html/body 여백 제거는 헤더와 직결됨) ========== */
@@ -10,7 +11,14 @@ html, body{
   padding: 0;
 }
 body{
-  padding-top: var(--header-h);             /* 헤더만큼 내림 */
+  margin: 0;  
+  padding-top: var(--header-h);  /* 헤더만큼 아래로 밀어줌 */
+  background: #F2F5FA;
+}
+.container{ 
+  max-width: var(--container-max); 
+  margin: 0 auto; 
+  padding-inline: var(--gutter); 
 }
 
 /* ========== 헤더 영역 전체 ========== */
@@ -40,12 +48,13 @@ body{
   .site-header .container,
   .site-header .header-inner{
     height: 100%;
+    max-width: var(--container-max);   /* ✅ 1200px 최대폭 */
     width: 100%;
-    margin: 0;
-    padding-left: 3rem;
-    padding-right: 1.25rem;
+    margin: 0 auto;                    /* ✅ 가운데 정렬 */
+    padding-left: var(--gutter);       /* ✅ 좌우 패딩 토큰 재사용 */
+    padding-right: var(--gutter);
     display: flex;
-    align-items: center;      /* 로고 + 타이틀 묶음을 수직 가운데 */
+    align-items: center;
     box-sizing: border-box;
   }
 
