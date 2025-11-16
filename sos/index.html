@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../header/header.css">
+  <link rel="stylesheet" href="../common/header/header.css">
   
   <style>
     body{
@@ -148,6 +148,8 @@
   </style>
 </head>
 <body>
+<div id="header-placeholder"></div>
+  
   <div class="sos-wrap">
     <h1>SOS 요금 조회</h1>
 
@@ -199,14 +201,14 @@
 
   
 <script>
-  fetch('../header/header.html')
+  fetch('../common/header/header.html')
     .then(res => res.text())
     .then(html => {
-      document.getElementById('global-header').innerHTML = html;
+      document.getElementById('header-placeholder').innerHTML = html;
     })
     .catch(err => console.error('Header load error:', err));
 </script>
-<script src="../header/header.js"></script>
+<script src="../common/header/header.js"></script>
   <script>
     // ───────────────────────── 공휴일 + 달력 렌더 ─────────────────────────
     const API_BASE = "https://notion-api-hub.vercel.app";
