@@ -831,14 +831,6 @@ input[type="number"]{
   z-index: 0; /* 컨테이너 뒤쪽 */
 }
 
-/* 마우스 오버/포커스/활성(자식 버튼에 .is-active가 있으면) 시 컨테이너 부각 */
-#cost-button-container:hover,
-#cost-button-container:focus-within,
-#cost-button-container:has(.cost-btn.is-active){
-  background: #fff;                     /* 컨테이너를 흰색으로 채움 */
-  box-shadow: 1px -3px 12px rgba(0,0,0,.12); /* x=1, y=-3 오프셋 그림자 */
-}
-
 /* 버튼은 컨테이너 위로 '올라온' 느낌을 주도록 살짝 위계 조정 */
 #cost-button-container .cost-btn{
   position: relative;
