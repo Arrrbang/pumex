@@ -49,17 +49,8 @@
 /* ========================================================================== */
 /* 1) 기본 구조 + 페이지 배경                                                     */
 /* ========================================================================== */
-*{ box-sizing: border-box; }
-html{ font-size: clamp(14px, 1.2vw, 16px); }
-html, body{
-  margin: 0;
-  padding: 0;
-}
 body{
-  margin: 0;  
-  padding-top: var(--header-h);             /* 헤더만큼 내림 */
   position: relative;
-  background: #F2F5FA;                      /* 페이지 배경색 */
   min-height: calc(100dvh - var(--header-h));
 }
 
