@@ -203,10 +203,15 @@
     .then(res => res.text())
     .then(html => {
       document.getElementById('header-placeholder').innerHTML = html;
+
+      if (window.setActiveHeaderMenu) {
+        window.setActiveHeaderMenu();
+      }
     })
     .catch(err => console.error('Header load error:', err));
 </script>
 <script src="../common/header/header.js"></script>
+
   <script>
     // ───────────────────────── 공휴일 + 달력 렌더 ─────────────────────────
     const API_BASE = "https://notion-api-hub.vercel.app";
