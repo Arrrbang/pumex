@@ -9,7 +9,7 @@ const consoleMenu = document.getElementById("menu-console");
 
 // 연결될 URL
 const destinationURL = "https://arrrbang.github.io/pumex/destinationcost/";
-const pumexsosURL = "추후입력";
+const pumexsosURL = "https://arrrbang.github.io/pumex/sos/";
 const provincial_packing_feeURL = "추후입력";
 const TRCURL = "추후입력";
 const consoleURL = "추후입력";
