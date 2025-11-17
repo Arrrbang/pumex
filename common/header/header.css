@@ -1,9 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap');
 
 :root{
-  --header-h: 3rem;            /* 헤더 높이 */
-  --container-max: 1200px;     /* .container 최대폭 */
-  --gutter: 1.25rem;           /* 좌우 여백 */
+  --header-h: 3rem;
+  --main-space-h:3rem;
+  --container-max: 1200px;
+  --gutter: 1.25rem;
+  --basic-container-border: 1px solid #d1d5db;
+  --basic-container-border-radius: 1rem;
 }
 *{ box-sizing: border-box; }
 html{ font-size: clamp(14px, 1.2vw, 16px); }
