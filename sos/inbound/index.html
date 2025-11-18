@@ -10,7 +10,21 @@
   <link rel="stylesheet" href="../../common/header/header.css">
   
   <style>
-
+    
+    .sos-title {
+      text-align: left;
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      margin-left: rem;
+      color: #111;
+    }
+    .sos-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--light-gray-color);
+      margin: 0 0 1.5rem;  /* sos-title과 아래 요소와의 간격 */
+    }
     .sos-layout{
       display:flex;
       align-items:flex-start;
@@ -283,6 +297,8 @@
     <div class="vertical-divider"></div>
 
     <div class="sos-wrap">
+      <h1 class="sos-title">INBOUND SOS 계산</h1>
+      <div class="sos-divider"></div>
       <!-- 컨트롤 -->
       <div class="controls">
         <div class="field">
