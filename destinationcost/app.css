@@ -87,7 +87,7 @@ body::after{
   padding-bottom: var(--gutter);
   max-width: none !important;
   width: 90vw !important;               /* 전체폭의 90% */
-  margin: 3rem auto 2rem auto !important;
+  margin: 0 auto 2rem auto !important;
   box-sizing: border-box;
   overflow: visible !important;
   transition: max-height .36s ease, opacity .24s ease;
