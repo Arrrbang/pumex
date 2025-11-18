@@ -639,7 +639,6 @@ input[type="number"]{
 .app-shell{
   min-height: 0 !important;    /* 기존 43rem 고정 해제 */
   height: auto !important;      /* 내용 높이만큼 */
-  margin-top: calc(var(--header-h) + 1rem) !important; /* 상단 정렬 느낌 강화 */
 }
 
 .left-pane,
