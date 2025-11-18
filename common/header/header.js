@@ -12,7 +12,7 @@ function setActiveHeaderMenu() {
 
   // 연결될 URL
   const destinationURL = "https://arrrbang.github.io/pumex/destinationcost/";
-  const pumexsosURL = "https://arrrbang.github.io/pumex/sos/";
+  const pumexsosURL = "https://arrrbang.github.io/pumex/sos/outbound/";
   const provincial_packing_feeURL = "추후입력";
   const trcURL = "추후입력";
   const consoleURL = "추후입력";
