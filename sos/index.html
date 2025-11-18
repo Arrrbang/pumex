@@ -10,16 +10,28 @@
   <link rel="stylesheet" href="../common/header/header.css">
   
   <style>
-    body{
-      margin: var(--main-space-h);
 
+    .sos-layout{
+      display:flex;
+      align-items:flex-start;
+      gap:2rem;
+      max-width: 1200px;             /* 달력(400) + sos(720) */
+      margin: var(--main-space-h) auto;
     }
+
+    .vertical-divider {
+      width: 1px;                 /* 선 두께 */
+      background:#d1d5db;         /* #ccc보다 은은한 회색 */
+      align-self: stretch;        /* 위아래 전체 높이 채우기 */
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+
     .sos-wrap{
       max-width:720px;
-      margin: 0rem auto auto;
-      background:#fff;
-      border-radius: var(--basic-container-border-radius);
-      border: var(--basic-container-border);
+      width:100%;
+      margin: 0;
       padding:0.8rem 1.5rem 0.8rem;
     }
     h1{
@@ -30,7 +42,7 @@
       display:flex;
       flex-wrap:wrap;
       gap:1rem;
-      margin-bottom:1.5rem;
+      margin-bottom:1rem;
       align-items:flex-end;
     }
     .field{
@@ -55,25 +67,30 @@
       padding:.5rem 1.4rem;
       border-radius:999px;
       border:none;
-      background:#2563eb;
+      background: var(--btn-basic-color);
       color:#fff;
       font-weight:600;
       cursor:pointer;
       font-size:.95rem;
+      min-width:10rem;
+      display: block;
+      margin: 0 auto;
     }
     .btn:disabled{
       opacity:.6;
       cursor:default;
     }
+    .btn:hover:not(:disabled) {
+      background: var(--btn-basic-hover-color);
+    }
 
     /* 달력 */
-    .calendar{
-      max-width: 400px;  /* 원하는 크기 */
-      margin: var(--main-space-h) auto 2rem;   /* 가운데 정렬, 아래 마진 2rem */
-      padding: 0.8rem;
-      border-radius: var(--basic-container-border-radius);
-      background-color: #fff;
-    }
+      .calendar{
+        max-width: 400px;
+        width: 400px;
+        margin: 0;
+        padding: 0.8rem;
+      }
       .combo {
         position: relative;
       }
@@ -147,6 +164,9 @@
       border-radius: .4rem;
       cursor: pointer;
     }
+    .cal-cell:not(.empty):hover {
+      background: #f3f4f6;   /* 아주 연한 회색 */
+    }
     .cal-cell.empty{
       cursor:default;
     }
@@ -174,7 +194,7 @@
 
     /* ───────── 차감 컨테이너 스타일 ───────── */
     .deduct-section{
-      margin: 0.75rem 0 0.5rem;
+      margin: 0 0 1rem;
     }
 
     .deduct-row{
@@ -187,9 +207,9 @@
     /* + 버튼 (왼쪽 작은 사각형) */
     .deduct-add-btn,
     .deduct-remove-btn{
-      width:2.4rem;
-      height:2.4rem;
-      border-radius:.75rem;
+      width:1.8rem;
+      height:1.8rem;
+      border-radius:0.5rem;
       border:1px solid #b3a8aa;
       background:#fff;
       display:flex;
@@ -214,9 +234,9 @@
     /* 오른쪽 긴 입력 컨테이너 */
     .deduct-input{
       flex:1;
-      border:1px solid #b3a8aa;
-      border-radius:999px;
-      padding:.55rem .9rem;
+      border:1px solid #ccc;
+      border-radius:.5rem;
+      padding:.4rem .6rem;
       font-size:.9rem;
       outline:none;
       text-align:left;
@@ -248,65 +268,69 @@
 
 
     <!-- 달력 -->
-    <div class="calendar">
-      <div class="cal-header">
-        <button type="button" id="btnPrevMonth">◀</button>
-        <h2 id="calTitle"></h2>
-        <button type="button" id="btnNextMonth">▶</button>
-      </div>
-      <div class="cal-grid" id="calGrid">
-        <!-- JS가 요일 헤더 + 날짜 채움 -->
-      </div>
-    </div>
-
-  <div class="sos-wrap">
-    <!-- 컨트롤 -->
-    <div class="controls">
-      <div class="field">
-        <label for="dateInput">작업일</label>
-        <input id="dateInput" type="date" />
+  <div class="sos-layout">
+      <div class="calendar">
+        <div class="cal-header">
+          <button type="button" id="btnPrevMonth">◀</button>
+          <h2 id="calTitle"></h2>
+          <button type="button" id="btnNextMonth">▶</button>
+        </div>
+        <div class="cal-grid" id="calGrid">
+          <!-- JS가 요일 헤더 + 날짜 채움 -->
+        </div>
       </div>
 
-      <div class="field">
-        <label for="typeSelect">타입</label>
-        <select id="typeSelect">
-          <option value="CONSOLE">CONSOLE</option>
-          <option value="20DRY">20DRY</option>
-          <option value="40HC">40HC</option>
-        </select>
+    <div class="vertical-divider"></div>
+
+    <div class="sos-wrap">
+      <!-- 컨트롤 -->
+      <div class="controls">
+        <div class="field">
+          <label for="dateInput">작업일</label>
+          <input id="dateInput" type="date" />
+        </div>
+
+        <div class="field">
+          <label for="typeSelect">타입</label>
+          <select id="typeSelect">
+            <option value="CONSOLE">CONSOLE</option>
+            <option value="20DRY">20DRY</option>
+            <option value="40HC">40HC</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="cbmComboInput">CBM</label>
+          <div class="combo" id="cbmCombo">
+            <input type="text" id="cbmComboInput" placeholder="CBM 입력 또는 선택" autocomplete="off">
+            <div class="list" id="cbmComboList"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="field">
-        <label for="cbmComboInput">CBM</label>
-        <div class="combo" id="cbmCombo">
-          <input type="text" id="cbmComboInput" placeholder="CBM 입력 또는 선택" autocomplete="off">
-          <div class="list" id="cbmComboList"></div>
+      <div class="deduct-section" id="deductSection">
+        <div class="deduct-row">
+          <button type="button" class="deduct-add-btn" id="btnAddDeduct">+</button>
+          <input
+            type="text"
+            class="deduct-input"
+            placeholder="도급비 입력"
+          />
         </div>
       </div>
 
       <button class="btn" id="btnFetch">조회</button>
-    </div>
 
-    <div class="deduct-section" id="deductSection">
-      <div class="deduct-row">
-        <button type="button" class="deduct-add-btn" id="btnAddDeduct">+</button>
-        <input
-          type="text"
-          class="deduct-input"
-          placeholder="도급비 입력"
-        />
+      <div class="result" id="resultBox" hidden>
+        <div id="resultDesc"></div>
+          <div id="resultOriginal"></div>
+        <div class="value" id="resultValue"></div>
+        <div id="resultExtra"></div>
       </div>
-    </div>
-
-    <div class="result" id="resultBox" hidden>
-      <div id="resultDesc"></div>
-        <div id="resultOriginal"></div>
-      <div class="value" id="resultValue"></div>
-      <div id="resultExtra"></div>
     </div>
   </div>
 
-  
+
 <script>
   fetch('../common/header/header.html')
     .then(res => res.text())
@@ -464,9 +488,9 @@
     const cbmInput = document.getElementById('cbmComboInput');
     const cbmList  = document.getElementById('cbmComboList');
 
-    // CBM 1~60 리스트 생성
+    // CBM 1~80 리스트 생성
     const cbmArray = [];
-    for (let i = 1; i <= 60; i++) cbmArray.push(i);
+    for (let i = 1; i <= 80; i++) cbmArray.push(i);
 
     // 리스트 렌더링
     function renderCbmList(filter = '') {
@@ -497,7 +521,7 @@
 
       // 숫자 정확히 입력 시 자동 선택
       const num = Number(text);
-      if (num >= 1 && num <= 60) {
+      if (num >= 1 && num <= 80) {
         cbmInput.value = num;
       }
     });
@@ -654,4 +678,5 @@
   </script>
 </body>
 </html>
+
 
