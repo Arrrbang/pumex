@@ -19,5 +19,23 @@ function setActiveHeaderMenu() {
   if (pumexsosMenu && currentURL.startsWith(pumexsosURL)) {
     pumexsosMenu.classList.add("always-on");
   }
+  if (provincial_packing_feeMenu && currentURL === provincial_packing_feeURL) {
+    provincial_packing_feeMenu.classList.add("always-on");
+  }
+  if (trcMenu && currentURL === trcURL) {
+    trcMenu.classList.add("always-on");
+  }
+  if (consoleMenu && currentURL === consoleURL) {
+    consoleMenu.classList.add("always-on");
+  }
+}
+
+// 🔥 전역 바인딩 + 자동 1회 실행
+window.setActiveHeaderMenu = setActiveHeaderMenu;
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setActiveHeaderMenu);
+} else {
+  setActiveHeaderMenu();
 }
 
