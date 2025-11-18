@@ -640,7 +640,7 @@
     
       try{
         const params = new URLSearchParams({ date:selectedDateStr, type, cbm });
-        const res = await fetch(`${API_BASE}/api/inbound-sos-rate?${params.toString()}`);
+        const res = await fetch(`${API_BASE}/api/sos-rate/inbound?${params.toString()}`);
         const data = await res.json();
 
         if (!res.ok || !data.ok){
