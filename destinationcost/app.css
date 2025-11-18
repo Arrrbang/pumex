@@ -82,9 +82,6 @@ body::after{
   border: none !important;
   backdrop-filter: none !important;
   border-radius: 1rem;
-  padding-top: var(--gutter);
-  padding-right: var(--gutter);
-  padding-bottom: var(--gutter);
   max-width: none !important;
   width: 90vw !important;               /* 전체폭의 90% */
   margin: 0 auto 2rem auto !important;
