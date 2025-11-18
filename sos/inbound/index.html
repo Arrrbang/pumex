@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>SOS 요금 조회</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../common/header/header.css">
+  
+  <style>
+
+    .sos-layout{
+      display:flex;
+      align-items:flex-start;
+      gap:2rem;
+      max-width: 1200px;             /* 달력(400) + sos(720) */
+      margin: var(--main-space-h) auto;
+    }
+
+    .vertical-divider {
+      width: 1px;                 /* 선 두께 */
+      background:#d1d5db;         /* #ccc보다 은은한 회색 */
+      align-self: stretch;        /* 위아래 전체 높이 채우기 */
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+    }
+
+
+    .sos-wrap{
+      max-width:720px;
+      width:100%;
+      margin: 0;
+      padding:0.8rem 1.5rem 0.8rem;
+    }
+    h1{
+      font-size:1.4rem;
+      margin:0 0 0rem;
+    }
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:1rem;
+      margin-bottom:1rem;
+      align-items:flex-end;
+    }
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:.25rem;
+      min-width:130px;
+      flex:1 1 0;
+    }
+    .field label{
+      font-size:.85rem;
+      color:#555;
+    }
+    .field input,
+    .field select{
+      border:1px solid #ccc;
+      border-radius:.5rem;
+      padding:.4rem .6rem;
+      font-size:.9rem;
+    }
+    .btn{
+      padding:.5rem 1.4rem;
+      border-radius:999px;
+      border:none;
+      background: var(--btn-basic-color);
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      font-size:.95rem;
+      min-width:10rem;
+      display: block;
+      margin: 0 auto;
+    }
+    .btn:disabled{
+      opacity:.6;
+      cursor:default;
+    }
+    .btn:hover:not(:disabled) {
+      background: var(--btn-basic-hover-color);
+    }
+
+    /* 달력 */
+      .calendar{
+        max-width: 400px;
+        width: 400px;
+        margin: 0;
+        padding: 0.8rem;
+      }
+      .combo {
+        position: relative;
+      }
+
+      .combo input {
+        width: 100%;
+        padding: .4rem .6rem;
+        border: 1px solid #ccc;
+        border-radius: .5rem;
+        font-size: .9rem;
+      }
+
+      .combo .list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-height: 180px;
+        overflow-y: auto;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: .5rem;
+        display: none;
+        z-index: 20;
+      }
+
+      .combo .item {
+        padding: .4rem .6rem;
+        cursor: pointer;
+      }
+
+      .combo .item:hover {
+        background: #f3f4f6;
+      }
+    .cal-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:.5rem;
+    }
+    .cal-header button{
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      font-size:1.1rem;
+      padding:.25rem .5rem;
+    }
+
+    /* 달력 년-월 폰트 사이즈  */
+    .cal-header h2{
+      font-size:1.4rem;
+      margin:0;
+    }
+    .cal-grid{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:.25rem;
+      font-size:.8rem;
+    }
+    .cal-day-name{
+      text-align:center;
+      font-weight:600;
+      padding:.2rem 0;
+      color:#666;
+    }
+    .cal-cell {
+      aspect-ratio: 1 / 1;     /* 정사각형 */
+      display: flex;           /* flex 정렬 */
+      align-items: center;     /* 세로 중앙 */
+      justify-content: center; /* 가로 중앙 */
+      border-radius: .4rem;
+      cursor: pointer;
+    }
+    .cal-cell:not(.empty):hover {
+      background: #f3f4f6;   /* 아주 연한 회색 */
+    }
+    .cal-cell.empty{
+      cursor:default;
+    }
+    .cal-cell.out{
+      opacity:.4;
+    }
+    .cal-cell.weekend{
+      color:#e11d48;
+    }
+    .cal-cell.holiday{
+      background:#fee2e2;
+      color:#b91c1c;
+    }
+    .cal-cell.selected{
+      background:#2563eb;
+      color:#fff;
+      font-weight:700;
+    }
+    .status{
+      font-size:.85rem;
+      color:#555;
+      margin-bottom:.75rem;
+    }
+    .status strong{ color:#111; }
+
+    /* ───────── 차감 컨테이너 스타일 ───────── */
+    .deduct-section{
+      margin: 0 0 1rem;
+    }
+
+    .deduct-row{
+      display:flex;
+      align-items:center;
+      gap:.75rem;
+      margin-bottom:.4rem;
+    }
+
+    /* + 버튼 (왼쪽 작은 사각형) */
+    .deduct-add-btn,
+    .deduct-remove-btn{
+      width:1.8rem;
+      height:1.8rem;
+      border-radius:0.5rem;
+      border:1px solid #b3a8aa;
+      background:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1.4rem;
+      line-height:1;
+      cursor:pointer;
+      padding:0;
+    }
+
+    .deduct-remove-btn{
+      font-weight:700;
+    }
+
+    /* 아래로 새 줄 생길 때 아이콘 자리 맞추는 용도 */
+    .deduct-icon-spacer{
+      width:2.4rem;
+      height:2.4rem;
+    }
+
+    /* 오른쪽 긴 입력 컨테이너 */
+    .deduct-input{
+      flex:1;
+      border:1px solid #ccc;
+      border-radius:.5rem;
+      padding:.4rem .6rem;
+      font-size:.9rem;
+      outline:none;
+      text-align:left;
+    }
+
+    .deduct-input:focus{
+      border-color:#2563eb;
+      box-shadow:0 0 0 1px rgba(37,99,235,.15);
+    }
+
+    .result{
+      margin-top:1rem;
+      padding:.75rem 1rem;
+      border-radius:.75rem;
+      background:#f9fafb;
+      font-size:.9rem;
+      line-height:1.5;
+    }
+    .result .value{
+      font-size:1.2rem;
+      font-weight:700;
+      margin-top:.25rem;
+    }
+  </style>
+</head>
+<body>
+<div id="header-placeholder"></div>
+  
+
+
+    <!-- 달력 -->
+  <div class="sos-layout">
+      <div class="calendar">
+        <div class="cal-header">
+          <button type="button" id="btnPrevMonth">◀</button>
+          <h2 id="calTitle"></h2>
+          <button type="button" id="btnNextMonth">▶</button>
+        </div>
+        <div class="cal-grid" id="calGrid">
+          <!-- JS가 요일 헤더 + 날짜 채움 -->
+        </div>
+      </div>
+
+    <div class="vertical-divider"></div>
+
+    <div class="sos-wrap">
+      <!-- 컨트롤 -->
+      <div class="controls">
+        <div class="field">
+          <label for="dateInput">작업일</label>
+          <input id="dateInput" type="date" />
+        </div>
+
+        <div class="field">
+          <label for="typeSelect">타입</label>
+          <select id="typeSelect">
+            <option value="CONSOLE">CONSOLE</option>
+            <option value="20DRY">20DRY</option>
+            <option value="40HC">40HC</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="cbmComboInput">CBM</label>
+          <div class="combo" id="cbmCombo">
+            <input type="text" id="cbmComboInput" placeholder="CBM 입력 또는 선택" autocomplete="off">
+            <div class="list" id="cbmComboList"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="deduct-section" id="deductSection">
+        <div class="deduct-row">
+          <button type="button" class="deduct-add-btn" id="btnAddDeduct">+</button>
+          <input
+            type="text"
+            class="deduct-input"
+            placeholder="도급비 입력"
+          />
+        </div>
+      </div>
+
+      <button class="btn" id="btnFetch">조회</button>
+
+      <div class="result" id="resultBox" hidden>
+        <div id="resultDesc"></div>
+          <div id="resultOriginal"></div>
+        <div class="value" id="resultValue"></div>
+        <div id="resultExtra"></div>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+  fetch('../common/header/header.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('header-placeholder').innerHTML = html;
+
+      if (window.setActiveHeaderMenu) {
+        window.setActiveHeaderMenu();
+      }
+    })
+    .catch(err => console.error('Header load error:', err));
+</script>
+<script src="../common/header/header.js"></script>
+
+  <script>
+    // ───────────────────────── 공휴일 + 달력 렌더 ─────────────────────────
+    const API_BASE = "https://notion-api-hub.vercel.app";
+    const calGrid   = document.getElementById('calGrid');
+    const calTitle  = document.getElementById('calTitle');
+    const dateInput = document.getElementById('dateInput');
+    const statusEl  = document.getElementById('dateStatus');
+
+    const today     = new Date();
+    let currentYear = today.getFullYear();
+    let currentMonth= today.getMonth(); // 0=Jan
+    let selectedDateStr = null;         // "YYYY-MM-DD"
+    const holidaySets = {};             // { [year]: Set<'YYYY-MM-DD'> }
+
+    const KR_HOLIDAY_API = 'https://date.nager.at/api/v3/PublicHolidays';
+
+    async function loadHolidaySet(year){
+      if (holidaySets[year]) return holidaySets[year];
+      const res = await fetch(`${KR_HOLIDAY_API}/${year}/KR`);
+      if (!res.ok) {
+        holidaySets[year] = new Set();
+        return holidaySets[year];
+      }
+      const data = await res.json();
+      const set = new Set(data.map(h => h.date));
+      holidaySets[year] = set;
+      return set;
+    }
+
+    function formatDate(y,m,d){
+      const mm = String(m+1).padStart(2,'0');
+      const dd = String(d).padStart(2,'0');
+      return `${y}-${mm}-${dd}`;
+    }
+
+    function isWeekendKST(y, monthIndex, d) {
+      // y: 연도, monthIndex: 0~11, d: 일
+      const dt = new Date(y, monthIndex, d); // 로컬 타임존 기준
+      const day = dt.getDay();               // 0=일, 6=토 (로컬 기준)
+      return day === 0 || day === 6;
+    }
+
+    async function renderCalendar(){
+      const year = currentYear;
+      const month= currentMonth;
+
+      const holidaySet = await loadHolidaySet(year);
+
+      calGrid.innerHTML = '';
+
+      // 요일 헤더
+      const dayNames = ['일','월','화','수','목','금','토'];
+      dayNames.forEach((name,idx)=>{
+        const div = document.createElement('div');
+        div.textContent = name;
+        div.className = 'cal-day-name' + (idx===0 || idx===6 ? ' weekend':'');
+        calGrid.appendChild(div);
+      });
+
+      // 해당 월 1일 요일
+      const firstDate = new Date(year, month, 1);
+      const firstDay  = firstDate.getDay();   // 0~6
+      const daysInMonth = new Date(year, month+1, 0).getDate();
+
+      // 이전 달 공백
+      for(let i=0;i<firstDay;i++){
+        const cell = document.createElement('div');
+        cell.className = 'cal-cell empty';
+        calGrid.appendChild(cell);
+      }
+
+      for(let d=1; d<=daysInMonth; d++){
+        const cell = document.createElement('div');
+        const dateStr = formatDate(year, month, d);
+        cell.textContent = d;
+        cell.className = 'cal-cell';
+
+        const weekend = isWeekendKST(year, month, d);
+        const holiday = holidaySet.has(dateStr);
+
+        if (weekend) cell.classList.add('weekend');
+        if (holiday) cell.classList.add('holiday');
+        if (selectedDateStr === dateStr) cell.classList.add('selected');
+
+        cell.dataset.date = dateStr;
+        cell.addEventListener('click', ()=>{
+          selectedDateStr = dateStr;
+          dateInput.value = dateStr;
+          updateStatus();
+          renderCalendar(); // 다시 렌더해서 선택 표시
+        });
+
+        calGrid.appendChild(cell);
+      }
+
+      calTitle.textContent = `${year}년 ${month+1}월`;
+    }
+
+      function updateStatus(){      
+        const [y,m,d] = selectedDateStr.split('-').map(Number);
+        const weekend = isWeekendKST(y, m-1, d);
+      
+        const year = String(y);
+        const set  = holidaySets[year];              // Nager.Date로 받아온 공휴일 세트
+        const isHoliday = set ? set.has(selectedDateStr) : false;
+      
+        const isOffDay = weekend || isHoliday;       // ⭐ 토/일 + 법정 공휴일 = 전부 주말 취급
+      
+      }
+
+
+    document.getElementById('btnPrevMonth').addEventListener('click', ()=>{
+      currentMonth--;
+      if (currentMonth < 0){ currentMonth = 11; currentYear--; }
+      renderCalendar();
+    });
+    document.getElementById('btnNextMonth').addEventListener('click', ()=>{
+      currentMonth++;
+      if (currentMonth > 11){ currentMonth = 0; currentYear++; }
+      renderCalendar();
+    });
+
+    dateInput.addEventListener('change', ()=>{
+      selectedDateStr = dateInput.value || null;
+      if (selectedDateStr) {
+        const dt = new Date(selectedDateStr + "T00:00:00");
+        currentYear  = dt.getFullYear();
+        currentMonth = dt.getMonth();
+      }
+      updateStatus();
+      renderCalendar();
+    });
+
+    // 초기 날짜
+    selectedDateStr = formatDate(today.getFullYear(), today.getMonth(), today.getDate());
+    dateInput.value = selectedDateStr;
+    updateStatus();
+    renderCalendar();
+
+    // ───────────────────────── CBM 콤보박스 로직 ─────────────────────────
+    const cbmInput = document.getElementById('cbmComboInput');
+    const cbmList  = document.getElementById('cbmComboList');
+
+    // CBM 1~80 리스트 생성
+    const cbmArray = [];
+    for (let i = 1; i <= 80; i++) cbmArray.push(i);
+
+    // 리스트 렌더링
+    function renderCbmList(filter = '') {
+      cbmList.innerHTML = '';
+      const lower = filter.toLowerCase();
+
+      cbmArray
+        .filter((v) => v.toString().startsWith(lower))
+        .forEach((v) => {
+          const div = document.createElement('div');
+          div.textContent = `${v} CBM`;
+          div.dataset.value = v;
+          div.className = 'item';
+          div.addEventListener('click', () => {
+            cbmInput.value = v;
+            cbmList.style.display = 'none';
+          });
+          cbmList.appendChild(div);
+        });
+
+      cbmList.style.display = 'block';
+    }
+
+    // 입력 시 자동 필터링
+    cbmInput.addEventListener('input', () => {
+      const text = cbmInput.value.trim();
+      renderCbmList(text);
+
+      // 숫자 정확히 입력 시 자동 선택
+      const num = Number(text);
+      if (num >= 1 && num <= 80) {
+        cbmInput.value = num;
+      }
+    });
+
+    // 포커스 시 리스트 열기
+    cbmInput.addEventListener('focus', () => {
+      renderCbmList('');
+    });
+
+    // input 밖 클릭 시 닫기
+    document.addEventListener('click', (e) => {
+      if (!cbmInput.contains(e.target) && !cbmList.contains(e.target)) {
+        cbmList.style.display = 'none';
+      }
+    });
+
+    // ───────────────────────── 차감 입력 컨테이너 로직 ─────────────────────────
+    const deductSection = document.getElementById('deductSection');
+    const btnAddDeduct  = document.getElementById('btnAddDeduct');
+
+    // 숫자 입력을 천단위 콤마로 포맷하는 함수
+    function formatNumberWithCommas(value){
+      const onlyDigits = value.replace(/[^\d]/g, '');  // 숫자만 남기기
+      if (!onlyDigits) return '';
+      const num = Number(onlyDigits);
+      if (Number.isNaN(num)) return '';
+      return num.toLocaleString('ko-KR');
+    }
+
+    // input 요소에 포맷 이벤트 바인딩
+    function attachFormatHandler(input){
+      input.addEventListener('input', () => {
+        const cursorToEnd = document.activeElement === input;
+        const formatted = formatNumberWithCommas(input.value);
+        input.value = formatted;
+        if (cursorToEnd) {
+          // 커서는 맨 끝으로 가지만, 이 정도는 UX상 크게 문제 안 됨
+          input.selectionStart = input.selectionEnd = input.value.length;
+        }
+      });
+    }
+
+    // 새 차감 줄 생성 ( - 버튼 포함 )
+    function createDeductRow(){
+      const row = document.createElement('div');
+      row.className = 'deduct-row';
+
+      const minusBtn = document.createElement('button');
+      minusBtn.type = 'button';
+      minusBtn.className = 'deduct-remove-btn';
+      minusBtn.textContent = '−';   // 조금 예쁜 마이너스
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'deduct-input';
+      input.placeholder = '도급비 입력';
+
+      attachFormatHandler(input);
+
+      minusBtn.addEventListener('click', () => {
+        deductSection.removeChild(row);
+      });
+
+      row.appendChild(minusBtn);
+      row.appendChild(input);
+
+      deductSection.appendChild(row);
+    }
+
+    // 첫 줄 input에도 포맷 핸들러 연결
+    const firstDeductInput = deductSection.querySelector('.deduct-input');
+    if (firstDeductInput) attachFormatHandler(firstDeductInput);
+
+    // + 버튼 눌렀을 때 새 줄 추가
+    btnAddDeduct.addEventListener('click', () => {
+      createDeductRow();
+    });
+
+
+    // ───────────────────────── 조회 버튼: /api/sos-rate 호출 ─────────────────────────
+    const typeSelect = document.getElementById('typeSelect');
+    const btnFetch   = document.getElementById('btnFetch');
+    const resultBox  = document.getElementById('resultBox');
+    const resultDesc = document.getElementById('resultDesc');
+    const resultOriginal = document.getElementById('resultOriginal');
+    const resultVal  = document.getElementById('resultValue');
+    const resultExtra= document.getElementById('resultExtra');
+
+    btnFetch.addEventListener('click', async ()=>{
+      if (!selectedDateStr){
+        alert('날짜를 먼저 선택해 주세요.');
+        return;
+      }
+      const type = typeSelect.value;
+      const cbm  = cbmInput.value;
+
+    
+      btnFetch.disabled = true;
+      btnFetch.textContent = '조회중...';
+    
+      try{
+        const params = new URLSearchParams({ date:selectedDateStr, type, cbm });
+        const res = await fetch(`${API_BASE}/api/inbound-sos-rate?${params.toString()}`);
+        const data = await res.json();
+
+        if (!res.ok || !data.ok){
+          alert(data.error || '조회 실패');
+          resultBox.hidden = true;
+        } else {
+          resultBox.hidden = false;
+
+          resultDesc.textContent =
+            `${data.input.date} / ${data.input.weekdayType} / ${type} / ${cbm} CBM`;
+
+          const v = data.match.value;
+
+          if (v == null){
+            resultVal.textContent = '값 없음';
+            resultOriginal.textContent = '';   // 원본/차감 라인 비우기
+          } else {
+            // ✅ 차감 입력칸 값 모두 합산 (콤마 제거 후 숫자 변환)
+            let deductionTotal = 0;
+            document.querySelectorAll('.deduct-input').forEach(input => {
+              const cleaned = input.value.replace(/,/g, '').trim();
+              if (cleaned){
+                const n = Number(cleaned);
+                if (!Number.isNaN(n)) deductionTotal += n;
+              }
+            });
+
+            const finalValue = v - deductionTotal;
+
+            const originalStr  = v.toLocaleString('ko-KR');
+            const deductionStr = deductionTotal.toLocaleString('ko-KR');
+            const finalStr     = finalValue.toLocaleString('ko-KR');
+
+            // 🔹 위 줄: "원본 : xxx - 차감금액 : yyy ="
+            resultOriginal.textContent =
+              `(원본) ${originalStr} - (도급비) ${deductionStr} =`;
+
+            // 🔹 아래 줄: 최종 결과값
+            resultVal.textContent = `${finalStr} 원`;
+          }
+          resultExtra.textContent = data.match.extra ? `메모: ${data.match.extra}` : '';
+        }
+      }catch(e){
+        console.error(e);
+        alert('조회 중 오류가 발생했습니다.');
+      }finally{
+        btnFetch.disabled = false;
+        btnFetch.textContent = '조회';
+      }
+    });
+  </script>
+</body>
+</html>
+
