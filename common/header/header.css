@@ -132,6 +132,7 @@ body{
 
     .title-wrap.always-on .title-bar{
     transform: translateY(0) !important;
+    opacity: 1;
     }
 
 
