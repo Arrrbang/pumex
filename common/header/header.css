@@ -23,9 +23,9 @@ html, body{
 }
 
 body{
-  margin: 0;  
-  padding-top: var(--header-h);    /* 헤더 높이만큼 아래로 밀기 */
-  background: #F2F5FA;             /* 공통 배경색(원하면 유지) */
+  margin: 3rem;  
+  padding-top: calc(var(--header-h) + 3rem);
+  background: #fff;             /* 공통 배경색(원하면 유지) */
 }
 
 .container{ 
@@ -120,17 +120,66 @@ body{
 
     transform: translateY(100%);        /* 🔥 시작: 바닥 아래에 숨기기 */
     transition: transform 0.25s ease;   /* 애니메이션 */
+
+    opacity:0;
   }
 
   /* hover 시: title-bar 위로 올라옴 */
     .title-wrap:hover .title-bar{
     transform: translateY(0);           /* 🔥 바닥 기준 제자리 */
+    opacity: 1;
     }
 
     .title-wrap.always-on .title-bar{
     transform: translateY(0) !important;
     }
-/* ========== 헤더에서 body 아래로 밀어내기 ========== */
-body{
-  padding-top: var(--header-h);
-}
+
+
+/* ========== 원가계산 부분 하위 드롭다운 ========== */
+    .has-dropdown {
+      position: relative;
+      overflow: visible; 
+    }
+
+    .sos-dropdown {
+      position: absolute;
+      top: 100%;          /* 메뉴 바로 아래 */
+      left: 0;
+      right: 0;           /* 🔥 title-wrap 가로폭 전체를 그대로 따라감 */
+      width: 100%;
+
+      background: #fff;
+      border: 1px solid #ddd;
+      border-top: none;   /* 🔥 위에 있는 title-wrap 과 경계가 이어지는 느낌 */
+      border-radius: 0;   /* 🔥 모서리 곡률 제거 */
+
+      padding: 0.4rem 0;
+
+      /* 기본적으로 숨김 */
+      display: none;
+      flex-direction: column;
+
+      box-shadow: none;   /* 🔥 그림자 제거해서 '같은 박스에서 확장된 느낌' */
+      z-index: 1000;
+    }
+
+    /* hover 시 표시 */
+    .has-dropdown:hover .sos-dropdown {
+      display: flex;
+    }
+
+    /* 각 메뉴 버튼 스타일 */
+    .sos-item {
+      padding: 0.45rem 0;
+      font-size: 0.8rem;
+      color: #333;
+      text-decoration: none;
+      white-space: nowrap;
+      text-align:center;
+    }
+
+    .sos-item:hover {
+      background: #f3f4f6;
+      color: #000;
+    }
+
