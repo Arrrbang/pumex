@@ -472,7 +472,7 @@ input[type="number"]{
   white-space: nowrap;     /* 한 줄 유지 */
   padding-left: .25rem;
   padding-right: .25rem;
-  
+  text-align: center;
 }
 
 /* 3열 – 금액 */
