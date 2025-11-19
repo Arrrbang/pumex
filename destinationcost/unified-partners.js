@@ -260,11 +260,32 @@
 
   // ---------------------------- 공통 API 호출 ----------------------------
   async function fetchCompanies(country, region){
-    const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
+    const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options&debug=1`;
+    console.log('[DEBUG][fetchCompanies] url =', url);
     const r = await fetch(url, {cache:'no-store'});
-    const j = await r.json();
-    return (j.companies || []).filter(Boolean);
+
+    console.log('[DEBUG][fetchCompanies] HTTP status =', r.status);
+
+    let j = null;
+    try{
+      j = await r.json();
+    }catch(e){
+      console.error('[DEBUG][fetchCompanies] JSON parse error:', e);
+      return [];
+    }
+
+    console.log('[DEBUG][fetchCompanies] response json =', j);
+
+    const companies = (j.companies || []).filter(Boolean);
+    console.log('[DEBUG][fetchCompanies] companies length =', companies.length, 'companies =', companies);
+
+    if (j.debug){
+      console.log('[DEBUG][fetchCompanies] debug info =', j.debug);
+    }
+
+    return companies;
   }
+
   async function fetchPOEs(country, region, company){
     let url = `${BASE}/api/poe/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=options`;
     let res = await fetch(url, {cache:'no-store'});
@@ -531,18 +552,27 @@ function buildCbmTypeText(type, cbm){
       const companyAPI = getComboAPI(ids.company);
       const poeAPI     = getComboAPI(ids.poe);
 
+      console.log(`[DEBUG][loadCompanies:${ids.company}] country =`, country, 'region =', region);
+
       companyAPI.setItems([]); companyAPI.enable(false);
       poeAPI.setItems([]);     poeAPI.enable(false);
-      if(!country || !region) return;
+      if(!country || !region) {
+        console.log(`[DEBUG][loadCompanies:${ids.company}] country/region 없음 → early return`);
+        return;
+      }
 
       setComboLoading(ids.company, true);
       try{
         const companies = await fetchCompanies(country, region);
+        console.log(`[DEBUG][loadCompanies:${ids.company}] fetched companies =`, companies);
+
         companyAPI.setItems(companies);
         companyAPI.enable(companies.length>0);
+        console.log(`[DEBUG][loadCompanies:${ids.company}] enable =`, (companies.length>0));
 
         // 🔹 파트너가 1개뿐이면 자동 선택 + change 이벤트 발생
         if (companies.length === 1) {
+          console.log(`[DEBUG][loadCompanies:${ids.company}] only one company, auto-select =`, companies[0]);
           companyAPI.setValue?.(companies[0]);   // getComboAPI.setValue 안에서 change를 dispatch함
         }
       }catch(e){
@@ -552,6 +582,7 @@ function buildCbmTypeText(type, cbm){
         setComboLoading(ids.company, false);
       }
     }
+
 
 
     async function loadPOEs(){
