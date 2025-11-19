@@ -199,6 +199,7 @@
     { "name": "Tucson AZ", "lat": 32.2226, "lng": -110.9747 },
     { "name": "Portland OR", "lat": 45.5152, "lng": -122.6784 },
     { "name": "La pine OR", "lat": 43.67917, "lng": -121.49583 },
+    { "name": "Boise ID", "lat": 43.6150, "lng": -116.2023 },
     { "name": "Seattle WA", "lat": 47.6062, "lng": -122.3321 },
     { "name": "Yakima WA", "lat": 46.6021, "lng": -120.5059 },
     { "name": "Spokane WA", "lat": 47.6588, "lng": -117.426 },
