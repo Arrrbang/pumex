@@ -260,32 +260,11 @@
 
   // ---------------------------- 공통 API 호출 ----------------------------
   async function fetchCompanies(country, region){
-    const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options&debug=1`;
-    console.log('[DEBUG][fetchCompanies] url =', url);
+    const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
     const r = await fetch(url, {cache:'no-store'});
-
-    console.log('[DEBUG][fetchCompanies] HTTP status =', r.status);
-
-    let j = null;
-    try{
-      j = await r.json();
-    }catch(e){
-      console.error('[DEBUG][fetchCompanies] JSON parse error:', e);
-      return [];
-    }
-
-    console.log('[DEBUG][fetchCompanies] response json =', j);
-
-    const companies = (j.companies || []).filter(Boolean);
-    console.log('[DEBUG][fetchCompanies] companies length =', companies.length, 'companies =', companies);
-
-    if (j.debug){
-      console.log('[DEBUG][fetchCompanies] debug info =', j.debug);
-    }
-
-    return companies;
+    const j = await r.json();
+    return (j.companies || []).filter(Boolean);
   }
-
   async function fetchPOEs(country, region, company){
     let url = `${BASE}/api/poe/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=options`;
     let res = await fetch(url, {cache:'no-store'});
@@ -303,53 +282,35 @@
     }
     return poes;
   }
-  // 화물타입(주재원/외교관 등) 목록 가져오기
-  async function fetchCargoTypes(country, region, partner, poe){
-    const list   = [];
+  async function fetchCargoTypes(country, region, partner){
+    const list = [];
     const bucket = new Set();
-  
-    // 1차: cargo-types 서비스 (by-partner)
-    let url =
-      `${BASE}/api/cargo-types/by-partner` +
-      `?country=${encodeURIComponent(country)}` +
-      `&company=${encodeURIComponent(partner)}` +
-      (region ? `&region=${encodeURIComponent(region)}` : '') +
-      (poe    ? `&poe=${encodeURIComponent(poe)}`       : '') +
-      `&mode=options`;
-  
-    let r = await fetch(url, { cache: 'no-store' });
+
+    // 1차: cargo-types 서비스
+    let url = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&company=${encodeURIComponent(partner)}${region?`&region=${encodeURIComponent(region)}`:''}&mode=options`;
+    let r = await fetch(url, {cache:'no-store'});
     if (r.ok){
       const j = await r.json();
       (j.types || j.options || []).forEach(x => x && bucket.add(String(x)));
     }
-  
-    // 🔁 보강: 비용 데이터에서 화물타입 추출
+
+    // 보강: 비용 데이터에서 추출
     if (!bucket.size){
-      url =
-        `${BASE}/api/costs/${encodeURIComponent(country)}` +
-        `?company=${encodeURIComponent(partner)}` +
-        (region ? `&region=${encodeURIComponent(region)}` : '') +
-        (poe    ? `&poe=${encodeURIComponent(poe)}`       : '') +
-        `&mode=data`;
-  
-      r = await fetch(url, { cache: 'no-store' });
+      url = `${BASE}/api/costs/${encodeURIComponent(country)}?company=${encodeURIComponent(partner)}${region?`&region=${encodeURIComponent(region)}`:''}&mode=data`;
+      r = await fetch(url, {cache:'no-store'});
       const j = await r.json().catch(()=>({}));
       const rows = j?.rows || j?.data || j?.items || j?.results || [];
       for (const row of rows){
-        const ms =
-          row?.properties?.["화물타입"]?.multi_select ||
-          row?.properties?.["Cargo Type"]?.multi_select ||
-          [];
-        ms.forEach(it => it?.name && bucket.add(String(it.name)));
+        const ms = row?.properties?.["화물타입"]?.multi_select || [];
+        ms.forEach(it => it?.name && bucket.add(it.name));
+        if (Array.isArray(row?.roles))      row.roles.forEach(x => x && bucket.add(String(x)));
+        if (Array.isArray(row?.cargoTypes)) row.cargoTypes.forEach(x => x && bucket.add(String(x)));
+        if (row?.cargoType)                 bucket.add(String(row.cargoType));
       }
     }
-  
-    bucket.forEach(x => list.push(x));
-    list.sort((a,b)=> a.localeCompare(b,'ko'));
-  
-    return list;
-  }
 
+    return [...bucket].sort((a,b)=> a.localeCompare(b,'ko'));
+  }
   async function fetchCosts(country, region, company, cargo, type, cbm){
     const roles = cargo ? [String(cargo).toUpperCase()] : [];
     const params = new URLSearchParams();
@@ -475,7 +436,7 @@ function buildCbmTypeText(type, cbm){
       const headB = document.querySelector('#resultSectionCompare .compare-col:nth-child(2) .compare-head');
       if (headA) headA.textContent = companyA || 'A';
       if (headB) headB.textContent = companyB || 'B';
-      
+
       window.CurrencyConverter?.applyCurrent?.();
 
       // 비교 섹션 노출(단일 섹션은 숨김)
@@ -552,29 +513,15 @@ function buildCbmTypeText(type, cbm){
       const companyAPI = getComboAPI(ids.company);
       const poeAPI     = getComboAPI(ids.poe);
 
-      console.log(`[DEBUG][loadCompanies:${ids.company}] country =`, country, 'region =', region);
-
       companyAPI.setItems([]); companyAPI.enable(false);
       poeAPI.setItems([]);     poeAPI.enable(false);
-      if(!country || !region) {
-        console.log(`[DEBUG][loadCompanies:${ids.company}] country/region 없음 → early return`);
-        return;
-      }
+      if(!country || !region) return;
 
       setComboLoading(ids.company, true);
       try{
         const companies = await fetchCompanies(country, region);
-        console.log(`[DEBUG][loadCompanies:${ids.company}] fetched companies =`, companies);
-
         companyAPI.setItems(companies);
         companyAPI.enable(companies.length>0);
-        console.log(`[DEBUG][loadCompanies:${ids.company}] enable =`, (companies.length>0));
-
-        // 🔹 파트너가 1개뿐이면 자동 선택 + change 이벤트 발생
-        if (companies.length === 1) {
-          console.log(`[DEBUG][loadCompanies:${ids.company}] only one company, auto-select =`, companies[0]);
-          companyAPI.setValue?.(companies[0]);   // getComboAPI.setValue 안에서 change를 dispatch함
-        }
       }catch(e){
         console.warn('loadCompanies error:', e);
         companyAPI.setItems([]); companyAPI.enable(false);
@@ -582,8 +529,6 @@ function buildCbmTypeText(type, cbm){
         setComboLoading(ids.company, false);
       }
     }
-
-
 
     async function loadPOEs(){
       const country = getValueSoft('countryCombo');
@@ -595,15 +540,11 @@ function buildCbmTypeText(type, cbm){
       if(!country || !region || !company) return;
 
       setComboLoading(ids.poe, true);
-        try{
-          const poes = await fetchPOEs(country, region, company);
-          poeAPI.setItems(poes);
-          poeAPI.enable(poes.length>0);
-  
-          if (poes.length === 1) {
-            poeAPI.setValue?.(poes[0]);
-          }
-        }catch(e){
+      try{
+        const poes = await fetchPOEs(country, region, company);
+        poeAPI.setItems(poes);
+        poeAPI.enable(poes.length>0);
+      }catch(e){
         console.warn('loadPOEs error:', e);
         poeAPI.setItems([]);
       }finally{
@@ -611,23 +552,18 @@ function buildCbmTypeText(type, cbm){
       }
     }
 
-    // 선택된 국가/지역/파트너(+POE)에 맞는 화물타입 로딩
     async function loadCargoTypesForPartner(){
       const country = getValueSoft('countryCombo');
       const region  = getValueSoft('regionCombo');
       const partner = getValueSoft(ids.company);
-      const poe     = getValueSoft(ids.poe);   // 🔹 선택된 POE
 
       const cargoAPI = getComboAPI(ids.cargo);
       cargoAPI.setValue?.('');
-      if (!country || !partner){
-        cargoAPI.setItems([]); cargoAPI.enable(false);
-        return;
-      }
+      if (!country || !partner){ cargoAPI.setItems([]); cargoAPI.enable(false); return; }
 
       setComboLoading(ids.cargo, true);
       try{
-        const items = await fetchCargoTypes(country, region, partner, poe); // 🔹 poe까지 전달
+        const items = await fetchCargoTypes(country, region, partner);
         cargoAPI.setItems(items);
         cargoAPI.enable(items.length>0);
       }catch(e){
@@ -637,8 +573,6 @@ function buildCbmTypeText(type, cbm){
         setComboLoading(ids.cargo, false);
       }
     }
-
-
 
     function showResultSection(show){
       const sec = document.getElementById(ids.resultSection);
@@ -661,10 +595,9 @@ function buildCbmTypeText(type, cbm){
     }
 
     function wireEvents(){
-      const rcEl  = document.querySelector('#regionCombo input') || document.getElementById('regionCombo');
-      const ctEl  = document.querySelector('#countryCombo input')|| document.getElementById('countryCombo');
-      const compEl= document.querySelector(`#${ids.company} input`) || document.getElementById(ids.company);
-      const poeEl = document.querySelector(`#${ids.poe} input`)     || document.getElementById(ids.poe);  // 🔹 추가
+      const rcEl = document.querySelector('#regionCombo input') || document.getElementById('regionCombo');
+      const ctEl = document.querySelector('#countryCombo input')|| document.getElementById('countryCombo');
+      const compEl = document.querySelector(`#${ids.company} input`) || document.getElementById(ids.company);
 
       const resetAll = ()=>{
         const companyAPI = getComboAPI(ids.company);
@@ -687,10 +620,6 @@ function buildCbmTypeText(type, cbm){
         await loadCargoTypesForPartner();
       });
 
-      // 🔹 POE가 변경되면, 같은 파트너 기준으로 화물타입만 다시 로딩
-      poeEl?.addEventListener('change', async ()=>{
-        await loadCargoTypesForPartner();
-      });
 
       // 조회 버튼
       const btn = document.getElementById(ids.btnFetch);
