@@ -131,6 +131,9 @@
       if (!wrap) return;
 
       let rows = Array.isArray(data?.rows) ? data.rows : [];
+
+      console.log('[DEBUG] rows from API:', rows.map(r => r.순서 ?? r.order ?? r.Order), rows);
+
       rows = sortByOrder(rows);
       if (!rows.length){
         wrap.innerHTML = '<div class="muted">표시할 데이터가 없습니다.</div>';
