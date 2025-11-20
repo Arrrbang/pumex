@@ -305,7 +305,7 @@
     return poes;
   }
 
-  // 업체(+선택 지역)에 해당하는 화물타입 목록
+// 업체(+지역) + POE 에 해당하는 화물타입 목록
 async function fetchCargoTypes(country, region, company, poe){
   let url = `${BASE}/api/cargo-types/by-partner` +
             `?country=${encodeURIComponent(country)}` +
@@ -327,35 +327,6 @@ async function fetchCargoTypes(country, region, company, poe){
 }
 
 
-  async function fetchCargoTypes(country, region, partner){
-    const list = [];
-    const bucket = new Set();
-
-    // 1차: cargo-types 서비스
-    let url = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&company=${encodeURIComponent(partner)}${region?`&region=${encodeURIComponent(region)}`:''}&mode=options`;
-    let r = await fetch(url, {cache:'no-store'});
-    if (r.ok){
-      const j = await r.json();
-      (j.types || j.options || []).forEach(x => x && bucket.add(String(x)));
-    }
-
-    // 보강: 비용 데이터에서 추출
-    if (!bucket.size){
-      url = `${BASE}/api/costs/${encodeURIComponent(country)}?company=${encodeURIComponent(partner)}${region?`&region=${encodeURIComponent(region)}`:''}&mode=data`;
-      r = await fetch(url, {cache:'no-store'});
-      const j = await r.json().catch(()=>({}));
-      const rows = j?.rows || j?.data || j?.items || j?.results || [];
-      for (const row of rows){
-        const ms = row?.properties?.["화물타입"]?.multi_select || [];
-        ms.forEach(it => it?.name && bucket.add(it.name));
-        if (Array.isArray(row?.roles))      row.roles.forEach(x => x && bucket.add(String(x)));
-        if (Array.isArray(row?.cargoTypes)) row.cargoTypes.forEach(x => x && bucket.add(String(x)));
-        if (row?.cargoType)                 bucket.add(String(row.cargoType));
-      }
-    }
-
-    return [...bucket].sort((a,b)=> a.localeCompare(b,'ko'));
-  }
   async function fetchCosts(country, region, company, cargo, type, cbm){
     const roles = cargo ? [String(cargo).toUpperCase()] : [];
     const params = new URLSearchParams();
@@ -601,23 +572,32 @@ function buildCbmTypeText(type, cbm){
       const country = getValueSoft('countryCombo');
       const region  = getValueSoft('regionCombo');
       const partner = getValueSoft(ids.company);
-
+      const poe     = getValueSoft(ids.poe);   // 🔥 선택된 POE 값 가져오기
+    
       const cargoAPI = getComboAPI(ids.cargo);
       cargoAPI.setValue?.('');
-      if (!country || !partner){ cargoAPI.setItems([]); cargoAPI.enable(false); return; }
-
+    
+      // POE까지 선택되어 있어야 화물타입 로딩
+      if (!country || !partner || !poe){
+        cargoAPI.setItems([]);
+        cargoAPI.enable(false);
+        return;
+      }
+    
       setComboLoading(ids.cargo, true);
       try{
-        const items = await fetchCargoTypes(country, region, partner);
+        const items = await fetchCargoTypes(country, region, partner, poe);
         cargoAPI.setItems(items);
         cargoAPI.enable(items.length>0);
       }catch(e){
         console.warn('loadCargoTypes error:', e);
-        cargoAPI.setItems([]); cargoAPI.enable(false);
+        cargoAPI.setItems([]);
+        cargoAPI.enable(false);
       }finally{
         setComboLoading(ids.cargo, false);
       }
     }
+
 
     function showResultSection(show){
       const sec = document.getElementById(ids.resultSection);
@@ -643,6 +623,7 @@ function buildCbmTypeText(type, cbm){
       const rcEl = document.querySelector('#regionCombo input') || document.getElementById('regionCombo');
       const ctEl = document.querySelector('#countryCombo input')|| document.getElementById('countryCombo');
       const compEl = document.querySelector(`#${ids.company} input`) || document.getElementById(ids.company);
+      const poeEl  = document.querySelector(`#${ids.poe} input`) || document.getElementById(ids.poe);
 
       const resetAll = ()=>{
         const companyAPI = getComboAPI(ids.company);
@@ -664,6 +645,14 @@ function buildCbmTypeText(type, cbm){
         await loadPOEs();
         await loadCargoTypesForPartner();
       });
+
+        // 🔥 POE 변경 시 화물타입 다시 로딩
+        poeEl?.addEventListener('change', async ()=>{
+          const cargoAPI = getComboAPI(ids.cargo);
+          cargoAPI.setValue?.('');
+          await loadCargoTypesForPartner();
+        });
+  
 
 
       // 조회 버튼
