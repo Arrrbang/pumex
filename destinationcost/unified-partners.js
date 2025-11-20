@@ -126,152 +126,291 @@
   }
 
   // ---------------------------- 표 렌더 ----------------------------
-    function renderTableSingle(wrapId, data, type, isRegionFiltered){
-      const wrap = document.getElementById(wrapId);
-      if (!wrap) return;
 
-      let rows = Array.isArray(data?.rows) ? data.rows : [];
+    // ---------------------------- 표 렌더 ----------------------------
 
-      console.log('[DEBUG] rows from API:', rows.map(r => r.순서 ?? r.order ?? r.Order), rows);
-
-      rows = sortByOrder(rows);
-      if (!rows.length){
-        wrap.innerHTML = '<div class="muted">표시할 데이터가 없습니다.</div>';
-        return;
+  // Notion row에서 숫자 속성 읽어오기 (직접 필드 + properties.* 지원)
+  function getNumberField(row, keys){
+    if (!Array.isArray(keys)) keys = [keys];
+    // 1) row["MIN COST"], row["MIN_COST"], row["MINCOST"] 등 직접 필드
+    for (const k of keys){
+      const candKeys = [
+        k,
+        k.replace(/\s+/g,'_'),
+        k.replace(/\s+/g,'')
+      ];
+      for (const ck of candKeys){
+        const v = row?.[ck];
+        if (v != null && v !== ''){
+          const n = Number(v);
+          if (!Number.isNaN(n)) return n;
+        }
       }
-
-      // ✅ 헤더: [체크박스 | 항목 | 금액(type) | 비고]
-      let thead = '<tr>';
-      thead += '<th class="sel-col"></th>';                     // 체크박스 헤더(비움)
-      thead += '<th>항목</th>';
-      thead += `<th class="type-col">${esc(type)}</th>`;
-      thead += '<th>비고</th>';
-      thead += '</tr>';
-
-
-      // ✅ 바디
-      let tbody = '';
-      for (const r of rows){
-        const amt     = r?.[type];
-        const rawAmt  = Number(amt) || 0;
-        const amtText = formatAmount(amt, type) || '-';
-        const extra   = r.extra || ''; // 이미 r.extra는 HTML일 수 있으니 그대로 사용
-
-        tbody += '<tr>';
-        tbody += `<td class="sel">
-          <input type="checkbox"
-                class="row-check"
-                data-base-amt="${rawAmt}"
-                data-amt="${rawAmt}"
-                data-extra="${extra.replace(/"/g,'&quot;')}">
-        </td>`;
-        tbody += `<td>${esc(r.item || '')}</td>`;
-        tbody += `<td class="amt" data-raw="${rawAmt}" data-base-amt="${rawAmt}">${amtText}</td>`;
-        tbody += `<td>${extra}</td>`;
-        tbody += '</tr>';
-
-
-      }
-
-          // ✅ colgroup: 각 열 폭을 CSS에서 제어하기 쉽게 클래스로 나눔
-          const colgroup = `
-            <colgroup>
-              <col class="col-sel">
-              <col class="col-item">
-              <col class="col-amt">
-              <col class="col-extra">
-            </colgroup>
-          `;
-
-          const baseCur = (defaultCurrency.value || '').toString().toUpperCase();
-          const tableHtml = `
-            <table class="result-table" data-base-currency="${esc(baseCur)}">
-              ${colgroup}
-              <thead>${thead}</thead>
-              <tbody>${tbody}</tbody>
-            </table>
-          `;
-          const totalId = `${wrapId}Total`;
-
-
-      // ✅ 선택 합계 영역 (표 우측 하단)
-      const totalHtml = `
-        <div class="result-total" id="${totalId}">
-          <span class="result-total-label">선택 합계</span>
-          <span class="result-total-value">0</span>
-          <span class="result-total-pass"></span>
-        </div>
-      `;
-
-      wrap.innerHTML = tableHtml + totalHtml;
-
-      // ✅ 체크박스 변경 시 합계 계산
-      const table      = wrap.querySelector('table.result-table');
-      const totalBox   = wrap.querySelector('.result-total');
-      const totalValue = totalBox?.querySelector('.result-total-value');
-      const passEl     = totalBox?.querySelector('.result-total-pass');
-
-      if (!table || !totalBox || !totalValue) return;
-
-      const checkboxes = table.querySelectorAll('input.row-check');
-
-      const updateTotal = ()=>{
-        let sum = 0;
-        let passHtml = '';
-
-        checkboxes.forEach(cb => {
-          if (cb.checked){
-            const v = Number(cb.dataset.amt || '0');
-            if (Number.isFinite(v)) sum += v;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            const pass = cb.dataset.pass;
-            if (!passHtml && pass){
-              passHtml = pass;    // ✅ 첫 번째 선택 행의 통과마크만 사용
-            }
-          }
-        });
-
-        let formatted = null;
-
-        // 🔹 A/B 비교 모드일 경우 각 래퍼(tableWrapA/B)에 맞는 드롭다운 통화 사용
-        if (window.CurrencyConverter && window.CurrencyConverter.formatTotalForWrapper) {
-          formatted = window.CurrencyConverter.formatTotalForWrapper(sum, wrapId);
-        } else if (window.CurrencyConverter && window.CurrencyConverter.formatTotal) {
-          // 🔹 구 버전 호환 (단일 모드)
-          formatted = window.CurrencyConverter.formatTotal(sum, type);
-        }
-
-        if (!formatted) {
-          formatted = sum ? formatAmount(sum, type) : '0';
-        }
-
-        totalValue.textContent = formatted;
-
-        if (passEl){
-          passEl.innerHTML = passHtml || '';
-        }
-      };
-
-
-
-      checkboxes.forEach(cb => {
-        cb.addEventListener('change', updateTotal);
-      });
     }
+    // 2) row.properties["MIN COST"] 형태
+    const props = row?.properties || {};
+    for (const k of keys){
+      const candKeys = [
+        k,
+        k.toUpperCase(),
+        k.toLowerCase(),
+        k.replace(/\s+/g,'_'),
+        k.replace(/\s+/g,'')
+      ];
+      for (const ck of candKeys){
+        const p = props[ck];
+        if (p == null) continue;
+        if (typeof p === 'object'){
+          const n = ('number' in p ? p.number : ('value' in p ? p.value : null));
+          if (n != null && !Number.isNaN(Number(n))) return Number(n);
+        }else{
+          const n = Number(p);
+          if (!Number.isNaN(n)) return n;
+        }
+      }
+    }
+    return null;
+  }
+
+  // CONSOLE 계산: MIN COST + ((CBM - MIN CBM) * PER CBM)
+  function computeConsoleAmount(row, cbm){
+    if (cbm == null || Number.isNaN(Number(cbm))) return null;
+    const minCost = getNumberField(row, ['MIN COST','Min Cost','MIN_COST']);
+    const minCbm  = getNumberField(row, ['MIN CBM','Min Cbm','MIN_CBM']);
+    const perCbm  = getNumberField(row, [
+      'PER CBM','Per Cbm','PER_CBM',
+      'PER COST','Per Cost','PER_COST'
+    ]);
+
+    if (minCost == null || minCbm == null || perCbm == null) return null;
+
+    const cbmNum = Number(cbm);
+    const diff   = cbmNum - minCbm;
+    const extraCbm = diff > 0 ? diff : 0; // CBM이 더 작으면 0으로
+    return minCost + extraCbm * perCbm;
+  }
+
+
+  // ---------------------------- 표 렌더 (기본표 + 추가표, 하나의 테이블) ----------------------------
+  function renderTableSingle(wrapId, data, type, isRegionFiltered, cbm){
+    const wrap = document.getElementById(wrapId);
+    if (!wrap) return;
+
+    // 0) rows 가져오기
+    let rows = Array.isArray(data?.rows) ? data.rows : [];
+
+    // 디버그용(원하면 나중에 지워도 됨)
+    console.log('[DEBUG] rows from API:', rows.map(r => r.순서 ?? r.order ?? r.Order), rows);
+
+    // 1) 순서 기준 정렬
+    rows = sortByOrder(rows);
+
+    if (!rows.length){
+      wrap.innerHTML = '<div class="muted">표시할 데이터가 없습니다.</div>';
+      return;
+    }
+
+    // 2) "기본/추가" / "표시타입" 헬퍼
+    function getBasicType(row){
+      return String(row.basicType || '').trim();
+    }
+    function getDisplayType(row){
+      return (
+        row.displayType ||    // 백엔드에서 넣어준 값
+        row['표시타입']  ||   // 혹시 키 그대로 내려온 경우
+        ''
+      ).toString().trim();
+    }
+
+    // 3) 기본 / 추가 분리
+    const basicRows = rows.filter(r => getBasicType(r) === '기본');
+
+    // "추가" + "표시타입 = 테이블"인 행만 두 번째 영역(추가 영역)으로 사용
+    const extraRows = rows.filter(r => {
+      const isExtra = getBasicType(r) === '추가';
+      const disp    = getDisplayType(r);
+      return isExtra && disp === '테이블';
+    });
+
+    if (!basicRows.length && !extraRows.length){
+      wrap.innerHTML = '<div class="muted">표시할 데이터가 없습니다.</div>';
+      return;
+    }
+
+    const baseCur = (defaultCurrency.value || '').toString().toUpperCase();
+
+    // 4) colgroup (열 너비 통일)
+    const colgroup = `
+      <colgroup>
+        <col class="col-sel">
+        <col class="col-item">
+        <col class="col-amt">
+        <col class="col-extra">
+      </colgroup>
+    `;
+
+    // 5) 헤더 (한 번만)
+    const thead = `
+      <tr>
+        <th class="sel-col">구분/선택</th>
+        <th>항목</th>
+        <th class="type-col">${esc(type)}</th>
+        <th>비고</th>
+      </tr>
+    `;
+
+    // 6) 바디: 기본행 → 추가행 순으로 한 테이블에 이어서 출력
+    let tbody = '';
+    let baseSum = 0;   // 기본행 합계
+    // 6-1) 기본 행들 (항상 포함, 체크박스 없음)
+    for (const r of basicRows){
+      const amt    = r?.[type];
+      let rawAmt = Number(amt);
+      if (!Number.isFinite(rawAmt)) rawAmt = 0;   // NaN이면 0으로
+
+      const amtTxt = formatAmount(amt, type) || '-';
+      const extra  = r.extra || '';
+      const item   = r.item || '';
+
+      if (Number.isFinite(rawAmt)) baseSum += rawAmt;
+
+      tbody += `
+        <tr class="row-basic">
+          <td class="sel">기본</td>
+          <td>${esc(item)}</td>
+          <td class="amt" data-raw="${rawAmt}" data-base-amt="${rawAmt}">${amtTxt}</td>
+          <td>${extra}</td>
+        </tr>
+      `;
+    }
+
+    // 6-2) 추가 행들 (체크박스 있음, 체크된 것만 선택합계에 더함)
+    for (const r of extraRows){
+      const amt    = r?.[type];
+      let rawAmt = Number(amt);
+      if (!Number.isFinite(rawAmt)) rawAmt = 0;
+      const amtTxt = formatAmount(amt, type) || '-';
+      const extra  = r.extra || '';
+      const item   = r.item || '';
+
+      tbody += `
+        <tr class="row-extra">
+          <td class="sel">
+            <label class="sel-check">
+              <input type="checkbox" class="extra-check" data-raw="${rawAmt}">
+            </label>
+          </td>
+          <td>${esc(item)}</td>
+          <td class="amt" data-raw="${rawAmt}">${amtTxt}</td>
+          <td>${extra}</td>
+        </tr>
+      `;
+    }
+
+    // 7) 선택 합계 영역
+    const totalId = `${wrapId}Total`;
+    const totalHtml = `
+      <div class="result-total" id="${totalId}">
+        <span class="result-total-label">선택 합계</span>
+        <span class="result-total-value">0</span>
+        <span class="result-total-pass"></span>
+      </div>
+    `;
+
+    // 8) 최종 렌더: 하나의 테이블 + 선택 합계
+    wrap.innerHTML = `
+      <table class="result-table" data-base-currency="${esc(baseCur)}">
+        ${colgroup}
+        <thead>${thead}</thead>
+        <tbody>${tbody}</tbody>
+      </table>
+      ${totalHtml}
+    `;
+
+    const totalBox   = wrap.querySelector('.result-total');
+    const totalValue = totalBox?.querySelector('.result-total-value');
+    const passEl     = totalBox?.querySelector('.result-total-pass');
+    if (!totalBox || !totalValue) return;
+
+    function formatTotal(sum){
+      let formatted = null;
+
+      if (window.CurrencyConverter && window.CurrencyConverter.formatTotalForWrapper) {
+        formatted = window.CurrencyConverter.formatTotalForWrapper(sum, wrapId);
+      } else if (window.CurrencyConverter && window.CurrencyConverter.formatTotal) {
+        formatted = window.CurrencyConverter.formatTotal(sum, type);
+      }
+
+      if (!formatted){
+        formatted = sum ? formatAmount(sum, type) : '0';
+      }
+      return formatted;
+    }
+
+        // 🔹 셀에서 숫자 뽑는 공통 함수 (변환된 금액 우선)
+        function getCellNumber(td){
+          if (!td) return 0;
+          const src =
+            td.dataset.convertedAmt ??
+            td.dataset.baseAmt ??
+            td.dataset.raw ??
+            '0';
+          const v = Number(src);
+          return Number.isFinite(v) ? v : 0;
+        }
+
+    // 🔹 선택합계 = 기본행 합계 + "추가"행 중 체크된 것의 합계
+    function updateTotal(){
+      // 1) 기본행 합계 다시 계산 (row-basic 기준)
+      let baseSum = 0;
+      const baseCells = wrap.querySelectorAll('tr.row-basic td.amt');
+      baseCells.forEach(td => {
+        baseSum += getCellNumber(td);
+      });
+
+      // 2) 추가행 중 체크된 것만 합계
+      let extraSum = 0;
+      const extraRows = wrap.querySelectorAll('tr.row-extra');
+      extraRows.forEach(tr => {
+        const cb = tr.querySelector('input.extra-check');
+        if (!cb || !cb.checked) return;
+
+        const td = tr.querySelector('td.amt');
+        extraSum += getCellNumber(td);
+      });
+
+      const total = baseSum + extraSum;
+
+      // 3) 표기용 문자열 만들기
+      let display = null;
+      if (window.CurrencyConverter && window.CurrencyConverter.formatTotalForWrapper) {
+        display = window.CurrencyConverter.formatTotalForWrapper(total, wrapId);
+      } else if (window.CurrencyConverter && window.CurrencyConverter.formatTotal) {
+        display = window.CurrencyConverter.formatTotal(total, type);
+      }
+      if (!display){
+        display = total ? (formatAmount(total, type) || String(total)) : '0';
+      }
+
+      totalValue.textContent = display;
+
+      if (passEl){
+        passEl.innerHTML = '';
+      }
+    }
+
+    // 🔹 통화 변경 시 currency-converter.js 에서 다시 호출할 수 있도록 래퍼에 등록
+    wrap._updateTotal = updateTotal;
+    // 최초 1회 계산
+    updateTotal();
+
+    // 체크박스 변경 시마다 합계 갱신
+    wrap.querySelectorAll('input.extra-check').forEach(cb=>{
+      cb.addEventListener('change', updateTotal);
+    });
+  }
+
+
 
 
   // ---------------------------- 공통 API 호출 ----------------------------
@@ -461,8 +600,9 @@ function buildCbmTypeText(type, cbm){
       const companyLabel = `${companyA || '-'} / ${companyB || '-'}`;
       setSummaryText('sumCompany', companyLabel);
 
-      renderTableSingle('tableWrapA', jA, type, Boolean(region));
-      renderTableSingle('tableWrapB', jB, type, Boolean(region));
+      renderTableSingle('tableWrapA', jA, type, Boolean(region), cbm);
+      renderTableSingle('tableWrapB', jB, type, Boolean(region), cbm);
+
 
       const headA = document.querySelector('#resultSectionCompare .compare-col:nth-child(1) .compare-head');
       const headB = document.querySelector('#resultSectionCompare .compare-col:nth-child(2) .compare-head');
@@ -589,17 +729,17 @@ function buildCbmTypeText(type, cbm){
       const region  = getValueSoft('regionCombo');
       const partner = getValueSoft(ids.company);
       const poe     = getValueSoft(ids.poe);   // 🔥 선택된 POE 값 가져오기
-
+    
       const cargoAPI = getComboAPI(ids.cargo);
       cargoAPI.setValue?.('');
-
+    
       // POE까지 선택되어 있어야 화물타입 로딩
       if (!country || !partner || !poe){
         cargoAPI.setItems([]);
         cargoAPI.enable(false);
         return;
       }
-
+    
       setComboLoading(ids.cargo, true);
       try{
         const items = await fetchCargoTypes(country, region, partner, poe);
@@ -668,7 +808,7 @@ function buildCbmTypeText(type, cbm){
           cargoAPI.setValue?.('');
           await loadCargoTypesForPartner();
         });
-
+  
 
 
       // 조회 버튼
@@ -709,7 +849,7 @@ function buildCbmTypeText(type, cbm){
               setSummaryText('sumCompany', company || '-');
             }
 
-            renderTableSingle(ids.tableWrap, data, type, Boolean(region)); // ← A는 tableWrapA, B는 tableWrapB
+           renderTableSingle(ids.tableWrap, data, type, Boolean(region), cbm);
             window.CurrencyConverter?.applyCurrent?.();
             showResultSection(true); // resultSectionCompare 표시 유지
 
