@@ -140,9 +140,9 @@
         return;
       }
 
-      // ✅ 헤더: [구분 | 항목 | 금액(type) | 비고]
+      // ✅ 헤더: [체크박스 | 항목 | 금액(type) | 비고]
       let thead = '<tr>';
-      thead += '<th class="sel-col">구분</th>';       // "기본" 표시용
+      thead += '<th class="sel-col"></th>';                     // 체크박스 헤더(비움)
       thead += '<th>항목</th>';
       thead += `<th class="type-col">${esc(type)}</th>`;
       thead += '<th>비고</th>';
@@ -158,7 +158,13 @@
         const extra   = r.extra || ''; // 이미 r.extra는 HTML일 수 있으니 그대로 사용
 
         tbody += '<tr>';
-        tbody += `<td class="sel">기본</td>`; // 🔹 체크박스 대신 "기본" 텍스트
+        tbody += `<td class="sel">
+          <input type="checkbox"
+                class="row-check"
+                data-base-amt="${rawAmt}"
+                data-amt="${rawAmt}"
+                data-extra="${extra.replace(/"/g,'&quot;')}">
+        </td>`;
         tbody += `<td>${esc(r.item || '')}</td>`;
         tbody += `<td class="amt" data-raw="${rawAmt}" data-base-amt="${rawAmt}">${amtText}</td>`;
         tbody += `<td>${extra}</td>`;
@@ -207,31 +213,37 @@
 
       if (!table || !totalBox || !totalValue) return;
 
-      // ✅ 1번 표(기본표)는 모든 행을 합산
-      const amtCells = table.querySelectorAll('td.amt');
-      
-      let sum = 0;
-      amtCells.forEach(td => {
-        const v = Number(td.dataset.raw || '0');
-        if (Number.isFinite(v)) sum += v;
-      });
-      
-      let formatted = null;
-      if (window.CurrencyConverter && window.CurrencyConverter.formatTotalForWrapper) {
-        formatted = window.CurrencyConverter.formatTotalForWrapper(sum, wrapId);
-      } else if (window.CurrencyConverter && window.CurrencyConverter.formatTotal) {
-        formatted = window.CurrencyConverter.formatTotal(sum, type);
-      }
-      if (!formatted) {
-        formatted = sum ? formatAmount(sum, type) : '0';
-      }
-      
-      totalValue.textContent = formatted;
-      // passEl는 1번 표에서는 비워둠
-      if (passEl){
-        passEl.innerHTML = '';
-      }
+      const checkboxes = table.querySelectorAll('input.row-check');
 
+      const updateTotal = ()=>{
+        let sum = 0;
+        let passHtml = '';
+
+        checkboxes.forEach(cb => {
+          if (cb.checked){
+            const v = Number(cb.dataset.amt || '0');
+            if (Number.isFinite(v)) sum += v;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            const pass = cb.dataset.pass;
+            if (!passHtml && pass){
+              passHtml = pass;    // ✅ 첫 번째 선택 행의 통과마크만 사용
+            }
+          }
+        });
 
         let formatted = null;
 
@@ -577,17 +589,17 @@ function buildCbmTypeText(type, cbm){
       const region  = getValueSoft('regionCombo');
       const partner = getValueSoft(ids.company);
       const poe     = getValueSoft(ids.poe);   // 🔥 선택된 POE 값 가져오기
-    
+
       const cargoAPI = getComboAPI(ids.cargo);
       cargoAPI.setValue?.('');
-    
+
       // POE까지 선택되어 있어야 화물타입 로딩
       if (!country || !partner || !poe){
         cargoAPI.setItems([]);
         cargoAPI.enable(false);
         return;
       }
-    
+
       setComboLoading(ids.cargo, true);
       try{
         const items = await fetchCargoTypes(country, region, partner, poe);
@@ -656,7 +668,7 @@ function buildCbmTypeText(type, cbm){
           cargoAPI.setValue?.('');
           await loadCargoTypesForPartner();
         });
-  
+
 
 
       // 조회 버튼
