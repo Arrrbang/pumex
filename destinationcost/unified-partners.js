@@ -259,29 +259,74 @@
 
 
   // ---------------------------- 공통 API 호출 ----------------------------
+  // 지역에 해당하는 업체 목록
   async function fetchCompanies(country, region){
-    const url = `${BASE}/api/companies/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
-    const r = await fetch(url, {cache:'no-store'});
-    const j = await r.json();
-    return (j.companies || []).filter(Boolean);
-  }
-  async function fetchPOEs(country, region, company){
-    let url = `${BASE}/api/poe/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=options`;
-    let res = await fetch(url, {cache:'no-store'});
-    if (!res.ok){
-      // fall-through
+    const url = `${BASE}/api/companies/by-region` +
+                `?country=${encodeURIComponent(country)}` +
+                `&region=${encodeURIComponent(region)}` +
+                `&mode=options`;
+    const r = await fetch(url, { cache: 'no-store' });
+    if (!r.ok) {
+      throw new Error('companies fetch failed: ' + r.status);
     }
-    let j = await res.json().catch(()=>null);
+    const j = await r.json();
+    // 백엔드에서 companies / options 둘 중 하나를 쓸 수 있으니 둘 다 체크
+    return (j.companies || j.options || []).filter(Boolean);
+  }
+  
+  // 업체/지역에 해당하는 POE 목록
+  async function fetchPOEs(country, region, company){
+    let url = `${BASE}/api/poe/by-company` +
+              `?country=${encodeURIComponent(country)}` +
+              `&region=${encodeURIComponent(region)}` +
+              `&company=${encodeURIComponent(company)}` +
+              `&mode=options`;
+  
+    let res = await fetch(url, { cache: 'no-store' });
+  
+    let j = null;
+    if (res.ok) {
+      j = await res.json().catch(() => null);
+    }
+  
     let poes = (j?.poes || j?.POE || j?.options || []).filter(Boolean);
-
+  
+    // 업체+지역으로는 값이 없으면, 지역 기준으로 fallback
     if (!poes.length){
-      url = `${BASE}/api/poe/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
-      res = await fetch(url, {cache:'no-store'});
-      j = await res.json().catch(()=>null);
+      url = `${BASE}/api/poe/by-region` +
+            `?country=${encodeURIComponent(country)}` +
+            `&region=${encodeURIComponent(region)}` +
+            `&mode=options`;
+      res = await fetch(url, { cache: 'no-store' });
+      j = await res.json().catch(() => null);
       poes = (j?.poes || j?.POE || j?.options || []).filter(Boolean);
     }
+  
     return poes;
   }
+
+  // 업체(+선택 지역)에 해당하는 화물타입 목록
+async function fetchCargoTypes(country, region, company, poe){
+  let url = `${BASE}/api/cargo-types/by-partner` +
+            `?country=${encodeURIComponent(country)}` +
+            `&company=${encodeURIComponent(company)}` +
+            `&poe=${encodeURIComponent(poe)}`;
+
+  if (region){
+    url += `&region=${encodeURIComponent(region)}`;
+  }
+  url += `&mode=options`;
+
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok){
+    throw new Error('cargo-types fetch failed: ' + res.status);
+  }
+  const j = await res.json().catch(() => null);
+  const types = (j?.types || j?.options || []).filter(Boolean);
+  return types;
+}
+
+
   async function fetchCargoTypes(country, region, partner){
     const list = [];
     const bucket = new Set();
