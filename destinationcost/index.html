@@ -543,29 +543,40 @@ function setRegion(v){
 /* ============================================================================
    2) 패널 토글(비용 조회/비교 탭) - one-partner-js에 없음
    ========================================================================== */
-(function(){
-  const btnCheck = document.getElementById('costCheck');
-  const btnComp  = document.getElementById('costComparison');
+  (function(){
+    const btnCheck = document.getElementById('costCheck');
+    const btnComp  = document.getElementById('costComparison');
 
-  function activate(btn){
-    [btnCheck, btnComp].forEach(b=> b?.classList.remove('is-active'));
-    btn?.classList.add('is-active');
-  }
+    function activate(btn){
+      [btnCheck, btnComp].forEach(b=> b?.classList.remove('is-active'));
+      btn?.classList.add('is-active');
+    }
 
-  function showPanel(which){
-    const one = document.getElementById('one-partner');
-    const two = document.getElementById('two-partner');
-    const showOne = (which === 'one');
-    if (one) one.hidden = !showOne;
-    if (two) two.hidden = showOne;
-    btnCheck?.setAttribute('aria-expanded', String(showOne));
-    btnComp ?.setAttribute('aria-expanded', String(!showOne));
-    (showOne ? one : two)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+    function showPanel(which){
+      const one = document.getElementById('one-partner');
+      const two = document.getElementById('two-partner');
+      const showOne = (which === 'one');
+      if (one) one.hidden = !showOne;
+      if (two) two.hidden = showOne;
+      btnCheck?.setAttribute('aria-expanded', String(showOne));
+      btnComp ?.setAttribute('aria-expanded', String(!showOne));
+      (showOne ? one : two)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
-  btnCheck?.addEventListener('click', () => { activate(btnCheck); showPanel('one'); });
-  btnComp ?.addEventListener('click', () => { activate(btnComp ); showPanel('two'); });
-})();
+    btnCheck?.addEventListener('click', () => {
+      activate(btnCheck);
+      showPanel('one');
+    });
+
+    btnComp ?.addEventListener('click', () => {
+      activate(btnComp);
+      showPanel('two');
+
+      // 🔥 비교 모드로 전환할 때 A/B 회사 드롭다운 강제 초기 로딩
+      window.CostUI?.twoA?.loadCompanies();
+      window.CostUI?.twoB?.loadCompanies();
+    });
+  })();
 
 /* 필요 시 one-partner 표시 전용 */
 function showPartnerContainer(){
