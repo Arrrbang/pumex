@@ -164,21 +164,34 @@
       });
 
       // 선택 합계 다시 계산
-      const totalBox = table.parentElement?.querySelector('.result-total');
-      const valEl = totalBox?.querySelector('.result-total-value');
-      if (totalBox && valEl) {
-        let sum = 0;
-        checkboxes.forEach((cb) => {
-          if (cb.checked) {
-            const v = Number(cb.dataset.amt || '0');
-            if (Number.isFinite(v)) sum += v;
-          }
-        });
-        valEl.textContent = formatCurrency(sum, targetCode);
-      }
+        const totalBox = table.parentElement?.querySelector('.result-total');
+        const valEl   = totalBox?.querySelector('.result-total-value');
+
+        if (checkboxes.length && totalBox && valEl) {
+          let sum = 0;
+          checkboxes.forEach((cb) => {
+            if (cb.checked) {
+              const v = Number(cb.dataset.amt || '0');
+              if (Number.isFinite(v)) sum += v;
+            }
+          });
+          valEl.textContent = formatCurrency(sum, targetCode);
+        }
+
+
     });
     updateRateLabel(base, targetCode, rates);
+    // 🔹 단일 모드(#tableWrap)용 결과표 합계도 통화 변경 후 다시 계산
+    const singleWrap = document.getElementById('tableWrap');
+    if (singleWrap && typeof singleWrap._updateTotal === 'function') {
+      try {
+        singleWrap._updateTotal();
+      } catch (e) {
+        console.error('updateTotal 호출 중 오류:', e);
+      }
+    }
   }
+
 
   // ------------- 특정 래퍼(#tableWrapA / #tableWrapB)만 변환 -------------
   async function applyConversionFor(targetCode, wrapperId, labelId) {
@@ -230,18 +243,21 @@
       cb.dataset.amt = String(used);
     });
 
-    const totalBox = table.parentElement?.querySelector('.result-total');
-    const valEl   = totalBox?.querySelector('.result-total-value');
-    if (totalBox && valEl) {
-      let sum = 0;
-      checkboxes.forEach((cb) => {
-        if (cb.checked) {
-          const v = Number(cb.dataset.amt || '0');
-          if (Number.isFinite(v)) sum += v;
-        }
-      });
-      valEl.textContent = formatCurrency(sum, targetCode);
-    }
+      const totalBox = table.parentElement?.querySelector('.result-total');
+      const valEl = totalBox?.querySelector('.result-total-value');
+
+      // 🔹 row-check 체크박스가 있는 경우(= A/B 비교모드)에서만 합계를 여기서 재계산
+      if (checkboxes.length && totalBox && valEl) {
+        let sum = 0;
+        checkboxes.forEach((cb) => {
+          if (cb.checked) {
+            const v = Number(cb.dataset.amt || '0');
+            if (Number.isFinite(v)) sum += v;
+          }
+        });
+        valEl.textContent = formatCurrency(sum, targetCode);
+      }
+
 
     // 🔹 A/B 전용 환율 텍스트 갱신
     if (labelId) {
@@ -398,3 +414,4 @@
     init();
   }
 })();
+
