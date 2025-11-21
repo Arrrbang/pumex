@@ -243,20 +243,20 @@
       cb.dataset.amt = String(used);
     });
 
-      const totalBox = table.parentElement?.querySelector('.result-total');
-      const valEl = totalBox?.querySelector('.result-total-value');
-
-      // 🔹 row-check 체크박스가 있는 경우(= A/B 비교모드)에서만 합계를 여기서 재계산
-      if (checkboxes.length && totalBox && valEl) {
-        let sum = 0;
-        checkboxes.forEach((cb) => {
-          if (cb.checked) {
-            const v = Number(cb.dataset.amt || '0');
-            if (Number.isFinite(v)) sum += v;
-          }
-        });
-        valEl.textContent = formatCurrency(sum, targetCode);
+      // 🔹 tableWrapA / tableWrapB 래퍼에 등록된 updateTotal() 다시 호출
+      if (typeof wrap._updateTotal === 'function') {
+        try {
+          wrap._updateTotal();
+        } catch (e) {
+          console.error('wrap._updateTotal() 호출 중 오류:', e);
+        }
       }
+    
+      // 🔹 A/B 전용 환율 텍스트 갱신
+      if (labelId) {
+        updateRateLabel(base, targetCode, rates, labelId);
+      }
+
 
 
     // 🔹 A/B 전용 환율 텍스트 갱신
