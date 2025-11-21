@@ -23,8 +23,8 @@ html, body{
 }
 
 body{
-  margin: 2rem 3rem 3rem; /*위 마진 2, 좌우아래 마진 3*/
-  padding-top: var(--main-space-h);
+  margin: 0rem 3rem 3rem; /*위 마진 0, 좌우아래 마진 3*/
+  padding-top: calc(var(--main-space-h) + 2rem);
   background: #fff;             /* 공통 배경색(원하면 유지) */
 }
 
