@@ -2,7 +2,7 @@
 
 :root{
   --header-h: 3rem;
-  --main-space-h:3rem;
+  --main-space-h:4.5rem;
   --container-max: 1200px;
   --gutter: 1.25rem;
   --basic-container-border: 1px solid #d1d5db;
@@ -24,7 +24,7 @@ html, body{
 
 body{
   margin: 3rem;  
-  padding-top: calc(var(--header-h) + 3rem);
+  padding-top: var(--main-space-h);
   background: #fff;             /* 공통 배경색(원하면 유지) */
 }
 
