@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap');
 
 :root{
-  --header-h: 3rem;
-  --main-space-h:4.5rem;
-  --container-max: 1200px;
-  --gutter: 1.25rem;
+  --header-h: 115px;
+  --main-space-h:115px;
+  --container-max: 1320px;
+  --gutter: 20px;
   --basic-container-border: 1px solid #d1d5db;
   --basic-container-border-radius: 1rem;
   --light-gray-color: #d1d5db;
@@ -28,78 +28,141 @@ body{
   background: #fff;             /* 공통 배경색(원하면 유지) */
 }
 
-.container{ 
-  max-width: var(--container-max); 
-  margin: 0 auto; 
-  padding-inline: var(--gutter); 
+
+/* ================= GNB 전체 래퍼 ================= */
+
+.GNB-Wrapper{
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  right: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  z-index: 1000;
 }
 
-/* ========== 헤더 영역 전체 ========== */
-  /* 헤더 전체 */
+/* ================= 상단바 (로고 + 알림 영역) ================= */
 
-  .site-header, .site-header * {
+.GNB-top{
+  height: 75px;
+  background: #fff;
+}
+
+.GNB-top-inner{
+  max-width: var(--container-max);
+  width: 100%;
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 50px;
+}
+
+/* 상단 로고 */
+.GNB-top .logo{
+  display: flex;
+  align-items: center;
+}
+
+.GNB-top .logo img{
+  width: 125px;
+  display: block;
+}
+
+.notice-box{
+  min-width: 672px;
+  height: 35px;
+  border-radius: 999px;
+  background: #e0e0e0;
+}
+
+/* ================= 하단 메뉴바 (메인 GNB) ================= */
+
+/* 아이콘 + "카테고리" 묶음 */
+.gnb-category{
+  display: flex;
+  align-items: center;
+  margin-right: 48px;          /* "카테고리"와 도착지 컨테이너 사이 거리 = 28 + title-wrap의 12 = 40px */
+}
+
+/* 정사각형 아이콘 박스 */
+.category-icon{
+  width: 24px;
+  height: 24px;
+  border: 1px solid #ffffff;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;                    /* 선 사이 간격 3px */
+  padding-inline: 4px;         /* 좌우 여백 조금 줘서 선이 살짝 안쪽에 */
+}
+
+/* 내부 가로 선 3개 */
+.category-icon-line{
+  height: 2px;                 /* 선 두께 2px */
+  background: #ffffff;
+}
+
+/* "카테고리" 텍스트 */
+.gnb-category-label{
+  margin-left: 12px;           /* 아이콘과 텍스트 사이 거리 28px */
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.site-menu, .site-menu * {
   user-select: none;
   -webkit-user-select: none;
   -webkit-user-drag: none;
 }
 
-  header.site-header{
-    height: 4rem;
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    width: 100%;
-    background: #fff;
-    border-bottom: 1px solid #ddd;
-    padding: 0;
-    box-sizing: border-box;
-    z-index: 1000;
+/* 하단 메뉴 바 */
+.site-menu{
+  height: 40px;
+  background: #000000;
+  /*border-bottom: 1px solid #ddd; 하단 선 우선 삭제 패치*/
+}
 
-    display: flex;
-    align-items: stretch; /* 안쪽 컨테이너가 4rem을 꽉 채우도록 */
-  }
+/* 하단 메뉴바 내부 정렬 컨테이너 */
+.site-menu-inner{
+  height: 100%;
+  max-width: var(--container-max);
+  width: 100%;
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
 
-  .site-header .container,
-  .site-header .header-inner{
-    height: 100%;
-    max-width: var(--container-max);   /* ✅ 1200px 최대폭 */
-    width: 100%;
-    margin: 0 auto;                    /* ✅ 가운데 정렬 */
-    padding-left: var(--gutter);       /* ✅ 좌우 패딩 토큰 재사용 */
-    padding-right: var(--gutter);
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-  }
+/* ================= 메뉴 아이템 (타이틀 + 파란 바) ================= */
 
-  /* 로고 */
-  .site-header .logo{
-    display: flex;
-    align-items: center;
-    padding-right: 5rem;
-  }
 
-  .site-header .logo img{
-    height: 2rem;
-    display: block;
-    margin: 0;
-  }
-
-  /* 타이틀 영역: 헤더 높이(4rem)를 모두 쓰는 컨테이너 */
   .title-wrap{
-    position: relative;        /* 🔵 파란 바 위치 기준 */
-    height: 100%;              /* header 높이와 동일 */
+    position: relative;
+    height: 100%;
+    width: 125px;
     display: flex;
-    align-items: center;       /* 🔥 여기 기준으로 site-title 수직 가운데 */
+    justify-content: center;
+    align-items: center;
     box-sizing: border-box;
-    overflow: hidden;
-    padding-left : 1rem;
-    padding-right: 1rem;
+    margin-left : 12px;
+    margin-right: 12px;
   }
 
   .site-title{
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     font-weight: 500;
-    color: #111;
+    color: #ffffff;
     margin: 0;
     white-space: nowrap;
     z-index: 2;                /* 파란 바 위에 보이도록 */
@@ -111,28 +174,30 @@ body{
   /* 🔵 파란 직사각형 바: title-wrap 하단 라인에 딱 붙음 */
   .title-bar{
     position: absolute;
-    left: 0;
-    right: 0;                  /* title-wrap 가로폭 전체 */
-    bottom: 0;                 /* 🔥 title-wrap 바닥에 딱 붙게 */
+    left: -12px;
+    right: -12px;
+    bottom: 0;
     height: 0.4rem;
     background: rgb(70, 130, 180);
     z-index: 1;
 
-    transform: translateY(100%);        /* 🔥 시작: 바닥 아래에 숨기기 */
-    transition: transform 0.25s ease;   /* 애니메이션 */
-
-    opacity:0;
+    /* 🔥 컨테이너 안에서만 위로 자라게 만들기 */
+    transform-origin: bottom;
+    transform: scaleY(0);              /* 처음엔 높이 0 */
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    opacity: 0;
   }
 
-  /* hover 시: title-bar 위로 올라옴 */
-    .title-wrap:hover .title-bar{
-    transform: translateY(0);           /* 🔥 바닥 기준 제자리 */
+  /* hover 시: 컨테이너 안에서 위로 커짐 */
+  .title-wrap:hover .title-bar{
+    transform: scaleY(1);
     opacity: 1;
-    }
+  }
 
+    /* 항상 켜두고 싶은 메뉴 */
     .title-wrap.always-on .title-bar{
-    transform: translateY(0) !important;
-    opacity: 1;
+      transform: scaleY(1) !important;
+      opacity: 1;
     }
 
 
@@ -145,9 +210,8 @@ body{
     .sos-dropdown {
       position: absolute;
       top: 100%;          /* 메뉴 바로 아래 */
-      left: 0;
-      right: 0;           /* 🔥 title-wrap 가로폭 전체를 그대로 따라감 */
-      width: 100%;
+      left: -12px;
+      right: -12px;
 
       background: #fff;
       border: 1px solid #ddd;
@@ -183,4 +247,6 @@ body{
       background: #f3f4f6;
       color: #000;
     }
+
+
 
