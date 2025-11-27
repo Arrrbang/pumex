@@ -575,7 +575,7 @@ function buildCbmTypeText(type, cbm){
       const region  = getValueSoft('regionCombo');
       const type    = getValueSoft('typeCombo2') || '20FT';
       const cbmEl   = document.getElementById('cbmSelect2');
-      const cbm     = cbmEl?.value ? Number(cbmEl.value) : undefined;
+      const cbm = cbmEl?.value ? parseFloat(cbmEl.value) : undefined;
 
       const companyA = getValueSoft('companyComboA');
       const cargoA   = getValueSoft('cargoTypeComboA');
@@ -669,14 +669,7 @@ function buildCbmTypeText(type, cbm){
       api.enable(true);
     }
     function setCBMRange(){
-      const values = Array.from({length:60}, (_,i)=> i + 1);
-      const sel = document.getElementById(ids.cbmSelect);
-      if (sel){
-        sel.innerHTML = [
-          `<option value="" disabled selected hidden>CBM 선택</option>`,
-          ...values.map(v => `<option value="${v}">${v}</option>`)
-        ].join('');
-      }
+      return; 
     }
 
     async function loadCompanies(){
@@ -833,7 +826,7 @@ function buildCbmTypeText(type, cbm){
             const company = getValueSoft(ids.company);
             const type    = getValueSoft(ids.typeCombo) || '20FT';
             const cbmSel  = document.getElementById(ids.cbmSelect);
-            const cbm     = cbmSel?.value ? Number(cbmSel.value) : undefined;
+            const cbm     = cbmSel?.value ? parseFloat(cbmSel.value) : undefined;
             const cargo   = getValueSoft(ids.cargo);
 
             if (!country){ alert('국가를 선택하세요.'); return; }
