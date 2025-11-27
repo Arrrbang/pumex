@@ -99,11 +99,11 @@
           </div>
 
           <div class="combo-line">
-            <select id="cbmSelect" class="dropdown-select" required>
-              <option value="" disabled selected hidden>CBM 선택</option>
-            </select>
+            <div class="combo" id="cbmCombo_Wrapper">
+              <input type="text" id="cbmSelect" placeholder="CBM 선택" autocomplete="off">
+              <div class="list"></div>
+            </div>
           </div>
-        </div>
 
         <!-- 조회 버튼 -->
         <div class="action-row center show revealed">
@@ -156,11 +156,11 @@
             </div>
           </div>
           <div class="combo-line">
-            <select id="cbmSelect2" class="dropdown-select" required>
-              <option value="" disabled selected hidden>CBM 선택</option>
-            </select>
+            <div class="combo" id="cbmCombo2_Wrapper">
+              <input type="text" id="cbmSelect2" placeholder="CBM 선택" autocomplete="off">
+              <div class="list"></div>
+            </div>
           </div>
-        </div>
 
         <div class="action-row center show revealed">
           <button id="btnFetchTwo" class="primary-btn"><span class="label">조회</span></button>
@@ -792,6 +792,82 @@ function wireEventsRemainder(){
 }
 
 /* ============================================================================
+   [업그레이드] CBM 콤보박스 (직접 입력 + 드롭다운 선택)
+   ========================================================================== */
+/* ============================================================================
+   [최종 수정] CBM 콤보박스 (1~68 정수 / 스크롤바 숨김 / 검색 가능)
+   ========================================================================== */
+function initCbmCombos() {
+  // 1. CBM 목록 데이터 생성 (1 ~ 68 정수)
+  const cbmData = [];
+  for (let i = 1; i <= 68; i++) {
+    cbmData.push(i + " CBM"); // 소수점 제거, 정수 + CBM
+  }
+
+  // 2. 콤보박스 동작 연결
+  function setupCbm(wrapperId) {
+    const root = document.getElementById(wrapperId);
+    if (!root) return;
+    
+    const input = root.querySelector('input');
+    const list = root.querySelector('.list');
+    if (!input || !list) return;
+
+    // 리스트 그리기 함수
+    const renderList = (items) => {
+      if (items.length === 0) {
+        list.innerHTML = '<div class="item" style="pointer-events:none; color:#aaa;">결과 없음</div>';
+      } else {
+        list.innerHTML = items.map(v => `<div class="item" data-v="${v}">${v}</div>`).join('');
+      }
+      
+      // 항목 클릭 이벤트
+      list.querySelectorAll('.item').forEach(item => {
+        if(!item.hasAttribute('data-v')) return;
+        item.addEventListener('click', () => {
+          input.value = item.getAttribute('data-v'); 
+          list.style.display = 'none';
+        });
+      });
+    };
+
+    renderList(cbmData);
+
+    // 이벤트: 리스트 열기
+    const openList = () => {
+      document.querySelectorAll('.combo .list').forEach(el => {
+        if(el !== list) el.style.display = 'none';
+      });
+      list.style.display = 'block';
+    };
+    input.addEventListener('click', openList);
+    input.addEventListener('focus', openList);
+
+    // 이벤트: 검색 기능
+    input.addEventListener('input', () => {
+      list.style.display = 'block';
+      const val = input.value.trim().toLowerCase();
+      // "CBM" 글자를 제외하고 숫자만으로도 검색되게 필터링
+      const filtered = cbmData.filter(item => item.toLowerCase().includes(val));
+      renderList(filtered);
+    });
+
+    // 이벤트: 바깥 클릭 시 닫기
+    document.addEventListener('click', (e) => {
+      if (!root.contains(e.target)) list.style.display = 'none';
+    });
+  }
+
+  setupCbm('cbmCombo_Wrapper');  
+  setupCbm('cbmCombo2_Wrapper'); 
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  initCbmCombos();
+});
+
+
+/* ============================================================================
    6) 초기화
    ========================================================================== */
 window.addEventListener('DOMContentLoaded', async ()=>{
@@ -811,6 +887,7 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
+
 
 
 
