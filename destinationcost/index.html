@@ -20,11 +20,10 @@
 <div id="header-placeholder"></div>
 
 <main class="app-shell">
-  <div class="app-main container">
+  <div class="app-main">
 
     <!-- 왼쪽: 지도 영역 -->
     <section class="left-pane">
-      <div class="pane-title">지도에서 지역 검색</div>
       <div id="mpkMap" class="map-canvas" aria-label="지도 영역">
         <div class="map-placeholder">지도(Leaflet)가 여기에 표시됩니다.</div>
       </div>
@@ -32,7 +31,7 @@
 
     <!-- 오른쪽: 폼 영역 -->
     <section class="right-pane">
-      <div class="pane-title">화물 정보 입력</div>
+      <!--<div class="pane-title">화물 정보 입력</div>-->
 
       <!-- 1차: 국가/지역 -->
       <div class="dropdown-container">
@@ -54,9 +53,9 @@
       </div>
 
       <div class="combo-line">
-        <div class="cost button container" id="cost-button-container" aria-label="비용 관련 동작 버튼">
-          <button id="costCheck" class="cost check cost-btn" type="button">비용 조회</button>
-          <button id="costComparison" class="cost pomparison cost-btn" type="button">비용 비교</button>
+        <div class="cost-button-container" id="cost-button-container" aria-label="비용 관련 동작 버튼">
+          <button id="costCheck" class="cost-check-type-btn" type="button">비용 조회</button>
+          <button id="costComparison" class="cost-check-type-btn" type="button">비용 비교</button>
         </div>
       </div>
 
@@ -448,7 +447,14 @@ async function initAlwaysOnMap(){
   requestAnimationFrame(() => fitMinZoomToContainer({ cover: true }));
   window.addEventListener('resize', () => fitMinZoomToContainer({ cover: true }));
 
-  geocoder = L.Control.geocoder({ defaultMarkGeocode:false })
+  /*★20251127수정*/
+  geocoder = L.Control.geocoder({ 
+    defaultMarkGeocode:false, 
+    collapsed: false,   // 🔹 중요: 처음부터 펼쳐진 상태로 고정
+    position: 'topleft',
+    placeholder: "국가 선택 후 지역 검색 가능", // 🔹 안내 문구 변경
+    errorMessage: "결과를 찾을 수 없습니다." // (선택사항) 에러 메시지 한글화
+  })
     .on('markgeocode', (e)=>{
       const c = e.geocode.center;
       if (tmpSearch) { map.removeLayer(tmpSearch); tmpSearch=null; }
