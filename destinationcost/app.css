@@ -1,62 +1,43 @@
-/* =====================================================================
-
-   CSS DEDUPE RESULT (latest overrides kept)
-   - 기준: 동일한 선택자 문자열의 최상위 블록은 마지막(아래쪽)만 유지
-   - 유사하지만 다른 선택자는 보존 (id/클래스 불일치 시 유지)
-   - 중복 정리된 선택자 수: 2
-   - 주석과 블록 외 텍스트는 원본 유지
-   ===================================================================== */
+/* ==========================================================================
+app.css 파일 중복값 정리본
+========================================================================== */
 
 /* ========================================================================== */
-/* 0) 토큰 (색/간격/레이어) — styles(22).css 톤 유지 + 변수 중복 정리               */
-/*    - 중복된 --gutter, --header-h, shell 관련 변수 통합                         */
-/*    - 디자인 변경 없이 변수만 정리                                              */
+/* 0) 토큰 (변수)                                                             */
 /* ========================================================================== */
-:root{
-  /* 기본 배경/전경 */
-  --bg: #0b0f14;               /* 전체 배경 기본색 */
-  --fg: #eef2f7;               /* 기본 텍스트 컬러 */
-  --muted: #cbd5e1;            /* 보조 텍스트 컬러 */
-  --btn-radius: 12px;          /* 버튼/요약바 공통 반경 */
-
-  /* 브랜드/선/표면 */
-  --primary: #1F9461;          /* 메인 포인트 컬러 */
-  --border: rgba(255,255,255,0.18); /* 유리패널 테두리 */
-  --surface: rgba(255,255,255,0.06);/* 유리패널 배경 */
-
-  /* 레이아웃 */
-  --header-h: 3rem;            /* 헤더 높이(고정) */
-  --container-max: 1200px;     /* .container 최대폭 */
-  --gutter: 1.25rem;           /* 좌우 여백 & 그리드 간격 */
-
-  /* 폼 컨트롤 */
-  --control-bg: #fff;          /* 입력 배경 */
-  --control-fg: #333;          /* 입력 전경 */
-  --control-border: rgba(105,130,100,0.3);   /* 드롭다운 입력 테두리 */
-  --control-radius: .3rem;     /* 입력 모서리 */
-
-  /* 표 */
-  --table-header: #D1FAE5;     /* 선택 강조 배경 */
-  --table-text:   #14532D;     /* 선택 강조 전경 */
-
-  /* 배경 이미지/오버레이 (필요 시 변경) */
+:root {
+  --bg: #0b0f14;
+  --fg: #eef2f7;
+  --muted: #cbd5e1;
+  --btn-radius: 12px;
+  --primary: #1F9461;
+  --border: rgba(255, 255, 255, 0.18);
+  --surface: rgba(255, 255, 255, 0.06);
+  --header-h: 3rem;
+  --container-max: 1200px;
+  --gutter: 1.25rem;
+  --control-bg: #fff;
+  --control-fg: #333;
+  --control-border: rgba(105, 130, 100, 0.3);
+  --control-radius: .3rem;
+  --table-header: #D1FAE5;
+  --table-text: #14532D;
   --bg-image-url: none;
-  --bg-overlay: linear-gradient(180deg, rgba(255,255,255,.40), rgba(255,255,255,.40));
+  --bg-overlay: linear-gradient(180deg, rgba(255, 255, 255, .40), rgba(255, 255, 255, .40));
   --bg-blur: 0px;
-  --bg-darken: rgba(255,255,255,0);
+  --bg-darken: rgba(255, 255, 255, 0);
 }
 
 /* ========================================================================== */
-/* 1) 기본 구조 + 페이지 배경                                                     */
+/* 1) 기본 구조                                                               */
 /* ========================================================================== */
-body{
+body {
   position: relative;
   min-height: 100dvh;
 }
 
-/* 전체 배경 이미지/오버레이 끄기(본 페이지는 고정 컬러 배경) */
 body::before,
-body::after{
+body::after {
   content: none !important;
   display: none !important;
   background: none !important;
@@ -64,924 +45,601 @@ body::after{
   transform: none !important;
 }
 
-/* 공통 컨테이너 */
-.container{ 
-  max-width: var(--container-max); 
-  margin: 0 auto; 
-  padding-inline: var(--gutter); 
+.container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
 }
 
 /* ========================================================================== */
-/* 3) 앱 레이아웃: 좌(지도) / 우(폼)                                             */
-/*    - .app-shell/.app-main 중복 선언 통합                                     */
-/*    - 높이/폭/간격 속성 일원화                                                */
+/* 2) 앱 레이아웃 (Shell & Main)                                              */
 /* ========================================================================== */
-.app-shell{
-  background: transparent !important;   /* 중앙 컨테이너 배경 제거 */
+.app-shell {
+  /* 기본 설정 */
+  background: transparent !important;
   box-shadow: none !important;
   border: none !important;
   backdrop-filter: none !important;
-  border-radius: 1rem;
   max-width: none !important;
-  width: 90vw !important;               /* 전체폭의 90% */
   margin: 0 auto 2rem auto !important;
   box-sizing: border-box;
-  overflow: visible !important;
+  
+  /* 표시/숨김 트랜지션 */
   transition: max-height .36s ease, opacity .24s ease;
   will-change: max-height, opacity;
-  min-height: 43rem !important;            /* 고정 높이(내부 컨텐츠 기준) */
-  height: auto !important
+  
+  /* 레이아웃 (패치 적용: min-height 해제, overflow visible) */
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+  position: relative;
+  z-index: 1;
 }
-.app-shell.is-collapsing{ opacity: 0; } /* max-height는 JS 제어 */
-.app-shell.is-collapsed{ display: none; }
-.app-shell.is-expanding{ display: block; opacity: 1; }
 
-/* 앱 메인 그리드 */
-.app-main{
-  display: grid !important;
-  grid-template-columns: 7fr 3fr !important; /* left-pane과 right-pane의 비율 70% : 30% */
-  gap: 3rem !important;                      /* left-pane과 right-pane사이의 간격 */
-  align-items: stretch;
+.app-shell.is-collapsing { opacity: 0; }
+.app-shell.is-collapsed { display: none; }
+.app-shell.is-expanding { display: block; opacity: 1; }
+
+.app-main {
+  position: relative;
+  display: block !important;
   width: 100% !important;
-  height: 100% !important;           /* 자식 그리드가 셸 높이 채움 */
-  min-height: inherit;
+  overflow: visible !important; /* 드롭다운 잘림 방지 */
 }
 
-/* app-shell 내부 .container는 좌우 패딩 제거 */
-.app-shell .container,
-.app-shell .app-main.container{
-  max-width: 100% !important;
-  width: 100% !important;
-  padding-left: 0;
-  padding-right: 0;
-}
-
-/* 좌측/우측 패널 */
+/* ========================================================================== */
+/* 3) 패널 레이아웃 (Left/Right) - 20251126 병합                               */
+/* ========================================================================== */
 .pane-title {
-  text-align: left;                /* 좌측 정렬 */
-  margin-left: 0rem;               /* 왼쪽 여백 */
-  font-size: 1.3rem;               /* 폰트 크기 */
-  font-weight: 700;                /* Semi-bold */
-  color: rgb(10, 10, 10);       /* 글자 색상 */
-  margin-bottom: 1rem;             /* 글씨 하단 마진  */
+  text-align: left;
+  margin-left: 0rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: rgb(10, 10, 10);
+  margin-bottom: 1rem;
 }
-.left-pane{
-  overflow: hidden;
-  height: 100% !important; 
+
+/* Left Pane: 지도 영역 (전체 너비 차지, 배경 투명화) */
+.left-pane {
+  /* 기능적 속성 (상단 코드 유지) */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: visible !important;
+  z-index: 1;
+
+  /* 20251126 오버라이드 (하단 코드 병합) */
+  position: relative;
+  width: 100% !important;
+  height: 43rem !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none;
 }
-.right-pane{
+
+/* Right Pane: 폼 영역 (지도 위에 플로팅) */
+.right-pane {
+  display: flex;
+  flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
-  min-height: 43rem !important;   /* 항상 최소 높이 확보 */
-}
-
-
-
-/* ========================================================================== */
-/* right pane 내부 버튼 (가격 조회, 가격 비교)                                    */
-/* ========================================================================== */
-.cost.button.container{
-  width: 100%;                 /* combo-line과 동일 폭 */
-  display: flex;               /* 한 줄에 두 버튼 */
-  align-items: center;
-  justify-content: center;     /* 가운데 정렬 (두 버튼이 중앙에 오도록) */
-  gap: 2rem;                   /* 버튼 사이 간격 */
-  padding-inline: 1rem;        /* 좌우 패딩 1rem */
   box-sizing: border-box;
-  /* 필요 시 줄바꿈 방지 */
-  flex-wrap: nowrap;
+  overflow: visible !important; /* 드롭다운을 위해 visible */
+  position: absolute;
+  top: 50%;
+  left: auto;        /* 왼쪽 기준 해제 */
+  right: 5%;         /* 화면 오른쪽 끝에서 5% 안쪽으로 배치 (유동적) */
+  transform: translateY(-50%); /* 수직(Y축)으로만 중앙 정렬 */
+  width: 28rem;
+  max-width: 90vw;
+  height: 100%;
+  min-height: 0 !important;
+
+  background: rgba(15, 23, 32, 0.80); 
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15); /* 테두리를 은은한 흰색으로 변경 */
+  color: #fff; /* 글자색 흰색으로 변경 필수! */
+
+  padding: 1.5rem;
+  z-index: 20; /* 지도보다 위에 배치 */
 }
 
-/* 공통 버튼 룩앤필 */
-.cost-btn{
-  flex: 1 1 0;
-  background: var(--primary, #1F9461);
-  color: #fff;
-  font-weight: 700;
-  font-size: 1rem;
-  line-height: 1;
-  border: 2px solid var(--primary, #1F9461);
-  border-radius: 1rem;              /* 모서리 곡률 1rem */
-  padding: .3rem 1rem;
-  min-width: 9.5rem;                /* 텍스트 길이 균형용 */
-  text-align: center;
-  cursor: pointer;
-  transition: background .18s ease, transform .06s ease, box-shadow .18s ease;
-  display: inline-flex;
+/* ========================================================================== */
+/* 4) 지도 (Map Canvas)                                                       */
+/* ========================================================================== */
+.map-canvas {
+  flex: 1 1 auto;
+  display: block;
+  background: #0f1720;
+  overflow: hidden;
+  position: relative;
+  
+  /* 20251126 오버라이드: 전체 너비 + 높이 고정 */
+  width: 100% !important;
+  height: 40rem !important;
+  min-height: 36rem !important;
+  max-height: 55rem !important;
+}
+
+.map-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
-  white-space: nowrap;              /* 반드시 한 줄 유지 */
-  margin-bottom : 1.5rem ;
+  color: #94a3b8;
+  font-weight: 600;
+  letter-spacing: .02em;
+  border: 2px dashed rgba(148, 163, 184, .25);
+  margin: 12px;
+  border-radius: 0.5rem;
 }
 
-.cost-btn:active{
-  transform: translateY(1px);
+/* 지도 필터 효과 */
+#mpkMap .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(185deg) saturate(1.2) brightness(1.60) contrast(1.08);
+  transform: translateZ(0);
+}
+#mpkMap::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: #d4dff3; mix-blend-mode: multiply; opacity: .55;
+}
+#mpkMap::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: #AEE6FF; mix-blend-mode: screen; opacity: .35;
 }
 
-/* 접근성: 키보드 포커스 */
-.cost-btn:focus-visible{
-  outline: 3px solid rgba(31,148,97,.35);
-  outline-offset: 2px;
+/* 지도 액션 버튼(소형) */
+.map-button-inline {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: .9rem;
+  padding: .2rem .6rem;
+  border: none;
+  border-radius: .4rem;
+  cursor: pointer;
 }
-/* ============================================================================
-  비용 조회 버튼 관련 로직
-   ========================================================================== */
-#one-partner[hidden]{
-  display: none !important;
-  opacity: 0;
-  pointer-events: none;
-}
-#cost-button-container[hidden]{
-  display: none !important;
-}
-#one-partner{
-  opacity: 1;
-  transition: opacity 0.3s ease;
-}
-#one-partner[hidden]{
-  display: block !important;    /* 자리 유지 (숨김상태에서도 공간 확보) */
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-}
-#one-partner:not([hidden]){
-  visibility: visible;
-  opacity: 1;
-}
-/* 지도 캔버스 */
-.map-canvas{ 
-  flex: 1 1 auto;
-  position: relative; 
+.map-button-inline:hover { background: #16724a; }
+
+
+/* ========================================================================== */
+/* ★20251127 최종 수정: 지도 검색창 (중앙 정렬 + 한 줄 고정)                   */
+/* ========================================================================== */
+
+/* 1. [핵심] 상단 컨테이너를 지도 전체 너비로 강제 확장 */
+/* 이렇게 해야 '구석'이 아니라 '지도 전체'를 기준으로 중앙 정렬이 가능해짐 */
+.leaflet-top.leaflet-left {
   width: 100% !important;
-  height: 100% !important;   /* 기존 clamp 높이 대신 패널 채우기 */
-  display: block;
-  background:#0f1720; 
-  border-radius: 0.3rem;              /* ✅ 모서리 굴곡 추가 */
-  overflow: hidden;                   /* ✅ 둥근 모서리 바깥이 잘리도록 */
-  min-height: 24rem;
-  height: clamp(24rem, 60vh, 43rem);
-}
-.map-placeholder{
-  position:absolute; inset:0; 
-  display:flex; align-items:center; justify-content:center;
-  color:#94a3b8; font-weight:600; letter-spacing:.02em;
-  border:2px dashed rgba(148,163,184,.25); margin:12px; border-radius:0.5rem;
+  display: flex !important;
+  justify-content: center !important; /* 내용물 중앙 정렬 */
+  pointer-events: none !important;    /* 빈 공간은 지도 클릭 통과 */
 }
 
-#mpkMap .leaflet-tile-pane{
-  filter:
-    invert(1)
-    hue-rotate(185deg)
-    saturate(1.2)     /* ✅ 1.35 → 1.2 (채도 살짝 낮춤) */
-    brightness(1.60)  /* ✅ 0.92 → 1.05 (전체 밝기 조금 상승) */
-    contrast(1.08);
-  transform: translateZ(0); /* 크롬 렌더링 보정 */
-}
-#mpkMap::after{
-  content:"";
-  position:absolute; inset:0;
-  pointer-events:none;
-  background:#d4dff3;     /* 군청색 */
-  mix-blend-mode:multiply; /* 어두운 영역(바다) 강화 */
-  opacity:.55;             /* 진하기 조절 (0.4~0.7 사이 조정) */
+/* 2. 줌 컨트롤(+, - 버튼)은 다시 왼쪽으로 붙이기 */
+.leaflet-top.leaflet-left .leaflet-control-zoom {
+  position: absolute !important;
+  left: 10px !important;
+  pointer-events: auto !important;    /* 버튼 클릭 가능하게 복구 */
 }
 
-/* 대륙 톤 띄우기: 하늘색 오버레이를 screen으로 */
-#mpkMap::before{
-  content:"";
-  position:absolute; inset:0;
-  pointer-events:none;
-  background:#AEE6FF;      /* 하늘색 */
-  mix-blend-mode:screen;   /* 밝은 영역(대륙) 띄우기 */
-  opacity:.35;             /* 0.15~0.35 사이로 취향 조정 */
+/* 3. 검색창 컨트롤 박스 스타일링 */
+.leaflet-control-geocoder {
+  pointer-events: auto !important;    /* 검색창 클릭 가능하게 복구 */
+  margin-top: 1.5rem !important;      /* 상단 여백 */
+  
+  /* 모양: 흰색 박스 + 그림자 */
+  background-color: #fff !important;
+  border: 1px solid rgba(0,0,0,0.2) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+  
+  /* 레이아웃: ★두 줄 깨짐 방지★ */
+  display: flex !important;
+  align-items: center !important;
+  flex-direction: row !important; 
+  flex-wrap: nowrap !important;
+  
+  height: 2rem !important;
+  padding: 0 !important;
 }
 
-/* 접기/펼치기 애니메이션(선택) */
-.app-shell.collapsing{ animation: shell-slide-up .28s ease forwards; }
-.app-shell.expanding{  animation: shell-slide-down .32s ease forwards; }
+/* 4. 돋보기 아이콘 (왼쪽 고정) */
+.leaflet-control-geocoder-icon {
+  position: relative !important;
+  display: block !important;
+  background-color: transparent !important; 
+  width: 2rem !important;
+  height: 100% !important;
+  border: none !important;
+  border-radius: 4px 0 0 4px !important;
+  margin: 0 !important;
+  cursor: default !important;
+}
 
+/* 5. 폼 영역 (아이콘 옆) */
+.leaflet-control-geocoder-form {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 1;
+}
+
+/* 6. 입력창 (텍스트) */
+.leaflet-control-geocoder-form input {
+  width: auto !important;
+  min-width: 300px !important; /* 넉넉한 너비 확보 */
+  height: 100% !important;
+  
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  
+  font-family: 'Noto Sans KR', sans-serif !important;
+  font-size: 0.95rem !important;
+  padding: 0 1rem 0 0 !important;
+  margin: 0 !important;
+  color: #333 !important;
+}
+
+.leaflet-control-geocoder-form input::placeholder {
+  color: #999 !important; /* 밝은 회색 (잘 보이게) */
+  opacity: 1 !important;
+}
+
+/* 7. 검색 결과 리스트 위치 */
+.leaflet-control-geocoder-alternatives {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  width: 100% !important;
+  
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  box-sizing: border-box;
+  z-index: 999;
+  margin-top: 2px !important;
+}
+.leaflet-control-geocoder-alternatives li {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  text-align: left;
+}
+.leaflet-control-geocoder-alternatives li:hover {
+  background-color: #f1f5f9;
+}
 /* ========================================================================== */
-/* 4) 드롭다운/콤보 (ORI 스타일 유지 + placeholder 톤 통일)                      */
+/* 5) 드롭다운 / 콤보박스                                                     */
 /* ========================================================================== */
-.selection-summary{
-  text-align:center; font-weight:700; color:#000; font-size:1.2rem;
-  margin:.25rem 0 .75rem; opacity:.95;
-}
-
-/* 콤보/드롭다운 레이아웃 */
-.dropdown-container{ 
-  display:flex; flex-direction:column; gap:0.5rem; 
+.dropdown-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 1.5rem !important;
 }
-.combo-line{ width:100%; }
 
-/* 드롭다운 카드(유리패널 톤) */
-.dropdown{
-  display:flex; flex-direction:column; gap:1rem; width:100%;
-  background: rgba(255,255,255,0.82);
-  border-radius: 0.5rem; 
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  backdrop-filter: blur(8px);
+.combo-line-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
 }
-.dropdown-inner{ padding: 1rem 1.2rem; }
+.combo-line-row .combo-line { flex: 1; }
+.combo-line { width: 100%; }
 
-/* 라벨(가독성 색상 보정 + 누락된 세미콜론 보완) */
-.dropdown-label{
-  display:block; text-align:left;
-  margin: 0 0 0;
-  font-weight:600;
-  color: rgba(50,50,50,0.75); 
-  font-size:0.9rem;
+.dropdown-label {
+  display: block;
+  text-align: left;
+  margin: 0 0 0.3rem 0;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  font-size: 0.9rem;
   letter-spacing: 0.02em;
 }
 
-/* 네이티브 셀렉트/인풋 공통 */
+/* 인풋/셀렉트 공통 */
 .dropdown-select,
 input[type="text"],
-input[type="number"]{
-  width:100%; padding:.6rem 1rem; font-size:1rem;
-  border:1.5px solid var(--control-border); 
-  border-radius: var(--control-radius);
-  background: var(--control-bg); color: var(--control-fg);
-}
-
-/* placeholder/invalid 상태 통일 */
-.combo input::placeholder,
-.dropdown-select option[disabled][selected][hidden]{ color:#94a3b8 !important; }
-.dropdown-select:invalid{ color:#94a3b8; }
-.dropdown-select:not(:invalid){ color:#333; }
-
-/* 커스텀 콤보 리스트 */
-.combo{ position:relative; width:100%; }
-.combo input{
-  width:100%; padding:.6rem 1rem; font-size:1rem;
-  border:1.5px solid var(--control-border); border-radius: var(--control-radius);
-  background: var(--control-bg); color: var(--control-fg);
-}
-
-.combo .list .item{ padding:.55rem .8rem; cursor:pointer; }
-.combo-line .combo .list .item:hover {
-  background: transparent !important;
-}
-.combo .list .item.is-selected{ background: var(--table-header); color: var(--table-text); }
-
-/* 지도 액션 버튼(소형) */
-.map-button-inline{
-  background: var(--primary); color:#fff; font-weight:600; font-size:.9rem;
-  padding:.2rem .6rem; border:none; border-radius:.4rem; cursor:pointer;
-}
-.map-button-inline:hover{ background:#16724a; }
-
-/* 파트너 한 곳 비용 확인 컨테이너 */
-.one partner {
-  background: rgba(255, 255, 255, 0.82); /* 살짝 투명한 흰색 (기존 dropdown 톤 유지) */
-  border: 1.5px solid var(--control-border);
-  border-radius: 0.8rem;
-  padding: 1.5rem 1.75rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-  backdrop-filter: blur(6px);
-  width: 100%;              /* ✅ 부모(우측 패널) 폭에 맞춤 */
-  box-sizing: border-box;
-}
-
-/* 내부 라벨 정렬 개선 */
-.one partner .dropdown-label {
+input[type="number"],
+.combo input {
+  width: 100%;
+  padding: .6rem 1rem;
   font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.3rem;
-}
-/* ========================================================================== */
-/* 5) 조회 버튼 & 결과 섹션                                                       */
-/* ========================================================================== */
-.action-row{                             /* 우측 정렬 액션 영역 */
-  display:flex; justify-content:flex-end; margin:12px 0 0; /* 하단 0 */
-}
-.action-row.center{                      /* 중앙 정렬 액션 영역 */
-  display:flex; justify-content:center; align-items:center; margin:2rem auto 0;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 6px !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  color: #fff !important;
 }
 
-/* 기본 조회 버튼 */
-.primary-btn {
-  position: relative;                  /* 내부 아이콘(로딩 스피너 등) 위치 기준 */
-  display: inline-flex;                /* 인라인 수준의 flex 컨테이너 */
-  align-items: center;                 /* 세로 가운데 정렬 */
-  justify-content: center;             /* 가로 가운데 정렬 */
-  border-radius: 2rem;                 /* 모서리 둥글게 */
-  padding: .2rem 1.25rem;              /* 상하 0.5rem, 좌우 1.25rem 여백 */
-  min-width: 17rem;                    /* 최소 버튼 폭 */
-  border: 2px solid var(--primary);    /* 버튼 테두리 색상 (메인 포인트 컬러) */
-  background: var(--primary);          /* 배경색 (메인 포인트 컬러) */
-  color: #fff;                         /* 글자색 흰색 */
-  font-weight: 600;                    /* 폰트 두께: Bold */
-  font-size: 1rem;                   /* ✅ 버튼 폰트 크기 */
-  cursor: pointer;                     /* 클릭 가능한 커서 표시 */
-  transition: background .2s ease, 
-              transform .08s ease;     /* 배경색, 눌림 애니메이션 */
-  text-align: center;                  /* 텍스트 가운데 정렬 */
-}
-.primary-btn:hover{ background:#16724a; }
-.primary-btn:active{ transform: translateY(1px); }
-
-/* 글자 시각적 중심 보정 */
-.primary-btn span.label{ display:inline-block; transform: translateX(-4px); }
-.primary-btn.is-loading span.label{ transform: translateX(4px); }
-
-/* 로딩 스피너(왼쪽 아이콘 자리, 버튼 크기 불변) */
-.primary-btn.is-loading{ cursor: progress; opacity: .96; }
-.primary-btn.is-loading::before{
-  content:""; position:absolute; left:10px; top:50%;
-  width:16px; height:16px; margin-top:-8px;
-  border: 2px solid rgba(255,255,255,.95); border-top-color: transparent;
-  border-radius: 50%; animation: spin .8s linear infinite; pointer-events:none;
+/* 입력창 포커스 시: 테두리를 밝게 */
+.dropdown-select:focus,
+input[type="text"]:focus,
+.combo input:focus {
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  outline: none;
 }
 
-/* 결과 섹션 */
-.result-section{ display:none; padding:.5rem 0 2rem; }
-.result-section.show{ display:block; }
-.result-container{ background: transparent !important; backdrop-filter: none !important; }
-.table-wrap{ width:100%; overflow:auto; border-radius:inherit; }
-
-#resultSectionCompare .result-container.container.compare-wrap {
-  max-width: none;
-  width: 98%;          /* app-shell과 동일한 비율 */
-  margin-inline: auto; /* 중앙 정렬 */
+::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+.dropdown-select option[disabled][selected][hidden] {
+  /* 기존: color: #94a3b8 !important; (회색) */
+  
+  /* 변경: 다른 입력창들과 똑같은 '투명한 흰색'으로 통일 */
+  color: rgba(255, 255, 255, 0.4) !important; 
 }
 
-/* ==================================================================
-   결과 표 공통 디자인
-   ================================================================== */
-.result-table{
-  width:100%;
-  border-collapse:separate;
-  border-spacing:0;
-  table-layout:auto;
-  background:#fff;
-  color:#111;
-  border:none;
+/* 콤보 리스트 (z-index 중요) */
+.combo { position: relative; }
+.combo .list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #1e293b !important; /* 불투명한 짙은 남색 */
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #fff !important;
   border-radius: var(--control-radius);
-  overflow:hidden;
-  margin-top:8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+  display: none;
+  z-index: 2000; /* 지도(z=1)나 패널(z=20)보다 높아야 함 */
 }
-
-.result-table th,
-.result-table td{
-  border:1px solid #F5F5F5;
-  padding:.6rem .75rem;
-  text-align:left;
-  vertical-align:top;
+.combo .list .item { padding: .55rem .8rem; cursor: pointer; }
+.combo .list .item:hover {
+  background: rgba(255, 255, 255, 0.1) !important; /* 마우스 올리면 살짝 밝게 */
 }
+.combo .list .item.is-selected { background: var(--table-header); color: var(--table-text); }
 
-/* 헤더 1~4열 전부 남색 */
-.result-table thead th{
-  background:#153A47;
-  color:#F5F5F5;
-  font-weight:700;
-}
-
-/* 금액 셀(3열 데이터)은 숫자 정렬/폰트 설정 */
-.result-table td.amt{
-  white-space:nowrap;
-  text-align:center;
-  font-variant-numeric: tabular-nums;
-}
-
-/* 금액 헤더(3열 헤더)는 가운데 정렬 */
-.result-table thead th.type-col{
-  text-align:center;
-}
-/* ==================================================================
-   폭 튜닝: [체크박스 | 항목 | 금액 | 비고] — colgroup 기반
-   ================================================================== */
-
-/* 1열 – 체크박스 (정사각형 느낌) */
-.result-table thead th.sel-col,
-.result-table tbody td.sel{
-  width:3rem;
-  min-width:3rem;
-  text-align:center;
-  padding-inline:.25rem;
-}
-
-/* 2열 – 항목
-   → 별도 width 지정 없이 컨텐츠 길이에 맞게(auto)
-   → 줄바꿈 없이 한 줄로, 우측 정렬 */
-.result-table thead th:nth-child(2),
-.result-table tbody td:nth-child(2){
-  width: 1%;
-  white-space: nowrap;     /* 한 줄 유지 */
-  padding-left: .25rem;
-  padding-right: .25rem;
-  text-align: center;
-}
-
-/* 3열 – 금액 */
-.result-table thead th:nth-child(3),
-.result-table tbody td:nth-child(3){
-  min-width:12%;
-}
-
-/* 4열 – 비고 */
-.result-table thead th:nth-child(4),
-.result-table tbody td:nth-child(4){
-  max-width:80%;
-  min-width:50%;
-  word-wrap:break-word;
-  word-break:break-word;
-}
-
-/* ==================================================================
-   바디 색상: 1, 2열만 남색 배경
-   ================================================================== */
-
-/* 바디 1열(체크박스), 2열(항목) 남색 */
-.result-table tbody td.sel,
-.result-table tbody td:nth-child(2){
-  background:#153A47;
-  color:#F5F5F5;
-  font-weight:700;
-}
-
-/* 바디 1열 텍스트 정렬 유지(가운데) */
-.result-table tbody td.sel{
-  text-align:center;
-}
-
-
-/* ==========================================================================
-선택 합계 (표 우측 하단 숫자)
-========================================================================== */
-.result-total{
-  margin-top:.75rem;
-  text-align:right;
-}
-
-.result-total-label{
-  font-size:.9rem;
-  margin-right:.5rem;
-  vertical-align:middle;
-  opacity:.8;
-}
-
-.result-total-value{
-  font-size:2rem;            /* 요구하신 2rem 숫자 크기 */
-  font-weight:700;
-  vertical-align:middle;
-}
-
-.result-total-pass{
-  margin-left:.5rem;
-  vertical-align:middle;
-}
-
-/* 타입 헤더(금액 열 헤더)는 가운데 정렬 */
-.result-table thead th.type-col{
-  text-align:center;
-}
-
-/* ========================================================================== */
-/* 5-1) 요약 바 (접힌 상태 표시)                                                  */
-/* ========================================================================== */
-.collapsed-summary{
-  position: sticky; top: var(--header-h); z-index: 10;
-  display: flex; justify-content: center;
-  background: transparent; border: 0; padding: .75rem 0 .5rem;
-  margin-bottom: 2rem;
-}
-.collapsed-summary .container{
-  display:flex; flex-direction:column; align-items:center; gap:.35rem;
-  padding:.5rem .75rem; background:#0e1a2b;
-
-  border: 1px solid rgba(255,255,255,.14);
-  border-radius: var(--btn-radius);
-  width: max-content; max-width: min(92vw, 75rem);
-}
-.collapsed-summary .chips{ display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; justify-content:center; }
-.collapsed-summary .chip{
-  display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .6rem;
-  border-radius:.75rem; cursor:pointer; background: rgba(255,255,255,.06);
-  border: 1px solid rgba(255,255,255,.14); color:#e6edf5; font-weight:700; font-size:.95rem;
-}
-.collapsed-summary .chip .k{ opacity:.75; font-weight:600; }
-.collapsed-summary .chip .v{ opacity:1; }
-.collapsed-summary .chip:hover{ background: rgba(255,255,255,.12); }
-.collapsed-summary .hint{ color:#a0b3ca; font-size:.85rem; opacity:.9; }
-
-/* summary 표시/숨김 보정 */
-#collapsedSummary[hidden]{ 
-  display:none !important; visibility:hidden !important; height:0 !important;
-  padding:0 !important; margin:0 !important; border:0 !important;
-}
-.collapsed-summary.reveal{ animation: sum-slide-down .28s ease both; }
-#collapsedPanel{ display:block; }
-#collapsedPanel .collapsed-summary .container{ display:flex; flex-direction:column; gap:12px; }
-#collapsedPanel .result-section{ display:block; width:100%; margin-top:12px; }
-
-/* ========================================================================== */
-/* 6) 로딩 표시 (콤보/셀렉트)                                                     */
-/* ========================================================================== */
-.combo{ position: relative; }
-.combo.is-loading input{ padding-left: 36px; } /* 왼쪽 스피너 여백 */
-.combo.is-loading::after{
-  content:""; position:absolute; left:10px; top:50%;
-  width:16px; height:16px; margin-top:-8px;
+/* 로딩 스피너 */
+.combo.is-loading input { padding-left: 36px; }
+.combo.is-loading::after {
+  content: ""; position: absolute; left: 10px; top: 50%;
+  width: 16px; height: 16px; margin-top: -8px;
   border: 2px solid currentColor; border-top-color: transparent;
-  border-radius: 50%; opacity:.85; animation: spin .8s linear infinite; pointer-events:none;
+  border-radius: 50%; opacity: .85; animation: spin .8s linear infinite; pointer-events: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+
+/* ========================================================================== */
+/* 6) 비용 조회/비교 버튼 탭 (최종 디자인 통합)                                  */
+/* ========================================================================== */
+
+/* 탭 버튼들을 감싸는 컨테이너 */
+.cost-button-container {
+  position: relative;
+  display: flex;
+  align-items: flex-end;   /* 버튼 밑면을 라인에 맞춤 */
+  justify-content: flex-start;
+  gap: 2rem;               /* 버튼 사이 간격 */
+  padding: .4rem 1rem 0;   /* 상단/좌우 여백 */
+  margin-bottom: 1rem;     /* 컨테이너 하단 여백 */
+  background: transparent;
+  z-index: 1;
 }
 
-/* 네이티브 <select> 로딩(선택사항): setSelectLoading(id, bool)로 토글 */
-.dropdown-select.is-loading{
-  position: relative; background-image: none !important; padding-left: 36px;
+/* 탭 하단을 가로지르는 얇은 직선 (버튼 뒤로 지나감) */
+.cost-button-container::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2); /* 변경됨 */
+  z-index: 0;
 }
-.dropdown-select.is-loading + .select-spinner{
-  position: absolute; left:10px; top:50%; width:16px; height:16px; margin-top:-8px;
-  border: 1.5px solid currentColor; border-top-color: transparent; border-radius: 50%;
-  animation: spin 0.8s linear infinite; pointer-events: none;
+
+/* 내부 버튼 (탭) 공통 스타일 */
+.cost-check-type-btn {
+  position: relative;
+  z-index: 2;              /* 라인 위로 올라오도록 설정 */
+  background: transparent; /* 기본 투명 (비활성) */
+  color: rgba(255, 255, 255, 0.5);
+  
+  /* 탭 모양 테두리 */
+  border: 1px solid transparent; /* 평소엔 테두리 숨김 */
+  border-bottom: none;     /* 아래쪽은 뚫어서 선과 연결된 느낌 */
+  border-radius: .5rem .5rem 0 0; /* 위쪽 모서리만 둥글게 */
+  
+  padding: .55rem 1.25rem;
+  min-width: auto;
+  font-weight: 700;
+  letter-spacing: .02em;
+  box-shadow: none;
+  transition: all .18s ease;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-/* 회전 애니메이션 */
-@keyframes spin {
-  to { 
-    transform: rotate(360deg);  /* 세로 이동 빼고 회전만 */
-  }
+/* 활성(is-active) 및 Hover 상태: 흰색 배경 + 붉은 글씨 + 그림자 */
+.cost-check-type-btn:hover,
+.cost-check-type-btn:focus-visible,
+.cost-check-type-btn.is-active,
+.cost-check-type-btn:active {
+  background: rgba(255, 255, 255, 0.1); /* 활성 시 살짝 밝은 배경 */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid #1e293b; /* 아래쪽을 패널색과 맞춰서 뚫린 느낌 */
+  color: #fff; /* 활성 텍스트: 흰색 */
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
 }
-/* (선택) app-shell 전환 애니메이션 키프레임 - JS에 맞춰 사용하세요
-@keyframes shell-slide-up{ to{ opacity:0; transform: translateY(-8px);} }
-@keyframes shell-slide-down{ from{ opacity:0; transform: translateY(-8px);} to{ opacity:1; transform: translateY(0);} }
-@keyframes sum-slide-down{ from{ opacity:0; transform: translateY(-6px);} to{ opacity:1; transform: translateY(0);} }
-*/
 
-
-
-
-/* ==========================================================================
-    ★★★★2025/11/12 패치내역 (1)
-    ========================================================================== */
-
-/* ─────────────────────────────────────────────
-   1) ONE-PARTNER가 자리 차지하지 않도록 (공간 예약 제거)
-   ───────────────────────────────────────────── */
-#one-partner[hidden]{
+/* One/Two Partner 표시 제어 (공간 차지 제거) */
+#one-partner[hidden],
+#two-partner[hidden],
+#cost-button-container[hidden] {
   display: none !important;
   visibility: hidden !important;
   opacity: 0 !important;
   pointer-events: none !important;
 }
-/* (참고) 필요 시 함께 숨김 유지 */
-#cost-button-container[hidden]{ display: none !important; }
-
-/* ─────────────────────────────────────────────
-   2) app-shell/좌우 패널의 '강제 높이' 해제 → 내용 기준 자동 높이
-   ───────────────────────────────────────────── */
-.app-shell{
-  min-height: 0 !important;    /* 기존 43rem 고정 해제 */
-  height: auto !important;      /* 내용 높이만큼 */
+#one-partner, #two-partner {
+  transition: opacity 0.3s ease;
 }
 
-.left-pane,
-.right-pane{
-  height: auto !important;      /* 패널 강제 높이 해제 */
-  min-height: 0 !important;
-  background: #ffffff;                       /* 배경 흰색 */
-  border: 1px solid var(--control-border);     /* 테두리 색상 및 두께 */
-  border-radius: 0.8rem;                      /* 모서리 굴곡 */
-  padding: 1.1rem 1.5rem 1.5rem;              /* 상 좌우 하 패딩 */
-  box-shadow: none;                           /* 그림자 제거 */
-  height: 100% !important;                            /* 높이 */
-  box-sizing: border-box;                     /* 패딩 포함 계산 */
-  display: flex;
-  flex-direction: column;
-}
 
-/* 그리드 정렬을 상단 기준으로 (양 패널이 서로 높이 강제 맞춤되지 않게) */
-.app-main{
-  align-items: start !important; /* Grid 컨테이너의 세로 정렬을 상단으로 */
-}
 
-/* ─────────────────────────────────────────────
-   3) 지도 영역은 항상 '고정 높이' 유지 (right-pane 변화와 무관)
-   ───────────────────────────────────────────── */
-/* 필요에 따라 값만 조정: 36rem 고정 예시 */
-.map-canvas{
-  height: 36rem !important;     /* 오른쪽 높이에 영향 받지 않음 */
-  min-height: 36rem !important;
-  max-height: 36rem !important;
-}
 
-/* ==========================================================================
-    ★★★★2025/11/12 패치내역 (1) left/right pane 컨테이너 가로폭 고정
-    ========================================================================== */
-    /* 1) 스크롤바 등장해도 vw 변동 없게: 폭은 컨테이너 % 기반으로 */
-/* html{ scrollbar-gutter: stable both-edges; }  스크롤 때문에 만들어둔 것 */
-.app-shell{
-  width: 90% !important;              /* 90vw → 100% */
-  max-width: none !important; /* 1200px 상한 유지 */
-}
+/* ========================================================================== */
+/* 7) 조회 버튼 (Primary Button)                                              */
+/* ========================================================================== */
+.action-row { display: flex; justify-content: flex-end; margin: 12px 0 0; }
+.action-row.center { display: flex; justify-content: center; align-items: center; margin: 2rem auto 0; }
 
-/* 2) 내용이 넓어도 트랙이 밖으로 밀리지 않게: minmax(0, fr) */
-.app-main{
-  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr) !important;
-  /* 좁은 화면에서 내용이 트랙 너비를 강제로 키우는 걸 방지 */
-}
-
-/* 3) 우측 내용이 넓어져도 전체를 밀지 않게 */
-.right-pane{ overflow: hidden !important; }   /* 외곽 밀림 방지 */
-.table-wrap{ overflow-x: auto !important; }   /* 표는 내부에서 스크롤 */
-
-/* 4) 로딩 상태 버튼 폭 흔들림 방지 (스피너 자리 항상 확보) */
-.primary-btn{
-  padding-left: calc(1.25rem + 20px) !important; /* 스피너 공간 고정 */
-}
-.primary-btn::before{ left: 10px !important; }   /* 스피너 위치 고정 */
-.primary-btn span.label{ transform: none !important; } /* 좌우 흔들림 제거 */
-
-/* ==========================================================================
-    ★★★★2025/11/12 패치내역 (2) 가격 비교 부분 컨테이너 추가
-    ========================================================================== */
-
-.combo-line-row {
-  display: flex;
-  flex-direction: row;     /* 가로 배치 */
-  align-items: flex-start; /* 위 기준 정렬 */
-  justify-content: space-between;
-  gap: 1rem;               /* 콤보 간 간격 */
-  width: 100%;
-}
-
-/* 두 콤보가 균등하게 폭 나누도록 */
-.combo-line-row .combo-line {
-  flex: 1;
-}
-
-/* ==========================================================================
-    ★★★★2025/11/12 패치내역 (3) 지역 드롭다운 길이 수정
-    ========================================================================== */
-/* 드롭다운 리스트가 컨테이너 밖으로 떠도 보이게 */
-.right-pane,
-.left-pane,
-.app-main,
-.app-shell{
-  overflow: visible !important;
-}
-
-/* 겹침 순서 보장 */
-.app-shell,
-.right-pane,
-.left-pane{
-  position: relative; 
-  z-index: 1;
-}
-
-/* 콤보 리스트가 위로 떠서 잘리지 않게 */
-.combo { position: relative; }
-.combo .list{
-  z-index: 2000;                 /* 주변 요소보다 높게 */
-  max-height: calc(1.8rem * 12 + 1rem); /* ≈ 12개 보이는 높이 */
-  overflow-y: auto;              /* 스크롤 */
-  overscroll-behavior: contain;  /* 페이지 스크롤로 전파 방지 */
-  position:absolute; top: calc(100% + 6px); left:0; width:100%;
-  border:2px solid var(--control-border); border-radius: var(--control-radius);
-  box-shadow: 0 4px 12px rgba(0,0,0,.2);
-  z-index:1000; display:none;  
-  position:absolute; top: calc(100% + 6px); left:0; width:100%;
-  max-height:240px; overflow:auto; background:#fff;
-  border:2px solid var(--control-border); border-radius: var(--control-radius);
-  box-shadow: 0 4px 12px rgba(0,0,0,.2);
-  z-index:1000; display:none;     
-}
-
-/* ==========================================================================
-    ★★★★2025/11/12 패치내역 (4) 비용 조회, 비용 비교 버튼 디자인 변경 
-    ========================================================================== */
-    /* 탭 바 전체 라인 */
-.cost.button.container{
+.primary-btn {
   position: relative;
-  justify-content: flex-start;     /* 왼쪽 정렬 */
-  gap: 0;                          /* 탭은 붙여서 */
-  padding-inline: 0;
-  margin-bottom: 1rem;
-}
-
-/* 하단 얇은 라인(컨테이너 전체를 가로지르는 선) */
-.cost.button.container::after{
-  content:"";
-  position:absolute; left:0; right:0; bottom:0.25rem;
-  height:1px;
-  background: rgba(0,0,0,.25);
-  z-index: 0;
-}
-
-/* 탭 버튼 공통 룩앤필 */
-.cost-btn{
-  position: relative;
-  z-index: 1;                      /* 하단 라인 위에 오도록 */
-  background: #fff;                /* 탭 면색 */
-  color: #b10e0e;                  /* 예시: 사진처럼 붉은 계열 타이틀 */
-  border: 1px solid rgba(0,0,0,.2);
-  border-bottom: none;             /* 아래는 비워서 라인과 이어지게 */
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  padding: .55rem 1.25rem;
-  min-width: auto;
-  margin: 0 1.25rem 0 0;           /* 탭 사이 간격 */
-  box-shadow: none;
-  font-weight: 700;
-  letter-spacing: .02em;
-}
-
-
-/* 활성 탭 */
-.cost-btn.is-active{
-  color: #b10e0e;
-  border-color: rgba(0,0,0,.35);
-  box-shadow: 0 2px 8px rgba(0,0,0,.08);
-}
-
-/* 비활성 탭은 라인과 살짝 띄워 보이도록 */
-.cost-btn:not(.is-active){
-  opacity: .9;
-}
-
-/* ▼ 비용 조회/비교: 컨테이너 아래 직선 + 상단만 라운드 + hover/active 부각 */
-#cost-button-container{
-  position: relative;
-  display: flex;           /* 기존 정렬 유지 */
-  align-items: flex-end;   /* 버튼 하단 기준을 라인에 맞춤 */
-  gap: 2rem;
-  padding: .4rem 1rem 0;   /* 위 살짝 여백, 아래는 라인에 밀착 */
-  background: transparent; /* 기본은 투명 */
-  border-radius: .5rem .5rem 0 0;   /* 위쪽만 0.5rem 곡률 */
-  z-index: 1;              /* 하단 라인 위 */
-  transition: background .18s ease, box-shadow .18s ease;
-}
-
-/* 하단 얇은 직선: '버튼의 가장 아래'에 정확히 맞춤 */
-#cost-button-container::after{
-  content: "";
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 1px;
-  background: rgba(0,0,0,.25);
-  z-index: 0; /* 컨테이너 뒤쪽 */
-}
-
-/* 버튼은 컨테이너 위로 '올라온' 느낌을 주도록 살짝 위계 조정 */
-#cost-button-container .cost-btn{
-  position: relative;
-  z-index: 2;                 /* 컨테이너(배경/그림자)보다 위 */
-  background-clip: padding-box;
-}
-
-/* (선택) 버튼 클릭(활성) 시 컨테이너 효과를 강제 트리거하고 싶다면 */
-#costCheck:active ~ .cost-btn,
-#costComparison:active ~ .cost-btn
-  /* no-op: 컨테이너에 위 상태가 이미 적용됨 (:focus-within 으로도 충분) */
-
-
-/* ─────────────────────────────────────────────
-   0) 컨테이너에 걸린 hover/active 효과 제거(덮어쓰기)
-   ───────────────────────────────────────────── */
-/* 기존에 컨테이너에 적용되던 배경/그림자 효과를 무력화 */
-#cost-button-container:hover,
-#cost-button-container:focus-within,
-#cost-button-container:has(.cost-btn.is-active){
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-/* 하단 얇은 직선은 그대로 유지 (버튼 ‘아래’ 기준선) */
-#cost-button-container{
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  gap: 2rem;
-  padding: .4rem 1rem 0;
-  border-radius: .5rem .5rem 0 0;           /* 위쪽만 0.5rem */
-  background: transparent;                  /* 기본 투명 */
-  z-index: 1;
-}
-#cost-button-container::after{
-  content: "";
-  position: absolute;
-  left: 0; right: 0; bottom: 0;             /* 버튼 ‘맨 아래’에 맞춘 선 */
-  height: 1px;
-  background: rgba(0,0,0,.25);
-  z-index: 0;
-}
-
-/* ─────────────────────────────────────────────
-   1) 버튼 기본 상태: 투명(아래 선이 비치도록)
-   ───────────────────────────────────────────── */
-#cost-button-container .cost-btn{
-  position: relative;
-  z-index: 2;                                /* 기준선 위로 */
-  background: transparent;                   /* ★ 기본 투명 */
-  color: rgb(70, 130, 180, 1);
-  border: 1px solid rgba(0,0,0,.2);
-  border-bottom: none;                       /* 아래는 비워서 선과 맞닿는 느낌 */
-  border-top-left-radius: .5rem;
-  border-top-right-radius: .5rem;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  padding: .55rem 1.25rem;
-  font-weight: 700;
-  letter-spacing: .02em;
-  box-shadow: none;
-  transition: background .18s ease, box-shadow .18s ease, border-color .18s ease;
-}
-
-/* ─────────────────────────────────────────────
-   2) 버튼별 hover/active/focus 효과
-      - 버튼을 ‘흰색으로 채우고’
-      - 그림자: x=1, y=-3
-      - 컨테이너가 아닌 ‘각 버튼’에만 적용
-   ───────────────────────────────────────────── */
-#cost-button-container .cost-btn:hover,
-#cost-button-container .cost-btn:focus-visible,
-#cost-button-container .cost-btn.is-active,
-#cost-button-container .cost-btn:active{
-  background: #fff;                          /* ★ 버튼만 흰색으로 채움 */
-  border-color: rgba(0,0,0,.35);
-  box-shadow: 1px -3px 12px rgba(0,0,0,.12); /* ★ x=1, y=-3 */
-}
-
-/* two-partner도 hidden 시 완전히 숨김 */
-#two-partner[hidden]{
-  display: none !important;
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* ── 비교 결과 레이아웃 ───────────────────────────────────────── */
-.compare-wrap{
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-}
-.compare-col{
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
-  min-width: 0;           /* 긴 표 내용 줄바꿈/스크롤 안정화 */
-}
-.compare-head{
-  font-weight: 800;
-  font-size: 1.3rem;
-  color: #111;
-  letter-spacing: .01em;
-  padding: .25rem .25rem .25rem 2rem;
-}
-.compare-top{
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: .5rem;
+  justify-content: center;
+  border-radius: 2rem;
+  /* 로딩 스피너 공간 확보를 위해 왼쪽 패딩 고정 */
+  padding: .2rem 1.25rem .2rem calc(1.25rem + 20px) !important;
+  min-width: 17rem;
+  border: 2px solid var(--primary);
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background .2s ease, transform .08s ease;
+  text-align: center;
 }
-/* 표 감싸는 상자 스크롤 안정화 */
-#tableWrapA, #tableWrapB{
+.primary-btn:hover { background: #16724a; }
+.primary-btn:active { transform: translateY(1px); }
+
+/* 라벨 흔들림 방지 */
+.primary-btn span.label { display: inline-block; transform: none !important; }
+
+/* 로딩 스피너 */
+.primary-btn.is-loading { cursor: progress; opacity: .96; }
+.primary-btn.is-loading::before {
+  content: ""; position: absolute; left: 10px !important; top: 50%;
+  width: 16px; height: 16px; margin-top: -8px;
+  border: 2px solid rgba(255, 255, 255, .95); border-top-color: transparent;
+  border-radius: 50%; animation: spin .8s linear infinite; pointer-events: none;
+}
+
+
+/* ========================================================================== */
+/* 8) 결과 섹션 및 테이블                                                     */
+/* ========================================================================== */
+.result-section { display: none; padding: .5rem 0 2rem; }
+.result-section.show { display: block; }
+.result-container { background: transparent !important; backdrop-filter: none !important; }
+
+.table-wrap {
+  width: 100%;
+  overflow-x: auto !important;
+  border-radius: inherit;
+}
+#tableWrapA, #tableWrapB {
   width: 100%;
   overflow: auto;
   border-radius: var(--control-radius);
 }
 
-/* 좁은 화면에서는 1열 스택 */
-@media (max-width: 900px){
-  .compare-wrap{ grid-template-columns: 1fr; }
-  .compare-col .compare-head::after{
-    content:""; display:block; height:1px; background:rgba(0,0,0,.08);
-    margin:.35rem 0 .1rem;
-  }
+/* 결과 테이블 공통 */
+.result-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: auto;
+  background: #fff;
+  color: #111;
+  border: none;
+  border-radius: var(--control-radius);
+  overflow: hidden;
+  margin-top: 8px;
+}
+.result-table th, .result-table td {
+  border: 1px solid #F5F5F5;
+  padding: .6rem .75rem;
+  text-align: left;
+  vertical-align: top;
+}
+.result-table thead th { background: #153A47; color: #F5F5F5; font-weight: 700; }
+.result-table td.amt { white-space: nowrap; text-align: center; font-variant-numeric: tabular-nums; }
+.result-table thead th.type-col { text-align: center; }
+
+/* 컬럼 폭 튜닝 */
+.result-table thead th.sel-col, .result-table tbody td.sel {
+  width: 3rem; min-width: 3rem; text-align: center; padding-inline: .25rem;
+  background: #153A47; color: #F5F5F5; font-weight: 700;
+}
+.result-table thead th:nth-child(2), .result-table tbody td:nth-child(2) {
+  width: 1%; white-space: nowrap; text-align: center;
+  background: #153A47; color: #F5F5F5; font-weight: 700;
+}
+.result-table thead th:nth-child(3), .result-table tbody td:nth-child(3) { min-width: 12%; }
+.result-table thead th:nth-child(4), .result-table tbody td:nth-child(4) {
+  max-width: 80%; min-width: 50%; word-wrap: break-word; word-break: break-word;
 }
 
-/* 결과 섹션 토글 공통 (기존 result-section 규칙 유지) */
-#resultSectionCompare[hidden]{ display:none !important; }
+/* 합계 */
+.result-total { margin-top: .75rem; text-align: right; }
+.result-total-label { font-size: .9rem; margin-right: .5rem; vertical-align: middle; opacity: .8; }
+.result-total-value { font-size: 2rem; font-weight: 700; vertical-align: middle; }
 
-/* =========================================================
-   통화 선택 바 (환율 + 좁은 드롭다운)
-   ========================================================= */
-.result-currency .container,
-.currency-bar{
-  display:flex;
-  justify-content:flex-end;   /* 오른쪽 정렬 */
-  align-items:center;
-  gap:.4rem;
+/* 비교 탭 그리드 */
+.compare-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+.compare-col { background: transparent; display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+.compare-head { font-weight: 800; font-size: 1.3rem; color: #111; letter-spacing: .01em; padding: .25rem .25rem .25rem 2rem; }
+.compare-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+
+@media (max-width: 900px) {
+  .compare-wrap { grid-template-columns: 1fr; }
+  .right-pane { width: 90vw !important; transform: translate(-50%, -50%) !important; top: 50% !important; left: 50% !important; }
 }
 
-/* 환율 드롭다운: 다른 드롭다운과 스타일은 동일하되, 폭/높이만 살짝 줄임 */
-.currency-select{
-  width:7rem;          /* 좁게 */
-  min-width:7rem;
-  padding:.35rem .6rem;  /* 기본 .6rem 1rem 보다 조금 줄여서 높이만 낮게 */
-  font-size:.9rem;       /* 살짝 작은 폰트 */
-  text-align:center;
+/* ========================================================================== */
+/* 9) 통화 선택 및 요약바                                                     */
+/* ========================================================================== */
+.result-currency .container, .currency-bar {
+  display: flex; justify-content: flex-end; align-items: center; gap: .4rem;
+}
+.currency-select { width: 7rem; min-width: 7rem; padding: .35rem .6rem; font-size: .9rem; text-align: center; }
+.currency-rate { font-size: .85rem; color: rgb(50, 50, 50); white-space: nowrap; }
+
+/* 요약 바 */
+.collapsed-summary {
+  position: sticky; top: var(--header-h); z-index: 10;
+  display: flex; justify-content: center;
+  background: transparent; border: 0; padding: .75rem 0 .5rem; margin-bottom: 2rem;
+}
+.collapsed-summary .container {
+  display: flex; flex-direction: column; align-items: center; gap: .35rem;
+  padding: .5rem .75rem; background: #0e1a2b;
+  border: 1px solid rgba(255, 255, 255, .14); border-radius: var(--btn-radius);
+  width: max-content; max-width: min(92vw, 75rem);
+}
+.collapsed-summary .chips { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: center; }
+.collapsed-summary .chip {
+  display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .6rem;
+  border-radius: .75rem; cursor: pointer; background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .14); color: #e6edf5; font-weight: 700; font-size: .95rem;
+}
+.collapsed-summary .chip:hover { background: rgba(255, 255, 255, .12); }
+#collapsedSummary[hidden] { display: none !important; }
+
+
+
+
+
+/*★20251127수정 RIGHT PANE 색상 변경하면서 드롭다운 및 폰트 색 변경*/
+.pane-title, .dropdown-label {
+  color: #eef2f7 !important;
 }
 
-/* 환율 텍스트 (예: USD/EUR 0.9234) */
-.currency-rate{
-  font-size:.85rem;
-  color:rgb(50,50,50);
-  white-space:nowrap;
-}
+
+
