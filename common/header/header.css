@@ -13,7 +13,9 @@
   --btn-basic-hover-color: #16724a;
 }
 *{ box-sizing: border-box; }
-html{ font-size: clamp(14px, 1.2vw, 16px); }
+html{ 
+  font-size: clamp(14px, 1.2vw, 16px); 
+  overflow-y: scroll;}
 
 /* ========== 기본 reset (html/body 여백 제거는 헤더와 직결됨) ========== */
 html, body{
@@ -23,8 +25,8 @@ html, body{
 }
 
 body{
-  margin: 0rem 3rem 0rem; /*위 마진 0, 좌우마진 3 하단마진 0*/
-  padding-top: calc(var(--main-space-h) + 2rem);
+  margin: 0rem 0rem 0rem; /*위 마진 0, 좌우마진 3 하단마진 0*/
+  padding-top: calc(var(--main-space-h) + 3rem);
   background: #fff;             /* 공통 배경색(원하면 유지) */
 }
 
@@ -247,6 +249,4 @@ body{
       background: #f3f4f6;
       color: #000;
     }
-
-
 
