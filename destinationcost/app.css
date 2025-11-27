@@ -31,19 +31,6 @@ app.css 파일 중복값 정리본
 /* ========================================================================== */
 /* 1) 기본 구조                                                               */
 /* ========================================================================== */
-body {
-  position: relative;
-  min-height: 100dvh;
-}
-
-body::before,
-body::after {
-  content: none !important;
-  display: none !important;
-  background: none !important;
-  filter: none !important;
-  transform: none !important;
-}
 
 .container {
   max-width: var(--container-max);
