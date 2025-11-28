@@ -53,7 +53,6 @@
           <label for="cbmComboInput">CBM</label>
           <div class="combo" id="cbmCombo">
             <input type="text" id="cbmComboInput" placeholder="CBM 입력 또는 선택" autocomplete="off">
-            <div class="list" id="cbmComboList"></div>
           </div>
         </div>
       </div>
@@ -240,7 +239,6 @@
     cbmInput.addEventListener('input', () => {
       cbmInput.value = cbmInput.value.replace(/[^0-9.]/g, '');
     });
-    const cbmList  = document.getElementById('cbmComboList');
 
     // ───────────────────────── 차감 입력 컨테이너 로직 ─────────────────────────
     const deductSection = document.getElementById('deductSection');
