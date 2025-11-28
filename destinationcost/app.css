@@ -318,6 +318,12 @@ app.css 파일 중복값 정리본
   width: 100%;
 }
 .combo-line-row .combo-line { flex: 1; }
+
+.combo-line-row .combo {
+  flex: 1;        /* 남은 공간을 균등하게 차지 */
+  width: 0;       /* 내용물(텍스트 길이)에 따라 늘어나지 않도록 너비 0에서 시작하여 flex로 채움 */
+  min-width: 0;   /* flex 아이템이 내부 콘텐츠보다 작아질 수 있게 허용 */
+}
 .combo-line { width: 100%; }
 
 .dropdown-label {
@@ -438,7 +444,7 @@ input[type="text"]:focus,
   color: rgba(255, 255, 255, 0.5);
   
   /* 탭 모양 테두리 */
-  border: 1px solid transparent; /* 평소엔 테두리 숨김 */
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-bottom: none;     /* 아래쪽은 뚫어서 선과 연결된 느낌 */
   border-radius: .5rem .5rem 0 0; /* 위쪽 모서리만 둥글게 */
   
@@ -570,7 +576,11 @@ input[type="text"]:focus,
   width: 1%; white-space: nowrap; text-align: center;
   background: #153A47; color: #F5F5F5; font-weight: 700;
 }
-.result-table thead th:nth-child(3), .result-table tbody td:nth-child(3) { min-width: 12%; }
+.result-table thead th:nth-child(3), .result-table tbody td:nth-child(3) {
+  width: 180px !important;      /* 너비 180px 고정 */
+  min-width: 180px !important;  /* 줄어들지 않도록 설정 */
+  max-width: 180px !important;  /* 늘어나지 않도록 설정 */
+}
 .result-table thead th:nth-child(4), .result-table tbody td:nth-child(4) {
   max-width: 80%; min-width: 50%; word-wrap: break-word; word-break: break-word;
 }
@@ -581,7 +591,22 @@ input[type="text"]:focus,
 .result-total-value { font-size: 2rem; font-weight: 700; vertical-align: middle; }
 
 /* 비교 탭 그리드 */
-.compare-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+.compare-wrap { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 3rem; 
+  position: relative; 
+}
+.compare-wrap::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;              /* 위아래 끝까지 늘어남 (긴 컨텐츠 기준) */
+  left: 50%;              /* 부모 요소의 정중앙 */
+  width: 0.5px;             /* 선 두께 */
+  background-color: #153A47; /* 선 색상 */
+  transform: translateX(-50%); /* 정확한 중앙 정렬 보정 */
+}
 .compare-col { background: transparent; display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
 .compare-head { font-weight: 800; font-size: 1.3rem; color: #111; letter-spacing: .01em; padding: .25rem .25rem .25rem 2rem; }
 .compare-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
@@ -589,13 +614,14 @@ input[type="text"]:focus,
 .other-contents-table td:first-child {
   width: 1px !important;       /* 최소 너비로 강제 */
   white-space: nowrap !important; /* 줄바꿈 금지 */
-  padding: 1rem 0.8rem !important; /* 적당한 여백 */
+  padding: .6rem 0.75rem !important; /* 적당한 여백 */
   
   background: #153A47 !important;
   color: #F5F5F5 !important;
   font-weight: 700 !important;
   font-size: 0.95rem;
   vertical-align: middle;
+  text-align: center !important;
 }
 
 /* 2열: 내용 (남은 공간을 모두 차지하도록 설정) */
@@ -606,9 +632,9 @@ input[type="text"]:focus,
   
   text-align: left !important;
   background: #ffffff !important;
-  color: #334155 !important;
+  color: #111 !important;
   font-weight: 400 !important;
-  padding: 1rem 1.2rem !important;
+  padding: .6rem .75rem !important;
   font-size: 0.95rem;
   line-height: 1.45;
 }
@@ -627,7 +653,26 @@ input[type="text"]:focus,
 .result-currency .container, .currency-bar {
   display: flex; justify-content: flex-end; align-items: center; gap: .4rem;
 }
-.currency-select { width: 7rem; min-width: 7rem; padding: .35rem .6rem; font-size: .9rem; text-align: center; }
+.currency-select {
+  width: 7.5rem; 
+  min-width: 7.5rem; 
+  padding: .35rem .6rem; 
+  font-size: .9rem; 
+  text-align: center;
+  background-color: #ffffff !important;   /* 배경: 흰색 */
+  color: #1e293b !important;              /* 글자: 진한 남색(가독성 높음) */
+  border: 1px solid #0e1a2b !important;   /* 테두리: 연한 회색 */
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.currency-select:focus,
+.currency-select:active {
+  /* 배경이 흰색이므로 테두리는 진한 색으로 유지해야 함 */
+  border: 1px solid #153A47 !important;   /* 헤더와 같은 짙은 초록색 */
+  outline: none !important;               /* 브라우저 기본 파란 테두리 제거 */
+}
+
 .currency-rate { font-size: .85rem; color: rgb(50, 50, 50); white-space: nowrap; }
 
 /* 요약 바 */
@@ -636,23 +681,68 @@ input[type="text"]:focus,
   top: var(--header-h); 
   z-index: 10;
   display: flex; justify-content: center;
-  background: transparent; border: 0; padding: .75rem 0 .5rem; margin-bottom: 2rem;
+  background: transparent; border: 0; padding: .75rem 0 .5rem; margin-bottom: 1rem;
 }
 .collapsed-summary .container {
-  display: flex; flex-direction: column; align-items: center; gap: .35rem;
-  padding: .5rem .75rem; background: #0e1a2b;
-  border: 1px solid rgba(255, 255, 255, .14); border-radius: var(--btn-radius);
-  width: max-content; max-width: min(92vw, 75rem);
+  display: flex; 
+  flex-direction: column; 
+  align-items: center;       /* 내부 아이템(칩) 가로 중앙 정렬 */
+  justify-content: center;   /* 세로 중앙 정렬 */
+  
+  text-align: center;        /* 텍스트 강제 중앙 정렬 */
+  margin: 0 auto;            /* 컨테이너 박스 자체를 화면 정중앙으로 */
+  
+  gap: .35rem;
+  padding: .5rem .75rem !important; /* 패딩 좌우 대칭 고정 */
+  
+  background: #0e1a2b;
+  border: 1px solid rgba(255, 255, 255, .14); 
+  border-radius: var(--btn-radius);
+  
+  width: fit-content;        /* 내용물 크기에 딱 맞게 조절 (max-content 대체) */
+  max-width: min(92vw, 75rem);
 }
-.collapsed-summary .chips { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; justify-content: center; }
-.collapsed-summary .chip {
-  display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .6rem;
-  border-radius: .75rem; cursor: pointer; background: rgba(255, 255, 255, .06);
-  border: 1px solid rgba(255, 255, 255, .14); color: #e6edf5; font-weight: 700; font-size: .95rem;
-}
-.collapsed-summary .chip:hover { background: rgba(255, 255, 255, .12); }
-#collapsedSummary[hidden] { display: none !important; }
 
+.collapsed-summary .chips { 
+  display: flex; 
+  flex-wrap: wrap; 
+  gap: .5rem; 
+  align-items: center; 
+  justify-content: center; /* 칩들을 박스 정중앙에 배치 */
+  
+  width: 100%;             /* 부모 컨테이너 너비를 꽉 채워서 중앙 기준점 확보 */
+  margin: 0;               /* 불필요한 외부 여백 제거 */
+  padding: 0;              /* 불필요한 내부 여백 제거 */
+}
+
+.collapsed-summary .chip {
+  display: inline-flex; 
+  align-items: center; 
+  justify-content: center; /* [추가] 칩 내부의 텍스트도 정중앙 정렬 */
+  
+  gap: .4rem; 
+  padding: .35rem .8rem;   /* [수정] 좌우 패딩을 .6rem -> .8rem으로 넓혀 균형감 확보 */
+  
+  border-radius: .75rem; 
+  cursor: pointer; 
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .14); 
+  color: #eef2f7;          /* 색상 코드 통일 (fg 색상) */
+  font-weight: 700; 
+  font-size: .95rem;
+  
+  /* [추가] 텍스트가 흔들리지 않도록 높이/줄간격 고정 */
+  line-height: 1;          
+  box-sizing: border-box;
+}
+
+.collapsed-summary .chip:hover { 
+  background: rgba(255, 255, 255, .12); 
+}
+
+#collapsedSummary[hidden] { 
+  display: none !important; 
+}
 
 
 
