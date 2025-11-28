@@ -164,21 +164,19 @@
       });
 
       // 선택 합계 다시 계산
-        const totalBox = table.parentElement?.querySelector('.result-total');
-        const valEl   = totalBox?.querySelector('.result-total-value');
+      const valEl = document.getElementById('totalDisplayOne'); 
 
-        if (checkboxes.length && totalBox && valEl) {
-          let sum = 0;
-          checkboxes.forEach((cb) => {
-            if (cb.checked) {
-              const v = Number(cb.dataset.amt || '0');
-              if (Number.isFinite(v)) sum += v;
-            }
-          });
-          valEl.textContent = formatCurrency(sum, targetCode);
-        }
-
-
+      // checkboxes.length가 있고 valEl(상단 요소)이 있으면 실행
+      if (checkboxes.length && valEl) {
+        let sum = 0;
+        checkboxes.forEach((cb) => {
+          if (cb.checked) {
+            const v = Number(cb.dataset.amt || '0');
+            if (Number.isFinite(v)) sum += v;
+          }
+        });
+        valEl.textContent = formatCurrency(sum, targetCode);
+      }
     });
     updateRateLabel(base, targetCode, rates);
     // 🔹 단일 모드(#tableWrap)용 결과표 합계도 통화 변경 후 다시 계산
@@ -414,4 +412,5 @@
     init();
   }
 })();
+
 
