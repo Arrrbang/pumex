@@ -512,12 +512,13 @@ async function fetchCargoTypes(country, region, company, poe){
 }
 
 
-  async function fetchCosts(country, region, company, cargo, type, cbm){
+  async function fetchCosts(country, region, company, cargo, type, cbm, poe){
     const roles = cargo ? [String(cargo).toUpperCase()] : [];
     const params = new URLSearchParams();
     params.set('type', type);
     params.set('company', company);
     if (region) params.set('region', region);
+    if (poe) params.set('poe', poe);
     if (roles.length) params.set('roles', roles.join(','));
     if (!isNaN(cbm)) params.set('cbm', String(cbm));
 
@@ -607,18 +608,22 @@ function buildCbmTypeText(type, cbm){
       const cbmEl   = document.getElementById('cbmSelect2');
       const cbm = cbmEl?.value ? parseFloat(cbmEl.value) : undefined;
 
+
       const companyA = getValueSoft('companyComboA');
       const cargoA   = getValueSoft('cargoTypeComboA');
+      const poeA     = getValueSoft('poeComboA');
+
       const companyB = getValueSoft('companyComboB');
       const cargoB   = getValueSoft('cargoTypeComboB');
+      const poeB     = getValueSoft('poeComboB');
 
       if (!country){ alert('국가를 선택하세요.'); return; }
       if (!companyA || !companyB){ alert('비교할 두 업체를 모두 선택하세요.'); return; }
 
       // ✅ A/B를 병렬로 요청하고, 둘 다 끝난 뒤에 동시에 렌더
       const [jA, jB] = await Promise.all([
-        fetchCosts(country, region, companyA, cargoA, type, cbm),
-        fetchCosts(country, region, companyB, cargoB, type, cbm)
+        fetchCosts(country, region, companyA, cargoA, type, cbm, poeA),
+        fetchCosts(country, region, companyB, cargoB, type, cbm, poeB)
       ]);
 
       // ✅ A/B 동시 렌더 이후 — 요약칩 갱신
@@ -890,10 +895,12 @@ function buildCbmTypeText(type, cbm){
             const cbm     = cbmSel?.value ? parseFloat(cbmSel.value) : undefined;
             const cargo   = getValueSoft(ids.cargo);
 
+            const poe     = getValueSoft(ids.poe);
+
             if (!country){ alert('국가를 선택하세요.'); return; }
             if (!company){ alert('업체를 선택하세요.'); return; }
 
-            const data = await fetchCosts(country, region, company, cargo, type, cbm);
+            const data = await fetchCosts(country, region, company, cargo, type, cbm, poe);
 
             // ✅ one-partner일 때 요약칩 채우기
             if (kind === 'one') {
