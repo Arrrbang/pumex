@@ -54,7 +54,6 @@
           <label for="cbmComboInput">CBM</label>
           <div class="combo" id="cbmCombo">
             <input type="text" id="cbmComboInput" placeholder="CBM 입력 또는 선택" autocomplete="off">
-            <div class="list" id="cbmComboList"></div>
           </div>
         </div>
       </div>
@@ -238,33 +237,12 @@
 
     // ───────────────────────── CBM 콤보박스 로직 ─────────────────────────
     const cbmInput = document.getElementById('cbmComboInput');
-    const cbmList  = document.getElementById('cbmComboList');
-
+    cbmInput.addEventListener('input', () => {
+      cbmInput.value = cbmInput.value.replace(/[^0-9.]/g, '');
+    });
     // CBM 1~80 리스트 생성
     const cbmArray = [];
     for (let i = 1; i <= 80; i++) cbmArray.push(i);
-
-    // 리스트 렌더링
-    function renderCbmList(filter = '') {
-      cbmList.innerHTML = '';
-      const lower = filter.toLowerCase();
-
-      cbmArray
-        .filter((v) => v.toString().startsWith(lower))
-        .forEach((v) => {
-          const div = document.createElement('div');
-          div.textContent = `${v} CBM`;
-          div.dataset.value = v;
-          div.className = 'item';
-          div.addEventListener('click', () => {
-            cbmInput.value = v;
-            cbmList.style.display = 'none';
-          });
-          cbmList.appendChild(div);
-        });
-
-      cbmList.style.display = 'block';
-    }
 
     // 입력 시 자동 필터링
     cbmInput.addEventListener('input', () => {
@@ -278,17 +256,6 @@
       }
     });
 
-    // 포커스 시 리스트 열기
-    cbmInput.addEventListener('focus', () => {
-      renderCbmList('');
-    });
-
-    // input 밖 클릭 시 닫기
-    document.addEventListener('click', (e) => {
-      if (!cbmInput.contains(e.target) && !cbmList.contains(e.target)) {
-        cbmList.style.display = 'none';
-      }
-    });
 
     // ───────────────────────── 차감 입력 컨테이너 로직 ─────────────────────────
     const deductSection = document.getElementById('deductSection');
