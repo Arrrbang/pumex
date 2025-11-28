@@ -1,7 +1,7 @@
 function redirectToLogin(message) {
   alert(message);
   localStorage.removeItem('token'); 
-  window.location.href = '../index.html'; 
+  window.location.href = 'https://arrrbang.github.io/pumex/index.html'; 
 }
 
 function verifyToken() {
