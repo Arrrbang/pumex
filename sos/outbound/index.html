@@ -237,52 +237,10 @@
 
     // ───────────────────────── CBM 콤보박스 로직 ─────────────────────────
     const cbmInput = document.getElementById('cbmComboInput');
-    const cbmList  = document.getElementById('cbmComboList');
-
-    // CBM 1~80 리스트 생성
-    const cbmArray = [];
-    for (let i = 1; i <= 80; i++) cbmArray.push(i);
-
-    // 리스트 렌더링
-    function renderCbmList(filter = '') {
-      cbmList.innerHTML = '';
-      const lower = filter.toLowerCase();
-
-      cbmArray
-        .filter((v) => v.toString().startsWith(lower))
-        .forEach((v) => {
-          const div = document.createElement('div');
-          div.textContent = `${v} CBM`;
-          div.dataset.value = v;
-          div.className = 'item';
-          div.addEventListener('click', () => {
-            cbmInput.value = v;
-          });
-          cbmList.appendChild(div);
-        });
-
-      cbmList.style.display = 'block';
-    }
-
-    // 입력 시 자동 필터링
     cbmInput.addEventListener('input', () => {
-      const text = cbmInput.value.trim();
-      renderCbmList(text);
-
-      // 숫자 정확히 입력 시 자동 선택
-      const num = Number(text);
+      cbmInput.value = cbmInput.value.replace(/[^0-9.]/g, '');
     });
-
-    // 포커스 시 리스트 열기
-    cbmInput.addEventListener('focus', () => {
-      renderCbmList('');
-    });
-
-    // input 밖 클릭 시 닫기
-    document.addEventListener('click', (e) => {
-      if (!cbmInput.contains(e.target) && !cbmList.contains(e.target)) {
-      }
-    });
+    const cbmList  = document.getElementById('cbmComboList');
 
     // ───────────────────────── 차감 입력 컨테이너 로직 ─────────────────────────
     const deductSection = document.getElementById('deductSection');
