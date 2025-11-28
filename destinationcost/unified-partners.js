@@ -306,69 +306,71 @@
         </tr>
       `;
     }
+/* ================= [여기서부터 붙여넣기] ================= */
 
-    // 7) 선택 합계 영역
-    const totalId = `${wrapId}Total`;
-    const totalHtml = `
-      <div class="result-total" id="${totalId}">
-        <span class="result-total-label">선택 합계</span>
-        <span class="result-total-value">0</span>
-        <span class="result-total-pass"></span>
-      </div>
-    `;
+    // [수정됨] 7) 선택 합계 HTML 생성 변수 제거함 (상단에 이미 만들었으므로)
 
-    // 8) 최종 렌더: 하나의 테이블 + 선택 합계
+    // 8) 최종 렌더: 테이블만 그리기 (${totalHtml} 제거됨)
     wrap.innerHTML = `
       <table class="result-table" data-base-currency="${esc(baseCur)}">
         ${colgroup}
         <thead>${thead}</thead>
         <tbody>${tbody}</tbody>
       </table>
-      ${totalHtml}
     `;
 
-    const totalBox   = wrap.querySelector('.result-total');
-    const totalValue = totalBox?.querySelector('.result-total-value');
-    const passEl     = totalBox?.querySelector('.result-total-pass');
-    if (!totalBox || !totalValue) return;
+    // ---------------------------------------------------------------
+    // [추가] 래퍼 ID에 따라 상단 합계 span(totalDisplay...) 찾기
+    // ---------------------------------------------------------------
+    let targetTotalId = '';
+    if (wrapId === 'tableWrap')  targetTotalId = 'totalDisplayOne';      // One-Partner
+    else if (wrapId === 'tableWrapA') targetTotalId = 'totalDisplayA'; // Two-Partner A
+    else if (wrapId === 'tableWrapB') targetTotalId = 'totalDisplayB'; // Two-Partner B
 
+    const totalValue = document.getElementById(targetTotalId);
+    
+    // 상단에 합계 표시할 공간이 없으면(HTML 수정 안 됨 등) 여기서 중단
+    if (!totalValue) return;
+
+
+    // [기존 함수 유지] 포맷팅 헬퍼
     function formatTotal(sum){
       let formatted = null;
-
       if (window.CurrencyConverter && window.CurrencyConverter.formatTotalForWrapper) {
         formatted = window.CurrencyConverter.formatTotalForWrapper(sum, wrapId);
       } else if (window.CurrencyConverter && window.CurrencyConverter.formatTotal) {
         formatted = window.CurrencyConverter.formatTotal(sum, type);
       }
-
       if (!formatted){
         formatted = sum ? formatAmount(sum, type) : '0';
       }
       return formatted;
     }
 
-        // 🔹 셀에서 숫자 뽑는 공통 함수 (변환된 금액 우선)
-        function getCellNumber(td){
-          if (!td) return 0;
-          const src =
-            td.dataset.convertedAmt ??
-            td.dataset.baseAmt ??
-            td.dataset.raw ??
-            '0';
-          const v = Number(src);
-          return Number.isFinite(v) ? v : 0;
-        }
+    // [기존 함수 유지] 셀에서 숫자 가져오는 헬퍼
+    function getCellNumber(td){
+      if (!td) return 0;
+      const src =
+        td.dataset.convertedAmt ??
+        td.dataset.baseAmt ??
+        td.dataset.raw ??
+        '0';
+      const v = Number(src);
+      return Number.isFinite(v) ? v : 0;
+    }
 
-    // 🔹 선택합계 = 기본행 합계 + "추가"행 중 체크된 것의 합계
+    // ---------------------------------------------------------------
+    // [수정] 합계 계산 함수 (하단 대신 상단 totalValue 업데이트)
+    // ---------------------------------------------------------------
     function updateTotal(){
-      // 1) 기본행 합계 다시 계산 (row-basic 기준)
+      // 1) 기본행 합계 (row-basic)
       let baseSum = 0;
       const baseCells = wrap.querySelectorAll('tr.row-basic td.amt');
       baseCells.forEach(td => {
         baseSum += getCellNumber(td);
       });
 
-      // 2) 추가행 중 체크된 것만 합계
+      // 2) 추가행 합계 (row-extra 중 체크된 것만)
       let extraSum = 0;
       const extraRows = wrap.querySelectorAll('tr.row-extra');
       extraRows.forEach(tr => {
@@ -381,23 +383,11 @@
 
       const total = baseSum + extraSum;
 
-      // 3) 표기용 문자열 만들기
-      let display = null;
-      if (window.CurrencyConverter && window.CurrencyConverter.formatTotalForWrapper) {
-        display = window.CurrencyConverter.formatTotalForWrapper(total, wrapId);
-      } else if (window.CurrencyConverter && window.CurrencyConverter.formatTotal) {
-        display = window.CurrencyConverter.formatTotal(total, type);
-      }
-      if (!display){
-        display = total ? (formatAmount(total, type) || String(total)) : '0';
-      }
-
-      totalValue.textContent = display;
-
-      if (passEl){
-        passEl.innerHTML = '';
-      }
+      // 3) 상단 요소(totalValue) 텍스트 업데이트
+      totalValue.textContent = formatTotal(total);
     }
+
+    /* ================= [여기까지 붙여넣기] ================= */
 
     // 🔹 통화 변경 시 currency-converter.js 에서 다시 호출할 수 있도록 래퍼에 등록
     wrap._updateTotal = updateTotal;
@@ -643,6 +633,37 @@ function buildCbmTypeText(type, cbm){
       renderTableSingle('tableWrapA', jA, type, Boolean(region), cbm);
       renderTableSingle('tableWrapB', jB, type, Boolean(region), cbm);
 
+      // -----------------------------------------------------------
+      // [추가] A/B 각각 '기타내용' 테이블 렌더링 (One-Partner와 동일 로직)
+      // -----------------------------------------------------------
+      [
+        { data: jA, wrapId: 'tableWrapA' },
+        { data: jB, wrapId: 'tableWrapB' }
+      ].forEach(({ data, wrapId }) => {
+        // 1. 기타내용 행 필터링
+        const otherRows = (data.rows || []).filter(r => {
+          const disp = (r.displayType || r['표시타입'] || '').trim();
+          return disp === '기타내용';
+        });
+
+        // 2. 출력할 div 찾기 또는 생성 (ID: tableWrapA_other 등)
+        const otherWrapId = wrapId + '_other';
+        let otherWrap = document.getElementById(otherWrapId);
+        
+        if (!otherWrap) {
+          const baseWrap = document.getElementById(wrapId);
+          if (baseWrap) {
+            otherWrap = document.createElement('div');
+            otherWrap.id = otherWrapId;
+            otherWrap.style.marginTop = '2rem';
+            // 테이블 래퍼 맨 끝에 추가
+            baseWrap.appendChild(otherWrap);
+          }
+        }
+
+        // 3. 테이블 그리기
+        renderOtherContentsTable(otherWrapId, otherRows);
+      });
 
       const headA = document.querySelector('#resultSectionCompare .compare-col:nth-child(1) .compare-head');
       const headB = document.querySelector('#resultSectionCompare .compare-col:nth-child(2) .compare-head');
