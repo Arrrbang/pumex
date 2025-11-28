@@ -663,6 +663,40 @@ input[type="text"]:focus,
 }
 
 
+.header-total {
+  display: inline-block;
+  align-self: center;
+  font-size: 1.8rem;        /* 이전처럼 아주 크게 */
+  font-weight: 700;       /* 굵게 */
+  margin-left: 15px;      /* 드롭다운과 간격 넓게 */
+  vertical-align: middle; /* 옆에 있는 드롭다운과 높이 중앙 정렬 */
+  line-height: 1;         /* 줄 간격 좁혀서 위아래 여백 최소화 */
+  margin-top: -3px;
+}
+
+.compare-top .header-total {
+  font-size: 1.6rem; 
+  margin-left: 10px;
+  margin-top: -2px;
+}
 
 
+/* app.css - 맨 마지막에 추가 */
+
+/* [Two-Partner 전용] 결과표 컨테이너 가로폭 강제 확장 */
+#resultSectionCompare .container {
+  /* 1. 기존 중앙 정렬용 1320px 제한 해제 */
+  max-width: none !important; 
+  
+  /* 2. 화면 전체 너비 기준 */
+  width: auto !important;
+  
+  /* 3. 양쪽 마진 3rem 강제 적용 (좌우 여백) */
+  margin-left: 3rem !important;
+  margin-right: 3rem !important;
+  
+  /* 4. 기존 container 클래스의 내부 패딩은 제거 (마진으로 대체했으므로) */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
 
