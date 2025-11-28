@@ -13,9 +13,6 @@ app.css 파일 중복값 정리본
   --primary: #1F9461;
   --border: rgba(255, 255, 255, 0.18);
   --surface: rgba(255, 255, 255, 0.06);
-  --header-h: 3rem;
-  --container-max: 1200px;
-  --gutter: 1.25rem;
   --control-bg: #fff;
   --control-fg: #333;
   --control-border: rgba(105, 130, 100, 0.3);
