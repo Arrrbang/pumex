@@ -410,7 +410,47 @@
     });
   }
 
+    // ---------------------------------------------------------------
+    // 표시타입 = '기타내용' 전용 2열 결과표
+    // ---------------------------------------------------------------
+    function renderOtherContentsTable(wrapId, rows){
+      const wrap = document.getElementById(wrapId);
+      if (!wrap) return;
 
+      if (!Array.isArray(rows) || !rows.length){
+        wrap.innerHTML = '<div class="muted">표시할 기타내용이 없습니다.</div>';
+        return;
+      }
+
+      // 항목 길이에 따라 1열 너비 자동 조절 위해 최대 길이 계산
+
+      const colgroup = `
+          <colgroup>
+            <col style="width:1px">
+            <col style="width:auto">
+          </colgroup>
+        `;
+
+      let tbody = '';
+      for (const r of rows){
+        const item = r.item || '';
+        const remarkHtml = r.extra || r['참고사항'] || '';
+
+        tbody += `
+          <tr>
+            <td>${item}</td>
+            <td>${remarkHtml}</td>
+          </tr>
+        `;
+      }
+
+      wrap.innerHTML = `
+        <table class="result-table other-contents-table">
+          ${colgroup}
+          <tbody>${tbody}</tbody>
+        </table>
+      `;
+    }
 
 
   // ---------------------------- 공통 API 호출 ----------------------------
@@ -843,6 +883,33 @@ function buildCbmTypeText(type, cbm){
             }
 
            renderTableSingle(ids.tableWrap, data, type, Boolean(region), cbm);
+           // 🔥 표시타입 = '기타내용' 전용 표 렌더
+            const otherRows = (data.rows || []).filter(r => {
+              const disp = (r.displayType || r['표시타입'] || '').trim();
+              return disp === '기타내용';
+            });
+
+            // 위치: 기존 표 아래 “tableWrap + '_other'” div에 출력
+            const otherWrapId = ids.tableWrap + '_other';
+            let otherWrap = document.getElementById(otherWrapId);
+            if (!otherWrap){
+              const baseWrap = document.getElementById(ids.tableWrap);
+              if (baseWrap){
+                otherWrap = document.createElement('div');
+                otherWrap.id = otherWrapId;
+                otherWrap.style.marginTop = '2rem';
+                const baseWrap = document.getElementById(ids.tableWrap);
+                const totalBox = baseWrap?.querySelector('.result-total');
+
+                if (totalBox) {
+                  totalBox.insertAdjacentElement('beforebegin', otherWrap);
+                } else {
+                  baseWrap.insertAdjacentElement('beforeend', otherWrap);
+                }
+              }
+            }
+          renderOtherContentsTable(otherWrapId, otherRows);
+
             window.CurrencyConverter?.applyCurrent?.();
             showResultSection(true); // resultSectionCompare 표시 유지
 
