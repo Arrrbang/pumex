@@ -252,7 +252,7 @@
     // 5) 헤더 (한 번만)
     const thead = `
       <tr>
-        <th class="sel-col">구분/선택</th>
+        <th class="sel-col">구분</th>
         <th>항목</th>
         <th class="type-col">${esc(type)}</th>
         <th>비고</th>
