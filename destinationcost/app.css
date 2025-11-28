@@ -586,10 +586,40 @@ input[type="text"]:focus,
 .compare-head { font-weight: 800; font-size: 1.3rem; color: #111; letter-spacing: .01em; padding: .25rem .25rem .25rem 2rem; }
 .compare-top { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 
+.other-contents-table td:first-child {
+  width: 1px !important;       /* 최소 너비로 강제 */
+  white-space: nowrap !important; /* 줄바꿈 금지 */
+  padding: 1rem 0.8rem !important; /* 적당한 여백 */
+  
+  background: #153A47 !important;
+  color: #F5F5F5 !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem;
+  vertical-align: middle;
+}
+
+/* 2열: 내용 (남은 공간을 모두 차지하도록 설정) */
+/* 주의: app.css 상단의 .result-table td:nth-child(2) { width: 1% } 규칙을 깨야 함 */
+.other-contents-table td:last-child {
+  width: auto !important;      /* 1% 규칙 무시하고 자동 확장 */
+  white-space: pre-wrap !important; /* 줄바꿈 허용 */
+  
+  text-align: left !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  font-weight: 400 !important;
+  padding: 1rem 1.2rem !important;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+
+
 @media (max-width: 900px) {
   .compare-wrap { grid-template-columns: 1fr; }
   .right-pane { width: 90vw !important; transform: translate(-50%, -50%) !important; top: 50% !important; left: 50% !important; }
 }
+
 
 /* ========================================================================== */
 /* 9) 통화 선택 및 요약바                                                     */
@@ -602,7 +632,9 @@ input[type="text"]:focus,
 
 /* 요약 바 */
 .collapsed-summary {
-  position: sticky; top: var(--header-h); z-index: 10;
+  position: sticky; 
+  top: var(--header-h); 
+  z-index: 10;
   display: flex; justify-content: center;
   background: transparent; border: 0; padding: .75rem 0 .5rem; margin-bottom: 2rem;
 }
