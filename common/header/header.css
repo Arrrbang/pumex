@@ -209,7 +209,7 @@ body{
       overflow: visible; 
     }
 
-    .sos-dropdown {
+    .menu-dropdown {
       position: absolute;
       top: 100%;          /* 메뉴 바로 아래 */
       left: -12px;
@@ -231,12 +231,12 @@ body{
     }
 
     /* hover 시 표시 */
-    .has-dropdown:hover .sos-dropdown {
+    .has-dropdown:hover .menu-dropdown {
       display: flex;
     }
 
     /* 각 메뉴 버튼 스타일 */
-    .sos-item {
+    .menu-item {
       padding: 0.45rem 0;
       font-size: 0.8rem;
       color: #333;
@@ -245,7 +245,7 @@ body{
       text-align:center;
     }
 
-    .sos-item:hover {
+    .menu-item:hover {
       background: #f3f4f6;
       color: #000;
     }
