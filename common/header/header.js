@@ -291,7 +291,7 @@ function initUserHeader() {
       localStorage.removeItem('username');
       localStorage.removeItem('userId');
       alert('로그아웃 되었습니다.');
-      window.location.href = 'window.location.href = 'https://arrrbang.github.io/pumex/';
+      window.location.href = 'https://arrrbang.github.io/pumex/';
     });
   }
 }
