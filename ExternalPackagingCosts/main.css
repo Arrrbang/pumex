@@ -1,0 +1,271 @@
+    .main-layout{
+        display:flex;
+        align-items:flex-start;
+        gap:2rem;
+        max-width: 1320px;
+        margin: 0 auto;
+    }
+
+    /*좌측영역*/
+    .notice{
+        max-width: 28.5rem;
+        width: 28.5rem;
+        margin: 0;
+        padding: 0.8rem;
+    }
+
+    .notice h3 {
+        font-size:var(--sub-title-font-size);
+        font-weight: var(--sub-title-font-weight);
+        margin-top: 0;
+        margin-bottom: 1.2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--light-gray-color);
+    }
+
+    .notice-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .notice-item {
+        border-bottom: 1px solid #eee;
+    }
+    .notice-item:last-child {
+        border-bottom: none;
+    }
+
+    .notice-header {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 12px 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #333;
+        transition: color 0.2s;
+    }
+    .notice-header:hover { color: #000; }
+
+    .toggle-icon {
+        display: inline-block;
+        margin-right: 8px;
+        font-size: 0.8rem;
+        transition: transform 0.3s;
+        transform-origin: center;
+        color: #666;
+    }
+    .notice-header.active .toggle-icon {
+        transform: rotate(90deg);
+        color: #000;
+    }
+
+    .notice-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out, padding 0.3s ease;
+        font-size: 0.9rem;
+        color: #555;
+        background-color: #fff;
+        padding: 0 0 0 0.5rem; 
+    }
+
+    .notice-content.open {
+        max-height: 2000px;
+        padding-bottom: 12px;
+    }
+
+    
+    .notice-line { /* [핵심] 내어쓰기(Hanging Indent) 스타일 */
+        display: flex;         /* 플렉스 박스 사용 */
+        align-items: flex-start; /* 상단 정렬 */
+        margin-bottom: 6px;
+        line-height: 1.5;
+    }
+
+    .notice-num {
+        flex-shrink: 0;    /* 번호 영역은 줄어들지 않음 */
+        min-width: 26px;   /* 번호 영역 최소 너비 확보 ([1] 크기에 맞춰 조정) */
+        font-weight: 700;
+        color: #333;
+        margin-right: 4px;
+    }
+
+    .notice-text {
+        flex: 1;           /* 남은 공간을 텍스트가 모두 차지 */
+        word-break: break-word; /* 긴 단어도 줄바꿈 */
+        white-space: pre-wrap;  /* 텍스트 내부 줄바꿈 등 보존 */
+    }
+
+
+    /*중간 세로 구분선*/
+    .vertical-divider {
+        width: 1px;                 /* 선 두께 */
+        background:#d1d5db;
+        align-self: stretch;        /* 위아래 전체 높이 채우기 */
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+
+    /* 우측영역 */
+    .main-wrap{
+        max-width:50rem;
+        width:100%;
+        margin: 0;
+        padding:0.8rem 1.5rem 0.8rem;
+    }
+    .main-title {
+        text-align: left;
+        font-size: var(--main-title-font-size);
+        font-weight: var(--main-title-font-weight);
+        margin-bottom: 0.3rem;
+        color: #111;
+        margin-top:0;
+    }
+    .title-cost-divider {
+        width: 100%;
+        height: 1px;
+        background: var(--light-gray-color);
+        margin: 0 0 1.5rem;
+    }
+    .controls{
+        display:grid;
+        grid-template-columns: 4fr 1fr 130px; /* 주소 : CBM : 버튼 비율 */
+        width: 100%;
+        gap: 1rem;
+        align-items: end;
+        margin-bottom: 3.5rem;
+        align-items: flex-end;
+    }
+    .field{
+        display:flex;
+        flex-direction:column;
+        gap:.25rem;
+    }
+
+    .field label{
+        font-size:.85rem;
+        font-weight: 700;
+        color: var(--deep-gray-color);
+        margin-left: 4px;
+    }
+
+    .field input{
+        width: 100%;
+        height: 35px;
+        box-sizing: border-box;
+        border:1px solid #ccc;
+        border-radius:8px;
+        padding:0 16px;
+        font-size:0.9rem;
+        align-items: center;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .field input:focus {
+        border:1px solid var(--deep-gray-color);
+        background-color: var(--double-light-gray-color);
+    }
+
+    
+    .btn{
+        height: 35px;
+        width: 130px;
+        padding:0 2rem;
+        border-radius:8px;
+        border:none;
+        background: var(--btn-basic-color);
+        color:#fff;
+        font-weight:600;
+        cursor:pointer;
+        font-size:.95rem;
+        display: block;
+        margin: 0 auto;
+    }
+    .btn:disabled{
+      opacity:.6;
+      cursor:default;
+    }
+    .btn:hover:not(:disabled) {
+      background: var(--btn-basic-hover-color);
+    }
+
+    .result-container{
+        margin-top: 1rem;
+    }
+
+    .sub-title-divider { 
+        display: flex;
+        font-size: var(--sub-title-font-size);
+        font-weight: var(--sub-title-font-weight);
+        color: var(--double-deep-gray-color);
+        margin: 2.5rem 0 1rem;
+        align-items: center;
+        line-height: 1;
+        padding-left: 0.8rem;
+        border-left: 4px solid var(--btn-basic-color);
+        line-height: 1;
+    }
+
+    .result-container .cost-section-divider { /*result container안의 divider 별도 스타일 지정*/
+        position: relative;
+        width: 70%;
+        height: 1px;
+        background: var(--light-gray-color);
+        margin: 0 5% 0.2rem;
+    }
+
+    .cost-title {
+        display: flex;
+        justify-content: space-between;
+        position: relative; /* 자식 요소(결과값)의 위치 기준점 */
+        padding-left: 5%;  /* [항목명]이 전체 너비의 1/4(25%) 지점에서 시작 */
+        box-sizing: border-box; /* 패딩이 너비에 포함되도록 설정 */
+        font-size: var(--contents-font-size);
+        font-weight: var(--contents-font-weight);
+        margin-bottom: 3px;
+        color: #111;
+        z-index: 1;
+    }
+
+    .cost-title::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        height: 1px;
+        background-color: var(--light-gray-color);
+        left: 5%;
+        right: 28%;
+    }
+    .cost-title::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 5%;
+        right: 28%;
+        background-color: var(--double-light-gray-color); /* 배경색 */
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    .cost-title:hover::before {
+        opacity: 1;
+    }
+    
+    .cost-value {
+        box-sizing: border-box; /* 패딩이 너비에 포함되도록 설정 */
+        padding-right: 30%;
+        font-size: var(--contents-font-size);
+        font-weight: calc(var(--contents-font-weight) - 100);
+        margin-bottom: 3px;
+        color: #111;
+    }
