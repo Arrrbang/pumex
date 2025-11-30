@@ -3,45 +3,28 @@
 // 1. 메뉴 활성화 로직
 function setActiveHeaderMenu() {
   const currentURL = window.location.href;
+  // ... (기존 ID 매핑 유지) ...
+  const menus = [
+    { id: "menu-destination", url: "[https://arrrbang.github.io/pumex/destinationcost](https://arrrbang.github.io/pumex/destinationcost)" },
+    { id: "menu-sos", url: "[https://arrrbang.github.io/pumex/sos](https://arrrbang.github.io/pumex/sos)" },
+    { id: "menu-provincial_packing_fee", url: "[https://arrrbang.github.io/pumex/ExternalPackagingCosts](https://arrrbang.github.io/pumex/ExternalPackagingCosts)" },
+    { id: "menu-TRC", url: "추후입력" },
+    { id: "menu-console", url: "추후입력" },
+    { id: "menu-supporting-documents", url: "추후입력" }
+  ];
 
-  const destinationMenu = document.getElementById("menu-destination");
-  const pumexsosMenu = document.getElementById("menu-sos");
-  const provincial_packing_feeMenu = document.getElementById("menu-provincial_packing_fee");
-  const trcMenu = document.getElementById("menu-TRC");
-  const consoleMenu = document.getElementById("menu-console");
-  const supportingdocsMenu = document.getElementById("menu-supporting-documents");
-
-  const destinationURL = "https://arrrbang.github.io/pumex/destinationcost";
-  const pumexsosURL = "https://arrrbang.github.io/pumex/sos";
-  const provincial_packing_feeURL = "https://arrrbang.github.io/pumex/ExternalPackagingCosts";
-  const trcURL = "추후입력";
-  const consoleURL = "추후입력";
-  const supportingdocsURL = "추후입력";
-
-  if (destinationMenu && currentURL.startsWith(destinationURL)) {
-    destinationMenu.classList.add("always-on");
-  }
-  if (pumexsosMenu && currentURL.startsWith(pumexsosURL)) {
-    pumexsosMenu.classList.add("always-on");
-  }
-  if (provincial_packing_feeMenu && currentURL === provincial_packing_feeURL) {
-    provincial_packing_feeMenu.classList.add("always-on");
-  }
-  if (trcMenu && currentURL === trcURL) {
-    trcMenu.classList.add("always-on");
-  }
-  if (consoleMenu && currentURL === consoleURL) {
-    consoleMenu.classList.add("always-on");
-  }
-  if (supportingdocsMenu && currentURL === supportingdocsURL) {
-    supportingdocsMenu.classList.add("always-on");
-  }
+  menus.forEach(m => {
+    const el = document.getElementById(m.id);
+    if (el && (m.url !== "추후입력") && currentURL.startsWith(m.url)) {
+      el.classList.add("always-on");
+    }
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
-// 2. [업그레이드] 공지사항 롤링 + 전체보기(토글) 기능
+// 2. [최종] 공지사항 롤링 + 리스트 펼치기 기능
 // ─────────────────────────────────────────────────────────────
-const NOTICE_API_URL = "https://notion-api-hub.vercel.app/api/notice/list"; 
+const NOTICE_API_URL = "[https://notion-api-hub.vercel.app/api/notice/list](https://notion-api-hub.vercel.app/api/notice/list)"; 
 
 async function initNoticeRolling() {
   const noticeBox = document.querySelector('.notice-box');
@@ -54,18 +37,18 @@ async function initNoticeRolling() {
     if (result.ok && result.data.length > 0) {
       const notices = result.data;
 
-      // 1. Notice Box 레이아웃 재설정 (Overlay 방식)
-      // 원래 notice-box는 자리만 차지하고, 실제 내용은 'container'가 담당하여 위로 뜸
+      // 1. 스타일 초기화 (드롭다운을 위해 absolute container 사용)
       Object.assign(noticeBox.style, {
-        overflow: "visible", // 내부 요소가 튀어나올 수 있게 허용
         position: "relative",
         display: "block",
-        background: "transparent", // 배경색은 내부 컨테이너로 이동
-        padding: "0"
+        background: "transparent",
+        padding: "0",
+        overflow: "visible", // 튀어나옴 허용
+        zIndex: "2000"
       });
-      noticeBox.innerHTML = ""; 
+      noticeBox.innerHTML = "";
 
-      // 2. 실제 배경 및 내용을 담을 컨테이너 (확장 시 커지는 부분)
+      // 2. 메인 컨테이너 (배경색이 들어가는 박스)
       const container = document.createElement("div");
       Object.assign(container.style, {
         position: "absolute",
@@ -73,27 +56,27 @@ async function initNoticeRolling() {
         left: "0",
         width: "100%",
         minHeight: "35px",
-        backgroundColor: "#e0e0e0", // 원래 배경색
-        borderRadius: "18px",       // 둥근 모서리 유지
-        zIndex: "1000",             // 다른 요소 위에 뜨도록
+        backgroundColor: "#e0e0e0",
+        borderRadius: "18px",
         display: "flex",
         flexDirection: "column",
-        padding: "0 20px",
-        boxSizing: "border-box",
-        transition: "all 0.3s ease",
-        boxShadow: "none" // 펼칠 때 그림자 추가 예정
+        overflow: "hidden",
+        transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+        boxShadow: "none"
       });
 
-      // 3. 상단 영역 (롤링 뷰포트 + 버튼)
-      const headerWrap = document.createElement("div");
-      Object.assign(headerWrap.style, {
+      // 3. 상단 헤더 (롤링 영역 + 버튼)
+      const headerRow = document.createElement("div");
+      Object.assign(headerRow.style, {
         display: "flex",
         alignItems: "center",
         height: "35px",
-        width: "100%"
+        padding: "0 20px",
+        boxSizing: "border-box",
+        flexShrink: "0"
       });
 
-      // 3-1. 롤링이 보여질 뷰포트 (마스크)
+      // 3-1. 롤링 뷰포트
       const viewport = document.createElement("div");
       Object.assign(viewport.style, {
         flex: "1",
@@ -102,7 +85,7 @@ async function initNoticeRolling() {
         position: "relative"
       });
 
-      // 3-2. 롤러 (실제 움직이는 리스트)
+      // 3-2. 롤러 (움직이는 트랙)
       const roller = document.createElement("div");
       Object.assign(roller.style, {
         position: "relative",
@@ -110,139 +93,155 @@ async function initNoticeRolling() {
         transition: "top 0.5s ease-in-out"
       });
 
-      // 3-3. 토글 버튼 (▼)
+      // 3-3. 토글 버튼
       const toggleBtn = document.createElement("button");
       toggleBtn.innerHTML = "▼";
       Object.assign(toggleBtn.style, {
-        background: "none",
         border: "none",
+        background: "none",
         cursor: "pointer",
         padding: "0 0 0 10px",
-        fontSize: "0.8rem",
+        fontSize: "0.75rem",
         color: "#555",
-        fontWeight: "bold",
-        height: "100%"
+        height: "100%",
+        display: "flex",
+        alignItems: "center"
       });
 
-      // 아이템 생성 헬퍼 함수
-      const createItem = (item) => {
-        const itemDiv = document.createElement("div");
-        Object.assign(itemDiv.style, {
-          height: "35px", 
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-start" 
-        });
+      // 4. 전체 리스트 (펼쳤을 때 보일 목록)
+      const fullList = document.createElement("div");
+      Object.assign(fullList.style, {
+        display: "none", // 기본 숨김
+        flexDirection: "column",
+        padding: "0 20px 10px 20px",
+        borderTop: "1px solid #ccc",
+        marginTop: "0"
+      });
 
-        itemDiv.innerHTML = `
-            <a href="${item.url}" target="_blank" style="text-decoration:none; color:#333; display:flex; align-items:center; width:100%; overflow:hidden;">
-              <span style="background:#333; color:#fff; font-size:0.75rem; padding:2px 8px; border-radius:12px; font-weight:700; margin-right:10px; flex-shrink:0;">공지</span>
-              <span style="font-size:0.9rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.title}</span>
-            </a>
-        `;
-        return itemDiv;
-      };
+      // 공지 아이템 생성 함수
+      const createItemHTML = (item) => `
+        <a href="${item.url}" target="_blank" style="text-decoration:none; color:#333; display:flex; align-items:center; width:100%; height:35px;">
+          <span style="background:#333; color:#fff; font-size:0.75rem; padding:2px 8px; border-radius:12px; font-weight:700; margin-right:10px; flex-shrink:0;">공지</span>
+          <span style="font-size:0.9rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.title}</span>
+        </a>
+      `;
 
-      // 초기 리스트 구성
-      notices.forEach(item => roller.appendChild(createItem(item)));
-      
+      // 롤러에 아이템 추가
+      notices.forEach(item => {
+        const div = document.createElement("div");
+        div.style.height = "35px";
+        div.style.display = "flex";
+        div.style.alignItems = "center";
+        div.innerHTML = createItemHTML(item);
+        roller.appendChild(div);
+      });
+
+      // 전체 리스트에 아이템 추가
+      notices.forEach(item => {
+        const div = document.createElement("div");
+        div.innerHTML = createItemHTML(item);
+        fullList.appendChild(div);
+      });
+
       // 조립
       viewport.appendChild(roller);
-      headerWrap.appendChild(viewport);
-      headerWrap.appendChild(toggleBtn);
-      container.appendChild(headerWrap);
+      headerRow.appendChild(viewport);
+      headerRow.appendChild(toggleBtn); // 버튼이 있으면 추가
+      container.appendChild(headerRow);
+      container.appendChild(fullList);
       noticeBox.appendChild(container);
 
-      // 4. 로직 상태 관리
+      // --- 동작 로직 ---
       let isExpanded = false;
       let intervalId = null;
       let currentIndex = 0;
       const itemHeight = 35;
 
-      // 롤링 시작 함수
+      // 롤링 시작
       const startRolling = () => {
-        // 복제본이 없다면 추가 (무한 롤링용)
-        if (roller.children.length === notices.length) {
-            roller.appendChild(createItem(notices[0])); 
+        // 복제본 추가 (무한 롤링용)
+        if (roller.children.length === notices.length && notices.length > 1) {
+            const clone = roller.children[0].cloneNode(true);
+            roller.appendChild(clone);
         }
         
-        intervalId = setInterval(() => {
-            currentIndex++;
-            roller.style.transition = "top 0.5s ease-in-out";
-            roller.style.top = `-${currentIndex * itemHeight}px`;
+        if (notices.length > 1) {
+            intervalId = setInterval(() => {
+                currentIndex++;
+                roller.style.transition = "top 0.5s ease-in-out";
+                roller.style.top = `-${currentIndex * itemHeight}px`;
 
-            if (currentIndex === notices.length) {
-                setTimeout(() => {
-                    roller.style.transition = "none";
-                    roller.style.top = "0";
-                    currentIndex = 0;
-                }, 500);
-            }
-        }, 3000);
+                if (currentIndex === notices.length) {
+                    setTimeout(() => {
+                        roller.style.transition = "none";
+                        roller.style.top = "0";
+                        currentIndex = 0;
+                    }, 500);
+                }
+            }, 3000);
+        }
       };
 
-      // 롤링 정지 함수
       const stopRolling = () => {
         if (intervalId) clearInterval(intervalId);
         intervalId = null;
       };
 
-      // 초기 롤링 시작 (데이터가 2개 이상일 때만)
+      // 초기 실행
+      startRolling();
+
+      // 토글 버튼 클릭 이벤트
       if (notices.length > 1) {
-        startRolling();
+          toggleBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            isExpanded = !isExpanded;
+
+            if (isExpanded) {
+                // 펼치기
+                stopRolling();
+                toggleBtn.innerHTML = "▲";
+                container.style.borderRadius = "12px";
+                container.style.boxShadow = "0 8px 20px rgba(0,0,0,0.15)";
+                container.style.backgroundColor = "#fff"; // 펼치면 흰색 배경 (가독성)
+                container.style.border = "1px solid #ccc";
+                
+                headerRow.style.borderBottom = "1px solid #eee";
+                fullList.style.display = "flex";
+                
+                // 롤러 초기화 (첫 번째 공지가 보이게)
+                roller.style.transition = "none";
+                roller.style.top = "0";
+                currentIndex = 0;
+
+            } else {
+                // 접기
+                toggleBtn.innerHTML = "▼";
+                container.style.borderRadius = "18px";
+                container.style.boxShadow = "none";
+                container.style.backgroundColor = "#e0e0e0"; // 원래 배경색 복구
+                container.style.border = "none";
+                
+                headerRow.style.borderBottom = "none";
+                fullList.style.display = "none";
+                
+                startRolling();
+            }
+          });
+
+          // 바깥 클릭 시 닫기
+          document.addEventListener("click", (e) => {
+            if (isExpanded && !container.contains(e.target)) {
+                toggleBtn.click();
+            }
+          });
       } else {
-        toggleBtn.style.display = "none"; // 1개면 버튼 숨김
+          toggleBtn.style.display = "none"; // 공지 1개면 버튼 숨김
       }
 
-      // 5. 버튼 클릭 이벤트 (펼치기/접기)
-      toggleBtn.addEventListener('click', (e) => {
-        e.stopPropagation(); // 버블링 방지
-        isExpanded = !isExpanded;
-
-        if (isExpanded) {
-            // [펼치기 모드]
-            stopRolling(); // 롤링 정지
-            
-            // UI 변경
-            toggleBtn.innerHTML = "▲";
-            container.style.borderRadius = "12px"; // 펼쳤을 땐 둥근 사각형 느낌
-            container.style.boxShadow = "0 4px 15px rgba(0,0,0,0.15)";
-            viewport.style.overflow = "visible"; // 내용 다 보이게
-            viewport.style.height = "auto";
-            
-            // 롤러 초기화 (리스트 정렬)
-            roller.style.transition = "none";
-            roller.style.top = "0";
-            // 복제본 제거 (깔끔한 리스트를 위해)
-            if (roller.children.length > notices.length) {
-                roller.removeChild(roller.lastElementChild);
-            }
-            
-        } else {
-            // [접기 모드]
-            toggleBtn.innerHTML = "▼";
-            
-            // UI 복구
-            container.style.borderRadius = "999px"; // 다시 알약 모양
-            container.style.boxShadow = "none";
-            viewport.style.overflow = "hidden";
-            viewport.style.height = "35px";
-            
-            // 롤링 재개
-            currentIndex = 0; // 처음부터 다시 시작
-            if (notices.length > 1) startRolling();
-        }
-      });
-
-      // (선택) 펼쳐진 상태에서 바깥 클릭 시 닫기
-      document.addEventListener('click', (e) => {
-        if (isExpanded && !container.contains(e.target)) {
-            toggleBtn.click(); // 버튼 클릭 동작 트리거
-        }
-      });
-
     } else {
-      noticeBox.innerHTML = '<div style="display:flex; align-items:center; justify-content:flex-start; height:100%; color:#777; font-size:0.85rem; padding-left:20px;">등록된 공지사항이 없습니다.</div>';
+      noticeBox.innerHTML = '<div style="height:35px; display:flex; align-items:center; padding:0 20px; color:#777; font-size:0.85rem;">등록된 공지사항이 없습니다.</div>';
+      noticeBox.style.background = "#e0e0e0";
+      noticeBox.style.borderRadius = "999px";
     }
 
   } catch (error) {
@@ -251,7 +250,7 @@ async function initNoticeRolling() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 3. 로그인 사용자 표시 및 로그아웃
+// 3. 로그인 사용자 표시
 // ─────────────────────────────────────────────────────────────
 function initUserHeader() {
   const userInfoWrap = document.getElementById('userInfoWrap');
@@ -271,7 +270,6 @@ function initUserHeader() {
   }
 
   if (btnLogout) {
-    // 이벤트 중복 방지용 교체
     const newBtn = btnLogout.cloneNode(true);
     btnLogout.parentNode.replaceChild(newBtn, btnLogout);
     
@@ -280,17 +278,16 @@ function initUserHeader() {
       localStorage.removeItem('username');
       localStorage.removeItem('userId');
       alert('로그아웃 되었습니다.');
-      window.location.href = 'https://arrrbang.github.io/pumex/';
+      window.location.href = '[https://arrrbang.github.io/pumex/](https://arrrbang.github.io/pumex/)';
     });
   }
 }
 
-// 🔥 전역 객체 등록
+// 전역 등록
 window.setActiveHeaderMenu = setActiveHeaderMenu;
 window.initNoticeRolling = initNoticeRolling;
 window.initUserHeader = initUserHeader;
 
-// 실행
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
       setActiveHeaderMenu();
