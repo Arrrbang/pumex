@@ -45,11 +45,7 @@ if (document.readyState === 'loading') {
 const NOTICE_API_URL = "https://notion-api-hub.vercel.app/api/notice/list"; 
 
 async function initNoticeRolling() {
-  // 헤더 HTML이 로드된 후에 실행되어야 하므로 요소를 찾습니다.
   const noticeBox = document.querySelector('.notice-box');
-  
-  // 아직 박스가 없다면(헤더 로드 전이라면) 종료하고, 
-  // index.html의 스크립트에서 헤더 로드 후 다시 호출하도록 합니다.
   if (!noticeBox) return;
 
   try {
@@ -60,14 +56,14 @@ async function initNoticeRolling() {
     if (result.ok && result.data.length > 0) {
       const notices = result.data;
 
-      // (1) Notice Box 스타일 초기화 (CSS 수정 없이 JS로 강제 적용)
+      // (1) Notice Box 스타일 초기화
       Object.assign(noticeBox.style, {
         overflow: "hidden",
         position: "relative",
-        display: "block", // flex 해제하여 내부 div 허용
-        padding: "0 20px" // 좌우 여백
+        display: "block",
+        padding: "0 20px"
       });
-      noticeBox.innerHTML = ""; // 기존 내용 비우기
+      noticeBox.innerHTML = ""; 
 
       // (2) 롤러(리스트 컨테이너) 생성
       const roller = document.createElement("div");
@@ -78,14 +74,14 @@ async function initNoticeRolling() {
         transition: "top 0.5s ease-in-out"
       });
 
-      // (3) 아이템 생성 함수 (좌측 정렬 적용)
+      // (3) 아이템 생성 함수
       const createItem = (item) => {
         const itemDiv = document.createElement("div");
         Object.assign(itemDiv.style, {
-          height: "35px", // 박스 높이와 일치
+          height: "35px", 
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-start" // [핵심] 좌측 정렬
+          justifyContent: "flex-start" 
         });
 
         itemDiv.innerHTML = `
@@ -102,38 +98,57 @@ async function initNoticeRolling() {
         roller.appendChild(createItem(item));
       });
 
-      // [핵심] 데이터 로드 즉시 화면에 표시 (기다림 없음)
+      // 즉시 표시
       noticeBox.appendChild(roller);
 
-      // (5) 데이터가 2개 이상일 때만 롤링 애니메이션 시작
+      // (5) 데이터가 2개 이상일 때만 롤링 시작
       if (notices.length > 1) {
-        // 끊김 없는 루프를 위해 첫 번째 아이템을 복사해서 맨 뒤에 추가
         const firstClone = createItem(notices[0]);
         roller.appendChild(firstClone);
 
-        const itemHeight = 35; // px
+        const itemHeight = 35;
         let currentIndex = 0;
+        let intervalId = null; // 타이머 ID 저장용
 
-        setInterval(() => {
+        // 롤링 동작 함수
+        const moveNext = () => {
             currentIndex++;
-            
-            // 위로 이동
             roller.style.transition = "top 0.5s ease-in-out";
             roller.style.top = `-${currentIndex * itemHeight}px`;
 
-            // 마지막(복사본)에 도달하면 순식간에 처음으로 이동
             if (currentIndex === notices.length) {
                 setTimeout(() => {
-                    roller.style.transition = "none"; // 애니메이션 끄기
-                    roller.style.top = "0";           // 원점 복귀
-                    currentIndex = 0;                 // 인덱스 초기화
-                }, 500); // transition 시간(0.5s) 후 실행
+                    roller.style.transition = "none"; 
+                    roller.style.top = "0";           
+                    currentIndex = 0;                 
+                }, 500); 
             }
-        }, 3000); // 3초마다 반복
+        };
+
+        // 타이머 시작 함수
+        const startRolling = () => {
+            if (!intervalId) {
+                intervalId = setInterval(moveNext, 3000);
+            }
+        };
+
+        // 타이머 정지 함수
+        const stopRolling = () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+        };
+
+        // [초기 시작]
+        startRolling();
+
+        // [이벤트 등록] 마우스 올리면 멈춤, 떼면 다시 시작
+        noticeBox.addEventListener("mouseenter", stopRolling);
+        noticeBox.addEventListener("mouseleave", startRolling);
       }
 
     } else {
-      // 공지사항 없을 때
       noticeBox.innerHTML = '<div style="display:flex; align-items:center; justify-content:flex-start; height:100%; color:#777; font-size:0.85rem;">등록된 공지사항이 없습니다.</div>';
     }
 
@@ -145,7 +160,7 @@ async function initNoticeRolling() {
 // 전역 등록
 window.initNoticeRolling = initNoticeRolling;
 
-// 페이지 로드 시 실행 (이미 헤더가 있다면 바로 실행)
+// 페이지 로드 시 실행
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
       setActiveHeaderMenu();
