@@ -134,6 +134,39 @@ body{
   color: #777;
 }
 
+/* [NEW] 로그인 정보 영역 스타일 */
+.user-info-wrap {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-left: auto; /* 왼쪽 요소들(로고, 공지)을 밀어내고 우측 끝에 위치 */
+}
+
+/* 사용자 아이디 텍스트 */
+.user-id {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 로그아웃 버튼 */
+.logout-btn {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background-color: #fff;
+  border: 1px solid var(--deep-gray-color); /* 요청하신 색상 변수 사용 */
+  color: var(--deep-gray-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: var(--deep-gray-color);
+  color: #fff;
+}
+
 /* ================= 하단 메뉴바 (메인 GNB) ================= */
 
 /* 아이콘 + "카테고리" 묶음 */
