@@ -87,11 +87,51 @@ body{
   display: block;
 }
 
-.notice-box{
+.notice-box {
   min-width: 672px;
   height: 35px;
   border-radius: 999px;
   background: #e0e0e0;
+  
+  /* [추가] 텍스트 정렬 및 스타일 */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 가운데 정렬 (필요 시 left로 변경 후 padding-left 추가) */
+  padding: 0 20px;
+  box-sizing: border-box;
+  transition: opacity 0.3s ease; /* 페이드 효과 */
+  overflow: hidden;
+}
+
+.notice-link {
+  text-decoration: none;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: left; /* 링크 내부 텍스트 왼쪽 정렬 */
+}
+
+.notice-link:hover {
+  text-decoration: underline;
+  color: #000;
+}
+
+.notice-badge {
+  background-color: #333;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.notice-empty {
+  font-size: 0.85rem;
+  color: #777;
 }
 
 /* ================= 하단 메뉴바 (메인 GNB) ================= */
