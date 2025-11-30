@@ -1,9 +1,18 @@
+    .sos-layout{
+      display:flex;
+      align-items:flex-start;
+      gap:2rem;
+      max-width: 1320px;
+      margin: 0 auto;
+  }
+
     .sos-title {
       text-align: left;
-      font-size: 1.6rem;
-      font-weight: 700;
+      font-size: var(--main-title-font-size);
+      font-weight: var(--main-title-font-weight);
       margin-bottom: 0.3rem;
       color: #111;
+      margin-top:0;
     }
     .sos-divider {
       width: 100%;
@@ -11,14 +20,7 @@
       background: var(--light-gray-color);
       margin: 0 0 1.5rem;  /* sos-title과 아래 요소와의 간격 */
     }
-    
-    .sos-layout{
-      display:flex;
-      align-items:flex-start;
-      gap:2rem;
-      max-width: 1200px;             /* 달력(400) + sos(720) */
-      margin: 0 auto;
-    }
+  
 
     .vertical-divider {
       width: 1px;                 /* 선 두께 */
