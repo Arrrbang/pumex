@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>HANSOL 가격 조회</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../common/header/header.css">
+  <link rel="stylesheet" href="./hansol.css">
+</head>
+<body>
+<div id="header-placeholder"></div>
+
+<div class="main-layout">
+
+  <div class="notice">
+      <h3 style="margin-top:0; font-weight:800;">확인사항</h3>
+      <div class="notice-list" id="notice-list-container">
+          <div style="color:#999; font-size:0.9rem;">조회 후 확인사항이 표시됩니다.</div>
+      </div>
+  </div>
+
+  <div class="vertical-divider"></div>
+
+  <div class="main-wrap">
+      <h1 class="hansol-title">HANSOL 포장 비용 계산</h1>
+      <div class="title-cost-divider"></div>
+      <div class="controls">
+          <div class="field">
+              <label for="Shipping-Address">포장지 주소</label>
+              <input type="text" id="Shipping-Address" placeholder="도로명 주소 혹은 인보이스상 주소 붙여넣기">
+          </div>
+          <div class="field">
+              <label for="Packed-CBM">포장 CBM</label>
+              <div class="combo" id="Packed-CBM">
+                  <input type="text" id="Packed-CBM-input" placeholder="CBM입력" auotocomplete="off">
+              </div>
+          </div>
+            <button class="btn" id="btnFetch">조회</button>
+      </div>
+
+
+      <div class="result-container">
+        <div class="sub-title-divider">기본 발생 비용</div>
+
+        <div class="cost-title">포장 작업비
+          <span id="packing-fee" class="cost-value">-</span>
+        </div>
+
+        <div class="cost-title">지역 출장비
+          <span id="travel-fee" class="cost-value">-</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!--─────────────────────────해더 html로드 및 css 로드 시작 ─────────────────────────-->
+<script>
+  fetch('../../common/header/header.html')
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById('header-placeholder').innerHTML = html;
+
+      if (window.setActiveHeaderMenu) {
+        window.setActiveHeaderMenu();
+      }
+    })
+    .catch(err => console.error('Header load error:', err));
+</script>
+<script src="../../common/header/header.js"></script>
+<script src="../../common/js/login.js"></script>
+<!--───────────────────────── 본 페이지 script 시작 ─────────────────────────-->
+<script>
+    const API_BASE = "https://notion-api-hub.vercel.app"; 
+
+    function formatMoney(num) {
+        if (num === undefined || num === null) return "-";
+        return num.toLocaleString('ko-KR') + " 원";
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // [NEW] 확인사항 렌더링 (노션 텍스트 파싱)
+    // ──────────────────────────────────────────────────────────
+    function renderNotices(notices) {
+        const container = document.getElementById('notice-list-container');
+        container.innerHTML = ''; 
+
+        if (!notices || notices.length === 0) {
+            container.innerHTML = '<div style="color:#999;">표시할 확인사항이 없습니다.</div>';
+            return;
+        }
+
+        notices.forEach(notice => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'notice-item';
+
+            // 제목 헤더
+            const headerBtn = document.createElement('button');
+            headerBtn.className = 'notice-header';
+            headerBtn.innerHTML = `<span class="toggle-icon">▶</span> ${notice.title}`;
+
+            // 내용 컨테이너
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'notice-content';
+
+            if (notice.content) {
+                // 1. 줄바꿈(\n)으로 분리
+                const lines = notice.content.split('\n').filter(line => line.trim() !== '');
+                
+                // 2. 각 줄 분석 ( [숫자] 로 시작하는지 확인 )
+                const formattedHtml = lines.map(line => {
+                    const trimmed = line.trim();
+                    // 정규식: 대괄호+숫자+대괄호 로 시작하는지 체크 (예: [1], [10] 등)
+                    // match[1] = "[1]", match[2] = 나머지 텍스트
+                    const match = trimmed.match(/^(\[\d+\])\s*(.*)/);
+
+                    if (match) {
+                        // [n] 형식인 경우 -> 분리해서 렌더링
+                        return `
+                            <div class="notice-line">
+                                <span class="notice-num">${match[1]}</span>
+                                <span class="notice-text">${match[2]}</span>
+                            </div>
+                        `;
+                    } else {
+                        // [n] 형식이 없는 일반 텍스트인 경우 -> 전체를 텍스트로
+                        return `
+                            <div class="notice-line">
+                                <span class="notice-text">${trimmed}</span>
+                            </div>
+                        `;
+                    }
+                }).join('');
+                
+                contentDiv.innerHTML = formattedHtml;
+            } else {
+                contentDiv.innerHTML = '<div class="notice-line"><span class="notice-text">내용 없음</span></div>';
+            }
+
+            // 토글 이벤트
+            headerBtn.addEventListener('click', () => {
+                const isOpen = contentDiv.classList.contains('open');
+                if (isOpen) {
+                    contentDiv.classList.remove('open');
+                    headerBtn.classList.remove('active');
+                } else {
+                    contentDiv.classList.add('open');
+                    headerBtn.classList.add('active');
+                }
+            });
+
+            itemDiv.appendChild(headerBtn);
+            itemDiv.appendChild(contentDiv);
+            container.appendChild(itemDiv);
+        });
+    }
+
+    const btnFetch = document.getElementById('btnFetch');
+    btnFetch.addEventListener('click', async () => {
+        const address = document.getElementById('Shipping-Address').value.trim();
+        const cbm = document.getElementById('Packed-CBM-input').value;
+
+        if (!address) return alert("주소를 입력해주세요.");
+        if (!cbm) return alert("CBM을 입력해주세요.");
+
+        btnFetch.disabled = true; 
+        btnFetch.textContent = "로딩 중...";
+        
+        // 결과값 초기화
+        const ids = ['survey-fee','packing-fee','travel-fee','ev-shuttle-stair-fee','wooden-crate-fee','storage-fee','loading-unloading-fee'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) { el.innerText = "로딩 중..."; el.classList.add('empty'); }
+        });
+        document.getElementById('notice-list-container').innerHTML = '<div style="color:#999;">로딩 중...</div>';
+
+        try {
+            const response = await fetch(`${API_BASE}/api/hansol/calculate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ address, cbm })
+            });
+            const result = await response.json();
+
+            if (result.ok) {
+                const d = result.data;
+                document.getElementById('survey-fee').innerText = formatMoney(d.surveyFee);
+                document.getElementById('packing-fee').innerText = formatMoney(d.packingFee);
+                document.getElementById('travel-fee').innerText = formatMoney(d.travelFee);
+                document.getElementById('ev-shuttle-stair-fee').innerText = formatMoney(d.shuttleFee);
+                document.getElementById('wooden-crate-fee').innerText = formatMoney(d.woodenCrateFee);
+                document.getElementById('storage-fee').innerText = formatMoney(d.storageFee);
+                document.getElementById('loading-unloading-fee').innerText = formatMoney(d.loadingUnloadingFee);
+                
+                ids.forEach(id => document.getElementById(id).classList.remove('empty'));
+                renderNotices(d.notices);
+            } else {
+                alert("오류: " + result.error);
+                resetDisplay();
+            }
+        } catch (e) {
+            console.error(e);
+            alert("서버 통신 오류");
+            resetDisplay();
+        } finally {
+            btnFetch.disabled = false;
+            btnFetch.textContent = "조회";
+        }
+    });
+
+    function resetDisplay() {
+        const ids = ['survey-fee','packing-fee','travel-fee','ev-shuttle-stair-fee','wooden-crate-fee','storage-fee','loading-unloading-fee'];
+        ids.forEach(id => document.getElementById(id).innerText = "-");
+        document.getElementById('notice-list-container').innerHTML = '<div style="color:#999;">조회 후 확인사항이 표시됩니다.</div>';
+    }
+</script>
+</body>
+</html>
