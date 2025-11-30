@@ -46,7 +46,6 @@ const NOTICE_API_URL = "https://notion-api-hub.vercel.app/api/notice/list";
 
 async function initNoticeRolling() {
   const noticeBox = document.querySelector('.notice-box');
-  // 박스가 아직 없으면(로딩 전이면) 종료
   if (!noticeBox) return;
 
   try {
@@ -57,62 +56,60 @@ async function initNoticeRolling() {
     if (result.ok && result.data.length > 0) {
       const notices = result.data;
 
-      // 1. Notice Box 스타일 강제 설정 (롤링을 위해)
+      // 1. Notice Box 스타일
       noticeBox.style.overflow = "hidden";
       noticeBox.style.position = "relative";
-      noticeBox.style.display = "block"; // flex 해제
-      noticeBox.innerHTML = ""; // 기존 내용 초기화
+      noticeBox.style.display = "block";
+      noticeBox.innerHTML = "";
 
-      // 2. 롤러 컨테이너 생성 (이 친구가 위로 움직입니다)
+      // 2. 롤러 컨테이너 생성
       const roller = document.createElement("div");
       roller.style.position = "relative";
       roller.style.top = "0";
-      roller.style.transition = "top 0.5s ease-in-out"; // 부드러운 이동 효과
+      roller.style.transition = "top 0.5s ease-in-out";
 
-      // 3. 공지사항 아이템 생성 및 추가
+      // 3. 공지사항 아이템 생성
       notices.forEach(item => {
         const itemDiv = document.createElement("div");
-        itemDiv.style.height = "35px"; // 박스 높이와 동일하게 고정
+        itemDiv.style.height = "35px";
         itemDiv.style.display = "flex";
         itemDiv.style.alignItems = "center";
-        itemDiv.style.justifyContent = "center"; // 가운데 정렬
+        
+        // [수정 1] flex-start로 변경하여 왼쪽 정렬
+        itemDiv.style.justifyContent = "flex-start"; 
 
-        // 내부 링크 및 배지 스타일
+        // [수정 2] a 태그 내부도 왼쪽 정렬 (justify-content: flex-start)
         itemDiv.innerHTML = `
-            <a href="${item.url}" target="_blank" style="text-decoration:none; color:#333; display:flex; align-items:center; gap:8px;">
-              <span style="background:#333; color:#fff; font-size:0.75rem; padding:2px 8px; border-radius:12px; font-weight:700;">공지</span>
-              <span style="font-size:0.9rem; font-weight:500;">${item.title}</span>
+            <a href="${item.url}" target="_blank" style="text-decoration:none; color:#333; display:flex; align-items:center; justify-content:flex-start; width:100%; gap:8px;">
+              <span style="background:#333; color:#fff; font-size:0.75rem; padding:2px 8px; border-radius:12px; font-weight:700; flex-shrink:0;">공지</span>
+              <span style="font-size:0.9rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.title}</span>
             </a>
         `;
         roller.appendChild(itemDiv);
       });
 
-      // 롤러를 박스에 넣기
       noticeBox.appendChild(roller);
 
-      // 4. 롤링 애니메이션 시작 (데이터가 2개 이상일 때만)
+      // 4. 롤링 애니메이션
       if (notices.length > 1) {
         setInterval(() => {
-            // (1) 위로 한 칸 이동 (-35px)
             roller.style.top = "-35px";
 
-            // (2) 이동이 끝난 후 (0.5초 뒤) 처리
             setTimeout(() => {
-                roller.style.transition = "none"; // 애니메이션 끄기 (순간 이동을 위해)
-                roller.appendChild(roller.firstElementChild); // 맨 위 요소를 맨 아래로 이동
-                roller.style.top = "0"; // 위치를 다시 0으로 리셋 (내용이 바뀐 상태라 시각적으로는 이어짐)
+                roller.style.transition = "none";
+                roller.appendChild(roller.firstElementChild);
+                roller.style.top = "0";
                 
-                // 브라우저가 변경사항을 인지하도록 강제 리플로우
                 void roller.offsetWidth; 
 
-                roller.style.transition = "top 0.5s ease-in-out"; // 애니메이션 다시 켜기
-            }, 500); // transition 시간(0.5s)과 맞춰야 함
-        }, 5000); // 5초마다 반복
+                roller.style.transition = "top 0.5s ease-in-out";
+            }, 500);
+        }, 4000);
       }
 
     } else {
-      // 공지사항 없을 때
-      noticeBox.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:#777; font-size:0.85rem;">등록된 공지사항이 없습니다.</div>';
+      // 데이터 없을 때도 좌측 정렬
+      noticeBox.innerHTML = '<div style="display:flex; align-items:center; justify-content:flex-start; height:100%; color:#777; font-size:0.85rem;">등록된 공지사항이 없습니다.</div>';
     }
 
   } catch (error) {
@@ -120,7 +117,7 @@ async function initNoticeRolling() {
   }
 }
 
-// 전역 함수 등록 및 실행 로직 (기존 유지)
+// 전역 등록 및 실행
 window.initNoticeRolling = initNoticeRolling;
 
 if (document.readyState === 'loading') {
