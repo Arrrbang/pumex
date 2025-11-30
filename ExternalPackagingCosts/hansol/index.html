@@ -56,19 +56,7 @@
     </div>
   </div>
 
-<!--─────────────────────────해더 html로드 및 css 로드 시작 ─────────────────────────-->
-<script>
-  fetch("https://arrrbang.github.io/pumex/common/header/header.html")
-    .then(res => res.text())
-    .then(html => {
-      document.getElementById("header-placeholder").innerHTML = html;
-
-      // 🔥 헤더가 DOM에 삽입된 시점에서 header.js 실행
-      const s = document.createElement("script");
-      s.src = "https://arrrbang.github.io/pumex/common/header/header.js";
-      document.body.appendChild(s);
-    });
-</script>
+<script src="https://arrrbang.github.io/pumex/common/js/loading.js"></script>
 <script src="../../common/js/login.js"></script>
 <!--───────────────────────── 본 페이지 script 시작 ─────────────────────────-->
 <script>
