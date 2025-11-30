@@ -35,15 +35,6 @@ function setActiveHeaderMenu() {
   }
 }
 
-// 🔥 전역 바인딩 + 자동 1회 실행
-window.setActiveHeaderMenu = setActiveHeaderMenu;
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', setActiveHeaderMenu);
-} else {
-  setActiveHeaderMenu();
-}
-
 // ─────────────────────────────────────────────────────────────
 // [수정됨] 공지사항 롤링 기능 (URL 수정 완료)
 // ─────────────────────────────────────────────────────────────
@@ -162,16 +153,58 @@ async function initNoticeRolling() {
   }
 }
 
-// 전역 등록
+// ─────────────────────────────────────────────────────────────
+// 3. [복구] 로그인 사용자 표시 및 로그아웃 (이 부분이 없어서 안 떴음)
+// ─────────────────────────────────────────────────────────────
+function initUserHeader() {
+  const userInfoWrap = document.getElementById('userInfoWrap');
+  const displayUserId = document.getElementById('displayUserId');
+  const btnLogout = document.getElementById('btnLogout');
+
+  if (!userInfoWrap) return;
+
+  const storedUser = localStorage.getItem('username') || localStorage.getItem('userId'); 
+  const token = localStorage.getItem('token');
+
+  if (token && storedUser) {
+    // 로그인 상태: 숨겨진 요소를 보이게 설정 (display: none -> flex)
+    userInfoWrap.style.display = 'flex';
+    if (displayUserId) displayUserId.innerText = `@${storedUser} 님`;
+  } else {
+    // 비로그인 상태
+    userInfoWrap.style.display = 'none';
+  }
+
+  // 로그아웃 버튼 이벤트
+  if (btnLogout) {
+    // 이벤트 중복 방지 (기존 거 제거하고 새로 만들기)
+    const newBtn = btnLogout.cloneNode(true);
+    btnLogout.parentNode.replaceChild(newBtn, btnLogout);
+    
+    newBtn.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      localStorage.removeItem('userId');
+      alert('로그아웃 되었습니다.');
+      window.location.href = 'https://arrrbang.github.io/pumex/';
+    });
+  }
+}
+
+// 🔥 전역 객체에 함수 등록 (중요: 다른 파일에서 부를 수 있게 함)
+window.setActiveHeaderMenu = setActiveHeaderMenu;
 window.initNoticeRolling = initNoticeRolling;
+window.initUserHeader = initUserHeader;
 
 // 페이지 로드 시 실행
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
       setActiveHeaderMenu();
       initNoticeRolling();
+      initUserHeader();
   });
 } else {
   setActiveHeaderMenu();
   initNoticeRolling();
+  initUserHeader();
 }
