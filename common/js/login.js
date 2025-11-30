@@ -1,22 +1,22 @@
-/* login.js */
+// login.js
 
 function redirectToLogin(message) {
-  alert(message);
+  if (message) alert(message);
   localStorage.removeItem('token'); 
-  localStorage.removeItem('username'); // 로그아웃 시 아이디도 삭제
-  window.location.href = 'https://arrrbang.github.io/pumex/index.html'; 
+  localStorage.removeItem('username'); // 아이디도 확실히 삭제
+  // 필요 시 로그인 페이지로 이동 (현재 페이지가 메인이면 리다이렉트 안 함 등의 분기 가능)
+  // window.location.href = '...'; 
 }
 
 function verifyToken() {
   const token = localStorage.getItem('token'); 
+  
+  // 1. 토큰이 없으면 그냥 종료 (헤더는 비로그인 상태 유지)
   if (!token) {
-    // 토큰이 없으면 검증할 필요 없이 리턴 (로그인 페이지가 아니면 튕겨내거나 헤더만 비로그인 상태로 둠)
-    // 현재 구조상 로그인 페이지가 아니라면 그냥 조용히 리턴하는 게 나을 수도 있습니다.
-    // 하지만 보안이 필요한 페이지라면 아래 유지:
-    // redirectToLogin('로그인이 필요합니다.'); 
     return;
   }
 
+  // 2. 토큰 검증 요청
   fetch('https://backend-beta-lemon.vercel.app/verifyToken', {
     method: 'POST',
     headers: {
@@ -27,26 +27,29 @@ function verifyToken() {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        // [수정] 검증 성공 시, 백엔드에서 받은 username을 스토리지에 저장!
-        // 백엔드가 req.user = { username: '...', ... } 형태로 줍니다.
+        // [핵심] 검증 성공 시, 아이디를 스토리지에 저장
         if (data.user && data.user.username) {
             localStorage.setItem('username', data.user.username);
             
-            // 만약 헤더가 이미 로드된 상태라면 즉시 업데이트 (선택사항)
+            // [중요] 헤더가 이미 로드되어 있다면, 즉시 로그인 정보를 표시하도록 강제 호출!
             if (typeof window.initUserHeader === 'function') {
                 window.initUserHeader();
             }
         }
       } else {
-        redirectToLogin('로그인이 해제되었습니다. 다시 로그인해주세요.');
+        // 토큰 만료 등으로 실패 시
+        redirectToLogin('세션이 만료되었습니다. 다시 로그인해주세요.');
+        // 헤더 갱신 (로그아웃 상태로 변경)
+        if (typeof window.initUserHeader === 'function') {
+            window.initUserHeader();
+        }
       }
     })
-    .catch((e) => {
-      console.error(e);
-      // 네트워크 에러 등은 일단 패스하거나 로그아웃 처리
-      redirectToLogin('인증 오류가 발생했습니다.');
+    .catch((error) => {
+      console.error('Token verification failed:', error);
+      // 네트워크 오류 등은 일단 유지하거나 로그아웃 처리
     });
 }
 
-// 페이지 로드 시 실행
+// 스크립트 로드 시 즉시 실행
 verifyToken();
