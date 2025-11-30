@@ -9,7 +9,7 @@ function setActiveHeaderMenu() {
 
   const destinationURL = "https://arrrbang.github.io/pumex/destinationcost";
   const pumexsosURL = "https://arrrbang.github.io/pumex/sos";
-  const provincial_packing_feeURL = "추후입력";
+  const provincial_packing_feeURL = "https://arrrbang.github.io/pumex/ExternalPackagingCosts";
   const trcURL = "추후입력";
   const consoleURL = "추후입력";
 
