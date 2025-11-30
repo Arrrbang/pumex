@@ -45,7 +45,11 @@ if (document.readyState === 'loading') {
 const NOTICE_API_URL = "https://notion-api-hub.vercel.app/api/notice/list"; 
 
 async function initNoticeRolling() {
+  // 헤더 HTML이 로드된 후에 실행되어야 하므로 요소를 찾습니다.
   const noticeBox = document.querySelector('.notice-box');
+  
+  // 아직 박스가 없다면(헤더 로드 전이라면) 종료하고, 
+  // index.html의 스크립트에서 헤더 로드 후 다시 호출하도록 합니다.
   if (!noticeBox) return;
 
   try {
@@ -56,59 +60,80 @@ async function initNoticeRolling() {
     if (result.ok && result.data.length > 0) {
       const notices = result.data;
 
-      // 1. Notice Box 스타일
-      noticeBox.style.overflow = "hidden";
-      noticeBox.style.position = "relative";
-      noticeBox.style.display = "block";
-      noticeBox.innerHTML = "";
+      // (1) Notice Box 스타일 초기화 (CSS 수정 없이 JS로 강제 적용)
+      Object.assign(noticeBox.style, {
+        overflow: "hidden",
+        position: "relative",
+        display: "block", // flex 해제하여 내부 div 허용
+        padding: "0 20px" // 좌우 여백
+      });
+      noticeBox.innerHTML = ""; // 기존 내용 비우기
 
-      // 2. 롤러 컨테이너 생성
+      // (2) 롤러(리스트 컨테이너) 생성
       const roller = document.createElement("div");
-      roller.style.position = "relative";
-      roller.style.top = "0";
-      roller.style.transition = "top 0.5s ease-in-out";
+      roller.className = "notice-box-list";
+      Object.assign(roller.style, {
+        position: "relative",
+        top: "0",
+        transition: "top 0.5s ease-in-out"
+      });
 
-      // 3. 공지사항 아이템 생성
-      notices.forEach(item => {
+      // (3) 아이템 생성 함수 (좌측 정렬 적용)
+      const createItem = (item) => {
         const itemDiv = document.createElement("div");
-        itemDiv.style.height = "35px";
-        itemDiv.style.display = "flex";
-        itemDiv.style.alignItems = "center";
-        
-        // [수정 1] flex-start로 변경하여 왼쪽 정렬
-        itemDiv.style.justifyContent = "flex-start"; 
+        Object.assign(itemDiv.style, {
+          height: "35px", // 박스 높이와 일치
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-start" // [핵심] 좌측 정렬
+        });
 
-        // [수정 2] a 태그 내부도 왼쪽 정렬 (justify-content: flex-start)
         itemDiv.innerHTML = `
-            <a href="${item.url}" target="_blank" style="text-decoration:none; color:#333; display:flex; align-items:center; justify-content:flex-start; width:100%; gap:8px;">
-              <span style="background:#333; color:#fff; font-size:0.75rem; padding:2px 8px; border-radius:12px; font-weight:700; flex-shrink:0;">공지</span>
+            <a href="${item.url}" target="_blank" style="text-decoration:none; color:#333; display:flex; align-items:center; width:100%;">
+              <span style="background:#333; color:#fff; font-size:0.75rem; padding:2px 8px; border-radius:12px; font-weight:700; margin-right:10px; flex-shrink:0;">공지</span>
               <span style="font-size:0.9rem; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.title}</span>
             </a>
         `;
-        roller.appendChild(itemDiv);
+        return itemDiv;
+      };
+
+      // (4) 모든 공지사항 추가
+      notices.forEach(item => {
+        roller.appendChild(createItem(item));
       });
 
+      // [핵심] 데이터 로드 즉시 화면에 표시 (기다림 없음)
       noticeBox.appendChild(roller);
 
-      // 4. 롤링 애니메이션
+      // (5) 데이터가 2개 이상일 때만 롤링 애니메이션 시작
       if (notices.length > 1) {
+        // 끊김 없는 루프를 위해 첫 번째 아이템을 복사해서 맨 뒤에 추가
+        const firstClone = createItem(notices[0]);
+        roller.appendChild(firstClone);
+
+        const itemHeight = 35; // px
+        let currentIndex = 0;
+
         setInterval(() => {
-            roller.style.top = "-35px";
+            currentIndex++;
+            
+            // 위로 이동
+            roller.style.transition = "top 0.5s ease-in-out";
+            roller.style.top = `-${currentIndex * itemHeight}px`;
 
-            setTimeout(() => {
-                roller.style.transition = "none";
-                roller.appendChild(roller.firstElementChild);
-                roller.style.top = "0";
-                
-                void roller.offsetWidth; 
-
-                roller.style.transition = "top 0.5s ease-in-out";
-            }, 500);
-        }, 4000);
+            // 마지막(복사본)에 도달하면 순식간에 처음으로 이동
+            if (currentIndex === notices.length) {
+                setTimeout(() => {
+                    roller.style.transition = "none"; // 애니메이션 끄기
+                    roller.style.top = "0";           // 원점 복귀
+                    currentIndex = 0;                 // 인덱스 초기화
+                }, 500); // transition 시간(0.5s) 후 실행
+            }
+        }, 3000); // 3초마다 반복
       }
 
     } else {
-      // 데이터 없을 때도 좌측 정렬
+      // 공지사항 없을 때
       noticeBox.innerHTML = '<div style="display:flex; align-items:center; justify-content:flex-start; height:100%; color:#777; font-size:0.85rem;">등록된 공지사항이 없습니다.</div>';
     }
 
@@ -117,11 +142,16 @@ async function initNoticeRolling() {
   }
 }
 
-// 전역 등록 및 실행
+// 전역 등록
 window.initNoticeRolling = initNoticeRolling;
 
+// 페이지 로드 시 실행 (이미 헤더가 있다면 바로 실행)
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initNoticeRolling);
+  document.addEventListener('DOMContentLoaded', () => {
+      setActiveHeaderMenu();
+      initNoticeRolling();
+  });
 } else {
+  setActiveHeaderMenu();
   initNoticeRolling();
 }
