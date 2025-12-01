@@ -4,7 +4,7 @@
   async function loadKeywords() {
     try {
       // 같은 폴더에 있는 keywords.json 파일을 요청
-      const response = await fetch('keywords.json'); 
+      const response = await fetch('knj-keywords.json'); 
       if (!response.ok) throw new Error("JSON 파일을 찾을 수 없습니다.");
       
       globalSearchKeys = await response.json();
