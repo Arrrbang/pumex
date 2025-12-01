@@ -1,0 +1,13 @@
+    body { font-family: "Noto Sans KR", sans-serif; padding: 20px; background: #f5f5f5; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; }
+    .upload-box { border: 2px dashed #ccc; padding: 30px; text-align: center; cursor: pointer; border-radius: 8px; }
+    .upload-box:hover { background: #f0f8ff; border-color: #4682B4; }
+    .result-box { margin-top: 20px; padding: 20px; background: #fafafa; border: 1px solid #ddd; border-radius: 8px; white-space: pre-wrap; font-family: monospace; }
+    .highlight { color: #d32f2f; font-weight: bold; }
+    .btn { background: #4682B4; color: white; padding: 10px 20px; border-radius: 5px; border: none; font-weight: bold; }
+    .upload-box.drag-over {
+    background-color: #e3f2fd; /* 옅은 파란색 배경 */
+    border-color: #2196f3;     /* 진한 파란색 테두리 */
+    transform: scale(1.02);    /* 살짝 커지는 효과 */
+    }
+    .upload-box { transition: all 0.2s ease; } /* 부드러운 효과 추가 */
