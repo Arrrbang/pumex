@@ -1,4 +1,6 @@
-  let globalSearchKeys = [];
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+let globalSearchKeys = [];
 
   // [초기화] 페이지 로드 시 JSON 파일 불러오기
   async function loadKeywords() {
