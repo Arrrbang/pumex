@@ -10,6 +10,7 @@
   --basic-container-border-radius: 1rem;
 
   --double-light-gray-color: #f5f5f5;
+  --semi-light-gray-color: #e0e0e0;
   --light-gray-color: #d1d5db;
   --double-deep-gray-color: #222222;
   --deep-gray-color: #555;
@@ -37,9 +38,9 @@ html, body{
 }
 
 body{
-  margin: 0rem 0rem 0rem; /*위 마진 0, 좌우마진 3 하단마진 0*/
+  margin: 0rem 0rem 0rem; 
   padding-top: calc(var(--main-space-h) + 3rem);
-  background: #fff;             /* 공통 배경색(원하면 유지) */
+  background: #fff;
 }
 
 
@@ -76,7 +77,6 @@ body{
   gap: 50px;
 }
 
-/* 상단 로고 */
 .GNB-top .logo{
   display: flex;
   align-items: center;
@@ -87,24 +87,7 @@ body{
   display: block;
 }
 
-.notice-box {
-  position: relative;
-  min-width: 672px;
-  height: 35px;
-  background: transparent;
-  border-radius: 999px;
-  background: #e0e0e0;
-  display: block;
-  align-items: center;
-  justify-content: center; /* 가운데 정렬 (필요 시 left로 변경 후 padding-left 추가) */
-  padding: 0;
-  box-sizing: border-box;
-  transition: opacity 0.3s ease; /* 페이드 효과 */
-  overflow: visible;
-  z-index: 2000;
-}
-
-
+/* ================= 공지사항 영역 ================= */
 
 .notice-link {
   text-decoration: none;
@@ -115,7 +98,7 @@ body{
   align-items: center;
   gap: 8px;
   width: 100%;
-  justify-content: left; /* 링크 내부 텍스트 왼쪽 정렬 */
+  justify-content: left; 
 }
 
 .notice-box.empty-state {
@@ -143,30 +126,46 @@ body{
   font-weight: 700;
 }
 
+.notice-box {
+  position: relative;
+  min-width: 672px;
+  height: 35px;
+  background: transparent;
+  border-radius: 999px;
+  background: #e0e0e0;
+  display: block;
+  align-items: center;
+  justify-content: center; 
+  padding: 0;
+  box-sizing: border-box;
+  transition: opacity 0.3s ease; 
+  overflow: visible;
+  z-index: 2000;
+}
+
 .notice-rolling-container {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   min-height: 35px;
-  background-color: #e0e0e0;
+  background-color: var(--semi-light-gray-color);
   border-radius: 18px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   box-shadow: none;
-  border: 1px solid transparent; /* 테두리 공간 확보 */
+  border: 1px solid transparent;
 }
 
 .notice-rolling-container.expanded {
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  background-color: #fff;
-  border-color: #ccc;
+  background-color: var(--semi-light-gray-color);
+  border-radius: 18px;
+  box-shadow: none;
+  border-color: transparent;
 }
 
-/* 3. 상단 헤더 영역 (한 줄 롤링 영역 + 버튼) */
 .notice-header-row {
   display: flex;
   align-items: center;
@@ -174,15 +173,14 @@ body{
   padding: 0 20px;
   box-sizing: border-box;
   flex-shrink: 0;
-  border-bottom: 1px solid transparent; /* 구분선 공간 확보 */
+  border-bottom: 1px solid transparent; 
   transition: border-color 0.3s;
 }
 
 .notice-rolling-container.expanded .notice-header-row {
-  border-bottom-color: #eee;
+  border-bottom: 1px solid var(--double-light-gray-color);
 }
 
-/* 뷰포트 (실제 텍스트가 롤링되는 마스크 영역) */
 .notice-viewport {
   flex: 1;
   height: 35px;
@@ -190,37 +188,45 @@ body{
   position: relative;
 }
 
-/* 롤러 (위아래로 움직이는 트랙) */
 .notice-roller {
   position: relative;
   top: 0;
-  /* transition은 JS에서 제어하거나 여기서 기본값 설정 가능 */
   width: 100%;
 }
 
-/* 4. 토글 버튼 (▼ / ▲) */
-.notice-toggle-btn {
+
+.notice-toggle-btn { 
   border: none;
   background: none;
   cursor: pointer;
   padding: 0 0 0 10px;
-  font-size: 0.75rem;
-  color: #555;
+  font-size: 1rem;
+  transform: scale(1.5, 1);
+  transform-origin: center;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--deep-gray-color);
+  transition: all 0.2s ease;
   height: 100%;
   display: flex;
   align-items: center;
 }
 
-/* 5. 전체 리스트 (확장 시 보이는 목록) */
-.notice-full-list {
-  display: none; /* 기본 숨김 */
+.notice-toggle-btn:hover {
+  color: var(--deep-gray-color);
+  -webkit-text-stroke: 1.5px var(--deep-gray-color); 
+}
+
+
+.notice-full-list { 
+  display: none;
   flex-direction: column;
   padding: 0 20px 10px 20px;
   margin-top: 0;
+  background-color: var(--semi-light-gray-color);
 }
 
 .notice-rolling-container.expanded .notice-full-list {
-  display: flex; /* 확장 시 보임 */
+  display: flex;
 }
 
 .notice-item {
@@ -237,7 +243,6 @@ body{
   color: #000;
 }
 
-/* 배지 (카테고리) */
 .notice-badge {
   color: #fff;
   font-size: 0.75rem;
@@ -248,7 +253,6 @@ body{
   flex-shrink: 0;
 }
 
-/* 제목 텍스트 */
 .notice-title-text {
   font-size: 0.9rem;
   font-weight: 500;
@@ -257,28 +261,28 @@ body{
   text-overflow: ellipsis;
 }
 
-/* [NEW] 로그인 정보 영역 스타일 */
+
 .user-info-wrap {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-left: auto; /* 왼쪽 요소들(로고, 공지)을 밀어내고 우측 끝에 위치 */
+  margin-left: auto; 
 }
 
-/* 사용자 아이디 텍스트 */
+
 .user-id {
   font-size: 0.95rem;
   font-weight: 600;
   color: #333;
 }
 
-/* 로그아웃 버튼 */
+
 .logout-btn {
   padding: 6px 14px;
   font-size: 0.85rem;
   font-weight: 600;
   background-color: #fff;
-  border: 1px solid var(--deep-gray-color); /* 요청하신 색상 변수 사용 */
+  border: 1px solid var(--deep-gray-color); 
   color: var(--deep-gray-color);
   border-radius: 4px;
   cursor: pointer;
@@ -292,14 +296,13 @@ body{
 
 /* ================= 하단 메뉴바 (메인 GNB) ================= */
 
-/* 아이콘 + "카테고리" 묶음 */
+
 .gnb-category{
   display: flex;
   align-items: center;
-  margin-right: 48px;          /* "카테고리"와 도착지 컨테이너 사이 거리 = 28 + title-wrap의 12 = 40px */
+  margin-right: 48px;
 }
 
-/* 정사각형 아이콘 박스 */
 .category-icon{
   width: 24px;
   height: 24px;
@@ -309,24 +312,25 @@ body{
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 3px;                    /* 선 사이 간격 3px */
-  padding-inline: 4px;         /* 좌우 여백 조금 줘서 선이 살짝 안쪽에 */
+  gap: 3px;
+  padding-inline: 4px;
 }
 
-/* 내부 가로 선 3개 */
+
 .category-icon-line{
-  height: 2px;                 /* 선 두께 2px */
+  height: 2px;
   background: #ffffff;
 }
 
-/* "카테고리" 텍스트 */
 .gnb-category-label{
-  margin-left: 12px;           /* 아이콘과 텍스트 사이 거리 28px */
+  margin-left: 12px;
   font-size: 1rem;
   font-weight: 600;
   color: #ffffff;
   white-space: nowrap;
 }
+
+/* ================= 메뉴 아이템 (타이틀 + 파란 바) ================= */
 
 .site-menu, .site-menu * {
   user-select: none;
@@ -334,14 +338,11 @@ body{
   -webkit-user-drag: none;
 }
 
-/* 하단 메뉴 바 */
 .site-menu{
   height: 40px;
   background: #000000;
-  /*border-bottom: 1px solid #ddd; 하단 선 우선 삭제 패치*/
 }
 
-/* 하단 메뉴바 내부 정렬 컨테이너 */
 .site-menu-inner{
   height: 100%;
   max-width: var(--container-max);
@@ -354,107 +355,93 @@ body{
   box-sizing: border-box;
 }
 
-/* ================= 메뉴 아이템 (타이틀 + 파란 바) ================= */
+.title-wrap{
+  position: relative;
+  height: 100%;
+  width: 125px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  margin-left : 12px;
+  margin-right: 12px;
+}
+
+.site-title{
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
+  z-index: 2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.title-bar{
+  position: absolute;
+  left: -12px;
+  right: -12px;
+  bottom: 0;
+  height: 0.4rem;
+  background: rgb(70, 130, 180);
+  z-index: 1;
+
+  transform-origin: bottom;
+  transform: scaleY(0);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+  opacity: 0;
+}
+
+.title-wrap:hover .title-bar{
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+.title-wrap.always-on .title-bar{
+  transform: scaleY(1) !important;
+  opacity: 1;
+}
 
 
-  .title-wrap{
-    position: relative;
-    height: 100%;
-    width: 125px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
-    margin-left : 12px;
-    margin-right: 12px;
-  }
+.has-dropdown {
+  position: relative;
+  overflow: visible; 
+}
 
-  .site-title{
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #ffffff;
-    margin: 0;
-    white-space: nowrap;
-    z-index: 2;                /* 파란 바 위에 보이도록 */
-    text-align: center;
-    text-decoration: none;     /* 🔥 밑줄 제거 */
-    cursor: pointer;           /* 🔥 클릭 가능한 느낌 주기 */
-  }
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: -12px;
+  right: -12px;
 
-  /* 🔵 파란 직사각형 바: title-wrap 하단 라인에 딱 붙음 */
-  .title-bar{
-    position: absolute;
-    left: -12px;
-    right: -12px;
-    bottom: 0;
-    height: 0.4rem;
-    background: rgb(70, 130, 180);
-    z-index: 1;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0;
+  padding: 0.4rem 0;
+  display: none;
+  flex-direction: column;
+  box-shadow: none;
+  z-index: 1000;
+}
 
-    /* 🔥 컨테이너 안에서만 위로 자라게 만들기 */
-    transform-origin: bottom;
-    transform: scaleY(0);              /* 처음엔 높이 0 */
-    transition: transform 0.25s ease, opacity 0.25s ease;
-    opacity: 0;
-  }
+.has-dropdown:hover .menu-dropdown {
+  display: flex;
+}
 
-  /* hover 시: 컨테이너 안에서 위로 커짐 */
-  .title-wrap:hover .title-bar{
-    transform: scaleY(1);
-    opacity: 1;
-  }
+.menu-item {
+  padding: 0.45rem 0;
+  font-size: 0.8rem;
+  color: #333;
+  text-decoration: none;
+  white-space: nowrap;
+  text-align:center;
+}
 
-    /* 항상 켜두고 싶은 메뉴 */
-    .title-wrap.always-on .title-bar{
-      transform: scaleY(1) !important;
-      opacity: 1;
-    }
-
-
-/* ========== 원가계산 부분 하위 드롭다운 ========== */
-    .has-dropdown {
-      position: relative;
-      overflow: visible; 
-    }
-
-    .menu-dropdown {
-      position: absolute;
-      top: 100%;          /* 메뉴 바로 아래 */
-      left: -12px;
-      right: -12px;
-
-      background: #fff;
-      border: 1px solid #ddd;
-      border-top: none;   /* 🔥 위에 있는 title-wrap 과 경계가 이어지는 느낌 */
-      border-radius: 0;   /* 🔥 모서리 곡률 제거 */
-
-      padding: 0.4rem 0;
-
-      /* 기본적으로 숨김 */
-      display: none;
-      flex-direction: column;
-
-      box-shadow: none;   /* 🔥 그림자 제거해서 '같은 박스에서 확장된 느낌' */
-      z-index: 1000;
-    }
-
-    /* hover 시 표시 */
-    .has-dropdown:hover .menu-dropdown {
-      display: flex;
-    }
-
-    /* 각 메뉴 버튼 스타일 */
-    .menu-item {
-      padding: 0.45rem 0;
-      font-size: 0.8rem;
-      color: #333;
-      text-decoration: none;
-      white-space: nowrap;
-      text-align:center;
-    }
-
-    .menu-item:hover {
-      background: #f3f4f6;
-      color: #000;
-    }
+.menu-item:hover {
+  background: #f3f4f6;
+  color: #000;
+}
 
