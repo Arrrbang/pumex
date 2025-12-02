@@ -1,13 +1,155 @@
-    body { font-family: "Noto Sans KR", sans-serif; padding: 20px; background: #f5f5f5; }
-    .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; }
-    .upload-box { border: 2px dashed #ccc; padding: 30px; text-align: center; cursor: pointer; border-radius: 8px; }
-    .upload-box:hover { background: #f0f8ff; border-color: #4682B4; }
-    .result-box { margin-top: 20px; padding: 20px; background: #fafafa; border: 1px solid #ddd; border-radius: 8px; white-space: pre-wrap; font-family: monospace; }
-    .highlight { color: #d32f2f; font-weight: bold; }
-    .btn { background: #4682B4; color: white; padding: 10px 20px; border-radius: 5px; border: none; font-weight: bold; }
-    .upload-box.drag-over {
-    background-color: #e3f2fd; /* 옅은 파란색 배경 */
-    border-color: #2196f3;     /* 진한 파란색 테두리 */
-    transform: scale(1.02);    /* 살짝 커지는 효과 */
+    body {
     }
-    .upload-box { transition: all 0.2s ease; } /* 부드러운 효과 추가 */
+
+/* ================= 전체&공용 테이블 디자인 ================= */
+.main-layout{
+    display:flex;
+    align-items:flex-start;
+    gap:2rem;
+    max-width: 1320px;
+    margin: 0 auto;
+}
+.main-title{
+    text-align: left;
+    font-size: var(--main-title-font-size);
+    font-weight: var(--main-title-font-weight);
+    margin-bottom: 0.3rem;
+    color: #111;
+    margin-top:0;
+}
+
+.left-container{
+    max-width: 28.5rem;
+    width: 28.5rem;
+    margin: 0;
+    padding: 0.8rem;
+}
+.right-container{
+    max-width:50rem;
+    width:100%;
+    margin: 0;
+    padding:0.8rem 1.5rem 0.8rem;
+}
+.vertical-divider {
+    width: 1px;
+    background:#d1d5db;
+    align-self: stretch;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+.title-cost-divider {
+    width: 100%;
+    height: 1px;
+    background: var(--light-gray-color);
+    margin: 0 0 1.5rem;
+}
+
+/* ================= 좌측 디자인 ================= */
+.upload-box { 
+    border: 2px dashed #ccc; 
+    padding: 30px; 
+    text-align: center; 
+    cursor: pointer; 
+    border-radius: 8px; 
+}
+
+.upload-box:hover { 
+    background: #f0f8ff; 
+    border-color: #4682B4; 
+}
+.upload-box.drag-over {
+background-color: #e3f2fd;
+border-color: #2196f3;
+transform: scale(1.02);
+}
+.upload-box { 
+    transition: all 0.2s ease; 
+}
+
+
+/* ================= 우측 디자인 ================= */
+
+.result-box { 
+}
+
+/* 환율 정보 박스 */
+.exchange-info {
+    white-space: normal;
+    display: block;
+    width: fit-content;
+    margin-left: auto;
+
+    padding: 4px 10px;
+    line-height: 1.2;
+    font-size: 0.9rem;
+    height: auto;
+
+    background-color: #fff8e1;
+    border: 1px solid #ffecb3;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    color: #555;
+}
+.exchange-info .icon { margin-right: 2px; }
+
+
+/* 테이블 기본 스타일 */
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse; /* 테두리 겹침 방지 */
+    margin-top: 10px;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden; /* 모서리 둥글게 */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* 헤더 (항목명, USD, INR) */
+.invoice-table thead tr {
+    background-color: #4682B4; /* 업로드 박스와 같은 파란색 */
+    color: white;
+    text-align: left;
+}
+
+.invoice-table th, 
+.invoice-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* 금액 열은 오른쪽 정렬 */
+.invoice-table th:nth-child(2), 
+.invoice-table th:nth-child(3),
+.invoice-table td:nth-child(2), 
+.invoice-table td:nth-child(3) {
+    text-align: right;
+    font-family: monospace; /* 숫자는 고정폭 글꼴로 깔끔하게 */
+    font-size: 1rem;
+}
+
+/* 항목명 열 스타일 */
+.item-name {
+    font-weight: 500;
+    color: #333;
+}
+
+/* USD 금액 색상 */
+.amount-usd {
+    color: #555;
+}
+
+/* INR 금액 색상 (강조) */
+.amount-inr {
+    color: #d32f2f; /* 빨간색 계열 */
+    font-weight: 600;
+}
+
+/* 짝수 줄 배경색 (가독성 UP) */
+.invoice-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* 마우스 올렸을 때 효과 */
+.invoice-table tbody tr:hover {
+    background-color: #f1f8ff;
+}
