@@ -15,7 +15,7 @@ function setActiveHeaderMenu() {
   const provincial_packing_feeURL = "https://arrrbang.github.io/pumex/ExternalPackagingCosts";
   const trcURL = "추후입력";
   const consoleURL = "추후입력";
-  const supportingdocsURL = "추후입력";
+  const supportingdocsURL = "https://arrrbang.github.io/pumex/review-of-destination-proof";
 
   if (destinationMenu && currentURL.startsWith(destinationURL)) {
     destinationMenu.classList.add("always-on");
@@ -36,12 +36,12 @@ function setActiveHeaderMenu() {
     supportingdocsMenu.classList.add("always-on");
   }
   const menus = [
-    { id: "menu-destination", url: "[https://arrrbang.github.io/pumex/destinationcost](https://arrrbang.github.io/pumex/destinationcost)" },
-    { id: "menu-sos", url: "[https://arrrbang.github.io/pumex/sos](https://arrrbang.github.io/pumex/sos)" },
-    { id: "menu-provincial_packing_fee", url: "[https://arrrbang.github.io/pumex/ExternalPackagingCosts](https://arrrbang.github.io/pumex/ExternalPackagingCosts)" },
+    { id: "menu-destination", url: "https://arrrbang.github.io/pumex/destinationcost" },
+    { id: "menu-sos", url: "https://arrrbang.github.io/pumex/sos" },
+    { id: "menu-provincial_packing_fee", url: "https://arrrbang.github.io/pumex/ExternalPackagingCosts" },
     { id: "menu-TRC", url: "추후입력" },
     { id: "menu-console", url: "추후입력" },
-    { id: "menu-supporting-documents", url: "추후입력" }
+    { id: "menu-supporting-documents", url: "https://arrrbang.github.io/pumex/review-of-destination-proof" }
   ];
 
   menus.forEach(m => {
@@ -82,7 +82,6 @@ async function initNoticeRolling() {
 
       const roller = document.createElement("div");
       roller.className = "notice-roller";
-      // roller의 top 값 변화를 위한 transition은 JS 로직에서 직접 제어하거나 CSS 기본값 사용
 
       const toggleBtn = document.createElement("button");
       toggleBtn.className = "notice-toggle-btn";
