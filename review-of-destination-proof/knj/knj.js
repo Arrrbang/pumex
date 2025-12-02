@@ -25,29 +25,39 @@ let globalSearchKeys = [];
   // 1. 핵심 분석 로직 (업데이트된 리스트 포함)
   // ==========================================
 function parseInvoiceData(fullText) {
-    // 키워드 파일이 아직 로드되지 않았으면 중단
     if (globalSearchKeys.length === 0) {
-      return "⚠️ 키워드 데이터(keywords.json)가 로드되지 않았습니다.";
+      return '<div class="error-msg">⚠️ 키워드 데이터가 로드되지 않았습니다.</div>';
     }
 
-    let output = "";
     const cleanText = fullText.replace(/\s+/g, '');
+    let htmlOutput = ""; // HTML 문자열을 담을 변수
 
-    // 1. 환율 찾기
+    // 1. 환율 정보 (별도 박스로 표시)
     const rateMatch = cleanText.match(/ExchangeRate[^\d]*([\d.]+)/i);
     let exchangeRate = 0;
 
     if (rateMatch && rateMatch[1]) {
       exchangeRate = parseFloat(rateMatch[1]);
-      output += `[정보] 적용 환율: ${exchangeRate} INR/USD\n`;
-      output += `----------------------------------------\n`;
+      htmlOutput += `<div class="exchange-info">
+                        <span class="icon">💱</span> 적용 환율: <strong>${exchangeRate} INR/USD</strong>
+                     </div>`;
     } else {
-      output += `[경고] 환율 정보를 찾을 수 없습니다.\n`;
+      htmlOutput += `<div class="exchange-info warning">⚠️ 환율 정보를 찾을 수 없습니다.</div>`;
     }
 
-    // 2. 항목 위치 찾기 (로드된 globalSearchKeys 사용)
+    // 2. 테이블 시작
+    htmlOutput += `<table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>항목명 (Item)</th>
+                            <th>금액 (USD)</th>
+                            <th>금액 (INR)</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+    // 3. 항목 찾기 및 정렬 (기존 로직 유지)
     let foundItems = [];
-    
     globalSearchKeys.forEach(item => {
       const index = cleanText.toLowerCase().indexOf(item.id.toLowerCase());
       if (index !== -1) {
@@ -56,10 +66,10 @@ function parseInvoiceData(fullText) {
         }
       }
     });
-
-    // 3. 정렬 및 추출
     foundItems.sort((a, b) => a.index - b.index);
 
+    // 4. 테이블 행(Row) 생성
+    let hasData = false;
     for (let i = 0; i < foundItems.length; i++) {
       const currentItem = foundItems[i];
       if (currentItem.label === "END") continue;
@@ -78,29 +88,30 @@ function parseInvoiceData(fullText) {
         const finalAmount = Math.max(...amounts);
 
         if (finalAmount > 2) {
+           hasData = true;
            let displayUsd = finalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
            let inrAmount = (finalAmount * (exchangeRate || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
            
-           output += `${currentItem.label}: USD ${displayUsd} (INR ${inrAmount})\n`;
+           // HTML 행 추가
+           htmlOutput += `<tr>
+                            <td class="item-name">${currentItem.label}</td>
+                            <td class="amount-usd">$ ${displayUsd}</td>
+                            <td class="amount-inr">₹ ${inrAmount}</td>
+                          </tr>`;
         }
       }
     }
 
-    if (output === "") return "⚠️ 항목을 찾을 수 없습니다.";
-
-    // 4. 총계 찾기
-    const totalMatch = cleanText.match(/(TotalAmount|GrandTotal).*?USD([\d,.]+)/i);
-    if(totalMatch) {
-       let totalNum = parseFloat(totalMatch[2].replace(/,/g, ''));
-       let totalInr = (totalNum * (exchangeRate || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-       let totalUsdDisplay = totalNum.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-       
-       output += `----------------------------------------\n`;
-       output += `Total Amount: USD ${totalUsdDisplay} (INR ${totalInr})`;
+    if (!hasData) {
+        htmlOutput += `<tr><td colspan="3" style="text-align:center; padding:20px;">⚠️ 항목을 찾을 수 없습니다.</td></tr>`;
     }
 
-    return output;
-  }
+    htmlOutput += `</tbody>`; // tbody 닫기
+
+    htmlOutput += `</table>`; // 테이블 닫기
+
+    return htmlOutput;
+}
 
   const fileInput = document.getElementById('fileInput');
   const uploadBox = document.querySelector('.upload-box');
@@ -131,8 +142,8 @@ function parseInvoiceData(fullText) {
       }
       
       const parsedResult = parseInvoiceData(fullText);
-      resultArea.innerText = parsedResult;
-      status.innerText = "✅ 분석 완료";
+      resultArea.innerHTML = parsedResult;
+      status.innerText = "";
 
     } catch (error) {
       console.error(error);
