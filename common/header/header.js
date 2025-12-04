@@ -9,7 +9,8 @@ function setActiveHeaderMenu() {
     { id: "menu-provincial_packing_fee", url: "https://arrrbang.github.io/pumex/ExternalPackagingCosts" },
     { id: "menu-TRC", url: "추후입력" }, // 아직 링크 없음
     { id: "menu-console", url: "추후입력" }, // 아직 링크 없음
-    { id: "menu-supporting-documents", url: "https://arrrbang.github.io/pumex/review-of-destination-proof" }
+    { id: "menu-supporting-documents", url: "https://arrrbang.github.io/pumex/review-of-destination-proof" },
+    { id: "menu-account", url: "https://arrrbang.github.io/pumex/account" }
   ];
 
   menus.forEach(m => {
