@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALIM 인보이스 파서 (Smart Calc)</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  
+  <style>
+    body { font-family: "Noto Sans KR", sans-serif; padding: 30px; background: #f0f2f5; color: #333; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    
+    .panel { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    h3 { margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 15px; text-align: center; color: #444;}
+    
+    /* 업로드 박스 */
+    .upload-box { 
+        border: 2px dashed #ccc; padding: 40px; text-align: center; border-radius: 12px; 
+        cursor: pointer; background: #fafafa; transition: all 0.3s ease; margin-bottom: 20px; position: relative;
+    }
+    .upload-box:hover { border-color: #999; background: #f0f0f0; }
+    .upload-box.drag-over { 
+        background-color: #e3f2fd; border-color: #2196f3; border-style: solid; 
+        transform: scale(1.02); box-shadow: 0 10px 20px rgba(33, 150, 243, 0.2); 
+    }
+    .upload-box * { pointer-events: none; }
+    .upload-box p { font-size: 1.2em; color: #666; margin: 0; font-weight: 500; }
+    .upload-box.drag-over p { color: #1565c0; font-weight: bold; }
+
+    .status-msg { text-align: center; margin-bottom: 10px; font-weight: bold; color: #4682B4; min-height: 24px;}
+    
+    /* 테이블 공통 */
+    .invoice-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    .invoice-table thead tr { background-color: #2c3e50; color: white; } /* 헤더 기본색 */
+    .invoice-table th, .invoice-table td { padding: 8px 8px; border-bottom: 1px solid #ddd; vertical-align: middle; }
+    
+    /* [수정됨] 사우디 숫자 열 스타일 */
+    .col-sar-ar { width: 12%; text-align: right; font-family: sans-serif; }
+    
+    /* 헤더(제목)는 남색 유지 */
+    .invoice-table th.col-sar-ar { 
+        background-color: #2c3e50; 
+        color: white; 
+        font-size: 13px;
+    }
+    /* 본문(데이터)은 글자 키우고 배경색 살짝 */
+    .invoice-table td.col-sar-ar {
+        font-size: 1.5em; /* 글자 크기 대폭 확대 */
+        background-color: #fcfcfc;
+        color: #444;
+        font-weight: 500;
+    }
+
+    /* 나머지 열 */
+    .col-idx { width: 40px; text-align: center; color: #888; }
+    .col-sar { width: 12%; text-align: right; }
+    .col-input { width: 12%; text-align: right; }
+    .col-final { width: 12%; text-align: right; }
+    .col-del { width: 40px; text-align: center; }
+
+    /* 입력 필드 */
+    input.data-input { width: 90%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 13px; }
+    input.data-input:focus { outline: 2px solid #4682B4; border-color: transparent; }
+    input.sar-input { text-align: right; background-color: #f3f3f3; }
+    input.usd-input { text-align: right; background-color: #fffde7; }
+    
+    .final-usd { font-weight: bold; color: #d32f2f; font-family: monospace; font-size: 1.1em; }
+
+    /* 버튼 및 기타 */
+    .btn-add { width: 100%; padding: 10px; margin-top: 10px; background-color: #f1f8e9; border: 2px dashed #8bc34a; color: #558b2f; font-weight: bold; cursor: pointer; border-radius: 6px; transition: 0.2s; }
+    .btn-add:hover { background-color: #dcedc8; }
+    .btn-del { background: #ffcdd2; border: none; color: #c62828; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .calc-info-box { background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #c8e6c9; font-size: 0.95em;}
+
+    /* 검증 박스 */
+    .verify-container { display: flex; gap: 10px; margin-top: 15px; border-top: 2px solid #333; padding-top: 15px; }
+    .verify-box { flex: 1; padding: 15px; border-radius: 8px; background: #f8f9fa; border: 1px solid #ddd; font-size: 0.9em; }
+    .verify-box h4 { margin: 0 0 10px 0; font-size: 1.1em; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    .verify-status { font-weight: bold; font-size: 1.1em; margin-bottom: 5px; display: block; }
+    .verify-diff { color: #d32f2f; font-size: 0.9em; margin-top: 5px; display: block; font-family: monospace; }
+    .status-ok { color: #2e7d32; } .status-fail { color: #c62828; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="panel">
+    <h3>📄 ALIM 인보이스 파서 (Smart Calc)</h3>
+    
+    <div class="upload-box" id="dropZone1">
+      <p>📂 PDF 파일을 여기로 드래그하세요</p>
+      <input type="file" id="fileInput1" accept="application/pdf" style="display:none">
+    </div>
+    
+    <div class="status-msg" id="status1"></div>
+    <div class="result-box" id="result1"></div>
+  </div>
+</div>
+
+<script src="left.js"></script>
+
+</body>
+</html>
