@@ -2,361 +2,130 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>엑셀 데이터 관리 도구 (AP열/L열 조건 처리)</title>
+    <title>해외 AGENT 미수금/미지급금</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        /* 스타일 정의 (이전과 동일) */
-        body { font-family: 'Noto Sans KR', sans-serif; padding: 20px; background-color: #f9f9f9; }
-        
-        #drop-zone {
-            width: 100%; height: 100px;
-            border: 2px dashed #007bff; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            background-color: #fff; color: #007bff; font-weight: bold;
-            margin-bottom: 20px; cursor: pointer;
-        }
-        #drop-zone.dragover { background-color: #e9f5ff; }
-
-        #result-area {
-            background: white; padding: 30px;
-            border: 1px solid #ccc; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            max-width: 1100px; margin: 0 auto;
-        }
-
-        h2 { margin-top: 0; border-bottom: 2px solid #333; padding-bottom: 10px; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        th { background-color: #f1f1f1; font-weight: bold; }
-        td.num { text-align: right; padding-right: 10px; }
-        
-        .clickable { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
-        .clickable:hover { color: #0056b3; }
-
-        /* 팝업(모달) 스타일 */
-        #modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5); z-index: 1000;
-            justify-content: center; align-items: center;
-        }
-        #modal-content {
-            background-color: white; width: 90%; max-width: 1000px; max-height: 85vh;
-            padding: 20px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            overflow-y: auto; position: relative;
-        }
-        #modal-close {
-            position: absolute; top: 15px; right: 20px;
-            font-size: 24px; font-weight: bold; cursor: pointer; color: #aaa;
-        }
-        #modal-close:hover { color: black; }
-        
-        #detail-table th { background-color: #e3f2fd; }
-        
-        .past-date { color: red; font-weight: bold; }
-        .future-date { color: blue; }
-        .diff-neg { color: red; } 
-
-    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="header-placeholder"></div>
 
-    <div id="drop-zone">
-        엑셀 파일을 여기에 드래그하거나 클릭하여 업로드하세요.
-    </div>
-    <input type="file" id="fileInput" style="display: none;" />
+<div class="main-layout">
+    <div class="left-wrap">
+        <div id="drop-zone">
+            엑셀 파일을 여기에 드래그하거나<br>클릭하여 업로드하세요.
+        </div>
 
-    <div id="result-area" style="display:none;">
-        <h2 id="date-display">DATE : </h2>
-        <p style="font-size:12px; color:gray;">* N열 값을 클릭하면 상세 내역을 볼 수 있습니다.</p>
-        
-        <table id="main-table">
-            <thead>
-                <tr>
-                    <th style="width: 50px;">NO</th>
-                    <th>N열 (Key)</th>
-                    <th>O열 (Sub Key)</th>
-                    <th>P열 합계</th>
-                    <th>R열 합계</th>
-                    <th>차이 (P - R)</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
+        <div id="history-container">
+            <h3 class="history-title">📂 저장된 파일 목록</h3>
+            
+            <ul id="history-list">
+                <li class="empty-msg">저장된 내역이 없습니다.</li>
+            </ul>
 
-    <div id="modal-overlay">
-        <div id="modal-content">
-            <span id="modal-close">&times;</span>
-            <h3>상세 내역 (Detail View)</h3>
-            <table id="detail-table">
-                <thead>
-                    <tr>
-                        <th style="width: 60px;">Type<br>(B열)</th>
-                        <th style="width: 90px;">Date<br>(BT열)</th>
-                        <th style="width: 120px;">경과 기간<br>(년/월/일)</th>
-                        <th>AP열 / [HBL] L열</th>
-                        <th>P열</th>
-                        <th>R열</th>
-                        <th>차이(P-R)</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+            <div class="history-btn-group">
+                <button id="btn-save-current" onclick="saveCurrentData()">현재 파일 추가</button>
+                <button id="btn-delete-selected" onclick="deleteSelectedHistory()">삭제</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        let globalDataMap = {}; 
-        let globalB3Date = null; 
+    <div class="vertical-divider"></div>
 
-        const dropZone = document.getElementById('drop-zone');
-        const fileInput = document.getElementById('fileInput');
+    <input type="file" id="fileInput" style="display: none;" />
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault(); dropZone.classList.remove('dragover');
-            if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]);
-        });
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) processExcel(e.target.files[0]);
-        });
+    <div class="right-wrap">
+        <div class="control-panel" id="control-panel">
+            <button id="btn-save-pdf" onclick="saveAsPDF()">요약표 PDF 저장</button>
+            <button id="btn-save-excel" onclick="saveAsExcel()" style="background-color:#17a2b8; color:white; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer; font-size:14px; margin-left:10px;">
+            엑셀로 저장 (링크 포함)
+            </button>
+        </div>
 
-        // 숫자 파싱 (P, R열용)
-        function safeParseFloat(cell) {
-            if (!cell) return 0;
-            if (cell.t === 'n') return cell.v;
-            let valStr = cell.v || cell.w || "0";
-            valStr = String(valStr).replace(/,/g, '').trim();
-            const parsed = parseFloat(valStr);
-            return isNaN(parsed) ? 0 : parsed;
-        }
-
-        // 텍스트 그대로 가져오기
-        function safeGetText(cell) {
-            if (!cell) return "";
-            return (cell.w || cell.v || "").toString().trim();
-        }
-
-        function processExcel(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = e.target.result;
-                const workbook = XLSX.read(data, { type: 'binary', cellDates: true });
-                const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-                const b3Cell = sheet['B3'];
-                globalB3Date = new Date();
-                let b3Text = "";
-
-                if (b3Cell) {
-                    if(b3Cell.t === 'd') {
-                        globalB3Date = b3Cell.v;
-                        b3Text = formatDate(globalB3Date);
-                    } else {
-                        b3Text = b3Cell.v; 
-                        globalB3Date = new Date(b3Text);
-                        if(isNaN(globalB3Date)) globalB3Date = new Date();
-                    }
-                } else {
-                    b3Text = "날짜 없음";
-                }
-
-                const range = XLSX.utils.decode_range(sheet['!ref']);
-                globalDataMap = {}; 
-
-                for (let r = 6; r <= range.e.r; r++) {
-                    const cellB  = sheet[XLSX.utils.encode_cell({c: 1, r: r})]; // Type
-                    const cellL  = sheet[XLSX.utils.encode_cell({c: 11, r: r})]; // L열 (대체용)
-                    const cellN  = sheet[XLSX.utils.encode_cell({c: 13, r: r})]; // Key
-                    const cellO  = sheet[XLSX.utils.encode_cell({c: 14, r: r})]; // Sub Key
-                    
-                    const cellP  = sheet[XLSX.utils.encode_cell({c: 15, r: r})]; // P열
-                    const cellR  = sheet[XLSX.utils.encode_cell({c: 17, r: r})]; // R열
-                    const cellAP = sheet[XLSX.utils.encode_cell({c: 41, r: r})]; // AP열 (Index 41)
-                    const cellBT = sheet[XLSX.utils.encode_cell({c: 71, r: r})]; // BT열 (Index 71)
-
-                    if (!cellN || !cellN.v) continue;
-
-                    const valN = String(cellN.v).trim();
-                    const valO = cellO ? String(cellO.v).trim() : "";
-                    const valB = cellB ? String(cellB.v).trim() : "";
-
-                    const valP  = safeParseFloat(cellP);
-                    const valR  = safeParseFloat(cellR);
-                    
-                    // ============================================
-                    // 핵심 로직 변경: AP가 공란이면 L열 사용
-                    // ============================================
-                    let valAP = safeGetText(cellAP);
-                    if (valAP === "") {
-                        const valL = safeGetText(cellL);
-                        if (valL !== "") {
-                            valAP = "[HBL] " + valL;
-                        }
-                    }
-                    // ============================================
-
-                    let valBT_Date = null;
-                    if (cellBT) {
-                        if (cellBT.t === 'd') valBT_Date = cellBT.v;
-                        else valBT_Date = new Date(cellBT.v);
-                    }
-
-                    const key = valN + "||" + valO;
-
-                    if (!globalDataMap[key]) {
-                        globalDataMap[key] = {
-                            n: valN,
-                            o: valO,
-                            sumP: 0,
-                            sumR: 0,
-                            details: []
-                        };
-                    }
-
-                    globalDataMap[key].sumP += valP;
-                    globalDataMap[key].sumR += valR;
-
-                    globalDataMap[key].details.push({
-                        type: valB,
-                        btDate: valBT_Date,
-                        apVal: valAP, 
-                        pVal: valP,
-                        rVal: valR
-                    });
-                }
-
-                renderMainTable(b3Text);
-            };
-            reader.readAsBinaryString(file);
-        }
-
-        function renderMainTable(dateText) {
-            document.getElementById('result-area').style.display = 'block';
-            document.getElementById('date-display').innerText = "DATE : " + dateText;
-
-            const tbody = document.querySelector('#main-table tbody');
-            tbody.innerHTML = "";
-
-            let list = Object.values(globalDataMap);
-            list.sort((a, b) => {
-                if (a.n < b.n) return -1; if (a.n > b.n) return 1;
-                if (a.o < b.o) return -1; if (a.o > b.o) return 1;
-                return 0;
-            });
-
-            list.forEach((row, index) => {
-                const tr = document.createElement('tr');
-                const diff = row.sumP - row.sumR;
-                const key = row.n + "||" + row.o;
-
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td class="clickable" onclick="openModal('${key}')">${row.n}</td>
-                    <td>${row.o}</td>
-                    <td class="num">${formatNum(row.sumP)}</td>
-                    <td class="num">${formatNum(row.sumR)}</td>
-                    <td class="num" style="color:${diff < 0 ? 'red':'black'}">${formatNum(diff)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        const modal = document.getElementById('modal-overlay');
-        const modalClose = document.getElementById('modal-close');
-        modalClose.onclick = () => { modal.style.display = "none"; };
-        window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; };
-
-        function openModal(key) {
-            const data = globalDataMap[key];
-            if (!data) return;
-
-            const tbody = document.querySelector('#detail-table tbody');
-            tbody.innerHTML = "";
-
-            data.details.sort((a, b) => {
-                if (a.type < b.type) return -1;
-                if (a.type > b.type) return 1;
-                return 0;
-            });
-
-            data.details.forEach(row => {
-                let durationStr = "-";
-                let dateClass = "";
-                let btDateStr = "";
-
-                if (row.btDate && !isNaN(row.btDate)) {
-                    btDateStr = formatDate(row.btDate);
-                    const result = getDetailedDateDiff(globalB3Date, row.btDate);
-                    if (result.isPast) {
-                        durationStr = `+ ${result.y}년 ${result.m}개월 ${result.d}일`;
-                        dateClass = "past-date";
-                    } else {
-                        durationStr = `- ${result.y}년 ${result.m}개월 ${result.d}일`;
-                        dateClass = "future-date";
-                    }
-                }
-
-                const rowDiff = row.pVal - row.rVal;
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.type}</td>
-                    <td>${btDateStr}</td>
-                    <td class="${dateClass}">${durationStr}</td>
-                    <td>${row.apVal}</td>
-                    <td class="num">${formatNum(row.pVal)}</td>
-                    <td class="num">${formatNum(row.rVal)}</td>
-                    <td class="num ${rowDiff < 0 ? 'diff-neg' : ''}">${formatNum(rowDiff)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            modal.style.display = "flex";
-        }
-
-        function getDetailedDateDiff(baseDate, targetDate) {
-            let d1 = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
-            let d2 = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+        <div id="result-area" style="display:none;">
             
-            let isPast = true;
-            if (d1 < d2) {
-                isPast = false;
-                let temp = d1; d1 = d2; d2 = temp;
-            }
+            <div class="header-row-approval">
+                <table class="approval-table">
+                    <tr>
+                        <td class="approval-title">담 당</td>
+                        <td class="approval-title">팀 장</td>
+                        <td class="approval-title">상무이사</td>
+                        <td class="approval-title">대표이사</td>
+                    </tr>
+                    <tr>
+                        <td class="approval-sign"></td>
+                        <td class="approval-sign"></td>
+                        <td class="approval-sign"></td>
+                        <td class="approval-sign"></td>
+                    </tr>
+                </table>
+            </div>
 
-            let years = d1.getFullYear() - d2.getFullYear();
-            let months = d1.getMonth() - d2.getMonth();
-            let days = d1.getDate() - d2.getDate();
+            <div class="header-row-title">
+                <h2 id="main-title">해외 AGENT 미수금/미지급금</h2>
+            </div>
 
-            if (days < 0) {
-                months--;
-                let prevMonthLastDay = new Date(d1.getFullYear(), d1.getMonth(), 0).getDate();
-                days += prevMonthLastDay;
-            }
-            if (months < 0) {
-                years--;
-                months += 12;
-            }
+            <div class="header-divider"></div>
 
-            return { y: years, m: months, d: days, isPast: isPast };
-        }
+            <div class="header-row-date">
+                <span id="date-display">DATE : </span>
+            </div>
 
-        function formatNum(num) {
-            if (num === 0) return "0";
-            if (!num) return "";
-            return Number(num.toFixed(2)).toLocaleString('en-US');
-        }
+            <p style="font-size:12px; color:gray; margin-bottom: 5px; text-align: right;">* N열 값을 클릭하면 상세 내역을 볼 수 있습니다.</p>
+            
+            <div id="table-content">
+                <table id="main-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">NO</th>
+                            <th>N열 (Key)</th>
+                            <th style="width: 50px;">건수</th>
+                            <th>O열 (Sub Key)</th>
+                            <th>P열 합계</th>
+                            <th>R열 합계</th>
+                            <th>차이 (P - R)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
 
-        function formatDate(dateObj) {
-            if (!dateObj || isNaN(dateObj)) return "";
-            const y = dateObj.getFullYear();
-            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-            const d = String(dateObj.getDate()).padStart(2, '0');
-            return `${y}-${m}-${d}`;
-        }
-    </script>
+        <div id="modal-overlay">
+            <div id="modal-content">
+                <span id="modal-close">&times;</span>
+                <div class="modal-header-area">
+                    <h3 id="modal-title">상세 내역</h3>
+                    <button id="btn-modal-pdf" onclick="saveModalAsPDF()">이 내역 PDF 저장</button>
+                </div>
+                <table id="detail-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">Type<br>(B열)</th>
+                            <th style="width: 90px;">Date<br>(BT열)</th>
+                            <th style="width: 120px;">경과 기간<br>(년/월/일)</th>
+                            <th>AP열 / [HBL] L열</th>
+                            <th>P열</th>
+                            <th>R열</th>
+                            <th>차이(P-R)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+    <script src="https://arrrbang.github.io/pumex/common/js/loading.js"></script>
+    <script src="https://arrrbang.github.io/pumex/common/js/login.js"></script>
+    <script src="pdf.js"></script>
+    <script src="result.js"></script>
+    <script src="excel.js"></script>
+    <script src="history.js"></script>
 </body>
 </html>
