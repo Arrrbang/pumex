@@ -18,6 +18,7 @@
 
 <div class="main-layout">
     <div class="left-wrap">
+        <div class="left-wrap-title">데이터 입력 & 저장</div>
         <div id="drop-zone">
             엑셀 파일을 여기에 드래그하거나<br>클릭하여 업로드하세요.
         </div>
@@ -41,6 +42,13 @@
     <input type="file" id="fileInput" style="display: none;" />
 
     <div class="right-wrap">
+        <div class="right-wrap-title">해외 AGENT 미수금/미지급금 파일 생성</div>
+
+        <div id="loading-msg" style="display: none;">
+            <h3>🔄 엑셀 분석중...</h3>
+            <p>잠시만 기다려주세요.</p>
+        </div>
+
         <div class="control-panel" id="control-panel" style="display: none;">
             <select id="bound-filter" onchange="applyBoundFilter()">
                 <option value="ALL">ALL BOUND</option>
@@ -87,14 +95,15 @@
                 <table id="main-table">
                     <thead>
                         <tr>
-                            <th style="width: 40px;">NO</th>
-                            <th style="width: 90px;">Code</th>
+                            <th style="width: 35px;">NO</th>
+                            <th style="width: 80px;" class="col-code">Code</th>
                             <th>업체명</th>
-                            <th style="width: 50px;">건수</th>
-                            <th style="width: 38px;">CUR</th>
-                            <th style="width: 90px;">CREDIT</th>
-                            <th style="width: 90px;">DEBIT</th>
-                            <th style="width: 95px;">BALANCE</th>
+                            <th style="width: 45px;">건수</th>
+                            <th style="width: 35px;">CUR</th>
+                            <th style="width: 85px;">CREDIT</th>
+                            <th style="width: 85px;">DEBIT</th>
+                            <th style="width: 90px;">BALANCE</th>
+                            <th style="width: 150px;">비고 (Remarks)</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
