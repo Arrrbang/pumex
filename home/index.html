@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>홈 - 업무 현황</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        h2 { color: #333; }
+        
+        /* 간단한 테이블 스타일 */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+
+        .loading { color: #666; font-style: italic; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="user-header" style="text-align: right; margin-bottom: 20px;">
+        <span id="display-username"></span>님 환영합니다.
+        <button onclick="logout()">로그아웃</button>
+    </div>
+
+    <h1>나의 업무 현황</h1>
+    <p id="info-text">데이터를 불러오는 중...</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>고객명</th>
+                <th>업무담당</th>
+                <th>서류 마감일</th>
+            </tr>
+        </thead>
+        <tbody id="data-table-body">
+            </tbody>
+    </table>
+
+    <script>
+        // 임시 로그아웃 함수 (login.js가 로드되지 않았을 경우를 대비하거나, login.js의 기능을 호출)
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.href = 'https://arrrbang.github.io/pumex/';
+        }
+    </script>
+    
+    <script src="../login.js"></script> 
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            // 1. 로그인된 사용자 ID 가져오기
+            const username = localStorage.getItem('username');
+            const displaySpan = document.getElementById('display-username');
+            const infoText = document.getElementById('info-text');
+            const tableBody = document.getElementById('data-table-body');
+
+            if (username) {
+                displaySpan.textContent = username;
+            } else {
+                // login.js가 처리하겠지만 안전장치
+                alert("로그인 정보가 없습니다.");
+                logout();
+                return;
+            }
+
+            // 2. 백엔드 API 호출
+            // 로컬 테스트 시: http://localhost:3000/api/home
+            // 배포 시: https://backend-beta-lemon.vercel.app/api/home
+            const API_URL = "https://backend-beta-lemon.vercel.app/api/home"; 
+
+            try {
+                const response = await fetch(`${API_URL}?username=${username}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // 필요하다면 Authorization 헤더 추가: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.ok) {
+                    const list = result.data;
+                    const targetName = result.targetName;
+                    
+                    infoText.textContent = `'${targetName}'님의 금주 급한 건 (${list.length}건)`;
+                    tableBody.innerHTML = ""; // 초기화
+
+                    if (list.length === 0) {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `<td colspan="3" style="text-align:center;">조건에 맞는 데이터가 없습니다.</td>`;
+                        tableBody.appendChild(tr);
+                        return;
+                    }
+
+                    // 3. 테이블 렌더링
+                    list.forEach(item => {
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${item.clientName}</td>
+                            <td>${item.assignees}</td>
+                            <td>${item.deadline}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                } else {
+                    infoText.className = "error";
+                    infoText.textContent = result.error || "데이터 조회 실패";
+                }
+            } catch (error) {
+                console.error(error);
+                infoText.className = "error";
+                infoText.textContent = "서버 통신 중 오류가 발생했습니다.";
+            }
+        });
+    </script>
+</body>
+</html>
