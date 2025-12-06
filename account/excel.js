@@ -20,22 +20,23 @@ async function saveAsExcel() {
         views: [{ state: 'frozen', xSplit: 0, ySplit: 2 }]
     });
 
-    // [수정] Code 열 추가
+    // [수정] Remark 열 추가
     wsSummary.columns = [
         { key: 'no', width: 8 },
-        { key: 'code', width: 12 }, // Code 열
+        { key: 'code', width: 12 }, 
         { key: 'n', width: 35 },
         { key: 'count', width: 10 },
         { key: 'o', width: 15 },
         { key: 'sumP', width: 20 },
         { key: 'sumR', width: 20 },
-        { key: 'diff', width: 20 }
+        { key: 'diff', width: 20 },
+        { key: 'remark', width: 40 } // [신규] 비고
     ];
 
     // [1행] 제목
     const titleRow = wsSummary.addRow([mainTitleText]);
-    // [수정] 병합 범위 A1:H1 (8칸)
-    wsSummary.mergeCells('A1:H1');
+    // [수정] 병합 범위 A1:I1 (9칸)
+    wsSummary.mergeCells('A1:I1');
     titleRow.height = 35;
     const titleCell = titleRow.getCell(1);
     titleCell.font = { size: 16, bold: true };
@@ -44,7 +45,7 @@ async function saveAsExcel() {
     titleCell.border = { top: { style: 'thick' }, left: { style: 'thick' }, bottom: { style: 'thick' }, right: { style: 'thick' } };
 
     // [2행] 헤더
-    const headerRow = wsSummary.addRow(['NO', 'Code', '업체명', '건수', 'CUR', 'CREDIT', 'DEBIT', 'BALANCE']);
+    const headerRow = wsSummary.addRow(['NO', 'Code', '업체명', '건수', 'CUR', 'CREDIT', 'DEBIT', 'BALANCE', '비고(Remarks)']);
     applyHeaderStyle(headerRow, 'FF2F4F4F');
 
     // [3행~] 메인 데이터
@@ -57,38 +58,35 @@ async function saveAsExcel() {
 
         const row = wsSummary.addRow([
             index + 1,
-            data.code || "", // Code 값
+            data.code || "", 
             data.n,
             data.details.length,
             data.o,
             data.sumP,
             data.sumR,
-            diff
+            diff,
+            data.remark || "" // 비고 값
         ]);
 
         row.eachCell((cell, colNumber) => {
             cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
             
             // 숫자: 6(P), 7(R), 8(Diff)
-            if (colNumber >= 6) {
+            if (colNumber >= 6 && colNumber <= 8) {
                 cell.numFmt = '#,##0.00'; 
                 cell.alignment = { horizontal: 'right' };
-            } else if (colNumber === 4) { // 건수
-                cell.alignment = { horizontal: 'center' };
-            } else if (colNumber === 2) { // 코드
+            } else if (colNumber === 4 || colNumber === 2) { 
                 cell.alignment = { horizontal: 'center' };
             } else {
                 cell.alignment = { horizontal: 'left' };
             }
 
-            // 업체명(3열) 링크
             if (colNumber === 3) {
                 cell.font = { color: { argb: 'FF0000FF' }, underline: true };
                 cell.value = { text: data.n, hyperlink: `#'${safeName}'!A1`, tooltip: '상세 시트로 이동' };
             }
         });
 
-        // 차액이 음수면 빨간색 (8열)
         if (diff < 0) {
             row.getCell(8).font = { color: { argb: 'FFFF0000' }, bold: true };
         }
@@ -121,11 +119,10 @@ async function saveAsExcel() {
         return 0;
     });
 
-    // 구분선
     wsSummary.addRow([]); 
     const subtotalTitleRow = wsSummary.addRow(['', '===== 통화별 합계 =====']);
-    // [수정] 병합 범위 B~H
-    wsSummary.mergeCells(`B${subtotalTitleRow.number}:H${subtotalTitleRow.number}`);
+    // [수정] 병합 범위 B~I
+    wsSummary.mergeCells(`B${subtotalTitleRow.number}:I${subtotalTitleRow.number}`);
     
     const subTitleCell = subtotalTitleRow.getCell(2);
     subTitleCell.font = { bold: true };
@@ -133,18 +130,18 @@ async function saveAsExcel() {
     subTitleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } }; 
     subTitleCell.border = { top: { style: 'medium' }, bottom: { style: 'medium' } };
 
-    // 소계 데이터 출력
     summaryList.forEach(row => {
         const diff = row.totalP - row.totalR;
         const newRow = wsSummary.addRow([
             '',                 
-            '',                 // Code (비움)
+            '',                 
             '소계 (Subtotal)',  
             row.count,          
             row.cur,            
             row.totalP,         
             row.totalR,         
-            diff                
+            diff,
+            '' // 비고
         ]);
 
         newRow.eachCell((cell, colNumber) => {
@@ -152,12 +149,10 @@ async function saveAsExcel() {
             cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
             cell.font = { color: { argb: 'FF495057' }, bold: true };
 
-            if (colNumber >= 6) { 
+            if (colNumber >= 6 && colNumber <= 8) { 
                 cell.numFmt = '#,##0.00';
                 cell.alignment = { horizontal: 'right' };
-            } else if (colNumber === 4) {
-                cell.alignment = { horizontal: 'center' };
-            } else if (colNumber === 3) {
+            } else if (colNumber === 4 || colNumber === 3) {
                 cell.alignment = { horizontal: 'center' };
             }
         });
