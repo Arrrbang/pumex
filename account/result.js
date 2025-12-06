@@ -43,13 +43,24 @@ fileInput.addEventListener('change', (e) => {
 });
 
 // [신규] 로딩 보여주는 함수
-function showLoading() {
-    // 기존 결과 숨기기
-    document.getElementById('result-area').style.display = 'none';
-    document.getElementById('control-panel').style.display = 'none';
+function showLoading(msg = "엑셀 파일 분석 중...") {
+    const overlay = document.getElementById('global-loading-overlay');
+    const textEl = overlay.querySelector('.loading-text');
     
-    // 로딩창 보이기
-    if(loadingMsg) loadingMsg.style.display = 'block';
+    // 메시지 설정 (기본값 또는 커스텀)
+    if (textEl) textEl.textContent = msg;
+
+    // 화면 보이기
+    overlay.style.display = 'flex';
+
+    // (선택사항) 결과 영역 잠시 숨기기 (원하시면 주석 해제)
+    // document.getElementById('result-area').style.display = 'none';
+    // document.getElementById('control-panel').style.display = 'none';
+}
+
+// [수정] 로딩 숨기는 함수
+function hideLoading() {
+    document.getElementById('global-loading-overlay').style.display = 'none';
 }
 
 modalClose.onclick = () => { modal.style.display = "none"; };
@@ -291,6 +302,7 @@ function processExcel(file) {
 }
 
 function renderMainTable(dateText) {
+    hideLoading();
     if(loadingMsg) loadingMsg.style.display = 'none';
     document.getElementById('result-area').style.display = 'block';
     document.getElementById('control-panel').style.display = 'flex';
