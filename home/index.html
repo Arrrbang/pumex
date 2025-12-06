@@ -10,9 +10,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <link rel="stylesheet" href="https://arrrbang.github.io/pumex/common/header/header.css">
+    
     <style>
-        body { font-family: sans-serif; padding: 20px; }
+        body { font-family: 'Noto Sans KR', sans-serif; padding: 20px; }
         h2 { color: #333; }
         
         /* 간단한 테이블 스타일 */
@@ -46,34 +48,30 @@
     
     <script src="https://arrrbang.github.io/pumex/common/js/loading.js"></script>
     <script src="https://arrrbang.github.io/pumex/common/js/login.js"></script>
+    
     <script>
-        // 임시 로그아웃 함수 (login.js가 로드되지 않았을 경우를 대비하거나, login.js의 기능을 호출)
+        // 로그아웃 함수 (비상용)
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('username');
             window.location.href = 'https://arrrbang.github.io/pumex/';
         }
-    </script>
-    <script>
+
         document.addEventListener("DOMContentLoaded", async () => {
             // 1. 로그인된 사용자 ID 가져오기
             const username = localStorage.getItem('username');
-            const displaySpan = document.getElementById('display-username');
             const infoText = document.getElementById('info-text');
             const tableBody = document.getElementById('data-table-body');
 
-            if (username) {
-                displaySpan.textContent = username;
-            } else {
-                // login.js가 처리하겠지만 안전장치
+            // [수정] displaySpan 관련 코드 제거 (헤더가 처리하거나 요소가 없음)
+            
+            if (!username) {
                 alert("로그인 정보가 없습니다.");
                 logout();
                 return;
             }
 
             // 2. 백엔드 API 호출
-            // 로컬 테스트 시: http://localhost:3000/api/home
-            // 배포 시: https://backend-beta-lemon.vercel.app/api/home
             const API_URL = "https://backend-beta-lemon.vercel.app/api/home"; 
 
             try {
@@ -81,7 +79,6 @@
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
-                        // 필요하다면 Authorization 헤더 추가: `Bearer ${localStorage.getItem('token')}`
                     }
                 });
 
