@@ -2,10 +2,9 @@
     display:flex;
     align-items:flex-start;
     gap:2rem;
-    max-width: 1400px;
+    max-width: 1500px;
     margin: 0 auto;
-    /* 화면이 좁아져도 최소 너비 유지 (가로 스크롤 생성) */
-    min-width: 1400px; 
+    min-width: 1500px; 
 }
 
 .vertical-divider {
@@ -16,18 +15,55 @@
     margin-bottom: 1rem;
 }
 
+.left-wrap-title {
+    font-size:var(--sub-title-font-size);
+    font-weight: var(--sub-title-font-weight);
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--light-gray-color);
+}
+
+.right-wrap-title {
+    text-align: left;
+    font-size: var(--main-title-font-size);
+    font-weight: var(--main-title-font-weight);
+    margin-bottom: 1.2rem;
+    color: #111;
+    margin-top:0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--light-gray-color);
+}
+
 .left-wrap{
     max-width: 20rem;
     width: 20rem;
     flex-shrink: 0; 
     margin: 0;
     padding: 0.8rem;
+    position: sticky;
+    height: fit-content;
+    top: calc(var(--main-space-h) + 3rem);
 }
 
 .right-wrap {
     flex: 1;        
     min-width: 0;   
     width: 100%;    
+}
+
+#loading-msg {
+    text-align: center;
+    padding: 100px 0;
+    color: #007bff;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    border: 2px dashed #d1d5db;
+    margin-bottom: 20px;
+}
+#loading-msg h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
 }
 
 #drop-zone {
@@ -206,15 +242,13 @@ table#main-table {
     font-size: 12px; 
 }
 table#main-table th, table#main-table td {
-     border: 1px solid #ddd; padding: 6px 0; text-align: center; }
+     border: 1px solid #ddd; padding: 1px 0; text-align: center; }
 table#main-table th { background-color: #f1f1f1; font-weight: bold; border-bottom: 1px solid #333; }
 
-td.num { text-align: right; padding-right: 0px; }
+td.num { text-align: center; padding-right: 0px; }
 
 
-/*결과표 색상컬럼*/
-
-
+/* 컬럼 스타일 */
 .col-no { background-color: #ffffff; }
 
 .auto-shrink {
@@ -239,6 +273,30 @@ td.num { text-align: right; padding-right: 0px; }
 .col-sum-p { background-color: #ffffff; }
 .col-sum-r { background-color: #ffffff; }
 .col-diff { background-color: #fafafa; }
+
+/* [신규] 비고 열 스타일 */
+.col-remark {
+    background-color: #ffffff;
+    padding: 0 !important; /* 내부 input 꽉 차게 */
+}
+
+/* 비고란 입력창 */
+.remark-input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    text-align: left;
+    padding: 5px;
+    box-sizing: border-box;
+    font-size: 11px;
+    font-family: inherit;
+    color: #333;
+}
+.remark-input:focus {
+    background-color: #f0f8ff; /* 입력 시 배경색 변경 */
+}
 
 
 tr { page-break-inside: avoid; }
