@@ -1,14 +1,11 @@
-/* 기본 스타일 */
-body {
-    
-}
-
 .main-layout{
     display:flex;
     align-items:flex-start;
     gap:2rem;
     max-width: 1400px;
     margin: 0 auto;
+    /* 화면이 좁아져도 최소 너비 유지 (가로 스크롤 생성) */
+    min-width: 1400px; 
 }
 
 .vertical-divider {
@@ -22,8 +19,15 @@ body {
 .left-wrap{
     max-width: 20rem;
     width: 20rem;
+    flex-shrink: 0; 
     margin: 0;
     padding: 0.8rem;
+}
+
+.right-wrap {
+    flex: 1;        
+    min-width: 0;   
+    width: 100%;    
 }
 
 #drop-zone {
@@ -61,12 +65,11 @@ body {
     padding-bottom: 5px;
 }
 
-/* 리스트 스타일 */
 #history-list {
     list-style: none;
     padding: 0;
     margin: 0 0 15px 0;
-    max-height: 300px; /* 너무 길어지면 스크롤 */
+    max-height: 300px; 
     overflow-y: auto;
 }
 
@@ -88,7 +91,6 @@ body {
     padding: 20px 0;
 }
 
-/* 체크박스와 텍스트 사이 간격 */
 .history-checkbox {
     margin-right: 8px;
     cursor: pointer;
@@ -96,10 +98,10 @@ body {
 
 .history-name {
     cursor: pointer;
-    flex: 1; /* 남은 공간 차지 */
+    flex: 1; 
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* 말줄임표 */
+    text-overflow: ellipsis; 
     color: #555;
 }
 .history-name:hover {
@@ -108,7 +110,6 @@ body {
     font-weight: bold;
 }
 
-/* 버튼 그룹 */
 .history-btn-group {
     display: flex;
     gap: 5px;
@@ -126,67 +127,126 @@ body {
 }
 
 #btn-save-current {
-    background-color: #28a745; /* 녹색 */
+    background-color: #28a745; 
     color: white;
 }
 #btn-save-current:hover { background-color: #218838; }
 
 #btn-delete-selected {
-    background-color: #dc3545; /* 빨간색 */
+    background-color: #dc3545; 
     color: white;
 }
 #btn-delete-selected:hover { background-color: #c82333; }
 
-
 .control-panel {
-    text-align: right; margin-bottom: 10px; max-width: 1100px; margin: 0 auto 10px auto; display: none; 
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px; 
+    width: 100%; 
+}
+
+#bound-filter {
+    padding: 8px 12px; 
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    height: 40px; 
+    box-sizing: border-box;
 }
 
 #btn-save-pdf {
     background-color: #d9534f; color: white; border: none;
     padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 14px;
+    height: 40px; 
 }
 #btn-save-pdf:hover { background-color: #c9302c; }
 
-/* 결과 영역 */
+#btn-save-excel {
+    background-color: #17a2b8; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    font-size: 14px; 
+    margin-left: 10px;
+    height: 40px; 
+}
+#btn-save-excel:hover { background-color: #138496; }
+
+
 #result-area {
     background: white; 
     padding: 40px 50px; 
-    max-width: 1100px; 
-    margin: 0 auto;
+    width: 100%; 
     min-height: 900px;
     box-sizing: border-box;
 }
 
-/* 헤더 레이아웃 */
 .header-row-approval { display: flex; justify-content: flex-end; margin-bottom: 20px; }
 .header-row-title { text-align: center; margin-bottom: 15px; }
 .header-row-title h2 { margin: 0; font-size: 26px; font-weight: bold; letter-spacing: -1px; }
 .header-divider { border-bottom: 2px solid #333; margin-bottom: 0px; }
 .header-row-date { text-align: left; margin-bottom: 20px; font-size: 14px; font-weight: bold; color: #333; }
 
-/* 결재란 테이블 */
 .approval-table { border-collapse: collapse; text-align: center; font-size: 11px; background-color: white; }
 .approval-table td { border: 1px solid #000; padding: 0; width: 45px; }
 .approval-title { background-color: #f9f9f9; padding: 3px 0; font-weight: bold; }
 .approval-sign { height: 40px; }
 
-/* 메인 데이터 테이블 */
-table#main-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-table#main-table th, table#main-table td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+table#main-table { 
+    width: 100%; 
+    table-layout: fixed; 
+    border-collapse: collapse; 
+    font-size: 12px; 
+}
+table#main-table th, table#main-table td {
+     border: 1px solid #ddd; padding: 6px 0; text-align: center; }
 table#main-table th { background-color: #f1f1f1; font-weight: bold; border-bottom: 1px solid #333; }
 
-td.num { text-align: right; padding-right: 10px; }
-.count-col { font-weight: bold; color: #555; background-color: #fafafa; }
-tr { page-break-inside: avoid; }
+td.num { text-align: right; padding-right: 0px; }
 
+
+/*결과표 색상컬럼*/
+
+
+.col-no { background-color: #ffffff; }
+
+.auto-shrink {
+    background-color: #ffffff;
+    white-space: normal;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    line-height: 1.4;
+}
+
+.col-code { 
+    background-color: #fafafa; 
+    color: #555;
+    font-size: 11px;
+}
+.col-name {
+    background-color: #ffffff;
+    white-space: nowrap;
+}
+.col-count { font-weight: bold; color: #555; background-color: #ffffff; }
+.col-subkey { background-color: #fafafa; }
+.col-sum-p { background-color: #ffffff; }
+.col-sum-r { background-color: #ffffff; }
+.col-diff { background-color: #fafafa; }
+
+
+tr { page-break-inside: avoid; }
 .clickable { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
 
-/* 합계 행 스타일 */
 .summary-header-row td { background-color: #e2e6ea; font-weight: bold; text-align: left; padding-left: 15px; }
 .summary-row td { background-color: #f8f9fa; font-weight: bold; color: #495057; }
 
-/* 팝업 스타일 */
 #modal-overlay {
     display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0,0,0,0.5); z-index: 1000;
@@ -202,14 +262,12 @@ tr { page-break-inside: avoid; }
     font-size: 24px; font-weight: bold; cursor: pointer; color: #aaa;
 }
 
-/* [신규] 팝업 내부 헤더 영역 (제목 + 버튼) */
 .modal-header-area {
     display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 15px; padding-right: 30px; /* 닫기버튼 공간 확보 */
+    margin-bottom: 15px; padding-right: 30px; 
 }
 #modal-title { margin: 0; font-size: 20px; }
 
-/* [신규] 팝업 내부 PDF 저장 버튼 */
 #btn-modal-pdf {
     background-color: #007bff; color: white; border: none;
     padding: 8px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 13px;
