@@ -6,17 +6,51 @@ const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('fileInput');
 const modal = document.getElementById('modal-overlay');
 const modalClose = document.getElementById('modal-close');
+const loadingMsg = document.getElementById('loading-msg');
 
 dropZone.addEventListener('click', () => fileInput.click());
 dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 dropZone.addEventListener('drop', (e) => {
-    e.preventDefault(); dropZone.classList.remove('dragover');
-    if (e.dataTransfer.files.length) processExcel(e.dataTransfer.files[0]);
+    e.preventDefault(); 
+    dropZone.classList.remove('dragover');
+    
+    if (e.dataTransfer.files.length) {
+        // [중요] 타이머 시작 전에 파일을 미리 변수에 저장해야 함!
+        const file = e.dataTransfer.files[0]; 
+        
+        showLoading(); // 로딩 켜기
+        
+        // 미리 저장해둔 file 변수를 넘겨줌
+        setTimeout(() => {
+            processExcel(file);
+        }, 50);
+    }
 });
+
+// 파일 선택 시 실행
 fileInput.addEventListener('change', (e) => {
-    if (e.target.files.length) processExcel(e.target.files[0]);
+    if (e.target.files.length) {
+        // 여기도 마찬가지로 미리 저장
+        const file = e.target.files[0];
+        
+        showLoading(); 
+        
+        setTimeout(() => {
+            processExcel(file);
+        }, 50);
+    }
 });
+
+// [신규] 로딩 보여주는 함수
+function showLoading() {
+    // 기존 결과 숨기기
+    document.getElementById('result-area').style.display = 'none';
+    document.getElementById('control-panel').style.display = 'none';
+    
+    // 로딩창 보이기
+    if(loadingMsg) loadingMsg.style.display = 'block';
+}
 
 modalClose.onclick = () => { modal.style.display = "none"; };
 window.onclick = (event) => { if (event.target == modal) modal.style.display = "none"; };
@@ -77,17 +111,14 @@ function formatDate(dateObj) {
     return `${y}-${m}-${d}`;
 }
 
-// [신규] 바운드 필터 로직
 function applyBoundFilter() {
     if (!globalB3Date) return; 
     const dateText = formatDate(globalB3Date);
     renderMainTable(dateText);
 }
 
-// [신규] 상세 내역 필터링 헬퍼 함수
 function filterDetailsByBound(details) {
     const filterType = document.getElementById('bound-filter').value;
-    
     return details.filter(item => {
         const type = (item.type || "").toUpperCase();
         if (filterType === "OUTBOUND") {
@@ -100,17 +131,14 @@ function filterDetailsByBound(details) {
     });
 }
 
-// [신규] 텍스트 길이에 따라 폰트 사이즈 줄이는 함수
-function adjustFontSizeToFit() {
-    // .col-name 클래스를 가진 모든 셀 선택
-    const cells = document.querySelectorAll('.col-name');
+function adjustFontSizeToFit(scope) {
+    const container = scope || document;
+    const cells = container.querySelectorAll('.col-name, .auto-shrink');
     
     cells.forEach(cell => {
-        let currentSize = 12; // CSS 초기값과 동일하게 시작
+        let currentSize = 12; 
         cell.style.fontSize = currentSize + 'px';
-        
-        // 텍스트가 셀 너비(clientWidth)를 넘으면(scrollWidth) 폰트를 줄임
-        // 최소 9px까지만 줄임
+        cell.style.whiteSpace = 'nowrap'; 
         while (cell.scrollWidth > cell.clientWidth && currentSize > 9) {
             currentSize--;
             cell.style.fontSize = currentSize + 'px';
@@ -118,11 +146,18 @@ function adjustFontSizeToFit() {
     });
 }
 
+// 비고란 입력 시 데이터 저장 함수
+function updateRemark(key, value) {
+    if (globalDataMap[key]) {
+        globalDataMap[key].remark = value;
+    }
+}
 
 // --- 메인 로직 ---
 function processExcel(file) {
     const reader = new FileReader();
-    reader.onload = function(e) {
+    
+    reader.onload = async function(e) { 
         const data = e.target.result;
         const workbook = XLSX.read(data, { type: 'binary', cellDates: true });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -145,10 +180,27 @@ function processExcel(file) {
             b3Text = "날짜 없음";
         }
 
+        // [수정] 엑셀 파싱 중에 최신 기록 가져오기
+        let previousRemarksMap = {}; // { "Code||CUR": Remark } 형태로 저장
+        try {
+            const latestData = await fetchLatestHistoryForComparison();
+            if (latestData) {
+                Object.values(latestData).forEach(item => {
+                    // [변경] Code와 CUR(item.o)가 모두 있어야 매핑
+                    if (item.code && item.o && item.remark) {
+                        const compositeKey = item.code + "||" + item.o;
+                        previousRemarksMap[compositeKey] = item.remark;
+                    }
+                });
+                console.log("최신 기록 불러오기 성공 (Code+CUR 매칭):", Object.keys(previousRemarksMap).length + "개");
+            }
+        } catch (err) {
+            console.error("최신 기록 비교 실패:", err);
+        }
+
+
         const range = XLSX.utils.decode_range(sheet['!ref']);
-        
         const headerRowIndex = 5; 
-        // [수정] idxCode 추가
         const colMap = { idxB:-1, idxL:-1, idxN:-1, idxO:-1, idxP:-1, idxR:-1, idxAP:-1, idxBT:-1, idxCode: -1 };
 
         for (let c = range.s.c; c <= range.e.c; c++) {
@@ -158,7 +210,6 @@ function processExcel(file) {
             if (text === "바운드") colMap.idxB = c;
             else if (text === "H.B/L번호") colMap.idxL = c;
             else if (text === "정산처명") colMap.idxN = c;
-            // [수정] 정산처코드 컬럼 찾기
             else if (text === "정산처코드") colMap.idxCode = c;
             else if (text === "CUR") colMap.idxO = c;
             else if (text === "DEBIT") colMap.idxP = c;
@@ -173,7 +224,6 @@ function processExcel(file) {
             const cellB  = colMap.idxB  !== -1 ? sheet[XLSX.utils.encode_cell({c: colMap.idxB, r: r})] : null;
             const cellL  = colMap.idxL  !== -1 ? sheet[XLSX.utils.encode_cell({c: colMap.idxL, r: r})] : null;
             const cellN  = colMap.idxN  !== -1 ? sheet[XLSX.utils.encode_cell({c: colMap.idxN, r: r})] : null;
-            // [수정] 정산처코드 값 읽기
             const cellCode = colMap.idxCode !== -1 ? sheet[XLSX.utils.encode_cell({c: colMap.idxCode, r: r})] : null;
             const cellO  = colMap.idxO  !== -1 ? sheet[XLSX.utils.encode_cell({c: colMap.idxO, r: r})] : null;
             const cellP  = colMap.idxP  !== -1 ? sheet[XLSX.utils.encode_cell({c: colMap.idxP, r: r})] : null;
@@ -185,7 +235,7 @@ function processExcel(file) {
 
             const valN = String(cellN.v).trim();
             const valO = cellO ? String(cellO.v).trim() : "";
-            const valCode = cellCode ? String(cellCode.v).trim() : ""; // [수정] 코드값
+            const valCode = cellCode ? String(cellCode.v).trim() : ""; 
             const valB = cellB ? String(cellB.v).trim() : "";
             const valP  = safeParseFloat(cellP);
             const valR  = safeParseFloat(cellR);
@@ -207,12 +257,21 @@ function processExcel(file) {
 
             const key = valN + "||" + valO;
             if (!globalDataMap[key]) {
+                // [변경] 비고란 자동 채우기 조건 강화 (Code + CUR 일치 시)
+                let initialRemark = "";
+                const lookupKey = valCode + "||" + valO; // 현재 데이터의 키 생성
+                
+                if (valCode && previousRemarksMap[lookupKey]) {
+                    initialRemark = `[이전 기록] ${previousRemarksMap[lookupKey]}`;
+                }
+
                 globalDataMap[key] = {
                     n: valN,
-                    code: valCode, // [수정] 데이터맵에 코드 저장
+                    code: valCode, 
                     o: valO,
                     sumP: 0, 
                     sumR: 0, 
+                    remark: initialRemark, // 매칭된 비고 또는 빈 값
                     details: []
                 };
             }
@@ -232,11 +291,9 @@ function processExcel(file) {
 }
 
 function renderMainTable(dateText) {
+    if(loadingMsg) loadingMsg.style.display = 'none';
     document.getElementById('result-area').style.display = 'block';
-    
-    // [중요] flex로 설정해야 style.css의 좌우 정렬이 적용됨
     document.getElementById('control-panel').style.display = 'flex';
-    
     document.getElementById('date-display').innerText = "DATE : " + dateText;
 
     const year = globalB3Date.getFullYear();
@@ -258,11 +315,9 @@ function renderMainTable(dateText) {
     let displayList = [];
 
     rawList.forEach((row) => {
-        // [필터 적용]
         const filteredDetails = filterDetailsByBound(row.details);
         if (filteredDetails.length === 0) return;
 
-        // 필터링된 항목만 합계 재계산
         let currentSumP = 0;
         let currentSumR = 0;
         filteredDetails.forEach(d => {
@@ -272,10 +327,11 @@ function renderMainTable(dateText) {
 
         displayList.push({
             n: row.n,
-            code: row.code, // [수정] 코드값 전달
+            code: row.code, 
             o: row.o,
             sumP: currentSumP,
             sumR: currentSumR,
+            remark: row.remark || "", 
             details: filteredDetails, 
             originalKey: row.n + "||" + row.o
         });
@@ -286,7 +342,12 @@ function renderMainTable(dateText) {
         const diff = row.sumP - row.sumR;
         const count = row.details.length;
 
-        // [수정] Code 열 추가
+        const remarkInput = `<input type="text" class="remark-input" 
+            value="${row.remark}" 
+            placeholder="" 
+            onchange="updateRemark('${row.originalKey}', this.value)"
+        >`;
+
         tr.innerHTML = `
             <td class="col-no">${index + 1}</td>
             <td class="col-code">${row.code || ""}</td>
@@ -296,13 +357,12 @@ function renderMainTable(dateText) {
             <td class="num col-sum-p">${formatNum(row.sumP)}</td>
             <td class="num col-sum-r">${formatNum(row.sumR)}</td>
             <td class="num col-diff" style="color:${diff < 0 ? 'red':'black'}">${formatNum(diff)}</td>
+            <td class="col-remark">${remarkInput}</td>
         `;
         tbody.appendChild(tr);
     });
 
     renderSummaryRows(displayList, tbody);
-    
-    // [중요] 화면 렌더링 직후 폰트 사이즈 자동 조절 실행
     adjustFontSizeToFit(document);
 }
 
@@ -332,15 +392,13 @@ function renderSummaryRows(list, tbody) {
 
     const headerRow = document.createElement('tr');
     headerRow.className = 'summary-header-row';
-    // [수정] colspan 증가 (7 -> 8)
-    headerRow.innerHTML = `<td colspan="8">통화별 합계</td>`;
+    headerRow.innerHTML = `<td colspan="9">통화별 합계</td>`;
     tbody.appendChild(headerRow);
 
     summaryList.forEach(row => {
         const diff = row.totalP - row.totalR;
         const tr = document.createElement('tr');
         tr.className = 'summary-row';
-        // [수정] Code 열 자리에 빈 td 추가
         tr.innerHTML = `
             <td class="col-no"></td>
             <td class="col-code"></td> 
@@ -350,6 +408,7 @@ function renderSummaryRows(list, tbody) {
             <td class="num col-sum-p">${formatNum(row.totalP)}</td>
             <td class="num col-sum-r">${formatNum(row.totalR)}</td>
             <td class="num col-diff" style="color:${diff < 0 ? 'red':'black'}">${formatNum(diff)}</td>
+            <td class="col-remark"></td>
         `;
         tbody.appendChild(tr);
     });
@@ -366,7 +425,6 @@ function openModal(key) {
     const tbody = document.querySelector('#detail-table tbody');
     tbody.innerHTML = "";
 
-    // [중요] 팝업에도 필터 적용
     let filteredDetails = filterDetailsByBound(data.details);
 
     filteredDetails.sort((a, b) => {
@@ -466,7 +524,7 @@ function saveModalAsPDF() {
         tableRows += `
             <tr>
                 <td style="border:1px solid #ddd; padding:6px; text-align:center;">${row.type}</td>
-                <td style="border:1px solid #ddd; padding:6px; text-align:center;">${btDateStr}</td>
+                <td class="auto-shrink" style="border:1px solid #ddd; padding:6px; text-align:center;">${btDateStr}</td>
                 <td style="border:1px solid #ddd; padding:6px; text-align:center; ${dateClass}">${durationStr}</td>
                 <td style="border:1px solid #ddd; padding:6px; text-align:center;">${row.apVal}</td>
                 <td style="border:1px solid #ddd; padding:6px; text-align:center;">${data.o}</td> <td style="border:1px solid #ddd; padding:6px; text-align:right;">${formatNum(row.pVal)}</td>
@@ -514,17 +572,17 @@ function saveModalAsPDF() {
                 ${dateText}
             </div>
 
-            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+            <table style="width:100%; border-collapse:collapse; font-size:12px; table-layout:fixed;">
                 <thead>
                     <tr style="background-color:#e3f2fd;">
-                        <th style="border:1px solid #ddd; padding:6px; text-align:center;">BOUND</th>
-                        <th style="border:1px solid #ddd; padding:6px; text-align:center;">배송일</th>
-                        <th style="border:1px solid #ddd; padding:6px; text-align:center;">경과 시간</th>
-                        <th style="border:1px solid #ddd; padding:6px; text-align:center;">JOB NO(HBL)</th>
-                        <th style="border:1px solid #ddd; padding:6px; text-align:center;">CUR</th> 
-                        <th style="border:1px solid #ddd; padding:6px; text-align:center;">DEBIT</th>
-                        <th style="border:1px solid #ddd; padding:6px; text-align:center;">CREDIT</th>
-                        <th style="border:1px solid #ddd; padding:6px; text-align:center;">BALANCE</th>
+                        <th style="width: 8%; border:1px solid #ddd; padding:6px; text-align:center;">BOUND</th>
+                        <th style="width: 11%; border:1px solid #ddd; padding:6px; text-align:center;">배송일</th>
+                        <th style="width: 17%; border:1px solid #ddd; padding:6px; text-align:center;">경과 시간</th>
+                        <th style="width: 22%; border:1px solid #ddd; padding:6px; text-align:center;">JOB NO(HBL)</th>
+                        <th style="width: 6%; border:1px solid #ddd; padding:6px; text-align:center;">CUR</th> 
+                        <th style="width: 12%; border:1px solid #ddd; padding:6px; text-align:center;">DEBIT</th>
+                        <th style="width: 12%; border:1px solid #ddd; padding:6px; text-align:center;">CREDIT</th>
+                        <th style="width: 12%; border:1px solid #ddd; padding:6px; text-align:center;">BALANCE</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -535,6 +593,8 @@ function saveModalAsPDF() {
     `;
 
     document.body.appendChild(container);
+
+    adjustFontSizeToFit(container);
 
     const opt = {
         margin:       10,
