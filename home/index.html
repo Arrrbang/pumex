@@ -43,7 +43,7 @@
             </tr>
         </thead>
         <tbody id="data-table-body">
-            </tbody>
+        </tbody>
     </table>
     
     <script src="https://arrrbang.github.io/pumex/common/js/loading.js"></script>
@@ -62,8 +62,6 @@
             const username = localStorage.getItem('username');
             const infoText = document.getElementById('info-text');
             const tableBody = document.getElementById('data-table-body');
-
-            // [수정] displaySpan 관련 코드 제거 (헤더가 처리하거나 요소가 없음)
             
             if (!username) {
                 alert("로그인 정보가 없습니다.");
@@ -71,8 +69,8 @@
                 return;
             }
 
-            // 2. 백엔드 API 호출
-            const API_URL = "https://backend-beta-lemon.vercel.app/api/home"; 
+            // 2. 백엔드 API 호출 (주소 수정됨!)
+            const API_URL = "https://notion-api-hub.vercel.app/api/home"; 
 
             try {
                 const response = await fetch(`${API_URL}?username=${username}`, {
@@ -81,6 +79,15 @@
                         'Content-Type': 'application/json'
                     }
                 });
+
+                // HTML 에러 페이지가 오는지 체크
+                const contentType = response.headers.get("content-type");
+                if (!response.ok) {
+                    throw new Error(`서버 오류: ${response.status} ${response.statusText}`);
+                }
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("서버에서 올바르지 않은 응답이 도착했습니다. (API 경로 확인 필요)");
+                }
 
                 const result = await response.json();
 
@@ -115,7 +122,7 @@
             } catch (error) {
                 console.error(error);
                 infoText.className = "error";
-                infoText.textContent = "서버 통신 중 오류가 발생했습니다.";
+                infoText.textContent = `오류 발생: ${error.message}`;
             }
         });
     </script>
