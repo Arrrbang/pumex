@@ -147,10 +147,10 @@ function renderHistoryListUI(list) {
 async function loadHistoryItem(pageId, name) {
     if (!confirm(`[${name}] 데이터를 불러오시겠습니까?\n현재 작업 중인 내용은 사라집니다.`)) return;
 
-    const listEl = document.getElementById('history-list');
-    const originalOpacity = listEl.style.opacity;
-    listEl.style.opacity = '0.5';
-    document.body.style.cursor = 'wait';
+    const overlay = document.getElementById('global-loading-overlay');
+    const textEl = overlay.querySelector('.loading-text');
+    if (textEl) textEl.textContent = "저장된 데이터 불러오는 중...";
+    overlay.style.display = 'flex';
 
     try {
         const response = await fetch(`${API_BASE_URL}/api/account/get-history-item?pageId=${pageId}`);
@@ -187,6 +187,7 @@ async function loadHistoryItem(pageId, name) {
     } catch (error) {
         console.error("Load Error:", error);
         alert(`불러오기 실패: ${error.message}`);
+        overlay.style.display = 'none';
     } finally {
         listEl.style.opacity = originalOpacity || '1';
         document.body.style.cursor = 'default';
