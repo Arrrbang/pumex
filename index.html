@@ -99,6 +99,7 @@
 
         // JWT 토큰 저장 및 이동
         localStorage.setItem('token', result.token);
+        localStorage.setItem('username', username);
         window.location.href = 'https://arrrbang.github.io/pumex/home/';
       } else {
         alert('아이디 또는 비밀번호가 올바르지 않습니다.');
