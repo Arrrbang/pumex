@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>카카오맵 거리 & 노션 운임 조회</title>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; padding: 20px; background-color: #f0f2f5; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; margin-bottom: 20px; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .input-row { display: flex; gap: 10px; align-items: flex-end; }
+        .input-wrapper { flex: 1; }
+        .input-wrapper label { display: block; font-size: 0.9em; color: #666; margin-bottom: 5px; font-weight: bold; }
+        
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; background-color: #f9f9f9; cursor: pointer; }
+        input:focus { outline: none; border-color: #ff5f00; }
+        
+        .btn-search { padding: 12px 15px; background: #333; color: white; border: none; border-radius: 6px; cursor: pointer; white-space: nowrap; font-weight: bold; }
+        .btn-search:hover { background: #555; }
+
+        .btn-action { width: 100%; padding: 15px; background: #ff5f00; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: background 0.3s; }
+        .btn-action:hover { background: #e04f00; }
+        
+        #result { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center; font-size: 1.1em; color: #333; border: 1px solid #eee; }
+        #result span { color: #ff5f00; font-weight: bold; font-size: 1.3em; }
+
+        .cost-info { margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd; display: none; }
+        .cost-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 1.1em; }
+        .cost-label { color: #555; }
+        .cost-value { font-weight: bold; color: #333; }
+        
+        #map { width: 100%; height: 500px; border-radius: 12px; margin-top: 20px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📍 거리(Kakao) + 운임(Notion) 조회</h2>
+        
+        <div class="input-group">
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label>출발지</label>
+                    <input type="text" id="startAddr" placeholder="예: 서울역" readonly onclick="searchAddress('startAddr')">
+                </div>
+                <button class="btn-search" onclick="searchAddress('startAddr')">🔍 주소 검색</button>
+            </div>
+            <div class="input-row">
+                <div class="input-wrapper">
+                    <label>도착지</label>
+                    <input type="text" id="endAddr" placeholder="예: 부산역" readonly onclick="searchAddress('endAddr')">
+                </div>
+                <button class="btn-search" onclick="searchAddress('endAddr')">🔍 주소 검색</button>
+            </div>
+        </div>
+        
+        <button class="btn-action" onclick="startProcess()">🚀 계산 및 조회 시작</button>
+        
+        <div id="result">
+            <div>주소를 검색하여 입력하고 버튼을 눌러주세요.</div>
+            <div id="costArea" class="cost-info">
+                <div class="cost-row">
+                    <span class="cost-label">🚛 20FT 안전운임:</span>
+                    <span class="cost-value" id="cost20">0원</span>
+                </div>
+                <div class="cost-row">
+                    <span class="cost-label">🚛 40FT 안전운임:</span>
+                    <span class="cost-value" id="cost40">0원</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="map"></div>
+    </div>
+
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d8014be9aeabfb44e1705e125f327105&libraries=services"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <script>
+        // ★★★ 핵심: 두 개의 백엔드 주소 분리 ★★★
+        const KAKAO_BACKEND_URL = "https://kakao-backend.vercel.app";    // 거리 계산용
+        const NOTION_BACKEND_URL = "https://notion-api-hub.vercel.app";  // 비용 조회용
+
+        var mapContainer = document.getElementById('map'), 
+            mapOption = { center: new kakao.maps.LatLng(36.5, 127.5), level: 13 };
+        var map = new kakao.maps.Map(mapContainer, mapOption);
+        var geocoder = new kakao.maps.services.Geocoder();
+
+        var polylines = [], flyingMarker = null, animationTimer = null, fixedMarkers = []; 
+
+        function searchAddress(targetId) {
+            new daum.Postcode({
+                oncomplete: function(data) {
+                    var addr = data.userSelectedType === 'R' ? data.roadAddress : data.jibunAddress;
+                    document.getElementById(targetId).value = addr;
+                }
+            }).open();
+        }
+
+        async function startProcess() {
+            var startAddr = document.getElementById('startAddr').value;
+            var endAddr = document.getElementById('endAddr').value;
+            var resultDiv = document.querySelector('#result > div:first-child');
+            var costArea = document.getElementById('costArea');
+
+            costArea.style.display = 'none';
+
+            if(!startAddr || !endAddr) return alert("주소를 모두 입력해주세요.");
+
+            resultDiv.innerHTML = "데이터 조회 중...";
+
+            try {
+                // 1. 지도 관련 처리
+                var startCoords = await getCoords(startAddr);
+                var endCoords = await getCoords(endAddr);
+                
+                var startLatLng = new kakao.maps.LatLng(startCoords.y, startCoords.x);
+                var endLatLng = new kakao.maps.LatLng(endCoords.y, endCoords.x);
+
+                displayMarkers(startLatLng, endLatLng, false); 
+                animateMarker(startLatLng, endLatLng);
+
+                // 2. [KAKAO 백엔드] 거리 계산 요청
+                const routeData = await getRouteData(startCoords, endCoords);
+                
+                const distanceMeters = routeData.routes[0].summary.distance;
+                const distanceKm = distanceMeters / 1000;
+                const durationMin = (routeData.routes[0].summary.duration / 60).toFixed(0);
+
+                // 3. 반올림 (Notion 검색용)
+                const roundedDistance = Math.round(distanceKm);
+
+                // 4. [NOTION 백엔드] 운임 조회 요청
+                const costData = await getTruckingCost(roundedDistance);
+
+                // 5. 결과 출력
+                let costHtml = "";
+                if (costData.found) {
+                    document.getElementById('cost20').innerText = Number(costData.data.cost20).toLocaleString() + "원";
+                    document.getElementById('cost40').innerText = Number(costData.data.cost40).toLocaleString() + "원";
+                    costArea.style.display = 'block';
+                } else {
+                    costHtml = `<br><span style="color:gray; font-size:0.8em;">(거리 ${roundedDistance}km에 해당하는 운임 정보가 DB에 없습니다)</span>`;
+                }
+
+                resultDiv.innerHTML = `
+                    총 거리: <span>${distanceKm.toFixed(1)}km</span> (약 ${durationMin}분)<br>
+                    적용 구간: <span>${roundedDistance}km</span> 기준
+                    ${costHtml}
+                `;
+
+            } catch (e) {
+                console.error(e);
+                resultDiv.innerHTML = "오류 발생: " + e.message;
+            }
+        }
+
+        function getCoords(addr) {
+            return new Promise((resolve, reject) => {
+                geocoder.addressSearch(addr, (res, status) => {
+                    status === kakao.maps.services.Status.OK ? resolve(res[0]) : reject(new Error("주소 없음"));
+                });
+            });
+        }
+
+        // [A] 카카오 백엔드 호출 함수
+        async function getRouteData(start, end) {
+            const startParam = `${start.x},${start.y}`;
+            const endParam = `${end.x},${end.y}`;
+            // KAKAO_BACKEND_URL 사용
+            const url = `${KAKAO_BACKEND_URL}/api/distance?start=${startParam}&end=${endParam}`;
+
+            const response = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+            if (!response.ok) throw new Error("거리 계산 서버 오류");
+            return await response.json();
+        }
+
+        // [B] 노션 백엔드 호출 함수
+        async function getTruckingCost(distance) {
+            // NOTION_BACKEND_URL 사용
+            const url = `${NOTION_BACKEND_URL}/api/trc/cal?distance=${distance}`;
+            
+            const response = await fetch(url, { headers: { 'Content-Type': 'application/json' } });
+            if (!response.ok) throw new Error("운임 조회 서버 오류");
+            return await response.json();
+        }
+
+        // --- 이하 지도 애니메이션 함수 (동일) ---
+        function displayMarkers(start, end, showEndMarker = true) {
+            fixedMarkers.forEach(m => m.setMap(null)); fixedMarkers = [];
+            var bounds = new kakao.maps.LatLngBounds();
+            bounds.extend(start); bounds.extend(end);
+            map.setBounds(bounds);
+            var startMarker = new kakao.maps.Marker({ position: start, map: map, title: '출발' });
+            fixedMarkers.push(startMarker);
+            if (showEndMarker) {
+                var endMarker = new kakao.maps.Marker({ position: end, map: map, title: '도착' });
+                fixedMarkers.push(endMarker);
+            }
+        }
+        function animateMarker(start, end) {
+            if (animationTimer) clearInterval(animationTimer);
+            polylines.forEach(p => p.setMap(null)); polylines = [];
+            if (flyingMarker) flyingMarker.setMap(null);
+            var frames = 60; 
+            var pathData = calculateBezierPath(start, end, frames);
+            var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png"; 
+            var imageSize = new kakao.maps.Size(30, 40); 
+            var imageOption = {offset: new kakao.maps.Point(15, 40)}; 
+            var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+            flyingMarker = new kakao.maps.Marker({ position: start, map: map, image: markerImage, zIndex: 10 });
+            var currentFrame = 0;
+            animationTimer = setInterval(() => {
+                if (currentFrame >= pathData.length - 1) { clearInterval(animationTimer); return; }
+                var currPos = pathData[currentFrame];
+                var nextPos = pathData[currentFrame + 1];
+                var t = currentFrame / frames; 
+                var currentWeight = 2 + (14 * Math.sin(t * Math.PI)); 
+                var segment = new kakao.maps.Polyline({
+                    path: [currPos, nextPos], strokeWeight: currentWeight, strokeColor: '#ff5f00', strokeOpacity: 0.8, strokeStyle: 'solid'
+                });
+                segment.setMap(map); polylines.push(segment);
+                flyingMarker.setPosition(nextPos);
+                currentFrame++;
+            }, 20);
+        }
+        function calculateBezierPath(start, end, count) {
+            var path = [];
+            var latDiff = Math.abs(start.getLat() - end.getLat());
+            var lngDiff = Math.abs(start.getLng() - end.getLng());
+            var offset = (latDiff + lngDiff) * 0.3;
+            var control = new kakao.maps.LatLng((start.getLat() + end.getLat()) / 2 + offset, (start.getLng() + end.getLng()) / 2);
+            for (var i = 0; i <= count; i++) {
+                var t = i / count;
+                var x = (1 - t) * (1 - t) * start.getLng() + 2 * (1 - t) * t * control.getLng() + t * t * end.getLng();
+                var y = (1 - t) * (1 - t) * start.getLat() + 2 * (1 - t) * t * control.getLat() + t * t * end.getLat();
+                path.push(new kakao.maps.LatLng(y, x));
+            }
+            return path;
+        }
+    </script>
+</body>
+</html>
