@@ -212,7 +212,7 @@ async function saveAsExcel() {
         backLinkCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF0F5' } };
 
         // 3행: 헤더
-        const detailHeaderRow = wsDetail.addRow(["Type", "Date", "경과 기간", "AP열 / [HBL] L열", "CUR", "DEBIT", "CREDIT", "BALANCE"]);
+        const detailHeaderRow = wsDetail.addRow(["BOUND", "배송일", "경과 시간", "JOB.NO / HBL", "CUR", "DEBIT", "CREDIT", "BALANCE"]);
         applyHeaderStyle(detailHeaderRow, 'FF4682B4'); 
 
         data.details.sort((a, b) => {
