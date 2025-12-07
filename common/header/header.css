@@ -32,7 +32,6 @@
 }
 *{ box-sizing: border-box; }
 html{ 
-  font-size: clamp(14px, 1.2vw, 16px); 
   overflow-y: scroll;}
 
 /* ========== 기본 reset (html/body 여백 제거는 헤더와 직결됨) ========== */
