@@ -9,11 +9,16 @@
   --basic-container-border: 1px solid #d1d5db;
   --basic-container-border-radius: 1rem;
 
-  --double-light-gray-color: #f5f5f5;
   --semi-light-gray-color: #e0e0e0;
+  --double-light-gray-color: #f5f5f5;
   --light-gray-color: #d1d5db;
-  --double-deep-gray-color: #222222;
   --deep-gray-color: #555;
+  --double-deep-gray-color: #222222;
+
+  --blue: #0056b3;
+  --deep-blue: #153A47;
+  --double-deep-blue: #081f27;
+
   --light-green-color: #f8fcf9;
   --btn-basic-color: #1F9461;
   --btn-basic-hover-color: #16724a;
@@ -40,6 +45,7 @@ html, body{
 body{
   margin: 0rem 0rem 0rem; 
   padding-top: calc(var(--main-space-h) + 3rem);
+  padding-bottom: 50px;
   background: #fff;
 }
 
