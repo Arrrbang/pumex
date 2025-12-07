@@ -31,7 +31,7 @@
 
 
 
-    <h1>DASHBOARD</h1>
+    <h1 id="dashboard-title">DASHBOARD</h1>
     <div class="main-layout">
   
         <div class="left-wrap">
@@ -263,7 +263,7 @@
                     document.getElementById('ops-dashboard-view').style.display = 'block';
 
                 } else {
-                    infoText.textContent = "접근 권한이 없는 그룹입니다.";
+                    document.getElementById('dashboard-title').textContent = "DASHBOARD(준비중...)";
                 }
             } catch (e) {
                 console.error(e);
