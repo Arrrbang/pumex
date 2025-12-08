@@ -324,6 +324,10 @@ function renderMainTable(dateText) {
         return 0;
     });
 
+    // [신규] 1달 전 날짜 계산 (기준일 - 1개월)
+    const oneMonthAgo = new Date(globalB3Date);
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
     let displayList = [];
 
     rawList.forEach((row) => {
@@ -332,9 +336,27 @@ function renderMainTable(dateText) {
 
         let currentSumP = 0;
         let currentSumR = 0;
+        
+        // [신규] 카운트 변수 초기화
+        let cntOver1M = 0;  // 1달 이상
+        let cntUnder1M = 0; // 1달 이하
+
         filteredDetails.forEach(d => {
             currentSumP += d.pVal;
             currentSumR += d.rVal;
+
+            // [신규] 날짜 비교 로직
+            if (d.btDate && !isNaN(d.btDate)) {
+                // 배송일이 1달 전보다 이전이면 '1달 이상' (오래된 것)
+                if (d.btDate < oneMonthAgo) {
+                    cntOver1M++;
+                } else {
+                    cntUnder1M++;
+                }
+            } else {
+                // 날짜가 없으면 '1달 이하'로 간주하거나 제외 (여기서는 1달 이하로 포함)
+                cntUnder1M++;
+            }
         });
 
         displayList.push({
@@ -345,7 +367,10 @@ function renderMainTable(dateText) {
             sumR: currentSumR,
             remark: row.remark || "", 
             details: filteredDetails, 
-            originalKey: row.n + "||" + row.o
+            originalKey: row.n + "||" + row.o,
+            // [신규] 계산된 카운트 추가
+            cntOver: cntOver1M,
+            cntUnder: cntUnder1M
         });
     });
 
@@ -360,11 +385,14 @@ function renderMainTable(dateText) {
             onchange="updateRemark('${row.originalKey}', this.value)"
         >`;
 
+        // [수정] HTML 생성 시 1달이상/1달이하 열 추가
         tr.innerHTML = `
             <td class="col-no">${index + 1}</td>
             <td class="col-code">${row.code || ""}</td>
             <td class="clickable col-name" onclick="openModal('${row.originalKey}')">${row.n}</td>
             <td class="col-count">${count}</td>
+            <td class="col-count-over" style="background-color:#fff0f0; color:#d9534f;">${row.cntOver}</td>
+            <td class="col-count-under">${row.cntUnder}</td>
             <td class="col-subkey">${row.o}</td>
             <td class="num col-sum-p">${formatNum(row.sumP)}</td>
             <td class="num col-sum-r">${formatNum(row.sumR)}</td>
@@ -386,11 +414,15 @@ function renderSummaryRows(list, tbody) {
             summaryMap[key] = {
                 oValue: key,
                 count: 0,
+                cntOver: 0,  // [신규]
+                cntUnder: 0, // [신규]
                 totalP: 0,
                 totalR: 0
             };
         }
-        summaryMap[key].count += 1; 
+        summaryMap[key].count += (item.cntOver + item.cntUnder); 
+        summaryMap[key].cntOver += item.cntOver;
+        summaryMap[key].cntUnder += item.cntUnder;
         summaryMap[key].totalP += item.sumP;
         summaryMap[key].totalR += item.sumR;
     });
@@ -402,20 +434,25 @@ function renderSummaryRows(list, tbody) {
         return 0;
     });
 
+    // [수정] colspan을 9에서 11로 증가 (열 2개 추가됨)
     const headerRow = document.createElement('tr');
     headerRow.className = 'summary-header-row';
-    headerRow.innerHTML = `<td colspan="9">통화별 합계</td>`;
+    headerRow.innerHTML = `<td colspan="11">통화별 합계</td>`;
     tbody.appendChild(headerRow);
 
     summaryList.forEach(row => {
         const diff = row.totalP - row.totalR;
         const tr = document.createElement('tr');
         tr.className = 'summary-row';
+        
+        // [수정] 1달이상/이하 합계 표시
         tr.innerHTML = `
             <td class="col-no"></td>
             <td class="col-code"></td> 
             <td class="col-name"></td>
             <td class="col-count">${row.count}</td> 
+            <td class="col-count-over" style="color:#d9534f;">${row.cntOver}</td>
+            <td class="col-count-under">${row.cntUnder}</td>
             <td class="col-subkey">${row.oValue}</td> 
             <td class="num col-sum-p">${formatNum(row.totalP)}</td>
             <td class="num col-sum-r">${formatNum(row.totalR)}</td>
