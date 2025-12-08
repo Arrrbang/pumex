@@ -1,3 +1,5 @@
+// excel.js
+
 async function saveAsExcel() {
     if (typeof globalDataMap === 'undefined' || Object.keys(globalDataMap).length === 0) {
         alert("저장할 데이터가 없습니다.");
@@ -20,23 +22,24 @@ async function saveAsExcel() {
         views: [{ state: 'frozen', xSplit: 0, ySplit: 2 }]
     });
 
-    // [수정] Remark 열 추가
+    // 열 정의
     wsSummary.columns = [
         { key: 'no', width: 8 },
         { key: 'code', width: 12 }, 
         { key: 'n', width: 35 },
         { key: 'count', width: 10 },
+        { key: 'cntOver', width: 10 },
+        { key: 'cntUnder', width: 10 },
         { key: 'o', width: 15 },
         { key: 'sumP', width: 20 },
         { key: 'sumR', width: 20 },
         { key: 'diff', width: 20 },
-        { key: 'remark', width: 40 } // [신규] 비고
+        { key: 'remark', width: 40 }
     ];
 
     // [1행] 제목
     const titleRow = wsSummary.addRow([mainTitleText]);
-    // [수정] 병합 범위 A1:I1 (9칸)
-    wsSummary.mergeCells('A1:I1');
+    wsSummary.mergeCells('A1:K1');
     titleRow.height = 35;
     const titleCell = titleRow.getCell(1);
     titleCell.font = { size: 16, bold: true };
@@ -45,7 +48,7 @@ async function saveAsExcel() {
     titleCell.border = { top: { style: 'thick' }, left: { style: 'thick' }, bottom: { style: 'thick' }, right: { style: 'thick' } };
 
     // [2행] 헤더
-    const headerRow = wsSummary.addRow(['NO', 'Code', '업체명', '건수', 'CUR', 'CREDIT', 'DEBIT', 'BALANCE', '비고(Remarks)']);
+    const headerRow = wsSummary.addRow(['NO', 'Code', '업체명', '건수', '1달경과', '1달이내', 'CUR', 'CREDIT', 'DEBIT', 'BALANCE', '비고(Remarks)']);
     applyHeaderStyle(headerRow, 'FF2F4F4F');
 
     // [3행~] 메인 데이터
@@ -56,26 +59,43 @@ async function saveAsExcel() {
         const diff = data.sumP - data.sumR;
         const safeName = sanitizeSheetName(data.n);
 
+        const oneMonthAgo = new Date(globalB3Date);
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        
+        let cntOver = 0;
+        let cntUnder = 0;
+
+        const filteredDetails = filterDetailsByBound(data.details);
+        filteredDetails.forEach(d => {
+            if (d.btDate && !isNaN(d.btDate)) {
+                if (d.btDate < oneMonthAgo) cntOver++;
+                else cntUnder++;
+            } else {
+                cntUnder++;
+            }
+        });
+
         const row = wsSummary.addRow([
             index + 1,
             data.code || "", 
             data.n,
-            data.details.length,
+            filteredDetails.length,
+            cntOver,
+            cntUnder,
             data.o,
             data.sumP,
             data.sumR,
             diff,
-            data.remark || "" // 비고 값
+            data.remark || "" 
         ]);
 
         row.eachCell((cell, colNumber) => {
             cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
             
-            // 숫자: 6(P), 7(R), 8(Diff)
-            if (colNumber >= 6 && colNumber <= 8) {
+            if (colNumber >= 8 && colNumber <= 10) {
                 cell.numFmt = '#,##0.00'; 
                 cell.alignment = { horizontal: 'right' };
-            } else if (colNumber === 4 || colNumber === 2) { 
+            } else if ([2, 4, 5, 6].includes(colNumber)) { 
                 cell.alignment = { horizontal: 'center' };
             } else {
                 cell.alignment = { horizontal: 'left' };
@@ -85,32 +105,69 @@ async function saveAsExcel() {
                 cell.font = { color: { argb: 'FF0000FF' }, underline: true };
                 cell.value = { text: data.n, hyperlink: `#'${safeName}'!A1`, tooltip: '상세 시트로 이동' };
             }
+            if (colNumber === 5 && cell.value > 0) {
+                cell.font = { color: { argb: 'FFFF0000' } };
+            }
         });
 
         if (diff < 0) {
-            row.getCell(8).font = { color: { argb: 'FFFF0000' }, bold: true };
+            row.getCell(10).font = { color: { argb: 'FFFF0000' }, bold: true };
         }
     });
 
     // ---------------------------------------------------------
-    // 소계 (Subtotal) 행
+    // 소계 (Subtotal) 행 계산 로직 수정됨
     // ---------------------------------------------------------
     const summaryMap = {};
     keys.forEach(key => {
         const item = globalDataMap[key];
         const cur = item.o || "(공란)";
         
+        const filteredDetails = filterDetailsByBound(item.details);
+        if(filteredDetails.length === 0) return;
+
+        const oneMonthAgo = new Date(globalB3Date);
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        
+        let cOver = 0;
+        let cUnder = 0;
+        
+        // [수정 포인트] 합계 변수 선언
+        let fSumP = 0; 
+        let fSumR = 0; 
+
+        filteredDetails.forEach(d => {
+            // 날짜 카운트
+            if (d.btDate && !isNaN(d.btDate)) {
+                if (d.btDate < oneMonthAgo) cOver++;
+                else cUnder++;
+            } else {
+                cUnder++;
+            }
+
+            // [수정 포인트] 금액 누적
+            fSumP += d.pVal;
+            fSumR += d.rVal;
+        });
+
         if (!summaryMap[cur]) {
             summaryMap[cur] = {
                 cur: cur,
                 count: 0,
+                cntOver: 0,
+                cntUnder: 0,
                 totalP: 0,
                 totalR: 0
             };
         }
-        summaryMap[cur].count += 1; 
-        summaryMap[cur].totalP += item.sumP;
-        summaryMap[cur].totalR += item.sumR;
+        
+        summaryMap[cur].count += (cOver + cUnder); 
+        summaryMap[cur].cntOver += cOver;
+        summaryMap[cur].cntUnder += cUnder;
+        
+        // 이제 fSumP, fSumR이 정의되어 있으므로 에러가 발생하지 않습니다.
+        summaryMap[cur].totalP += fSumP;
+        summaryMap[cur].totalR += fSumR;
     });
 
     const summaryList = Object.values(summaryMap).sort((a, b) => {
@@ -121,8 +178,7 @@ async function saveAsExcel() {
 
     wsSummary.addRow([]); 
     const subtotalTitleRow = wsSummary.addRow(['', '===== 통화별 합계 =====']);
-    // [수정] 병합 범위 B~I
-    wsSummary.mergeCells(`B${subtotalTitleRow.number}:I${subtotalTitleRow.number}`);
+    wsSummary.mergeCells(`B${subtotalTitleRow.number}:K${subtotalTitleRow.number}`);
     
     const subTitleCell = subtotalTitleRow.getCell(2);
     subTitleCell.font = { bold: true };
@@ -137,11 +193,13 @@ async function saveAsExcel() {
             '',                 
             '소계 (Subtotal)',  
             row.count,          
+            row.cntOver, 
+            row.cntUnder,
             row.cur,            
             row.totalP,         
             row.totalR,         
             diff,
-            '' // 비고
+            '' 
         ]);
 
         newRow.eachCell((cell, colNumber) => {
@@ -149,20 +207,20 @@ async function saveAsExcel() {
             cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
             cell.font = { color: { argb: 'FF495057' }, bold: true };
 
-            if (colNumber >= 6 && colNumber <= 8) { 
+            if (colNumber >= 8 && colNumber <= 10) { 
                 cell.numFmt = '#,##0.00';
                 cell.alignment = { horizontal: 'right' };
-            } else if (colNumber === 4 || colNumber === 3) {
+            } else if ([4, 5, 6, 7].includes(colNumber)) {
                 cell.alignment = { horizontal: 'center' };
             }
         });
 
         if (diff < 0) {
-            newRow.getCell(8).font = { color: { argb: 'FFFF0000' }, bold: true };
+            newRow.getCell(10).font = { color: { argb: 'FFFF0000' }, bold: true };
         }
     });
 
-
+    // ... (이후 시트 2 상세 내역 코드는 기존과 동일하게 유지) ...
     // ==========================================
     // 시트 2~N: 상세 내역 (Detail Sheets)
     // ==========================================
