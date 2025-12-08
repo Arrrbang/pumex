@@ -89,13 +89,15 @@ function saveAsPDF() {
     const pdfColWidths = [
         "25px",   // NO
         "0px",    // Code (숨김)
-        "255px",       // 업체명 
+        "205px",  // 업체명 (기존 255px -> 205px로 축소)
         "30px",   // 건수
+        "35px",   // [신규] 1달이상
+        "35px",   // [신규] 1달이하
         "30px",   // CUR
         "65px",   // CREDIT
         "65px",   // DEBIT
         "70px",   // BALANCE
-        "150px"   // 비고
+        "135px"   // 비고
     ];
 
     tableHeaders.forEach((th, index) => {
