@@ -30,7 +30,11 @@
     }
 
     .notice-item {
+        display: flex;          /* Flexbox 사용 */
+        flex-direction: column; /* 내부 요소를 위에서 아래로(세로) 정렬 */
+        width: 100%;            /* 전체 너비 사용 */
         border-bottom: 1px solid #eee;
+        
     }
     .notice-item:last-child {
         border-bottom: none;
