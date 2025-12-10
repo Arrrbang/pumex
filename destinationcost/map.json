@@ -492,6 +492,7 @@
     { "name": "Miami FL", "lat": 25.761681, "lng": -80.191788 },
     { "name": "Jacksonville FL", "lat": 30.332184, "lng": -81.655647 },
     { "name": "Pittsburgh PA", "lat": 40.4406, "lng": -79.9959 },
+    { "name": "Erie PA", "lat": 42.1292, "lng": -80.0851},
     { "name": "Wilkinsburg PA", "lat": 40.4418, "lng": -79.8737 },
     { "name": "New Hope PA", "lat": 40.3643, "lng": -74.9513 },
     { "name": "Allentown PA", "lat": 40.6084, "lng": -75.4902 },
