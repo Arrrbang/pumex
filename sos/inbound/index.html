@@ -27,6 +27,17 @@
         <div class="cal-grid" id="calGrid">
           <!-- JS가 요일 헤더 + 날짜 채움 -->
         </div>
+        <div class="notice-section">
+          <div class="nt-table">
+            <div class="nt-head">
+              <div class="nt-col-bound">BOUND</div>
+              <div class="nt-col-title">공지사항</div>
+            </div>
+            <div id="noticeListBody">
+              <div style="padding:1rem; text-align:center; color:#999;">로딩 중...</div>
+            </div>
+          </div>
+        </div>
       </div>
 
     <div class="vertical-divider"></div>
@@ -73,13 +84,30 @@
 
       <div class="result" id="resultBox" hidden>
         <div id="resultDesc"></div>
-          <div id="resultOriginal"></div>
+        <div id="resultRemarks" style="color:#e11d48; margin-top:0.4rem; font-weight:600; font-size:0.95rem; display:none;"></div>
+        <div id="resultOriginal"></div>
         <div class="value" id="resultValue"></div>
         <div id="resultExtra"></div>
       </div>
     </div>
   </div>
 
+<div id="noticeModal" class="sos-modal-overlay">
+  <div class="sos-modal-window">
+    <div class="sos-modal-header">
+      <div class="sos-modal-title-area">
+        <h3 id="popupTitle">제목</h3>
+        <div class="sos-modal-meta">
+          <span id="popupBound" class="badge-bound">BOUND</span>
+          <span id="popupPeriod">기간: - </span>
+        </div>
+      </div>
+      <button id="btnCloseModal" class="sos-modal-close">&times;</button>
+    </div>
+    <div id="popupBody" class="sos-modal-body">
+      </div>
+  </div>
+</div>
 
 <script src="https://arrrbang.github.io/pumex/common/js/loading.js"></script>
 <script src="../../common/js/login.js"></script>
@@ -313,6 +341,7 @@
     const btnFetch   = document.getElementById('btnFetch');
     const resultBox  = document.getElementById('resultBox');
     const resultDesc = document.getElementById('resultDesc');
+    const resultRemarks = document.getElementById('resultRemarks');
     const resultOriginal = document.getElementById('resultOriginal');
     const resultVal  = document.getElementById('resultValue');
     const resultExtra= document.getElementById('resultExtra');
@@ -325,12 +354,12 @@
       const type = typeSelect.value;
       const cbm  = cbmInput.value;
 
-    
       btnFetch.disabled = true;
       btnFetch.textContent = '조회중...';
     
       try{
         const params = new URLSearchParams({ date:selectedDateStr, type, cbm });
+        // INBOUND 주소 확인
         const res = await fetch(`${API_BASE}/api/sos-rate/inbound?${params.toString()}`);
         const data = await res.json();
 
@@ -343,13 +372,22 @@
           resultDesc.textContent =
             `${data.input.date} / ${data.input.weekdayType} / ${type} / ${cbm} CBM`;
 
+          // ▼▼▼ [추가] 특이사항 표시 로직 ▼▼▼
+          if (data.match.remarks) {
+            resultRemarks.textContent = `※ ${data.match.remarks}`;
+            resultRemarks.style.display = 'block';
+          } else {
+            resultRemarks.textContent = '';
+            resultRemarks.style.display = 'none';
+          }
+          // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
           const v = data.match.value;
 
           if (v == null){
             resultVal.textContent = '값 없음';
-            resultOriginal.textContent = '';   // 원본/차감 라인 비우기
+            resultOriginal.textContent = '';
           } else {
-            // ✅ 차감 입력칸 값 모두 합산 (콤마 제거 후 숫자 변환)
             let deductionTotal = 0;
             document.querySelectorAll('.deduct-input').forEach(input => {
               const cleaned = input.value.replace(/,/g, '').trim();
@@ -365,11 +403,9 @@
             const deductionStr = deductionTotal.toLocaleString('ko-KR');
             const finalStr     = finalValue.toLocaleString('ko-KR');
 
-            // 🔹 위 줄: "원본 : xxx - 차감금액 : yyy ="
             resultOriginal.textContent =
               `(원본) ${originalStr} - (도급비) ${deductionStr} =`;
 
-            // 🔹 아래 줄: 최종 결과값
             resultVal.textContent = `${finalStr} 원`;
           }
           resultExtra.textContent = data.match.extra ? `메모: ${data.match.extra}` : '';
@@ -382,6 +418,177 @@
         btnFetch.textContent = '조회';
       }
     });
+
+// ───────────────────────── 공지사항 (Notion) 로직 ─────────────────────────
+    const noticeListBody = document.getElementById('noticeListBody');
+    const noticeModal    = document.getElementById('noticeModal');
+    const btnCloseModal  = document.getElementById('btnCloseModal');
+    
+    // 팝업 요소들
+    const popupTitle  = document.getElementById('popupTitle');
+    const popupBound  = document.getElementById('popupBound');
+    const popupPeriod = document.getElementById('popupPeriod');
+    const popupBody   = document.getElementById('popupBody');
+
+    // 1. 공지사항 데이터 가져오기
+    async function fetchNotices() {
+      try {
+        const res = await fetch(`${API_BASE}/api/sos/notice`); // 백엔드 라우트
+        const json = await res.json();
+        
+        if (!json.ok) {
+          noticeListBody.innerHTML = '<div style="padding:0.5rem; text-align:center;">불러오기 실패</div>';
+          return;
+        }
+
+        renderNoticeList(json.data);
+      } catch (e) {
+        console.error(e);
+        noticeListBody.innerHTML = '<div style="padding:0.5rem; text-align:center;">오류 발생</div>';
+      }
+    }
+
+  // 2. 리스트 렌더링 (수정됨)
+      function renderNoticeList(notices) {
+        noticeListBody.innerHTML = ''; // 초기화
+
+        // ▼▼ [수정] 필터링 로직 추가: ALLBOUND 또는 OUTBOUND인 것만 남김 ▼▼
+        const filteredNotices = notices.filter(item => 
+          item.bound === 'ALLBOUND' || item.bound === 'INBOUND'
+        );
+
+        if (filteredNotices.length === 0) {
+          noticeListBody.innerHTML = '<div style="padding:1rem; text-align:center; color:#999;">해당하는 공지가 없습니다.</div>';
+          return;
+        }
+
+        // 필터링된 목록으로 루프 실행
+        filteredNotices.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'nt-row';
+
+          // BOUND 열
+          const colBound = document.createElement('div');
+          colBound.className = 'nt-col-bound';
+          colBound.textContent = item.bound || '-';
+          
+          // 제목 열
+          const colTitle = document.createElement('div');
+          colTitle.className = 'nt-col-title';
+          colTitle.textContent = item.title;
+          
+          // 클릭 이벤트 (팝업 오픈)
+          colTitle.addEventListener('click', () => openNoticePopup(item));
+
+          row.appendChild(colBound);
+          row.appendChild(colTitle);
+          noticeListBody.appendChild(row);
+        });
+      }
+
+    // 3. 팝업 열기
+    function openNoticePopup(item) {
+      popupTitle.textContent = item.title;
+      popupBound.textContent = item.bound || 'ALL';
+      
+      const start = item.startDate || '';
+      const end   = item.endDate || '';
+      if(start && end) popupPeriod.textContent = `기간: ${start} ~ ${end}`;
+      else if(start)   popupPeriod.textContent = `기간: ${start} ~`;
+      else             popupPeriod.textContent = `기간: 상시`;
+
+      // 본문 렌더링 (Notion Blocks -> HTML)
+      popupBody.innerHTML = '';
+      if (item.content && item.content.length > 0) {
+        item.content.forEach(block => {
+          const htmlElement = createBlockElement(block);
+          if(htmlElement) popupBody.appendChild(htmlElement);
+        });
+      } else {
+        popupBody.textContent = '내용이 없습니다.';
+      }
+
+      noticeModal.classList.add('open');
+    }
+
+    // 4. Notion Block -> HTML 변환 헬퍼
+    function createBlockElement(block) {
+      const type = block.type;
+      const data = block[type]; // paragraph, heading_1 등등
+
+      // 텍스트 내용 추출 (rich_text 배열 합치기)
+      let textContent = "";
+      if (data.rich_text) {
+        textContent = data.rich_text.map(t => t.plain_text).join("");
+        // *심화: 여기서 bold, color 처리도 가능하지만 일단 plain_text만
+      }
+
+      // 태그 생성
+      if (type === 'paragraph') {
+        const p = document.createElement('p');
+        p.className = 'notion-p';
+        p.textContent = textContent || '\u00A0'; // 빈 줄 처리
+        return p;
+      } 
+      else if (type === 'heading_1') {
+        const h = document.createElement('h1');
+        h.className = 'notion-h1';
+        h.textContent = textContent;
+        return h;
+      }
+      else if (type === 'heading_2') {
+        const h = document.createElement('h2');
+        h.className = 'notion-h2';
+        h.textContent = textContent;
+        return h;
+      }
+      else if (type === 'heading_3') {
+        const h = document.createElement('h3');
+        h.className = 'notion-h3';
+        h.textContent = textContent;
+        return h;
+      }
+      else if (type === 'bulleted_list_item') {
+        const li = document.createElement('li');
+        li.className = 'notion-li';
+        li.textContent = textContent;
+        // 원래 ul/ol 감싸야 하지만 약식으로 div 처리하거나, CSS로 처리
+        // 여기서는 간단히 li만 리턴하고 부모가 없으면 div처럼 보임
+        // *제대로 하려면 이전 형제가 ul인지 체크해야 함. 일단 간단히 bullet 처리
+        li.style.listStyleType = 'disc';
+        li.style.marginLeft = '1.2rem';
+        return li;
+      }
+      else if (type === 'numbered_list_item') {
+        const li = document.createElement('li');
+        li.className = 'notion-li';
+        li.textContent = textContent;
+        li.style.listStyleType = 'decimal';
+        li.style.marginLeft = '1.2rem';
+        return li;
+      }
+      else if (type === 'divider') {
+        const hr = document.createElement('hr');
+        hr.className = 'notion-hr';
+        return hr;
+      }
+
+      return null; // 지원하지 않는 블록은 패스
+    }
+
+    // 5. 팝업 닫기
+    btnCloseModal.addEventListener('click', () => {
+      noticeModal.classList.remove('open');
+    });
+    // 배경 클릭 시 닫기
+    noticeModal.addEventListener('click', (e) => {
+      if (e.target === noticeModal) {
+        noticeModal.classList.remove('open');
+      }
+    });
+
+    // 실행: 페이지 로드 시 공지사항 불러오기
+    fetchNotices();
   </script>
 </body>
 </html>
