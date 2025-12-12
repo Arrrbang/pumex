@@ -220,6 +220,7 @@
     { "name": "Kansas City KS", "lat": 39.1142, "lng": -94.6275 },
     { "name": "New Orleans LA", "lat": 29.96667, "lng": -90.05 },
     { "name": "Baton Rouge LA", "lat": 30.4515, "lng": -91.1871 },
+    { "name": "Lafayette LA", "lat": 30.22409, "lng": -92.01984 },
     { "name": "Chicago IL", "lat": 41.8781, "lng": -87.6298 },
     { "name": "Champaign IL", "lat": 40.116421, "lng": -88.243385 },
     { "name": "Louisville KY", "lat": 38.2527, "lng": -85.7585 },
