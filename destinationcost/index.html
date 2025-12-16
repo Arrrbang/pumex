@@ -659,22 +659,54 @@ function expandShell(){
 /* ============================================================================
    4) 국가/지역 로딩 (one-partner-js에 없는 부분 유지)
    ========================================================================== */
+let __mapData = null; // map.json 데이터를 담을 전역 변수
+
+// 1. map.json 데이터를 미리 가져오는 함수
+async function loadMapJson() {
+  if (__mapData) return __mapData;
+  try {
+    const r = await fetch('./map.json', { cache: 'no-store' }); // 프론트엔드에 있는 map.json 경로
+    __mapData = await r.json();
+    return __mapData;
+  } catch (e) {
+    console.warn('map.json 로드 실패:', e);
+    __mapData = {};
+    return {};
+  }
+}
+
+// 2. 국가 목록 로딩 (API 호출 X -> map.json 키값 사용)
 async function loadCountries(){
   const countryAPI = window['countryCombo'] || null;
   const root = document.getElementById('countryCombo');
   const input = root?.querySelector('input');
 
-  setComboLoadingFor('countryCombo', true);   // ✅ 스피너 on
+  setComboLoadingFor('countryCombo', true);
   try{
-    const r = await fetch(`${BASE}/api/debug/config`, {cache:'no-store'});
-    const j = await r.json();
-    const countries = sortKoAZ(j.countries || Object.keys(j.dbStructure||{}) || []);
+    // map.json이 없으면 로드
+    const data = await loadMapJson(); 
+    
+    // JSON의 키값(국가명)들을 가져와 정렬
+    const countries = sortKoAZ(Object.keys(data) || []);
 
-    // 간단 세팅
-    if (countryAPI && typeof countryAPI.setItems === 'function') countryAPI.setItems(countries);
-    else {
+    // 콤보박스 세팅
+    if (countryAPI && typeof countryAPI.setItems === 'function') {
+      countryAPI.setItems(countries);
+    } else {
       const list = root?.querySelector('.list');
       if (input && list){
+        // 리스트 아이템 생성
+        list.innerHTML = countries.map(v=>`<div class="item" data-v="${v}">${v}</div>`).join('');
+        
+        // 이벤트 연결
+        list.querySelectorAll('.item').forEach(it=>{
+          it.addEventListener('click', ()=>{
+            input.value = it.getAttribute('data-v') || '';
+            list.style.display = 'none';
+            input.dispatchEvent(new Event('change',{bubbles:true}));
+          });
+        });
+
         input.addEventListener('focus', ()=>{ list.style.display='block'; });
         input.addEventListener('input', ()=>{ list.style.display='block'; });
         document.addEventListener('pointerdown',(e)=>{
@@ -682,52 +714,63 @@ async function loadCountries(){
         });
       }
     }
+    
     if (input) input.disabled = false;
+    enhanceTypeAhead('countryCombo', countries); // 검색 기능 활성화
 
-    enhanceTypeAhead('countryCombo', countries);
-  }catch(e){
+  } catch(e){
     console.warn('loadCountries 실패:', e);
     if (input) input.disabled = false;
-  }finally{
-    setComboLoadingFor('countryCombo', false); // ✅ 스피너 off
+  } finally{
+    setComboLoadingFor('countryCombo', false);
   }
 }
 
-
+// 3. 지역 목록 로딩 (API 호출 X -> map.json 데이터 사용)
 async function loadRegions(){
   const root = document.getElementById('regionCombo');
   const input = root?.querySelector('input');
   const list  = root?.querySelector('.list');
-  const country = getCountry();
+  const country = getCountry(); // 현재 선택된 국가 가져오기
+
   if (!country || !list || !input) return;
 
-  setComboLoadingFor('regionCombo', true);   // ✅ 스피너 on
+  // setComboLoadingFor('regionCombo', true); // 로컬 데이터라 로딩 표시 불필요하지만 유지해도 무방
+
   try{
-    const r = await fetch(`${BASE}/api/regions/${encodeURIComponent(country)}`, {cache:'no-store'});
-    const j = await r.json();
-    const regions = sortKoAZ(j.regions || []);
+    // 데이터 확보
+    const data = await loadMapJson();
+    const cityList = data[country] || []; // 해당 국가의 도시 리스트 [{name, lat, lng}, ...]
+
+    // 도시 이름만 추출 및 정렬
+    const regions = sortKoAZ(cityList.map(c => c.name));
+
+    // 리스트 HTML 생성
     list.innerHTML = regions.map(v=>`<div class="item" data-v="${v}">${v}</div>`).join('');
+    
+    // 클릭 이벤트 연결
     list.querySelectorAll('.item').forEach(it=>{
       it.addEventListener('click', ()=>{
         input.value = it.getAttribute('data-v') || '';
         list.style.display = 'none';
-        input.dispatchEvent(new Event('change',{bubbles:true}));
+        input.dispatchEvent(new Event('change',{bubbles:true})); // 변경 이벤트 트리거 -> 지도 이동 등 연쇄 작용
       });
     });
-    input.disabled = false;
-    enhanceTypeAhead('regionCombo', regions);
 
-    if (input && list){
-      input.addEventListener('focus', ()=>{ list.style.display='block'; });
-      input.addEventListener('input', ()=>{ list.style.display='block'; });
-      document.addEventListener('pointerdown',(e)=>{
-        if (!root.contains(e.target)) list.style.display='none';
-      });
-    }
-  }catch(e){
+    input.disabled = false;
+    enhanceTypeAhead('regionCombo', regions); // 검색 기능 활성화
+
+    // UI 이벤트 연결 (포커스 시 보여주기 등)
+    input.addEventListener('focus', ()=>{ list.style.display='block'; });
+    input.addEventListener('input', ()=>{ list.style.display='block'; });
+    document.addEventListener('pointerdown',(e)=>{
+      if (!root.contains(e.target)) list.style.display='none';
+    });
+
+  } catch(e){
     console.warn('loadRegions 실패:', e);
-  }finally{
-    setComboLoadingFor('regionCombo', false); // ✅ 스피너 off
+  } finally{
+    setComboLoadingFor('regionCombo', false);
   }
 }
 
@@ -780,9 +823,6 @@ function wireEventsRemainder(){
   }
 }
 
-/* ============================================================================
-   [업그레이드] CBM 콤보박스 (직접 입력 + 드롭다운 선택)
-   ========================================================================== */
 /* ============================================================================
    [최종 수정] CBM 콤보박스 (1~68 정수 / 스크롤바 숨김 / 검색 가능)
    ========================================================================== */
