@@ -234,7 +234,7 @@ body{
   display: flex;
 }
 
-.notice-item {
+.header-notice-item {
   text-decoration: none;
   color: #333;
   display: flex;
@@ -243,7 +243,7 @@ body{
   height: 35px;
 }
 
-.notice-item:hover {
+.header-notice-item:hover {
   text-decoration: underline;
   color: #000;
 }
