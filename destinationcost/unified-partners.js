@@ -516,6 +516,7 @@ async function fetchCargoTypes(country, region, company, poe){
 async function fetchCosts(country, region, company, cargo, type, cbm, poe){
   const roles = cargo ? [String(cargo).toUpperCase()] : [];
   const params = new URLSearchParams();
+  
   params.set('type', type);
   params.set('company', company);
   if (region) params.set('region', region);
@@ -526,37 +527,11 @@ async function fetchCosts(country, region, company, cargo, type, cbm, poe){
   const baseUrl = `${BASE}/api/costs/${encodeURIComponent(country)}`;
   const url = `${baseUrl}?${params.toString()}`;
 
-  // [최적화 1] 메인 요청 시작
-  const mainRequest = fetch(url, { cache:'no-store' }).then(res => res.json());
+  // [수정] 이제 백엔드가 한 번에 다 처리하므로, 단순히 1번만 호출하면 됩니다.
+  const res = await fetch(url, { cache:'no-store' });
+  const j = await res.json();
 
-  let mergedData = null;
-
-  // [최적화 2] 지역(Region)이 있을 경우, "공통 데이터" 요청도 동시에 시작 (병렬 처리)
-  if (region){
-    const paramsAll = new URLSearchParams(params);
-    paramsAll.delete('region'); // 지역 파라미터 제거
-    
-    // 두 요청을 동시에 기다림 (Promise.all)
-    const [j, jAllRes] = await Promise.all([
-      mainRequest,
-      fetch(`${baseUrl}?${paramsAll.toString()}`, { cache:'no-store' })
-    ]);
-
-    const jAll = await jAllRes.json().catch(()=>({}));
-    const emptyRows = (Array.isArray(jAll?.rows) ? jAll.rows : []).filter(isEmptyRegionRow);
-    const primRows  = Array.isArray(j?.rows) ? j.rows : [];
-    
-    // 데이터 병합
-    j.rows = mergeRowsKeepingOrder(primRows, emptyRows);
-    mergedData = j;
-  } else {
-    // 지역이 없으면 메인 요청만 기다림
-    mergedData = await mainRequest;
-  }
-
-  const j = mergedData;
-
-  // --- 기존 통화 메타 처리 로직 유지 ---
+  // --- 통화 처리 로직 (기존 유지) ---
   Object.assign(numberFormats, j?.numberFormats || {});
 
   const typeCurrency =
