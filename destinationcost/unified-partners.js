@@ -512,73 +512,83 @@ async function fetchCargoTypes(country, region, company, poe){
 }
 
 
-  async function fetchCosts(country, region, company, cargo, type, cbm, poe){
-    const roles = cargo ? [String(cargo).toUpperCase()] : [];
-    const params = new URLSearchParams();
-    params.set('type', type);
-    params.set('company', company);
-    if (region) params.set('region', region);
-    if (poe) params.set('poe', poe);
-    if (roles.length) params.set('roles', roles.join(','));
-    if (!isNaN(cbm)) params.set('cbm', String(cbm));
+// 기존 fetchCosts 함수를 아래 내용으로 교체
+async function fetchCosts(country, region, company, cargo, type, cbm, poe){
+  const roles = cargo ? [String(cargo).toUpperCase()] : [];
+  const params = new URLSearchParams();
+  params.set('type', type);
+  params.set('company', company);
+  if (region) params.set('region', region);
+  if (poe) params.set('poe', poe);
+  if (roles.length) params.set('roles', roles.join(','));
+  if (!isNaN(cbm)) params.set('cbm', String(cbm));
 
-    const baseUrl = `${BASE}/api/costs/${encodeURIComponent(country)}`;
-    const url = `${baseUrl}?${params.toString()}`;
-    const res = await fetch(url, { cache:'no-store' });
-    const j   = await res.json();
+  const baseUrl = `${BASE}/api/costs/${encodeURIComponent(country)}`;
+  const url = `${baseUrl}?${params.toString()}`;
 
-    // 지역 선택 시 공란 지역 병합
-    if (region){
-      const paramsAll = new URLSearchParams(params);
-      paramsAll.delete('region');
-      const resAll = await fetch(`${baseUrl}?${paramsAll.toString()}`, { cache:'no-store' });
-      const jAll   = await resAll.json().catch(()=>({}));
-      const emptyRows = (Array.isArray(jAll?.rows) ? jAll.rows : []).filter(isEmptyRegionRow);
-      const primRows  = Array.isArray(j?.rows) ? j.rows : [];
-      j.rows = mergeRowsKeepingOrder(primRows, emptyRows);
-    }
+  // [최적화 1] 메인 요청 시작
+  const mainRequest = fetch(url, { cache:'no-store' }).then(res => res.json());
 
-    // 통화 메타
-// 통화 메타
-    Object.assign(numberFormats, j?.numberFormats || {});
+  let mergedData = null;
 
-    // 1) 타입별 통화 코드 직접 시도
-    const typeCurrency =
-      (j?.currencyByType?.[type]) ||
-      (j?.meta?.currencyByType?.[type]) ||
-      (j?.columns?.[type]?.currency || j?.columns?.[type]?.currencyCode) ||
-      (j?.headers?.[type]?.currency || j?.headers?.[type]?.currencyCode) || '';
+  // [최적화 2] 지역(Region)이 있을 경우, "공통 데이터" 요청도 동시에 시작 (병렬 처리)
+  if (region){
+    const paramsAll = new URLSearchParams(params);
+    paramsAll.delete('region'); // 지역 파라미터 제거
+    
+    // 두 요청을 동시에 기다림 (Promise.all)
+    const [j, jAllRes] = await Promise.all([
+      mainRequest,
+      fetch(`${baseUrl}?${paramsAll.toString()}`, { cache:'no-store' })
+    ]);
 
-    // 2) numberFormats 포맷 문자열에서 통화 코드 추론
-    let inferredFromFmt = '';
-    if (!typeCurrency) {
-      const k = String(type || '');
-      const nf = j?.numberFormats || {};
-      const fmt = nf[k] || nf[k.toUpperCase()] || nf[k.toLowerCase()] || '';
-
-      if (/dollar|usd/i.test(fmt))      inferredFromFmt = 'USD';
-      else if (/won|krw/i.test(fmt))    inferredFromFmt = 'KRW';
-      else if (/euro|eur/i.test(fmt))   inferredFromFmt = 'EUR';
-      else if (/cad/i.test(fmt))        inferredFromFmt = 'CAD';
-    }
-
-    // 3) 최종 기본 통화 결정
-    //    👉 결과표에 표시되는 통화와 항상 같도록
-    defaultCurrency.value = (
-      j?.currency ||
-      j?.currencyCode ||
-      typeCurrency ||
-      inferredFromFmt ||
-      j?.meta?.currency ||
-      j?.meta?.currencyCode ||
-      ''
-    ).toString();
-
-    // 디버깅용(원하면 나중에 지워도 됨)
-    console.log('[CURRENCY] defaultCurrency =', defaultCurrency.value);
-
-    return j;
+    const jAll = await jAllRes.json().catch(()=>({}));
+    const emptyRows = (Array.isArray(jAll?.rows) ? jAll.rows : []).filter(isEmptyRegionRow);
+    const primRows  = Array.isArray(j?.rows) ? j.rows : [];
+    
+    // 데이터 병합
+    j.rows = mergeRowsKeepingOrder(primRows, emptyRows);
+    mergedData = j;
+  } else {
+    // 지역이 없으면 메인 요청만 기다림
+    mergedData = await mainRequest;
   }
+
+  const j = mergedData;
+
+  // --- 기존 통화 메타 처리 로직 유지 ---
+  Object.assign(numberFormats, j?.numberFormats || {});
+
+  const typeCurrency =
+    (j?.currencyByType?.[type]) ||
+    (j?.meta?.currencyByType?.[type]) ||
+    (j?.columns?.[type]?.currency || j?.columns?.[type]?.currencyCode) ||
+    (j?.headers?.[type]?.currency || j?.headers?.[type]?.currencyCode) || '';
+
+  let inferredFromFmt = '';
+  if (!typeCurrency) {
+    const k = String(type || '');
+    const nf = j?.numberFormats || {};
+    const fmt = nf[k] || nf[k.toUpperCase()] || nf[k.toLowerCase()] || '';
+
+    if (/dollar|usd/i.test(fmt))      inferredFromFmt = 'USD';
+    else if (/won|krw/i.test(fmt))    inferredFromFmt = 'KRW';
+    else if (/euro|eur/i.test(fmt))   inferredFromFmt = 'EUR';
+    else if (/cad/i.test(fmt))        inferredFromFmt = 'CAD';
+  }
+
+  defaultCurrency.value = (
+    j?.currency ||
+    j?.currencyCode ||
+    typeCurrency ||
+    inferredFromFmt ||
+    j?.meta?.currency ||
+    j?.meta?.currencyCode ||
+    ''
+  ).toString();
+
+  return j;
+}
 
 // ---------- collapsedSummary 업데이트 유틸 ----------
 function setSummaryText(id, text){
