@@ -1,4 +1,35 @@
 {
+  "인도": [
+    { "name": "Bangalore, India", "lat": 12.971599, "lng": 77.594566 },
+    { "name": "Kolkata, India", "lat": 22.56263, "lng": 88.36304 },
+    { "name": "Chennai, India", "lat": 13.08784, "lng": 80.27847 },
+    { "name": "Gurgaon(Gurugram), India", "lat": 28.457523, "lng": 77.026344 },
+    { "name": "Mumbai, India", "lat": 19.07283, "lng": 72.88261 },
+    { "name": "Nhava Sheva, India", "lat": 18.95, "lng": 72.9666667 },
+    { "name": "New Delhi, India", "lat": 28.644800, "lng": 77.216721 },
+    { "name": "Noida, India", "lat": 28.535517, "lng": 77.391029 },
+    { "name": "Hyderabad, India", "lat": 17.385044, "lng": 78.486671 },
+    { "name": "Pune, India", "lat": 18.51957, "lng": 73.85535 }
+  ],
+  
+  "방글라데시": [
+    { "name": "Dhaka, Bangladesh", "lat": 23.810332, "lng": 90.4125181 }
+  ],
+  
+  "스리랑카": [
+    { "name": "Colombo, Sri Lanka", "lat": 6.93548, "lng": 79.84868 }
+  ],
+  
+  "파키스탄": [
+    { "name": "Karachi, Pakistan", "lat": 24.860966, "lng": 66.990501 },
+    { "name": "Lahore, Pakistan", "lat": 31.582045, "lng": 74.329376 },
+    { "name": "Islamabad, Pakistan", "lat": 33.7215, "lng": 73.0433 }
+  ],
+  
+  "네팔": [
+    { "name": "Kathmandu, Nepal", "lat": 27.7172453, "lng": 85.3239605 }
+  ],
+  
   "미국": [
     { "name": "Stanton CA", "lat": 33.8025, "lng": -117.9931 }, 
     { "name": "Carson CA", "lat": 33.8314, "lng": -118.282 },
