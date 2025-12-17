@@ -65,7 +65,7 @@ async function initNoticeRolling() {
         const badgeColor = item.category === "공지" ? "#333" : "#0056b3"; 
         return `
           <a href="${item.url}" target="_blank" class="header-notice-item">
-            <span class="header-notice-badge" style="background:${badgeColor};">${item.category}</span>
+            <span class="notice-badge" style="background:${badgeColor};">${item.category}</span>
             <span class="notice-title-text">${item.title}</span>
           </a>
         `;
