@@ -1,4 +1,13 @@
 {
+  "사우디아라비아":[
+    { "name": "Dammam", "lat": 26.4207, "lng": 50.0888 },
+    { "name": "Jeddah", "lat": 21.4858, "lng": 39.1925 },
+    { "name": "Riyadh", "lat": 24.7136, "lng": 46.6753 },
+    { "name": "Jubail", "lat": 27.0047, "lng": 49.6460 },
+    { "name": "Hawiyah", "lat": 21.3796, "lng": 40.4931 },
+    { "name": "Hufuf", "lat": 25.3520, "lng": 49.5832 }
+  ],
+  
   "인도": [
     { "name": "Bangalore", "lat": 12.971599, "lng": 77.594566 },
     { "name": "Kolkata", "lat": 22.56263, "lng": 88.36304 },
