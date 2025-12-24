@@ -1,4 +1,14 @@
 {
+  "독일": [
+      { "name": "Eschborn", "lat": 50.1420, "lng": 8.5715 },
+      { "name": "Frankfurt", "lat": 50.1109, "lng": 8.6821 },
+      { "name": "Muenchen", "lat": 48.1351, "lng": 11.5820 },
+      { "name": "Schwalbach", "lat": 50.1500, "lng": 8.5333 },
+      { "name": "Hamburg", "lat": 53.5511, "lng": 9.9937 },
+      { "name": "Bonn", "lat": 50.7337, "lng": 7.0982 },
+      { "name": "Leipzig", "lat": 51.3397, "lng": 12.3731 }
+    ],
+  
   "사우디아라비아":[
     { "name": "Dammam", "lat": 26.4207, "lng": 50.0888 },
     { "name": "Jeddah", "lat": 21.4858, "lng": 39.1925 },
