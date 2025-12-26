@@ -255,35 +255,31 @@
   }
 
 
-  async function applyCurrent() {
-    // 1. 단일 모드 처리 (tableWrap)
-    const baseOne = detectBaseCurrencyFor('tableWrap');
-    if (baseOne) {
-      const selOne = document.getElementById('currencySelect');
-      if (selOne) {
-        buildOptions(selOne, baseOne); // 드롭다운 첫 번째에 [기본] 노션 통화 추가
-        selOne.value = baseOne;        // 선택값을 노션 통화로 강제 설정
+    async function applyCurrent() {
+      // 1. 단일 모드 처리
+      const baseOne = detectBaseCurrencyFor('tableWrap');
+      if (baseOne) {
+        const selOne = document.getElementById('currencySelect');
+        buildOptions(selOne, baseOne);
+        selOne.value = baseOne;
         await applyConversionFor(baseOne, 'tableWrap', 'currencyRate');
       }
-    }
-
-    // 2. 비교 모드(A/B) 처리
-    ['A', 'B'].forEach(async (k) => {
-      const wrapId = `tableWrap${k}`;
-      const selId = `currencySelect${k}`;
-      const rateId = `currencyRate${k}`;
-      
-      const base = detectBaseCurrencyFor(wrapId);
-      if (base) {
-        const sel = document.getElementById(selId);
-        if (sel) {
-          buildOptions(sel, base);     // 각 드롭다운에 [기본] 노션 통화 추가
-          sel.value = base;            // 선택값을 노션 통화로 강제 설정
+    
+      // 2. 비교 모드 처리 (A와 B를 각각 처리)
+      ['A', 'B'].forEach(async (k) => {
+        const wrapId = `tableWrap${k}`;
+        const selId = `currencySelect${k}`;
+        const rateId = `currencyRate${k}`;
+        
+        const base = detectBaseCurrencyFor(wrapId); // 각 래퍼 내부의 테이블에서 통화 추출
+        if (base) {
+          const sel = document.getElementById(selId);
+          buildOptions(sel, base);
+          sel.value = base;
           await applyConversionFor(base, wrapId, rateId);
         }
-      }
-    });
-  }
+      });
+    }
 
 
 
