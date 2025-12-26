@@ -43,29 +43,20 @@
   }
 
   function buildOptions(select, base) {
-    const baseCode = base.toUpperCase();
-    const used = new Set();
-
-    select.innerHTML = '';
-
-    // [기본] USD 처럼 표시
-    const optBase = document.createElement('option');
-    optBase.value = baseCode;
-    optBase.textContent = `[기본] ${baseCode}`;
-    select.appendChild(optBase);
-    used.add(baseCode);
-
-    // 나머지 통화 추가 (중복은 스킵)
-    EXTRA_CODES.forEach((c) => {
-      const up = c.toUpperCase();
-      if (used.has(up)) return;
-      const o = document.createElement('option');
-      o.value = up;
-      o.textContent = up;
-      select.appendChild(o);
-      used.add(up);
-    });
-  }
+      if (!select || !base) return;
+      
+      // 첫 번째 옵션을 노션에서 온 [기본] 통화로 설정
+      let html = `<option value="${base}">[기본] ${base}</option>`;
+      
+      // 나머지 통화들 추가 (EXTRA_CODES 정의가 상단에 있습니다)
+      const EXTRA_CODES = ['KRW', 'USD', 'EUR', 'JPY', 'CAD', 'SAR', 'IDR'];
+      const extras = EXTRA_CODES.filter(c => c !== base);
+      extras.forEach(code => {
+        html += `<option value="${code}">${code}</option>`;
+      });
+  
+      select.innerHTML = html;
+    }
 
   function formatCurrency(amount, code) {
     const v = Number(amount) || 0;
@@ -264,52 +255,34 @@
   }
 
 
-
-  // 드롭다운 현재 값으로 다시 적용 (새 조회 후 호출)
-  function applyCurrent() {
-    const hasA = document.querySelector('#tableWrapA table.result-table');
-    const hasB = document.querySelector('#tableWrapB table.result-table');
-    const selA = document.getElementById('currencySelectA');
-    const selB = document.getElementById('currencySelectB');
-
-    if (hasA && hasB && selA && selB) {
-      const baseA = detectBaseCurrencyFor('tableWrapA');
-      const baseB = detectBaseCurrencyFor('tableWrapB');
-
-      if (baseA) {
-        buildOptions(selA, baseA);
-        selA.value = baseA;
-        applyConversionFor(selA.value, 'tableWrapA', 'currencyRateA');
-        selA.disabled = false;
-      } else {
-        selA.disabled = true;
+  async function applyCurrent() {
+    // 1. 단일 모드 처리 (tableWrap)
+    const baseOne = detectBaseCurrencyFor('tableWrap');
+    if (baseOne) {
+      const selOne = document.getElementById('currencySelect');
+      if (selOne) {
+        buildOptions(selOne, baseOne); // 드롭다운 첫 번째에 [기본] 노션 통화 추가
+        selOne.value = baseOne;        // 선택값을 노션 통화로 강제 설정
+        await applyConversionFor(baseOne, 'tableWrap', 'currencyRate');
       }
-
-      if (baseB) {
-        buildOptions(selB, baseB);
-        selB.value = baseB;
-        applyConversionFor(selB.value, 'tableWrapB', 'currencyRateB');
-        selB.disabled = false;
-      } else {
-        selB.disabled = true;
-      }
-
-      // 단일용 섹션은 여기선 신경 안 써도 됨 (resultSection이 hidden이니까)
-      return;
     }
 
-    // 🔹 이하 단일 모드 기존 로직 그대로 유지
-    const select = document.getElementById('currencySelect');
-    if (!select) return;
-    if (!select.value) {
-      const base = detectBaseCurrency();
-      if (!base) return;
-      buildOptions(select, base);
-      select.value = base;
-    }
-    document.getElementById('currencySection')?.removeAttribute('hidden');
-    select.disabled = false;
-    return applyConversion(select.value);
+    // 2. 비교 모드(A/B) 처리
+    ['A', 'B'].forEach(async (k) => {
+      const wrapId = `tableWrap${k}`;
+      const selId = `currencySelect${k}`;
+      const rateId = `currencyRate${k}`;
+      
+      const base = detectBaseCurrencyFor(wrapId);
+      if (base) {
+        const sel = document.getElementById(selId);
+        if (sel) {
+          buildOptions(sel, base);     // 각 드롭다운에 [기본] 노션 통화 추가
+          sel.value = base;            // 선택값을 노션 통화로 강제 설정
+          await applyConversionFor(base, wrapId, rateId);
+        }
+      }
+    });
   }
 
 
