@@ -256,27 +256,47 @@
 
 
     async function applyCurrent() {
-      // 1. 단일 모드 처리
+      // -----------------------------------------------------------
+      // 1. 단일 모드 처리 (비용 조회 탭)
+      // -----------------------------------------------------------
+      // tableWrap 안에 있는 테이블의 통화 정보를 확인합니다.
       const baseOne = detectBaseCurrencyFor('tableWrap');
+      
       if (baseOne) {
-        const selOne = document.getElementById('currencySelect');
-        buildOptions(selOne, baseOne);
-        selOne.value = baseOne;
-        await applyConversionFor(baseOne, 'tableWrap', 'currencyRate');
+        const select = document.getElementById('currencySelect');
+        if (select) {
+          // 조건 없이 무조건 드롭다운을 [기본] 통화로 다시 만듭니다.
+          buildOptions(select, baseOne); 
+          select.value = baseOne; 
+          select.disabled = false;
+          
+          // 숨겨진 통화 섹션을 보이게 합니다.
+          document.getElementById('currencySection')?.removeAttribute('hidden');
+          
+          // 금액 변환 실행
+          // (단일 모드는 applyConversion을 사용하거나 applyConversionFor('tableWrap') 사용 가능)
+          // 여기서는 기존 호환성을 위해 전역 변환 함수 호출
+          await applyConversion(baseOne); 
+        }
       }
-    
-      // 2. 비교 모드 처리 (A와 B를 각각 처리)
+  
+      // -----------------------------------------------------------
+      // 2. 비교 모드 처리 (비용 비교 탭 - A/B 독립적)
+      // -----------------------------------------------------------
       ['A', 'B'].forEach(async (k) => {
         const wrapId = `tableWrap${k}`;
-        const selId = `currencySelect${k}`;
+        const selId  = `currencySelect${k}`;
         const rateId = `currencyRate${k}`;
         
-        const base = detectBaseCurrencyFor(wrapId); // 각 래퍼 내부의 테이블에서 통화 추출
+        const base = detectBaseCurrencyFor(wrapId);
         if (base) {
           const sel = document.getElementById(selId);
-          buildOptions(sel, base);
-          sel.value = base;
-          await applyConversionFor(base, wrapId, rateId);
+          if (sel) {
+            buildOptions(sel, base);
+            sel.value = base;
+            sel.disabled = false;
+            await applyConversionFor(base, wrapId, rateId);
+          }
         }
       });
     }
