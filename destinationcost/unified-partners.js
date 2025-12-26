@@ -531,6 +531,11 @@ async function fetchCosts(country, region, company, cargo, type, cbm, poe){
   const res = await fetch(url, { cache:'no-store' });
   const j = await res.json();
 
+  if (j.currency) {
+    defaultCurrency.value = j.currency.toUpperCase();
+  }
+  return j;
+
   // --- 통화 처리 로직 (기존 유지) ---
   Object.assign(numberFormats, j?.numberFormats || {});
 
