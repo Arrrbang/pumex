@@ -318,20 +318,15 @@
         <tbody>${tbody}</tbody>
       </table>
     `;
-    const tableEl = wrap.querySelector('table.result-table');
+      const tableEl = wrap.querySelector('table.result-table');
       if (tableEl && data.currency) {
-          // 백엔드에서 온 노션 통화(data.currency)를 테이블 속성에 저장
-          tableEl.dataset.baseCurrency = data.currency; 
+          tableEl.dataset.baseCurrency = data.currency; // 노션 통화를 테이블 속성에 심음
       }
   
       if (window.CurrencyConverter) {
-          // 드롭다운 메뉴에 [기본] 문구를 넣고 이벤트를 다시 연결
-          window.CurrencyConverter.init();         
-          // 테이블의 data-base-currency를 읽어 즉시 통화 변환 실행
-          window.CurrencyConverter.applyCurrent(); 
+          window.CurrencyConverter.init();
+          window.CurrencyConverter.applyCurrent();
       }
-  
-      // 통화 선택 섹션이 숨겨져 있다면 보이게 처리
       document.getElementById('currencySection')?.removeAttribute('hidden');
     
     // ---------------------------------------------------------------
