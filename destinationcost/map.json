@@ -8,7 +8,8 @@
       { "name": "Bonn", "lat": 50.7337, "lng": 7.0982 },
       { "name": "Leipzig", "lat": 51.3397, "lng": 12.3731 },
       { "name": "Düsseldorf", "lat": 51.2277, "lng": 6.7735 },
-      { "name": "Berlin", "lat": 52.3667, "lng": 13.5033 }
+      { "name": "Berlin", "lat": 52.3667, "lng": 13.5033 },
+      { "name": "Stuttgart", "lat": 48.7758, "lng": 9.1829 }
     ],
   
   "사우디아라비아":[
