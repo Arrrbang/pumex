@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>도착지 비용 조회</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="../common/header/header.css" />
+
+    <link rel="stylesheet" href="./trc_cost.css" />
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <main class="page-container">
+        <div class="calc-box">
+            <h2 class="page-title">📍 도착지 거리 및 내륙 운임 조회</h2>
+            
+            <div class="input-group">
+                <div class="input-row">
+                    <div class="input-wrapper">
+                        <label>출발지 (항구/터미널)</label>
+                        <input type="text" id="startAddr" placeholder="주소를 검색하세요 (예: 부산항)" readonly onclick="searchAddress('startAddr')">
+                    </div>
+                    <button class="btn-search" onclick="searchAddress('startAddr')">🔍 검색</button>
+                </div>
+                <div class="input-row">
+                    <div class="input-wrapper">
+                        <label>도착지 (창고/공장)</label>
+                        <input type="text" id="endAddr" placeholder="주소를 검색하세요" readonly onclick="searchAddress('endAddr')">
+                    </div>
+                    <button class="btn-search" onclick="searchAddress('endAddr')">🔍 검색</button>
+                </div>
+            </div>
+            
+            <button class="btn-action" onclick="startProcess()">🚀 거리 계산 및 운임 조회 시작</button>
+            
+            <div id="result">
+                <div>주소를 검색하여 입력하고 상단의 버튼을 눌러주세요.</div>
+                <div id="costArea" class="cost-info">
+                    <div class="cost-row">
+                        <span class="cost-label">🚛 20FT 안전운임:</span>
+                        <span class="cost-value" id="cost20">0원</span>
+                    </div>
+                    <div class="cost-row">
+                        <span class="cost-label">🚛 40FT 안전운임:</span>
+                        <span class="cost-value" id="cost40">0원</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="map"></div>
+        </div>
+    </main>
+
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d8014be9aeabfb44e1705e125f327105&libraries=services"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <script src="./trc_cost.js"></script>
+</body>
+</html>

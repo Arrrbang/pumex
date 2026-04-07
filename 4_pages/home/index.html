@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>P.A.S.S[PUMEX All-in-one Support System]</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">    
+    <link rel="stylesheet" href="https://arrrbang.github.io/pumex/common/header/header.css">
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <div id="loading-container">
+        <div class="spinner"></div>
+        <div class="loading-msg">데이터를 불러오는 중...</div>
+    </div>
+
+    <div id="notice-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title-text">공지사항</div>
+                <button class="modal-close" onclick="closeNoticeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body-content">로딩 중...</div>
+        </div>
+    </div>
+
+
+
+    <h1 id="dashboard-title">DASHBOARD</h1>
+    <div class="main-layout">
+  
+        <div class="left-wrap">
+
+            <div id="sales-dashboard-view">
+                <h2>🔥 여권 미제출 <span id="passport-count" class="count-badge"></span></h2>
+                <table class="sales-passport">
+                    <thead><tr><th>서류마감</th><th>고객명</th><th>국가</th><th>업무담당</th></tr></thead>
+                    <tbody id="passport-table-body"></tbody>
+                </table>
+
+                <h2>📦 보관 중인 건 <span id="storage-count" class="count-badge"></span></h2>
+                <table class="sales-storage">
+                    <thead><tr><th>포장일</th><th>고객명</th><th>국가</th><th>업무담당</th></tr></thead>
+                    <tbody id="storage-table-body"></tbody>
+                </table>
+
+                <h2>☂️ 보험 요청 건 <span id="insurance-count" class="count-badge"></span></h2>
+                <table class="sales-insurance">
+                    <thead><tr><th>입항일</th><th>고객명</th><th>국가</th><th>업무담당</th></tr></thead>
+                    <tbody id="insurance-table-body"></tbody>
+                </table>
+
+            </div>
+
+            <div id="ops-dashboard-view">
+                <h2>📕 여권 수취 필요 <span id="ops-passport-count" class="count-badge"></span></h2>
+                <table class="ops-passport">
+                    <thead><tr><th>서류 마감일</th><th>고객명</th><th>영업담당</th></tr></thead>
+                    <tbody id="ops-passport-body"></tbody>
+                </table>
+
+                <h2>⏰ 2일 이내 마감 (공휴일 제외) <span id="ops-deadline-count" class="count-badge"></span></h2>
+                <table class="ops-documentcut">
+                    <thead><tr><th>서류 마감일</th><th>고객명</th><th>컨작업일정</th></tr></thead>
+                    <tbody id="ops-deadline-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="vertical-divider"></div>
+
+        <div class="right-wrap">
+            <div id="common-notice-area" style="display:none;">
+                <h2>📢 공지사항</h2>
+                <table class="common-notice">
+                    <colgroup><col style="width: 20%;"><col style="width: 80%;"></colgroup>
+                    <thead><tr><th>국가명</th><th>내역 (클릭하여 보기)</th></tr></thead>
+                    <tbody id="notice-table-body"></tbody>
+                </table>
+
+                <div id="sales-dashboard-view">
+                <h2>🚛 콘솔 대기 (전체) <span id="console-count" class="count-badge"></span></h2>
+                <table class="sales-console">
+                    <thead><tr><th>POE</th><th>포장일</th><th>CBM</th><th>고객명</th><th>영업담당</th><th>업무담당</th></tr></thead>
+                    <tbody id="console-table-body"></tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="../../2_common/2_js/loading.js"></script>
+    <script src="../../2_common/2_js/login.js"></script>
+    <script src="./sales.js"></script>
+    <script src="./ops.js"></script>
+
+    <script>
+        function closeNoticeModal() { document.getElementById('notice-modal').style.display = 'none'; }
+        
+        document.getElementById('notice-modal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('notice-modal')) closeNoticeModal();
+        });
+
+        async function loadNotices() {
+            const NOTICE_API_URL = "https://notion-api-hub.vercel.app/api/home/notice";
+            const response = await fetch(NOTICE_API_URL);
+            if (response.ok) {
+                const result = await response.json();
+                renderNoticeTable(result.data);
+                document.getElementById('common-notice-area').style.display = 'block';
+            }
+        }
+
+        async function openNoticeModal(pageId, title) {
+            const modal = document.getElementById('notice-modal');
+            const bodyEl = document.getElementById('modal-body-content');
+            document.getElementById('modal-title-text').textContent = title;
+            modal.style.display = 'flex';
+            bodyEl.innerHTML = '<div style="text-align:center;">로딩 중...</div>';
+            
+            try {
+                const res = await fetch(`https://notion-api-hub.vercel.app/api/home/notice/${pageId}`);
+                const json = await res.json();
+                if (json.ok) bodyEl.innerHTML = renderNotionBlocks(json.data);
+                else bodyEl.innerHTML = '내용 로드 실패';
+            } catch(e) { bodyEl.innerHTML = '통신 오류'; }
+        }
+
+        function renderNoticeTable(list) {
+            const tbody = document.getElementById('notice-table-body');
+            tbody.innerHTML = "";
+            if (!list || !list.length) { tbody.innerHTML = "<tr><td colspan='2' style='text-align:center'>공지사항 없음</td></tr>"; return; }
+            list.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td style="text-align:center; font-weight:bold;">${item.country}</td>
+                                <td><span class="notice-link" onclick="openNoticeModal('${item.id}', '${item.content.replace(/'/g, "\\'")}')">${item.content}</span></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function renderNotionBlocks(blocks) {
+            if (!blocks || !blocks.length) return "";
+
+            return blocks.map(block => {
+                const type = block.type;
+                const value = block[type]; 
+                const getText = (richTextArray) => {
+                    if (!richTextArray) return "";
+                    return richTextArray.map(t => {
+                        let content = t.plain_text
+                            .replace(/</g, "&lt;")
+                            .replace(/>/g, "&gt;")
+                            .replace(/\n/g, "<br>");
+
+                        const anno = t.annotations;
+                        if (anno.bold) content = `<span class="notion-bold">${content}</span>`;
+                        if (anno.italic) content = `<span class="notion-italic">${content}</span>`;
+                        if (anno.strikethrough) content = `<span class="notion-strikethrough">${content}</span>`;
+                        if (anno.underline) content = `<span class="notion-underline">${content}</span>`;
+                        if (anno.code) content = `<span class="notion-code">${content}</span>`;
+                        return content;
+                    }).join("");
+                };
+                
+                let childrenHtml = "";
+                if (block.children && block.children.length > 0) {
+                    childrenHtml = `<div class="notion-toggle-content">${renderNotionBlocks(block.children)}</div>`;
+                }
+
+                switch (type) {
+                    case 'toggle':
+                        return `
+                            <details class="notion-toggle">
+                                <summary class="notion-toggle-summary">▶ ${getText(value.rich_text)}</summary>
+                                ${childrenHtml} </details>
+                        `;
+
+                    case 'heading_1': 
+                    case 'heading_2': 
+                    case 'heading_3':
+                        const tag = type === 'heading_1' ? 'h1' : (type === 'heading_2' ? 'h2' : 'h3');
+                        const className = `notion-${tag}`;
+                        const content = `<${tag} class="${className}">${getText(value.rich_text)}</${tag}>`;
+                        
+                        if (childrenHtml) {
+                            return `
+                                <details class="notion-toggle">
+                                    <summary class="notion-toggle-summary">${content}</summary>
+                                    ${childrenHtml}
+                                </details>
+                            `;
+                        }
+                        return content;
+
+                    case 'bulleted_list_item': 
+                        return `<ul class="notion-ul"><li>${getText(value.rich_text)}${childrenHtml}</li></ul>`;
+                    case 'numbered_list_item': 
+                        return `<ol class="notion-ol"><li>${getText(value.rich_text)}${childrenHtml}</li></ol>`;
+                    
+                    case 'callout':
+                        const icon = value.icon?.emoji || "💡";
+                        return `<div class="notion-callout"><span>${icon}</span><div>${getText(value.rich_text)}${childrenHtml}</div></div>`;
+                    
+                    case 'paragraph': 
+                        return `<div class="notion-p">${getText(value.rich_text)}${childrenHtml}</div>`;
+
+                    case 'image':
+                        const src = value.type === 'external' ? value.external.url : value.file.url;
+                        return `<img src="${src}" class="notion-image" alt="image">`;
+                    
+                    case 'divider': 
+                        return `<hr class="notion-hr">`;
+                    
+                    default: 
+                        return ""; 
+                }
+            }).join("");
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+
+            const loadingContainer = document.getElementById('loading-container');
+
+            // [로컬 테스트용] 
+            // const infoText = document.getElementById('info-text');
+            // const username = 'opere';
+
+            const username = localStorage.getItem('username');
+
+                if (!username) {
+                    alert("로그인 정보가 없습니다.");
+                    
+                    if (typeof logout === 'function') {
+                        logout();
+                    } else {
+                        location.href = 'https://arrrbang.github.io/pumex/index.html'; 
+                    }
+                    return;
+                }
+
+            const salesGroup = ['salea', 'saleb', 'salek', 'oh', 'eric', 'kbs', 'pjs', 'jackson', 'crjung', 'sk'];
+            const opsGroup   = ['admin', 'opere', 'opero', 'operd'];
+
+            try {
+                const tasks = [loadNotices()];
+
+                if (salesGroup.includes(username)) {
+                    tasks.push(initSalesDashboard(username));
+                    await Promise.all(tasks);
+                    
+                    document.getElementById('sales-dashboard-view').style.display = 'block';
+
+                } else if (opsGroup.includes(username)) {
+                    tasks.push(initOpsDashboard(username));
+                    await Promise.all(tasks);
+
+                    document.getElementById('ops-dashboard-view').style.display = 'block';
+
+                } else {
+                    document.getElementById('dashboard-title').textContent = "DASHBOARD(준비중...)";
+                }
+            } catch (e) {
+                console.error(e);
+                infoText.className = 'error';
+                infoText.textContent = "데이터 로딩 중 오류 발생: " + e.message;
+            } finally {
+                loadingContainer.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

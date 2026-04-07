@@ -1,0 +1,480 @@
+/* ==========================================================================
+   main.css
+   조회 전 메인 화면 (지도, 폼 영역, 공통 컴포넌트)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   0) 로컬 변수 (Token)
+   ※ common.css와 중복되는 변수(--bg, --primary, --table-header 등)는 제거하고
+      고유한 특수 색상과 설정값들만 남겨두었습니다.
+   -------------------------------------------------------------------------- */
+:root {
+  --fg: #eef2f7;
+  --muted: #cbd5e1;
+  --btn-radius: 12px;
+  --border: rgba(255, 255, 255, 0.18);
+  --surface: rgba(255, 255, 255, 0.06);
+  --control-radius: .3rem;
+  --table-text: #14532D;
+  --bg-image-url: none;
+  --bg-overlay: linear-gradient(180deg, rgba(255, 255, 255, .40), rgba(255, 255, 255, .40));
+  --bg-blur: 0px;
+  --bg-darken: rgba(255, 255, 255, 0);
+}
+
+/* --------------------------------------------------------------------------
+   1) 앱 전체 레이아웃 (Shell & Main)
+   -------------------------------------------------------------------------- */
+.app-shell {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  max-width: none !important;
+  margin: 0 auto 2rem auto !important;
+  box-sizing: border-box;
+  transition: max-height .36s ease, opacity .24s ease;
+  will-change: max-height, opacity;
+  min-height: 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+  position: relative;
+  z-index: 1;
+}
+
+.app-shell.is-collapsing { opacity: 0; }
+.app-shell.is-collapsed { display: none; }
+.app-shell.is-expanding { display: block; opacity: 1; }
+
+.app-main {
+  position: relative;
+  display: block !important;
+  width: 100% !important;
+  overflow: visible !important; /* 드롭다운 잘림 방지 */
+}
+
+/* --------------------------------------------------------------------------
+   2) 패널 레이아웃 (Left Map / Right Form)
+   -------------------------------------------------------------------------- */
+.pane-title {
+  text-align: left;
+  margin-left: 0rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: rgb(10, 10, 10); /* 특수 색상 유지 */
+  margin-bottom: 1rem;
+}
+
+/* Left Pane: 지도 영역 (전체 너비 차지, 배경 투명화) */
+.left-pane {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: visible !important;
+  z-index: 1;
+  position: relative;
+  width: 100% !important;
+  height: 43rem !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+/* Right Pane: 폼 영역 (지도 위에 플로팅) */
+.right-pane {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  box-sizing: border-box;
+  overflow: visible !important; 
+  position: absolute;
+  top: 50%;
+  left: auto;        
+  right: 5%;         
+  transform: translateY(-50%); 
+  width: 28rem;
+  max-width: 90vw;
+  height: 100%;
+  min-height: 0 !important;
+  background: rgba(var(--dark-navy-rgb), 0.85); 
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.15); 
+  color: var(--white); 
+  padding: 1.5rem;
+  z-index: 20; 
+}
+
+/* ★20251127 최종 수정: RIGHT PANE 색상 변경에 따른 타이틀/라벨 텍스트 처리 */
+.pane-title, .dropdown-label {
+  color: var(--fg) !important; 
+}
+
+/* --------------------------------------------------------------------------
+   3) 지도 내부 (Map Canvas & Leaflet Controls)
+   -------------------------------------------------------------------------- */
+.map-canvas {
+  flex: 1 1 auto;
+  display: block;
+  background: var(--dark-navy); 
+  overflow: hidden;
+  position: relative;
+  width: 100% !important;
+  height: 40rem !important;
+  min-height: 36rem !important;
+  max-height: 55rem !important;
+}
+
+.map-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8; /* 특수 색상 유지 */
+  font-weight: 600;
+  letter-spacing: .02em;
+  border: 2px dashed rgba(148, 163, 184, .25);
+  margin: 12px;
+  border-radius: 0.5rem;
+}
+
+/* 지도 필터 효과 */
+#mpkMap .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(185deg) saturate(1.2) brightness(1.60) contrast(1.08);
+  transform: translateZ(0);
+}
+#mpkMap::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: #d4dff3; mix-blend-mode: multiply; opacity: .55;
+}
+#mpkMap::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: #AEE6FF; mix-blend-mode: screen; opacity: .35;
+}
+
+/* 지도 액션 버튼 (소형) */
+.map-button-inline {
+  background: var(--forest-green); 
+  color: var(--white);
+  font-weight: 600;
+  font-size: .9rem;
+  padding: .2rem .6rem;
+  border: none;
+  border-radius: .4rem;
+  cursor: pointer;
+}
+.map-button-inline:hover { 
+  background: #16724a; /* 특수 호버 색상 유지 */
+}
+
+/* 지도 검색창 컨트롤 (중앙 정렬 + 한 줄 고정) */
+.leaflet-top.leaflet-left {
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important; 
+  pointer-events: none !important;    
+}
+
+.leaflet-top.leaflet-left .leaflet-control-zoom {
+  position: absolute !important;
+  left: 10px !important;
+  pointer-events: auto !important;    
+}
+
+.leaflet-control-geocoder {
+  pointer-events: auto !important;    
+  margin-top: 1.5rem !important;      
+  background-color: var(--white) !important; 
+  border: 1px solid rgba(0,0,0,0.2) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15) !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-direction: row !important; 
+  flex-wrap: nowrap !important;
+  height: 2rem !important;
+  padding: 0 !important;
+}
+
+.leaflet-control-geocoder-icon {
+  position: relative !important;
+  display: block !important;
+  background-color: transparent !important; 
+  width: 2rem !important;
+  height: 100% !important;
+  border: none !important;
+  border-radius: 4px 0 0 4px !important;
+  margin: 0 !important;
+  cursor: default !important;
+}
+
+.leaflet-control-geocoder-form {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex: 1;
+}
+
+.leaflet-control-geocoder-form input {
+  width: auto !important;
+  min-width: 300px !important; 
+  height: 100% !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  font-family: 'Noto Sans KR', sans-serif !important;
+  font-size: 0.95rem !important;
+  padding: 0 1rem 0 0 !important;
+  margin: 0 !important;
+  color: var(--dark-charcoal) !important; 
+}
+
+.leaflet-control-geocoder-form input::placeholder {
+  color: var(--gray) !important; 
+  opacity: 1 !important;
+}
+
+/* 검색 결과 리스트 */
+.leaflet-control-geocoder-alternatives {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  width: 100% !important;
+  background: var(--white); 
+  border: 1px solid rgba(0,0,0,0.1);
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  box-sizing: border-box;
+  z-index: 999;
+  margin-top: 2px !important;
+}
+.leaflet-control-geocoder-alternatives li {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee; /* 특수 라인 색상 유지 */
+  cursor: pointer;
+  text-align: left;
+}
+.leaflet-control-geocoder-alternatives li:hover {
+  background-color: var(--light-slate); 
+}
+
+/* --------------------------------------------------------------------------
+   4) 폼 영역 내부 (드롭다운 / 콤보박스 / 버튼)
+   -------------------------------------------------------------------------- */
+.dropdown-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem !important;
+}
+
+.combo-line-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+}
+.combo-line-row .combo { flex: 1; }
+
+.combo-line-row .combo {
+  flex: 1;        
+  width: 0;       
+  min-width: 0;   
+}
+.combo-line { width: 100%; }
+
+.dropdown-label {
+  display: block;
+  text-align: left;
+  margin: 0 0 0.3rem 0;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+/* 인풋/셀렉트 공통 (비교 팝업 화이트톤 디자인 적용) */
+.dropdown-select,
+input[type="text"],
+input[type="number"],
+.combo input {
+  width: 100%;
+  padding: .15rem 1rem;
+  font-size: 1rem;
+  font-family: 'Noto Sans KR', sans-serif !important; 
+  background: var(--activate-dropdown);
+  color: #e7e7e7 !important; /* 특수 색상 유지 */
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 6px !important;
+}
+
+/* 입력창 포커스 시 테두리 밝게 */
+.dropdown-select:focus,
+input[type="text"]:focus,
+.combo input:focus {
+  border-color: rgba(0, 0, 0, 0.3) !important;
+  outline: none;
+}
+
+/* 플레이스홀더 색상 통일 */
+::placeholder {
+  color: var(--select-dropdown-font-color) !important;
+  opacity: 1 !important;
+}
+.dropdown-select option[disabled][selected][hidden] {
+  color: var(--select-dropdown-font-color) !important; 
+}
+
+/* 입력창 비활성화 (잠김) 상태 */
+.dropdown-select:disabled,
+input[type="text"]:disabled,
+.combo input:disabled {
+  background: var(--select-dropdown) !important; 
+  color: var(--select-dropdown-font-color) !important;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* 콤보 리스트 (자동완성 팝업) */
+.combo { position: relative; }
+.combo .list {
+  font-family: 'Noto Sans KR', sans-serif !important; 
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  max-height: 10rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--white) !important; 
+  border: 1px solid var(--very-light-gray) !important; 
+  color: var(--dark-charcoal) !important; 
+  border-radius: var(--control-radius);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
+  display: none;
+  z-index: 2000;
+}
+.combo .list::-webkit-scrollbar {
+  display: none;
+}
+.combo .list .item { padding: .55rem .8rem; cursor: pointer; }
+.combo .list .item:hover {
+  background: var(--light-slate) !important; 
+}
+.combo .list .item.is-selected { 
+  background: var(--light-mint); 
+  color: var(--table-text); 
+}
+
+/* --------------------------------------------------------------------------
+   5) 버튼 그룹 (탭 & 메인 조회 버튼)
+   -------------------------------------------------------------------------- */
+/* 상단 탭 (조회 버튼 그룹) */
+.cost-button-container {
+  position: relative;
+  display: flex;
+  align-items: flex-end;   
+  justify-content: flex-start;
+  gap: 2rem;               
+  padding: .4rem 1rem 0;   
+  margin-bottom: 1rem;     
+  background: transparent;
+  z-index: 1;
+}
+
+.cost-button-container::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.2);
+  z-index: 0;
+}
+
+.cost-check-type-btn {
+  position: relative;
+  z-index: 2;              
+  background: transparent; 
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;     
+  border-radius: .5rem .5rem 0 0; 
+  padding: .55rem 1.25rem;
+  min-width: auto;
+  font-weight: 700;
+  letter-spacing: .02em;
+  box-shadow: none;
+  transition: all .18s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cost-check-type-btn:hover,
+.cost-check-type-btn:focus-visible,
+.cost-check-type-btn.is-active,
+.cost-check-type-btn:active {
+  background: rgba(255, 255, 255, 0.1); 
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid var(--slate-blue); 
+  color: var(--white); 
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+}
+
+#one-partner[hidden],
+#two-partner[hidden],
+#cost-button-container[hidden] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+#one-partner, #two-partner {
+  transition: opacity 0.3s ease;
+}
+
+/* 최하단 메인 조회 버튼 (Primary Button) */
+.action-row { display: flex; justify-content: flex-end; margin: 12px 0 0; }
+.action-row.center { display: flex; justify-content: center; align-items: center; margin: 2rem auto 0; }
+
+.primary-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2rem;
+  padding: .2rem 1.25rem .2rem calc(1.25rem + 20px) !important;
+  min-width: 17rem;
+  border: 2px solid var(--forest-green);
+  background: var(--forest-green);
+  color: var(--white);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background .2s ease, transform .08s ease;
+  text-align: center;
+}
+.primary-btn:hover { 
+  background: #16724a; /* 특수 호버 색상 유지 */
+}
+.primary-btn:active { transform: translateY(1px); }
+.primary-btn span.label { display: inline-block; transform: none !important; }
+
+/* 조회 버튼 로딩중 (스피너) */
+.primary-btn.is-loading { cursor: progress; opacity: .96; }
+.primary-btn.is-loading::before {
+  content: ""; position: absolute; left: 10px !important; top: 50%;
+  width: 16px; height: 16px; margin-top: -8px;
+  border: 2px solid rgba(255, 255, 255, .95); border-top-color: transparent;
+  border-radius: 50%; animation: primarySpin 0.8s linear infinite; pointer-events: none;
+}
+@keyframes primarySpin { to { transform: rotate(360deg); } }

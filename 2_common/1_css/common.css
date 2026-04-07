@@ -1,0 +1,21 @@
+:root{
+  --header-h: 115px;
+  --main-space-h: 188px;
+  --container-max: 1320px;
+  --gutter: 20px;
+}
+
+html{ 
+  overflow-y: scroll;} 
+
+html, body{
+  margin: 0;
+  padding: 0;
+  font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body{
+  margin: 0rem 0rem 0rem; 
+  padding-top: var(--main-space-h);
+  background: #fff;
+}

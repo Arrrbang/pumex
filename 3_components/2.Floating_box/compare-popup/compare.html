@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>파트너 비용 비교</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../../common/header/header.css" />
+  <link rel="stylesheet" href="../../../common/common.css" />
+  <link rel="stylesheet" href="../../render_resulttable.css">
+  
+  <link rel="stylesheet" href="../floating.css">
+
+  <link rel="stylesheet" href="./compare.css">
+  
+  <link rel="stylesheet" href="../bottom-bar/bottom_bar.css">
+</head>
+
+<body>
+<div id="header-placeholder"></div>
+
+<main class="compare-page-wrapper">
+  <div class="compare-main-container">
+    
+    <div class="compare-col">
+      <div class="compare-title" id="titleA">기존 선택 파트너</div>
+      <div id="tableWrapA" class="table-wrap"></div>
+    </div>
+
+    <div class="compare-col">
+      <div class="compare-title" id="titleB">신규 비교 파트너</div>
+      <div id="tableWrapB" class="table-wrap"></div>
+    </div>
+
+  </div>
+</main>
+
+<div id="compareGlobalSpinner" class="global-spinner-overlay" style="display: none;">
+  <div class="spinner-container">
+    <div class="spinner-core"></div>
+    <div class="spinner-text">데이터를 불러오고 있습니다...</div>
+  </div>
+</div>
+
+<script src="../../unified-partners.js"></script>
+<script src="../floating_loader.js"></script> 
+<script src="../bottom-bar/bottom_bar.js"></script>
+<script src="../../exchange/currency-converter.js"></script>
+<script src="./compare.js"></script> </body>
+</html>

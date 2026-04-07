@@ -1,0 +1,30 @@
+<div id="sosModalOverlay" class="sos-modal-overlay" style="display: none;">
+    <div class="sos-modal-window">
+        <div class="sos-modal-header">
+            <h3>🔍 SOS 원가 조회</h3>
+            <button id="btnSosClose" class="sos-modal-close">&times;</button>
+        </div>
+        <div class="sos-modal-body">
+            <div class="sos-field">
+                <label>작업일자</label>
+                <input type="date" id="sosDateInput">
+            </div>
+            <div class="sos-field">
+                <label>작업타입</label>
+                <select id="sosTypeSelect">
+                    <option value="CONSOLE">CONSOLE</option>
+                    <option value="20DRY">20DRY</option>
+                    <option value="40HC">40HC</option>
+                </select>
+            </div>
+            <div class="sos-field">
+                <label>CBM</label>
+                <input type="number" id="sosCbmInput" placeholder="CBM 입력" step="0.01">
+            </div>
+            
+            <div id="sosResultMsg" style="color: var(--deep-teal); font-weight: 600; font-size: 0.9em; text-align: center; margin-top: 10px; min-height: 20px;"></div>
+
+            <button id="btnSosApply" class="btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;">조회 및 적용하기</button>
+        </div>
+    </div>
+</div>

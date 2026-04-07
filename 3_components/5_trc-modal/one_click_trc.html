@@ -1,0 +1,27 @@
+<div id="trcModalOverlay" class="sos-modal-overlay" style="display: none;">
+    <div class="sos-modal-window" style="max-width: 420px;">
+        <div class="sos-modal-header">
+            <h3>🚛 내륙 운송료 자동 계산</h3>
+            <button id="btnTrcClose" class="sos-modal-close">&times;</button>
+        </div>
+        <div class="sos-modal-body">
+            <div class="sos-field">
+                <label>출발지 (항구/터미널)</label>
+                <input type="text" id="trcStartAddr" placeholder="클릭하여 출발지 주소 검색" readonly style="cursor: pointer;">
+            </div>
+            <div class="sos-field">
+                <label>도착지 (창고/공장)</label>
+                <input type="text" id="trcEndAddr" placeholder="클릭하여 도착지 주소 검색" readonly style="cursor: pointer;">
+            </div>
+            <div class="sos-field">
+                <label>컨테이너 타입</label>
+                <select id="trcTypeSelect">
+                    <option value="cost20">20FT (안전운임 기준)</option>
+                    <option value="cost40">40FT/40HC (안전운임 기준)</option>
+                </select>
+            </div>
+            
+            <button id="btnTrcApply" class="btn-primary" style="width: 100%; margin-top: 15px; padding: 12px;">거리 계산 및 운임 적용하기</button>
+        </div>
+    </div>
+</div>
