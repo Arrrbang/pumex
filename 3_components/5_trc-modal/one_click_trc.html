@@ -6,18 +6,28 @@
         </div>
         <div class="sos-modal-body">
             <div class="sos-field">
-                <label>출발지 (항구/터미널)</label>
+                <label>출발지 (공장/창고)</label>
                 <input type="text" id="trcStartAddr" placeholder="클릭하여 출발지 주소 검색" readonly style="cursor: pointer;">
             </div>
+            
             <div class="sos-field">
-                <label>도착지 (창고/공장)</label>
-                <input type="text" id="trcEndAddr" placeholder="클릭하여 도착지 주소 검색" readonly style="cursor: pointer;">
+                <label>도착지 (항구/터미널)</label>
+                <select id="trcEndSelect" style="margin-bottom: 5px;">
+                    <option value="">-- 도착지 선택 또는 검색 --</option>
+                    <option value="부산광역시 강서구 신항남로 330">부산신항 (미국, 유럽 등 장거리)</option>
+                    <option value="부산광역시 남구 신선로 294">부산북항 (아시아, 인도네시아 등 단거리)</option>
+                    <option value="인천 연수구 인천신항대로 707">인천항</option>
+                    <option value="custom">🔍 직접 주소 검색창 열기...</option>
+                </select>
+                <input type="text" id="trcEndAddr" placeholder="도착지 주소가 여기에 입력됩니다" readonly style="display: none;">
             </div>
+
             <div class="sos-field">
-                <label>컨테이너 타입</label>
+                <label>컨테이너/작업 타입</label>
                 <select id="trcTypeSelect">
                     <option value="cost20">20FT (안전운임 기준)</option>
                     <option value="cost40">40FT/40HC (안전운임 기준)</option>
+                    <option value="console">CONSOLE (68CBM 기준)</option>
                 </select>
             </div>
             

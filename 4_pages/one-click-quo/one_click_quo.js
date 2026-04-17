@@ -1,6 +1,6 @@
 /* ==========================================================================
    one-click-quo/one_click_quo.js
-   분류 드롭다운 적용 및 요약 테이블 자동 합산 로직
+   분류 드롭다운 적용, 원가 계산, 도착지 비용 ADD/OTC 리스트, 다중 통화 합산 로직 통합본
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -20,21 +20,18 @@ document.addEventListener('DOMContentLoaded', () => {
     cargoStr = cargoStr.replace(/cbm\s*cbm/ig, 'CBM'); 
     document.getElementById('q_cargo').textContent = cargoStr;
 
-    // 2. 표 복구 (✨ 수정된 부분: 타겟을 정확하게 q_dest_wrap으로 잡음)
+    // 2. 표 복구
     const destWrap = document.getElementById('q_dest_wrap');
     if (!destWrap || !data.tableHtml) {
         console.error("표를 넣을 공간을 찾지 못했거나 데이터가 없습니다.");
         return;
     }
 
-    // 통째로 HTML 꽂아넣기
     destWrap.innerHTML = data.tableHtml;
-
     const tbody = destWrap.querySelector('tbody');
     const initialTotalText = data.destTotal || '0';
 
     if (tbody) {
-        // 통화 감지
         const prefixMatch = initialTotalText.match(/^[^\d\-]+/);
         const suffixMatch = initialTotalText.match(/[^\d]+$/);
         const currencyPrefix = prefixMatch ? prefixMatch[0] : '';
@@ -43,24 +40,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return currencyPrefix + val.toLocaleString('en-US') + currencySuffix;
         }
 
-        // 🌟 [기능 1] 상세 리스트 초기 세팅 (드롭다운/체크박스)
-        tbody.querySelectorAll('.extra-check').forEach(cb => {
-            cb.checked = false;
-        });
-
+        // [기능 1] 상세 리스트 초기 세팅 (드롭다운/체크박스)
+        tbody.querySelectorAll('.extra-check').forEach(cb => { cb.checked = false; });
         tbody.querySelectorAll('tr').forEach(row => {
             const firstTd = row.querySelector('td.sel');
             if (!firstTd) return;
 
             if (row.classList.contains('row-other')) {
-                // '기타 비용' 행: 1열을 체크박스로 변경하되 checked 속성 제거! (기본값: 미체크)
                 firstTd.innerHTML = `<label class="sel-check"><input type="checkbox" class="other-check"></label>`;
             } else {
-                // 일반/추가 행: 드롭다운 생성
                 const isBasic = row.classList.contains('row-basic');
-                // 기존에 체크박스가 있던 행인지 확인용
                 const hadCheck = row.querySelector('.extra-check') !== null;
-                
                 const dropdownHtml = `
                     <select class="type-select">
                         <option value="CDS" ${isBasic ? 'selected' : ''}>CDS</option>
@@ -73,17 +63,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 🌟 [기능 2] 요약 표 자동 합산 및 리스트업 함수
+        // [기능 2] 요약 표 자동 합산 및 리스트업 함수 (ADD 항목 리스트 포함)
         function updateSummary() {
             let sums = { CDS: 0, ADD: 0, TAX: 0, OTC: 0 };
             let otherTitles = [];
+            let addItems = []; 
 
             tbody.querySelectorAll('tr').forEach(row => {
                 const amtTd = row.querySelector('td.amt');
                 const val = Number(amtTd?.dataset.convertedAmt || amtTd?.dataset.baseAmt || amtTd?.dataset.raw || 0);
 
                 if (row.classList.contains('row-other')) {
-                    // 기타 비용 항목
                     const isChecked = row.querySelector('.other-check')?.checked;
                     if (isChecked) {
                         let title = '상세 정보';
@@ -92,50 +82,60 @@ document.addEventListener('DOMContentLoaded', () => {
                         otherTitles.push(title);
                     }
                 } else {
-                    // 분류 항목
                     const type = row.querySelector('.type-select')?.value;
                     const isChecked = row.querySelector('.extra-check') ? row.querySelector('.extra-check').checked : true;
-                    
                     if (isChecked && type && sums[type] !== undefined) {
                         sums[type] += val;
+
+                        if (type === 'ADD') {
+                            let title = '항목명 확인 불가';
+                            const spans = row.querySelectorAll('.item-title span');
+                            spans.forEach(s => { if (!s.classList.contains('toggle-icon')) title = s.textContent.trim(); });
+                            addItems.push({ name: title, amount: val });
+                        }
                     }
                 }
             });
 
-            // 요약 표 금액 업데이트
             document.getElementById('sum_cds').textContent = formatCurrency(sums.CDS);
             document.getElementById('sum_add').textContent = formatCurrency(sums.ADD);
             document.getElementById('sum_tax').textContent = formatCurrency(sums.TAX);
             
-            // 🌟 Others Charges 리스트 업데이트
-            const otcListEl = document.getElementById('otc_list');
-            const otcDivider = document.getElementById('otc_divider');
-            
-            if (otherTitles.length > 0) {
-                otcDivider.style.display = 'block';
-                // 단순 점(•) 글자가 아니라, CSS 디자인이 적용된 상자 형태로 출력!
-                otcListEl.innerHTML = otherTitles.map(t => `<div class="otc-item">${t}</div>`).join('');
-            } else {
-                otcDivider.style.display = 'none';
-                otcListEl.innerHTML = '';
+            // ADD 리스트 화면 렌더링
+            const addListEl = document.getElementById('add_list');
+            const addAmtListEl = document.getElementById('add_amt_list');
+            if (addListEl && addAmtListEl) {
+                if (addItems.length > 0) {
+                    addListEl.innerHTML = addItems.map(item => `<div class="otc-item">${item.name}</div>`).join('');
+                    addAmtListEl.innerHTML = addItems.map(item => `<div style="font-size: 0.85em; color: var(--medium-gray); padding: 2px 0;">${formatCurrency(item.amount)}</div>`).join('');
+                } else {
+                    addListEl.innerHTML = '';
+                    addAmtListEl.innerHTML = '';
+                }
             }
 
-            // 🌟 도착지 비용 소계 계산 (CDS + ADD + TAX)
+            // ✨ Others Charges 리스트 업데이트 (구분선 로직 완전 제거)
+            const otcListEl = document.getElementById('otc_list');
+            if (otcListEl) {
+                if (otherTitles.length > 0) {
+                    otcListEl.innerHTML = otherTitles.map(t => `<div class="otc-item">${t}</div>`).join('');
+                } else {
+                    otcListEl.innerHTML = '';
+                }
+            }
+
             const subTotal = sums.CDS + sums.ADD + sums.TAX;
             document.getElementById('q_summary_subtotal').textContent = formatCurrency(subTotal);
         }
 
-        // 이벤트 바인딩
         tbody.addEventListener('change', (e) => {
             if (e.target.classList.contains('type-select') || e.target.classList.contains('other-check') || e.target.classList.contains('extra-check')) {
                 updateSummary();
             }
         });
-
-        // 초기 실행
         updateSummary();
 
-        // 토글 동작
+        // 토글 동작 및 아코디언
         const btnToggle = document.getElementById('btnListToggle');
         const contentToggle = document.getElementById('toggleContentList');
         const iconToggle = document.getElementById('toggleIconList');
@@ -144,9 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
             contentToggle.style.display = isHidden ? 'block' : 'none';
             iconToggle.textContent = isHidden ? '▲' : '▼';
         });
-        contentToggle.style.display = 'none'; // 기본 숨김
+        contentToggle.style.display = 'none'; 
 
-        // 비고란 아코디언 살리기
         tbody.addEventListener('click', function(e) {
             const cell = e.target.closest('.item-cell.has-extra');
             if (!cell || e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
@@ -160,20 +159,149 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.addEventListener('updateQuoteTotal', () => {
-        if (typeof updateSummary === 'function') {
-            updateSummary();
+    // ─────────────────────────────────────────────────────────
+    // [기능 3] 원가(Origin Cost) 자동 계산 로직
+    // ─────────────────────────────────────────────────────────
+    function parseKrw(str) {
+        if (!str) return 0;
+        return Number(str.replace(/[^0-9]/g, '')) || 0;
+    }
+    function formatKrw(num) {
+        return num.toLocaleString('ko-KR') + '원';
+    }
+
+    function updateOriginCosts() {
+        const localPackEl = document.getElementById('q_cost_local_pack');
+        const sosEl = document.getElementById('q_cost_sos');
+        const rccEl = document.getElementById('q_cost_rcc');
+        const originTotalEl = document.getElementById('q_origin_total');
+
+        if (!localPackEl || !sosEl || !rccEl || !originTotalEl) return;
+
+        let packVal = parseKrw(localPackEl.textContent);
+        let sosVal = parseKrw(sosEl.textContent);
+        let rccVal = parseKrw(rccEl.textContent);
+
+        if (packVal > 0) {
+            sosVal = 200000;
+            sosEl.textContent = formatKrw(sosVal);
         }
+        if (sosVal > 0) {
+            rccVal = 10000;
+            rccEl.textContent = formatKrw(rccVal);
+        }
+
+        originTotalEl.textContent = formatKrw(packVal + sosVal + rccVal);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // [기능 4] 다중 통화 최종 합산 및 환율 변환 로직
+    // ─────────────────────────────────────────────────────────
+    function parseCurrencyText(text) {
+        if (!text || text.includes('조회') || text.includes('없음') || text.includes('-')) return { currency: 'KRW', amount: 0 };
+        
+        const upper = text.toUpperCase();
+        let currency = 'KRW'; 
+        
+        if (upper.includes('USD') || upper.includes('$')) currency = 'USD';
+        else if (upper.includes('EUR') || upper.includes('€')) currency = 'EUR';
+        
+        const match = text.match(/[\d,.]+/);
+        if (!match) return { currency: 'KRW', amount: 0 };
+        
+        const amount = Number(match[0].replace(/,/g, ''));
+        return { currency, amount };
+    }
+
+    async function calculateFinalTotal() {
+        const totals = [
+            parseCurrencyText(document.getElementById('q_origin_total')?.textContent),
+            parseCurrencyText(document.getElementById('q_trucking_total')?.textContent),
+            parseCurrencyText(document.getElementById('q_ocean_total')?.textContent),
+            parseCurrencyText(document.getElementById('q_summary_subtotal')?.textContent)
+        ];
+
+        let sums = {};
+        totals.forEach(t => {
+            if (t.amount > 0) {
+                sums[t.currency] = (sums[t.currency] || 0) + t.amount;
+            }
+        });
+
+        const selectEl = document.getElementById('finalCurrencySelect');
+        const targetCurrency = selectEl ? selectEl.value : 'USD';
+        const convertedTotalEl = document.getElementById('q_final_total_converted');
+        const breakdownEl = document.getElementById('q_final_breakdown');
+
+        if (Object.keys(sums).length === 0) {
+            if(convertedTotalEl) convertedTotalEl.textContent = `${targetCurrency} 0`;
+            if(breakdownEl) breakdownEl.innerHTML = '';
+            return;
+        }
+
+        let rates = {};
+        try {
+            const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${targetCurrency}`);
+            if(res.ok) {
+                const apiData = await res.json();
+                rates = apiData.rates;
+            }
+        } catch (e) {
+            console.error('환율 정보 로딩 실패:', e);
+        }
+
+        let grandTotal = 0;
+        let breakdownHtml = '';
+
+        for (const [curr, amt] of Object.entries(sums)) {
+            let formattedAmt = amt.toLocaleString('en-US', { minimumFractionDigits: curr === 'KRW' ? 0 : 2, maximumFractionDigits: curr === 'KRW' ? 0 : 2 });
+            breakdownHtml += `<div>${curr} ${formattedAmt}</div>`;
+
+            if (curr === targetCurrency) {
+                grandTotal += amt;
+            } else {
+                const rate = rates[curr]; 
+                if (rate) {
+                    grandTotal += (amt / rate); 
+                }
+            }
+        }
+
+        if (convertedTotalEl) {
+            let formattedGrand = grandTotal.toLocaleString('en-US', { minimumFractionDigits: targetCurrency === 'KRW' ? 0 : 2, maximumFractionDigits: targetCurrency === 'KRW' ? 0 : 2 });
+            convertedTotalEl.textContent = `${targetCurrency} ${formattedGrand}`;
+        }
+        
+        if (breakdownEl) {
+            breakdownEl.innerHTML = breakdownHtml;
+        }
+    }
+
+    // 화면의 소계 텍스트가 바뀔 때마다 전체 합산 실행 
+    const observer = new MutationObserver(() => calculateFinalTotal());
+    const config = { childList: true, characterData: true, subtree: true };
+    
+    ['q_origin_total', 'q_trucking_total', 'q_ocean_total', 'q_summary_subtotal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) observer.observe(el, config);
     });
+
+    const finalSelect = document.getElementById('finalCurrencySelect');
+    if(finalSelect) {
+        finalSelect.addEventListener('change', calculateFinalTotal);
+    }
+
+    document.addEventListener('updateQuoteTotal', () => {
+        if (typeof updateSummary === 'function') updateSummary();
+        updateOriginCosts(); 
+    });
+    
+    updateOriginCosts();
+    calculateFinalTotal(); 
 
     const btnFooterBack = document.getElementById('btnFooterBack');
     if (btnFooterBack) {
-        // 버튼 이름도 직관적으로 변경 (HTML을 바꾸셔도 됩니다)
         btnFooterBack.textContent = '창 닫기 (조회 화면으로)'; 
-        btnFooterBack.addEventListener('click', () => {
-            // ✨ [수정] 복잡한 이동 대신, 쿨하게 견적서 창을 닫아버림!
-            window.close(); 
-        });
+        btnFooterBack.addEventListener('click', () => window.close());
     }
 });
-

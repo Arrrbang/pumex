@@ -96,7 +96,7 @@
                         <div class="route-arrow">➔</div>
                         <div class="route-point" id="q_route_end">도착지: -</div>
                     </div>
-                    <div class="trucking-dist">적용 거리: <span id="q_route_dist">-</span> km</div>
+                    <div class="trucking-dist">적용 거리: <span id="q_route_dist">-</span> </div>
                 </div>
                 <div class="section-total">
                     <span>내륙 운송료 소계:</span>
@@ -108,27 +108,20 @@
                 <h3 class="section-title">🚢 해상 운임 (Ocean Freight)</h3>
                 
                 <div class="origin-cost-grid"> 
-                    
                     <div class="cost-card">
                         <div class="cost-card-header">운임 (OFC)</div>
-                        <div class="cost-card-amount" id="q_ocean_ofc">0원</div>
+                        <div class="cost-card-amount" id="q_ocean_ofc">$0</div>
                     </div>
                     
                     <div class="cost-card">
                         <div class="cost-card-header">부대비용</div>
                         <div class="cost-card-amount" id="q_ocean_surcharge">0원</div>
                     </div>
-
-                    <div class="cost-card">
-                        <div class="cost-card-header">기타비용</div>
-                        <div class="cost-card-amount" id="q_ocean_other">0원</div>
-                    </div>
-
                 </div>
                 
                 <div class="section-total">
                     <span>해상 운임 소계:</span>
-                    <strong id="q_ocean_total">0원</strong>
+                    <strong id="q_ocean_total">$0.00</strong>
                 </div>
             </section>
 
@@ -144,16 +137,35 @@
                             </tr>
                         </thead>
                         <tbody id="q_summary_tbody">
-                            <tr><td>Complete Destination Charges</td><td class="align-right" id="sum_cds">0원</td></tr>
-                            <tr><td>Additional Charge</td><td class="align-right" id="sum_add">0원</td></tr>
-                            <tr><td>Tax & Duty</td><td class="align-right" id="sum_tax">0원</td></tr>
                             <tr>
-                                <td id="otc_container">
-                                    <div style="font-weight: 700;">Others Charges</div>
-                                    <div id="otc_divider" class="otc-divider" style="display:none;"></div>
-                                    <div id="otc_list" class="otc-list"></div>
+                                <td style="vertical-align: middle; font-weight: 700; color: var(--deep-teal);">Complete Destination Charges</td>
+                                <td class="align-right" id="sum_cds" style="vertical-align: middle; font-weight: 700;">0원</td>
+                            </tr>
+                            
+                            <tr>
+                                <td style="vertical-align: top; padding-bottom: 12px;">
+                                    <div style="font-weight: 700; color: var(--deep-teal);">Additional Charge</div>
+                                    <div id="add_list" class="otc-list" style="margin-top: 8px;"></div>
                                 </td>
-                                <td class="align-right" style="vertical-align: top;">-</td>
+                                <td class="align-right" style="vertical-align: top; padding-bottom: 12px;">
+                                    <div id="sum_add" style="font-weight: 700;">0원</div>
+                                    <div id="add_amt_list" class="otc-list" style="margin-top: 8px; align-items: flex-end;"></div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td style="vertical-align: middle; font-weight: 700; color: var(--deep-teal);">Tax & Duty</td>
+                                <td class="align-right" id="sum_tax" style="vertical-align: middle; font-weight: 700;">0원</td>
+                            </tr>
+                            
+                            <tr>
+                                <td style="vertical-align: top; padding-bottom: 12px;">
+                                    <div style="font-weight: 700; color: var(--deep-teal);">Others Charges</div>
+                                    <div id="otc_list" class="otc-list" style="margin-top: 8px;"></div>
+                                </td>
+                                <td class="align-right" style="vertical-align: top; padding-bottom: 12px;">
+                                    <div style="font-weight: 700;">-</div>
+                                </td>
                             </tr>
                         </tbody>
                         </table>
@@ -177,9 +189,23 @@
                 </div>
             </section>
 
-            <div class="final-total-section">
-                <div class="final-label">최종 예상 견적 금액</div>
-                <div class="final-amount" id="q_final_total">0원</div>
+            <div class="final-total-section" style="display: block;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="final-label" style="display: flex; align-items: center; gap: 15px;">
+                        최종 예상 견적 금액
+                        <select id="finalCurrencySelect" style="padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.4); background: rgba(0,0,0,0.2); color: #fff; font-weight: 800; font-size: 1.1rem; outline: none; cursor: pointer;">
+                            <option value="USD" selected style="color: #333;">USD</option>
+                            <option value="EUR" style="color: #333;">EUR</option>
+                            <option value="KRW" style="color: #333;">KRW</option>
+                        </select>
+                    </div>
+                    <div class="final-amount" id="q_final_total_converted" style="font-size: 2.8rem;">조회 중...</div>
+                </div>
+                
+                <hr style="border: 0; border-top: 1px dashed rgba(255, 255, 255, 0.4); margin: 25px 0 20px 0;">
+                
+                <div id="q_final_breakdown" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px; font-size: 1.25rem; font-weight: 600; color: var(--light-mint);">
+                    </div>
             </div>
 
             <div class="action-buttons">
@@ -203,16 +229,11 @@
     <script src="../../3_components/5_trc-modal/one_click_trc.js"></script>
     <script src="../../3_components/6_packing-modal/one_click_packing.js"></script>
     
-    <script src="../../2_common/3_api/outbound_sos_api.js"></script>
     <script src="./one_click_quo.js"></script>
-
-
+    <script src="./one_click_quo_ofc.js"></script>
 
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d8014be9aeabfb44e1705e125f327105&libraries=services"></script>
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 
-
-
-
-    </body>
+</body>
 </html>
