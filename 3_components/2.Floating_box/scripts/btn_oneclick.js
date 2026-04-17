@@ -1,34 +1,42 @@
 /* Floating_box/scripts/btn_oneclick.js */
 (function() {
   
-  // ✨ 표 데이터와 합계 금액을 포장해서 넘기는 함수
   function handleOneClick(mode) {
     let partnerName, country, region, cargo, tableWrapId, totalDisplayId;
+    let actualPoe = ''; // ✨ 추가: POE 값을 담을 변수 선언
 
     if (mode === 'SINGLE') {
-      // 1-1. 단일 조회 모드일 때 정보 가져오기
       partnerName = document.getElementById('sumCompany')?.textContent || '-';
       country = document.getElementById('sumCountry')?.textContent || '-';
       region = document.getElementById('sumRegion')?.textContent || '-';
       cargo = document.getElementById('sumCbmType')?.textContent || '-';
       tableWrapId = 'tableWrap';
       totalDisplayId = 'totalDisplayOne';
+      
+      // ✨ 단일 조회 시 POE 값을 가져옴 (예: 결과창 어딘가에 숨겨진 값이나 title에서 추출)
+      // 만약 결과창의 제목(title)이 "미국 파트너명 (USLAX) 견적" 이런 식이라면
+      // 괄호 안의 값을 추출하는 기존 로직이 맞는지 확인해야 합니다.
+      actualPoe = document.querySelector('#poeCombo input')?.value.trim();
+      
     } else if (mode === 'A') {
-      // 1-2. 비교 모드 (기존 파트너 A)
       partnerName = document.getElementById('cmpPartnerA')?.textContent || '-';
       country = document.getElementById('cmpCountry')?.textContent || '-';
       region = document.getElementById('cmpRegion')?.textContent || '-';
       cargo = document.getElementById('cmpCbmType')?.textContent || '-';
       tableWrapId = 'tableWrapA';
       totalDisplayId = 'totalDisplayA';
+      
+      actualPoe = document.querySelector('#poeCombo input')?.value.trim() || document.getElementById('titleA')?.textContent.match(/\(([^)]+)\)/)?.[1];
+      
     } else if (mode === 'B') {
-      // 1-3. 비교 모드 (신규 파트너 B)
       partnerName = document.getElementById('cmpPartnerB')?.textContent || '-';
       country = document.getElementById('cmpCountry')?.textContent || '-';
       region = document.getElementById('cmpRegion')?.textContent || '-';
       cargo = document.getElementById('cmpCbmType')?.textContent || '-';
       tableWrapId = 'tableWrapB';
       totalDisplayId = 'totalDisplayB';
+      
+      actualPoe = document.getElementById('titleB')?.textContent.match(/\(([^)]+)\)/)?.[1];
     }
 
     const location = `${country} / ${region}`;
@@ -60,7 +68,8 @@
       location: location,
       cargo: cargo,
       tableHtml: tableHtml,
-      destTotal: destTotal
+      destTotal: destTotal,
+      poe: actualPoe
     };
 
     // 배낭에 짐 싸고 원클릭 페이지로 출발! (경로는 무조건 한 칸 위로)
