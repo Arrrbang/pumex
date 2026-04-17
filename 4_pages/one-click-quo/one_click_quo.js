@@ -1,7 +1,3 @@
-/* ==========================================================================
-   one-click-quo/one_click_quo.js
-   분류 드롭다운 적용, 원가 계산, 도착지 비용 ADD/OTC 리스트, 다중 통화 합산 로직 통합본
-   ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
     const rawData = sessionStorage.getItem('oneClickQuoteData');
@@ -13,17 +9,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const data = JSON.parse(rawData);
 
-    // 1. 기본 정보 채우기
     document.getElementById('q_partner').textContent = data.partner || '-';
     document.getElementById('q_location').textContent = data.location || '-';
     let cargoStr = data.cargo || '-';
     cargoStr = cargoStr.replace(/cbm\s*cbm/ig, 'CBM'); 
     document.getElementById('q_cargo').textContent = cargoStr;
 
-    // 2. 표 복구
+    function autoFitInfoText() {
+        const targetIds = ['q_partner', 'q_location', 'q_cargo'];
+        targetIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            
+            el.style.fontSize = '1.1rem';
+            let currentSize = 1.1;
+            
+            while (el.scrollWidth > el.clientWidth && currentSize > 0.65) {
+                currentSize -= 0.05;
+                el.style.fontSize = currentSize + 'rem';
+            }
+        });
+    }
+
+    autoFitInfoText();
+
+    window.addEventListener('resize', autoFitInfoText);
+
     const destWrap = document.getElementById('q_dest_wrap');
     if (!destWrap || !data.tableHtml) {
-        console.error("표를 넣을 공간을 찾지 못했거나 데이터가 없습니다.");
+        console.error("데이터를 재조회 해주세요.");
         return;
     }
 
@@ -40,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return currencyPrefix + val.toLocaleString('en-US') + currencySuffix;
         }
 
-        // [기능 1] 상세 리스트 초기 세팅 (드롭다운/체크박스)
         tbody.querySelectorAll('.extra-check').forEach(cb => { cb.checked = false; });
         tbody.querySelectorAll('tr').forEach(row => {
             const firstTd = row.querySelector('td.sel');
@@ -63,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // [기능 2] 요약 표 자동 합산 및 리스트업 함수 (ADD 항목 리스트 포함)
         function updateSummary() {
             let sums = { CDS: 0, ADD: 0, TAX: 0, OTC: 0 };
             let otherTitles = [];
@@ -114,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // ✨ Others Charges 리스트 업데이트 (구분선 로직 완전 제거)
             const otcListEl = document.getElementById('otc_list');
             if (otcListEl) {
                 if (otherTitles.length > 0) {
@@ -135,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         updateSummary();
 
-        // 토글 동작 및 아코디언
         const btnToggle = document.getElementById('btnListToggle');
         const contentToggle = document.getElementById('toggleContentList');
         const iconToggle = document.getElementById('toggleIconList');
@@ -159,9 +169,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ─────────────────────────────────────────────────────────
-    // [기능 3] 원가(Origin Cost) 자동 계산 로직
-    // ─────────────────────────────────────────────────────────
     function parseKrw(str) {
         if (!str) return 0;
         return Number(str.replace(/[^0-9]/g, '')) || 0;
@@ -194,9 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
         originTotalEl.textContent = formatKrw(packVal + sosVal + rccVal);
     }
 
-    // ─────────────────────────────────────────────────────────
-    // [기능 4] 다중 통화 최종 합산 및 환율 변환 로직
-    // ─────────────────────────────────────────────────────────
     function parseCurrencyText(text) {
         if (!text || text.includes('조회') || text.includes('없음') || text.includes('-')) return { currency: 'KRW', amount: 0 };
         
@@ -277,7 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 화면의 소계 텍스트가 바뀔 때마다 전체 합산 실행 
     const observer = new MutationObserver(() => calculateFinalTotal());
     const config = { childList: true, characterData: true, subtree: true };
     

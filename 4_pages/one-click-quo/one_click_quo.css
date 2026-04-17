@@ -1,14 +1,8 @@
-/* ==========================================================================
-   one_click_quo.css 
-   원클릭 최종 견적서 페이지 전용 스타일 (밝은 테마)
-   ========================================================================== */
-
 body { 
     background-color: var(--off-white) !important; 
     color: var(--dark-charcoal); 
 }
 
-/* 1320px 메인 컨테이너 */
 .page-container {
     max-width: 1320px;
     margin: 0 auto;
@@ -16,7 +10,6 @@ body {
     box-sizing: border-box;
 }
 
-/* 페이지 상단 타이틀 구역 */
 .page-header {
     text-align: center;
     margin-bottom: 30px;
@@ -33,19 +26,16 @@ body {
     font-size: 1rem;
 }
 
-/* 실제 견적서 종이 느낌의 래퍼 */
 .quote-paper {
     background: var(--white);
     border: 1px solid var(--pale-mint-gray);
     border-radius: 12px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-    /* ✨ 기존 padding: 50px; 를 아래처럼 위아래 30px, 좌우 40px로 축소 */
     padding: 30px 40px; 
     max-width: 1000px;
     margin: 0 auto 60px auto;
 }
 
-/* 각 구역(Section) 공통 */
 .quote-section {
     margin-bottom: 40px;
 }
@@ -58,9 +48,6 @@ body {
     margin-bottom: 20px;
 }
 
-/* ==========================================================================
-   구역 1: 기본 정보 그리드 (위아래 여백 최소화 & 3등분)
-   ========================================================================== */
 .info-grid {
     display: flex;
     background: var(--mint-white);
@@ -74,18 +61,17 @@ body {
     flex-direction: column;
     align-items: center;    
     justify-content: center;
-    /* ✨ 위아래 여백을 25px -> 12px로 확 줄여서 예전처럼 콤팩트하게! */
     padding: 12px 20px;     
     position: relative;     
+    min-width: 0;
 }
 
-/* 3등분 사이의 세로선 */
 .info-item:not(:last-child)::after {
     content: '';
     position: absolute;
     right: 0;
-    top: 15%;           /* 짧아진 높이에 맞게 선 위치 미세 조정 */
-    height: 70%;        /* 선의 길이도 자연스럽게 조정 */
+    top: 15%;
+    height: 70%;
     width: 1px;         
     background-color: var(--grayish-mint); 
     opacity: 0.6;       
@@ -95,7 +81,6 @@ body {
     font-size: 0.85rem;
     color: var(--medium-gray);
     font-weight: 600;
-    /* ✨ 라벨과 값 사이의 간격도 8px -> 4px로 줄여서 더 쫀쫀하게! */
     margin-bottom: 4px; 
 }
 
@@ -104,9 +89,10 @@ body {
     font-weight: 800;
     color: var(--deep-teal); 
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
-/* 구역 2: 운임 테이블 */
 .table-wrapper {
     overflow-x: auto;
     border-radius: 8px;
@@ -135,7 +121,6 @@ body {
     text-align: right !important;
 }
 
-/* 구역 3: 트럭 라우팅 정보 */
 .trucking-info {
     background: var(--mint-white);
     padding: 20px;
@@ -160,7 +145,6 @@ body {
     color: var(--medium-gray);
 }
 
-/* 소계 및 최종 합계 */
 .section-total {
     text-align: right;
     padding: 15px 10px 0 0;
@@ -195,7 +179,6 @@ body {
     letter-spacing: -0.02em;
 }
 
-/* 하단 버튼 구역 */
 .action-buttons {
     display: flex;
     justify-content: center;
@@ -225,9 +208,6 @@ body {
 }
 .btn-secondary:hover { background: var(--light-slate); }
 
-/* ==========================================================================
-   공통 비용 카드 레이아웃 (위: 제목 / 아래: 금액)
-   ========================================================================== */
 .origin-cost-grid {
     display: flex;
     gap: 20px;
@@ -239,11 +219,11 @@ body {
     background: var(--off-white);
     border: 1px solid var(--pale-mint-gray);
     border-radius: 8px;
-    padding: 18px 20px; /* 세로 배치에 맞게 위아래 여백 살짝 조절 */
+    padding: 18px 20px;
     display: flex;
-    flex-direction: column;         /* ✨ 가로(row)에서 세로(column) 배치로 변경! */
+    flex-direction: column;
     justify-content: center;
-    gap: 8px;                       /* ✨ 제목과 금액 사이의 간격 */
+    gap: 8px;
     transition: box-shadow 0.2s;
 }
 
@@ -252,53 +232,44 @@ body {
 }
 
 .cost-card-header {
-    font-size: 0.95rem;             /* ✨ 폰트 사이즈 축소 (기존 1.15rem -> 0.95rem) */
+    font-size: 0.95rem;
     font-weight: 700;
-    color: var(--deep-gray-color);  /* 제목을 살짝 차분한 회색으로 빼서 금액을 더 강조 */
+    color: var(--deep-gray-color);
     margin: 0; 
-    text-align: left;               /* 제목은 좌측 상단에 고정 */
+    text-align: left;
 }
 
 .cost-card-amount {
     font-size: 1.5rem;
     font-weight: 800;
     color: var(--dark-charcoal);
-    text-align: right;              /* 금액은 우측 하단에 배치하여 시선 분산 방지 */
+    text-align: right;
     letter-spacing: -0.02em;
     margin: 0;
 }
 
-/* ==========================================================================
-   원가 전용 미니 카드 (높이 최소화, 폰트 축소, 시선 분산 방지)
-   ========================================================================== */
+
 .cost-card.mini-card {
-    flex-direction: row;            /* ✨ 세로에서 가로(Row) 배치로 변경하여 높이 확 축소 */
-    justify-content: space-between; /* 양 끝 정렬 */
-    align-items: center;            /* 수직 중앙 정렬 */
-    padding: 12px 15px;             /* ✨ 위아래 여백을 대폭 줄여서 아주 슬림하게 */
-    background: var(--white);       /* 해상운임 카드와 살짝 다르게 흰색으로 눌러줌 */
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: var(--white);
 }
 
-/* 미니 카드 - 제목 */
 .cost-card.mini-card .cost-card-header {
-    font-size: 0.85rem;             /* ✨ 글씨 크기 대폭 축소 */
+    font-size: 0.85rem;
     font-weight: 600;
-    color: var(--medium-gray);      /* 시선을 끌지 않도록 튀지 않는 중간 회색 적용 */
+    color: var(--medium-gray);
 }
 
-/* 미니 카드 - 금액 */
 .cost-card.mini-card .cost-card-amount {
-    font-size: 1.1rem;              /* ✨ 금액 크기도 일반 카드의 1.5rem에서 1.1rem으로 축소 */
+    font-size: 1.1rem;
     font-weight: 700;
-    color: var(--dark-charcoal);    /* 차분한 진회색 유지 */
+    color: var(--dark-charcoal);
 }
 
 
-
-/* ==========================================================================
-   1열 (선택 셀) 패딩 제거 및 드롭다운 가운데 정렬 스타일링
-   ========================================================================== */
-/* 1열 공간 확보를 위해 좌우 패딩을 없애고 내용물을 가운데로 정렬합니다 */
 .quote-table td.sel {
     padding: 0 !important; 
     text-align: center;
@@ -311,20 +282,18 @@ body {
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 100%; /* 부모(td)의 높이에 완벽하게 꽉 들어참 */
-    padding: 0;   /* ✨ 여백을 0으로 만들어 뚱뚱해지는 현상 완벽 차단! */
+    height: 100%;
+    padding: 0;
     margin: 0;
     cursor: pointer; 
 }
 
-/* 체크박스 자체의 크기도 살짝 키워서 시원시원하게 변경 */
 .sel-check input[type="checkbox"] {
     width: 16px;
     height: 16px;
     cursor: pointer;
 }
 
-/* 표 내부 드롭다운 자연스럽게 스타일링 */
 .type-select {
     appearance: none; 
     -webkit-appearance: none;
@@ -355,7 +324,6 @@ body {
     color: var(--deep-gray-color); 
 }
 
-/* ✨ 클릭(포커스) 시 흰색 대신 화사한 민트-화이트 적용, 폰트색 유지 */
 .type-select:focus {
     outline: none;
     background-color: var(--mint-white); 
@@ -364,24 +332,19 @@ body {
     box-shadow: 0 0 0 2px rgba(var(--medium-teal-rgb), 0.1);
 }
 
-/* 요약표의 기타 리스트 구분선 */
 #otc_divider {
     letter-spacing: -1px;
 }
 
-/* ==========================================================================
-   Others Charges 상세 리스트 (네모 박스 제거, 깔끔한 글머리기호 텍스트 폼)
-   ========================================================================== */
 .otc-divider {
     margin: 8px 0;
-    /* 촌스러운 --- 텍스트 대신, 아주 얇고 은은한 진짜 CSS 점선 적용 */
     border-top: 1px dashed rgba(0, 0, 0, 0.15); 
 }
 
 .otc-list {
     display: flex;
     flex-direction: column;
-    gap: 4px; /* 텍스트 줄 간격 쫀쫀하게 */
+    gap: 4px;
 }
 
 .otc-item {
@@ -389,40 +352,29 @@ body {
     color: var(--medium-gray);
     display: flex;
     align-items: flex-start;
-    
-    /* ✨ 네모 박스 느낌을 내던 속성들 전부 삭제! */
     background: transparent; 
     border: none; 
-    padding: 2px 0; /* 위아래 숨통만 살짝 틔워줌 */
+    padding: 2px 0;
 }
 
-/* 텍스트 앞 깔끔한 동그라미 글머리 기호 (•) */
 .otc-item::before {
     content: '•'; 
-    color: var(--medium-teal); /* 테마에 맞춘 민트색 포인트 */
+    color: var(--medium-teal);
     margin-right: 6px;
     font-weight: 800;
 }
 
-
-/* ==========================================================================
-   🖨️ 인쇄 (Print) 및 PDF 저장 전용 스타일
-   - 화면 확대 방지 및 A4 용지 너비에 완벽 맞춤
-   ========================================================================== */
 @media print {
-    /* 1. 배경색상 강제 인쇄 */
     * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
 
-    /* 2. A4 용지 세로 방향 및 기본 여백 설정 (상하 15mm, 좌우 10mm 중앙정렬) */
     @page {
         size: A4 portrait;
         margin: 15mm 10mm; 
     }
 
-    /* 3. 인쇄할 때 보일 필요 없는 껍데기 및 플로팅 요소들 완벽 숨김! */
     #header-placeholder,
     .action-buttons,
     .list-toggle-container,
@@ -433,7 +385,6 @@ body {
         display: none !important;
     }
 
-    /* 견적서 타이틀은 인쇄 시 여백을 살짝 줄여서 딱 맞게 출력되도록 조정 */
     .page-header {
         text-align: center;
         padding-top: 0 !important;
@@ -441,7 +392,6 @@ body {
         margin-bottom: 15px !important;
     }
 
-    /* 4. 핵심: 화면 너비를 100%로 설정하여 잘림 방지 및 중앙 정렬 */
     html, body {
         background-color: var(--white) !important; 
         padding: 0 !important; 
@@ -456,7 +406,6 @@ body {
         max-width: 100% !important;
     }
 
-    /* 기존 1000px 고정을 해제하고 100%로 변경하여 우측 잘림 완벽 해결 */
     .quote-paper {
         box-shadow: none !important;
         border: none !important;
@@ -467,7 +416,6 @@ body {
         box-sizing: border-box !important;
     }
 
-    /* 5. 카드들이 용지가 좁다고 세로로 줄바꿈 되는 현상 방지 */
     .info-grid, 
     .origin-cost-grid {
         display: flex !important;

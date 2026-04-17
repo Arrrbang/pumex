@@ -270,7 +270,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 1.5rem !important;
+  margin-top: 1rem;
+  margin-bottom: 2.5rem !important;
 }
 
 .combo-line-row {
@@ -444,7 +445,12 @@ input[type="text"]:disabled,
 
 /* 최하단 메인 조회 버튼 (Primary Button) */
 .action-row { display: flex; justify-content: flex-end; margin: 12px 0 0; }
-.action-row.center { display: flex; justify-content: center; align-items: center; margin: 2rem auto 0; }
+.action-row.center { 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  margin: 3.5rem auto 0; 
+}
 
 .primary-btn {
   position: relative;
@@ -478,3 +484,17 @@ input[type="text"]:disabled,
   border-radius: 50%; animation: primarySpin 0.8s linear infinite; pointer-events: none;
 }
 @keyframes primarySpin { to { transform: rotate(360deg); } }
+
+/* ==========================================================================
+   국가 선택 전 지도 검색창 비활성화 (금지 표시)
+   ========================================================================== */
+.leaflet-control-geocoder.is-disabled {
+  cursor: not-allowed !important;
+  background-color: #f1f5f9 !important; /* 살짝 회색빛으로 비활성화 느낌 강조 */
+}
+.leaflet-control-geocoder.is-disabled * {
+  pointer-events: none !important; /* 내부 클릭 완전 차단 */
+}
+.leaflet-control-geocoder.is-disabled input::placeholder {
+  color: #94a3b8 !important;
+}

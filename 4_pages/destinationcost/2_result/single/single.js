@@ -1,9 +1,8 @@
-
+/* 2_result/single/single.js */
 ;(function(){
   'use strict';
 
   const BASE = 'https://notion-api-hub.vercel.app';
-
 
 // ---------------------------- 공용 유틸 ----------------------------
   function esc(s){
@@ -103,7 +102,6 @@
     return numberFormats[k] || numberFormats[k.toUpperCase()] || numberFormats[k.toLowerCase()] || '';
   }
 
-  // ✨ 이 함수가 지워져서 에러가 났던 겁니다! 다시 살려냅니다!
   function formatAmount(n, columnKey){
     let val = Number(n);
     if (!Number.isFinite(val)) return '';
@@ -118,7 +116,6 @@
     return val.toLocaleString();
   }
 
-  // (이 아래부터는 원래 있던 코드입니다)
   window.CostUI = window.CostUI || {};
   window.CostUI.formatAmount = formatAmount;
 
@@ -259,7 +256,6 @@ function makeController(){
         await loadCargoTypesForPartner();
       });
 
-      // 조회 버튼 로직 (에러나던 부분 완전히 고침!)
       const btn = document.getElementById(ids.btnFetch);
       if (btn && !btn.dataset.bound){
         btn.dataset.bound = '1';
@@ -282,10 +278,8 @@ function makeController(){
             if (!country){ alert('국가를 선택하세요.'); return; }
             if (!company){ alert('업체를 선택하세요.'); return; }
 
-            // ✨ 1. API 매니저에게 통신 심부름만 시킵니다.
             const data = await window.CostAPI.fetchCosts(country, region, company, cargo, type, cbm, poe);
 
-            // ✨ 2. 통화 및 포맷 처리 로직 (원래 fetchCosts 안에 있던 것을 일로 가져옴)
             Object.assign(numberFormats, data?.numberFormats || {});
             
             const typeCurrency =
@@ -309,7 +303,6 @@ function makeController(){
               inferredFromFmt || data?.meta?.currency || data?.meta?.currencyCode || ''
             ).toString().toUpperCase();
 
-            // 1. 바텀 바 요약 칩 채우기
             window.BottomBar.updateSummary(country, region, company, type, cbm);
             window.TableRenderer.render(ids.tableWrap, data, type, Boolean(region), cbm);
             window.BottomBar.initTotalCalculator(ids.tableWrap, 'totalDisplayOne', type);
@@ -318,10 +311,10 @@ function makeController(){
             if (btnOneClickA) {
                 btnOneClickA.textContent = `${company} 원클릭 견적`;
             }
-            // ✨ 4. [핵심 해결!] 싱글쪽도 비교쪽처럼 환율 변환기의 전원을 확실히 켭니다!
+
             if (window.CurrencyConverter) {
-              window.CurrencyConverter.init(); // 드롭다운 감시 시작!
-              window.CurrencyConverter.applyCurrent(); // 현재 환율 즉시 적용!
+              window.CurrencyConverter.init(); 
+              window.CurrencyConverter.applyCurrent(); 
             }
 
             showResultSection(true); 
@@ -334,12 +327,11 @@ function makeController(){
               }catch(_){}
             }
 
-            setTimeout(() => {
-              const resultSec = document.getElementById(ids.resultSection);
-              if (resultSec) {
-                resultSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }, 100);
+            // ✨ 화면이 "따닥" 하고 튀는 원인이었던 지연 스크롤(setTimeout) 제거!
+            // 지도가 접히면서 빈 공간이 사라지면 결과창이 자연스럽게 맨 위로 올라오므로,
+            // 엇박자 없이 깔끔하게 최상단으로 한 번만 맞춰줍니다.
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
           }catch(e){
             console.error(e);
             alert('조회 중 오류가 발생했습니다.');

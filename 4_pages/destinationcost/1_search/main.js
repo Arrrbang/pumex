@@ -96,9 +96,12 @@ async function initAlwaysOnMap(){
     console.warn('map.json 로드 실패:', e);
     mapData = {};
   }
-  mapInited = true;
-  setTimeout(()=> map.invalidateSize(), 100);
-}
+    mapInited = true;
+    setTimeout(()=> {
+      map.invalidateSize();
+      updateGeocoderState(); 
+    }, 100);
+  }
 
 function setMapCountry(country){
   if (!mapInited) return;
@@ -200,6 +203,24 @@ function enhanceTypeAhead(id, baseItems){
     setItems(matched);
   });
   document.addEventListener('pointerdown',(e)=>{ if (!root.contains(e.target)) list.style.display='none'; });
+}
+
+// 검색창 활성화/비활성화 상태 업데이트 함수
+function updateGeocoderState() {
+  if (!geocoder) return;
+  const container = geocoder.getContainer();
+  if (!container) return;
+  
+  const country = getCountry();
+  const input = container.querySelector('input');
+
+  if (country) {
+    container.classList.remove('is-disabled');
+    if (input) input.disabled = false;
+  } else {
+    container.classList.add('is-disabled');
+    if (input) input.disabled = true;
+  }
 }
 
 // ---------------------------- 데이터 로딩 ----------------------------
@@ -317,21 +338,18 @@ function initCbmCombos() {
 
 // ---------------------------- 이벤트 바인딩 ----------------------------
 function wireEvents(){
-  // ❌ 탭 전환 버튼 관련 로직 전체 삭제 (단일 탭이므로 필요 없음)
-  const btnCheck = document.getElementById('costCheck');
-  if(btnCheck) {
-    btnCheck.classList.add('is-active'); // 버튼 항상 활성화 상태 유지
-  }
+  // ✨ 에러를 유발하던 btnCheck 로직 깔끔하게 삭제됨!
 
-  // 국가/지역 변경 (기존 유지)
+  // 국가/지역 변경
   document.querySelector('#countryCombo input')?.addEventListener('change', async ()=>{
     await loadRegions();
     const c = getCountry(); if (c) setMapCountry(c);
+    updateGeocoderState(); 
   });
+  
   document.querySelector('#regionCombo input')?.addEventListener('change', ()=>{
     const region = getRegion(); if (region) zoomToRegion(region, { fallbackZoom: 12 });
   });
-
 }
 
 // ---------------------------- 초기화 ----------------------------
@@ -343,7 +361,6 @@ window.expandShellUI = function() {
   return expandShell();
 };
 
-// ✨ 1. 단일 조회 로드 함수 (기존 유지)
 async function loadSingleResultComponent() {
   try {
     const response = await fetch('../2_result/single/index.html'); 
@@ -356,10 +373,8 @@ async function loadSingleResultComponent() {
   }
 }
 
-// ✨ 2. 비교 조회 로드 함수 (복구!)
 async function loadCompareResultComponent() {
   try {
-    // 캡처 이미지 구조에 맞게 경로 설정
     const response = await fetch('../2_result/compare/index.html'); 
     if (!response.ok) throw new Error('비교조회 컴포넌트 로드 실패');
     
@@ -371,7 +386,6 @@ async function loadCompareResultComponent() {
   }
 }
 
-// ✨ 3. 로드 실행!
 window.addEventListener('DOMContentLoaded', async ()=>{
   await loadSingleResultComponent();
   await loadCompareResultComponent();
@@ -380,7 +394,7 @@ window.addEventListener('DOMContentLoaded', async ()=>{
   initCbmCombos();
   wireEvents();
   
-window.CostUI?.one?.init();
+  window.CostUI?.one?.init();
   
   const initialCountry = getCountry();
   if (initialCountry) setMapCountry(initialCountry);
