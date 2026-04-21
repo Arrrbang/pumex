@@ -41,6 +41,11 @@ async function applyOfcCostToQuote() {
     }
     const containerType = (data.type || data.cargo || '').toUpperCase(); 
 
+    // ✨ 1. CBM 숫자 추출 (CONSOLE 비례 계산용)
+    const cbmString = document.getElementById('sumCbmType') ? document.getElementById('sumCbmType').textContent : '1';
+    const cbmMatch = cbmString.match(/(\d+(\.\d+)?)\s*CBM/i);
+    const cbm = cbmMatch ? parseFloat(cbmMatch[1]) : 1; 
+
     const ofcDisplayEl = document.getElementById('q_ocean_ofc');
     const surchargeDisplayEl = document.getElementById('q_ocean_surcharge');
     const oceanTotalEl = document.getElementById('q_ocean_total');
@@ -49,12 +54,15 @@ async function applyOfcCostToQuote() {
     ofcDisplayEl.textContent = "조회 중...";
     if(surchargeDisplayEl) surchargeDisplayEl.textContent = "조회 중...";
 
-    // 1) 부대비용 산출 로직 (20피트: 25만 / 40HC: 30만)
+    // 1) 부대비용 산출 로직 (20피트: 25만 / 40HC: 30만 / CONSOLE: 40HC기준 비례계산)
     let surchargeKrw = 0;
     if (containerType.includes('20')) {
         surchargeKrw = 250000;
     } else if (containerType.includes('40')) {
         surchargeKrw = 300000;
+    } else if (containerType.includes('CONSOLE')) {
+        // 👈 요청하신 CONSOLE 부대비용 비례 계산 로직 반영 (300,000 / 68 * CBM)
+        surchargeKrw = Math.round((300000 / 68) * cbm);
     }
 
     // 2) OFC 노션 DB와 환율 API 동시 호출!
@@ -78,7 +86,7 @@ async function applyOfcCostToQuote() {
     let extraTotal = 0;     
     let finalCost = null;   
     let ofcPageId = null;   
-    let validityDate = "";  // ✨ 적용일 저장용 변수
+    let validityDate = "";  
 
     if (result) {
         let { ofcData, extraCosts } = result;
@@ -90,11 +98,13 @@ async function applyOfcCostToQuote() {
                 baseCost = ofcData.cost20DR || 0;
             } else if (containerType.includes('40')) {
                 baseCost = ofcData.cost40HC || 0;
+            } else if (containerType.includes('CONSOLE')) { // 👈 여기도 .includes로 수정!
+                // ✨ 2. CONSOLE 기본 해상운임 계산 로직 (40HC / 68 * CBM)
+                const hcCost = ofcData.cost40HC || 0;
+                baseCost = Math.round((hcCost / 68) * cbm); 
             }
 
-            // ✨ 적용일(validity) 추출 및 포맷팅 (YYYY-MM-DD -> YYYY/MM/DD)
             if (ofcData.validity) {
-                // 종료일(end)이 있으면 종료일 우선, 없으면 시작일(start) 사용
                 const rawDate = ofcData.validity.end || ofcData.validity.start;
                 if (rawDate) {
                     validityDate = rawDate.replace(/-/g, '/');
@@ -110,18 +120,18 @@ async function applyOfcCostToQuote() {
                     currentAmt = item.cost20 || 0;
                 } else if (containerType.includes('40')) {
                     currentAmt = item.cost40 || 0;
+                } else if (containerType.includes('CONSOLE')) { // 👈 여기도 .includes로 수정!
+                    // ✨ 3. CONSOLE 추가 운임 백엔드 값 그대로 가져오기
+                    currentAmt = item.costCONSOLE || 0;
                 }
                 
-                // 모달 테이블에 하나로 합쳐서 보여주기 위해 amount 변수에 확정값 할당
                 item.amount = currentAmt;
                 return sum + currentAmt;
             }, 0);
             
-            // 금액이 0원인 항목은 리스트에서 필터링하여 모달창을 깔끔하게 유지
             result.extraCosts = extraCosts.filter(item => item.amount > 0);
         }
 
-        // 최종 금액 도출
         if (ofcData || extraCosts.length > 0) {
             finalCost = baseCost + extraTotal;
         }
@@ -129,13 +139,11 @@ async function applyOfcCostToQuote() {
 
     // 3) 금액 최종 변환 (합산)
     let ofcUsd = finalCost || 0;
-    let surchargeUsd = surchargeKrw * krwToUsdRate; // 부대비용 원화를 달러로 변환
-    let totalOceanUsd = ofcUsd + surchargeUsd;      // 해상운임 총계 (달러)
+    let surchargeUsd = surchargeKrw * krwToUsdRate; 
+    let totalOceanUsd = ofcUsd + surchargeUsd;      
 
     // UI 업데이트
     if (finalCost !== null && finalCost !== undefined) {
-        
-        // ✨ 적용일 HTML 태그 생성 (글씨 크기를 작게 하여 운임 좌측에 렌더링)
         let validityHtml = "";
         if (validityDate) {
             validityHtml = `<span style="font-size: 0.85rem; color: var(--medium-gray); font-weight: 600; margin-right: 12px; letter-spacing: 0;">적용일 : ~${validityDate} 까지</span>`;
@@ -149,7 +157,6 @@ async function applyOfcCostToQuote() {
         ofcCardEl.onmouseenter = () => ofcCardEl.style.opacity = '0.8';
         ofcCardEl.onmouseleave = () => ofcCardEl.style.opacity = '1';
 
-        // 팝업 모달에도 날짜 데이터를 함께 넘겨줍니다.
         ofcCardEl.onclick = () => openOfcDetailModal(ofcPageId, result.extraCosts, baseCost, finalCost, validityDate);
     } else {
         ofcDisplayEl.textContent = "별도 문의";
@@ -158,13 +165,11 @@ async function applyOfcCostToQuote() {
         ofcCardEl.onclick = null; 
     }
 
-    // 부대비용 및 소계 UI 렌더링
     if (surchargeDisplayEl) {
         surchargeDisplayEl.innerHTML = `${surchargeKrw.toLocaleString('ko-KR')}원 <span style="font-size: 0.65em; color: var(--medium-gray); font-weight:600;">($${surchargeUsd.toLocaleString('en-US', {maximumFractionDigits:2})})</span>`;
     }
 
     if (oceanTotalEl) {
-        // 전체 해상운임 소계 달러 표기
         oceanTotalEl.textContent = `$${totalOceanUsd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
 }
@@ -197,7 +202,6 @@ function openOfcDetailModal(pageId, extraCosts = [], baseCost = 0, finalCost = 0
         extraCostRows = `<tr><td colspan="2" style="padding: 15px; text-align:center; color:#999;">해당 타입에 적용된 추가 운임이 없습니다.</td></tr>`;
     }
 
-    // ✨ 팝업창 중앙 윗부분에 적용일(유효기간) 안내 메시지 추가
     let validityTextHtml = validityDate ? `<div style="text-align: center; color: var(--medium-gray); font-size: 0.9rem; font-weight: 600; margin-bottom: 15px;">유효 기간 : ~${validityDate} 까지</div>` : '';
 
     const modalContent = `
