@@ -70,7 +70,7 @@
           const extra = r.extra || r['참고사항'] || '';
           const item = r.item || '상세 정보';
           
-          tbody += `<tr class="row-other"><td class="sel">-</td><td colspan="2" class="item-cell has-extra hover-dim"><div class="item-title"><span class="toggle-icon">▶</span> <span>${allowBr(item)}</span></div><div class="item-extra">${allowBr(extra)}</div></td></tr>`;
+          tbody += `<tr class="row-other"><td class="sel">-</td><td colspan="2" class="item-cell has-extra hover-dim"><div class="item-title"><span class="toggle-icon">▶</span> <span>${allowBr(item)}</span></div><div class="item-extra">${extra}</div></td></tr>`;
         } else {
           const amt = r?.[type];
           let rawAmt = Number(amt);
@@ -89,7 +89,7 @@
               <td class="sel">${bType === '추가' ? `<label class="sel-check"><input type="checkbox" class="extra-check" data-raw="${rawAmt}"></label>` : '기본'}</td>
               <td class="item-cell ${hasExtra ? 'has-extra hover-dim' : ''}">
                 <div class="item-title">${toggleIcon} <span>${allowBr(item)}</span></div>
-                ${hasExtra ? `<div class="item-extra">${allowBr(extra)}</div>` : ''}
+                ${hasExtra ? `<div class="item-extra">${extra}</div>` : ''}
               </td>
               <td class="amt" data-raw="${rawAmt}" data-base-amt="${rawAmt}">${amtTxt}</td>
             </tr>`;
