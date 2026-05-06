@@ -38,14 +38,15 @@
         return;
       }
 
+      // ✨ 프론트엔드: 통합된 rowType(CDS, ADD, TAX, OTC) 기준으로 정렬 및 UI 그룹화
       rows.sort((a, b) => {
         const getGroup = (r) => {
-          const dType = String(r.displayType || r['표시타입'] || '').trim();
-          const bType = String(r.basicType || r['기본/추가'] || '').trim();
-          if (dType === '기타내용') return 3; 
-          if (bType === '추가' || bType === '선택') return 2; 
-          return 1; 
+          const rType = String(r.rowType || '').trim().toUpperCase();
+          if (rType === 'TAX' || rType === 'OTC') return 3; // 최하단 아코디언 영역
+          if (rType === 'ADD') return 2; // 추가 선택(체크박스) 영역
+          return 1; // CDS (기본 픽스) 영역
         };
+        
         const groupA = getGroup(a);
         const groupB = getGroup(b);
         if (groupA !== groupB) return groupA - groupB;
@@ -63,15 +64,18 @@
 
       let tbody = '';
       rows.forEach(r => {
-        const bType = String(r.basicType || '').trim();
-        const dType = String(r.displayType || r['표시타입'] || '').trim();
+        const rType = String(r.rowType || '').trim().toUpperCase();
         
-        if (dType === '기타내용') {
+        // TAX와 OTC는 하단의 아코디언(기타내용) 형식으로 렌더링
+        if (rType === 'TAX' || rType === 'OTC') {
           const extra = r.extra || r['참고사항'] || '';
           const item = r.item || '상세 정보';
           
           tbody += `<tr class="row-other"><td class="sel">-</td><td colspan="2" class="item-cell has-extra hover-dim"><div class="item-title"><span class="toggle-icon">▶</span> <span>${allowBr(item)}</span></div><div class="item-extra">${extra}</div></td></tr>`;
-        } else {
+        } 
+        // CDS(기본)와 ADD(체크박스)는 표 상단의 항목으로 렌더링
+        else {
+          const isAdd = (rType === 'ADD'); // ADD 타입인지 판별
           const amt = r?.[type];
           let rawAmt = Number(amt);
           if (!Number.isFinite(rawAmt)) rawAmt = 0;
@@ -85,8 +89,8 @@
           const toggleIcon = hasExtra ? '<span class="toggle-icon">▶</span>' : '<span class="toggle-icon"></span>';
 
           tbody += `
-            <tr class="${bType === '추가' ? 'row-extra' : 'row-basic'}">
-              <td class="sel">${bType === '추가' ? `<label class="sel-check"><input type="checkbox" class="extra-check" data-raw="${rawAmt}"></label>` : '기본'}</td>
+            <tr class="${isAdd ? 'row-extra' : 'row-basic'}">
+              <td class="sel">${isAdd ? `<label class="sel-check"><input type="checkbox" class="extra-check" data-raw="${rawAmt}"></label>` : '기본'}</td>
               <td class="item-cell ${hasExtra ? 'has-extra hover-dim' : ''}">
                 <div class="item-title">${toggleIcon} <span>${allowBr(item)}</span></div>
                 ${hasExtra ? `<div class="item-extra">${extra}</div>` : ''}

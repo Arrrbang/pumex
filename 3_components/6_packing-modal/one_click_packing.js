@@ -72,37 +72,24 @@
         document.getElementById('btnPackDetailClose').onclick = closePopup;
         overlay.onclick = closePopup;
 
-        // 지방포장비 카드 전체를 버튼으로 만들기
         const packValueEl = document.getElementById('q_cost_local_pack');
-        if (packValueEl) {
-            const clickableBox = packValueEl.parentElement; 
-            clickableBox.style.cursor = 'pointer';
-            clickableBox.title = "클릭하여 비용 계산 또는 상세 내역 확인";
-            
-            clickableBox.style.transition = 'transform 0.1s ease, box-shadow 0.2s';
-            clickableBox.onmouseenter = () => {
-                clickableBox.style.transform = 'scale(0.98)';
-                clickableBox.style.boxShadow = 'inset 0 2px 5px rgba(0,0,0,0.05)';
-            };
-            clickableBox.onmouseleave = () => {
-                clickableBox.style.transform = 'scale(1)';
-                clickableBox.style.boxShadow = 'none';
-            };
-            
-            // 박스 클릭 시 분기 처리
-            clickableBox.onclick = () => {
-                const infoStr = packValueEl.dataset.packInfo;
-                if (infoStr) {
-                    renderDetailPopup(JSON.parse(infoStr));
-                    overlay.style.display = 'block';
-                    popup.style.display = 'block';
-                } else {
-                    // 계산된 게 없으면 검색 팝업 열기
-                    const btnOpen = document.getElementById('btnOpenPacking');
-                    if (btnOpen) btnOpen.click();
-                }
-            };
-        }
+            if (packValueEl) {
+                packValueEl.style.cursor = 'pointer';
+                packValueEl.title = "계산 완료 후 클릭하여 상세 내역 확인";
+                
+                packValueEl.onclick = () => {
+                    const infoStr = packValueEl.dataset.packInfo;
+                    if (infoStr) {
+                        // 1. 계산된 데이터가 있을 때만 상세 내역 팝업 열기
+                        renderDetailPopup(JSON.parse(infoStr));
+                        overlay.style.display = 'block';
+                        popup.style.display = 'block';
+                    } else {
+                        // 2. 계산 전에는 계산창을 열지 않고 안내만 하기 (이 줄을 지우면 아무 반응도 안 하게 됩니다)
+                        alert("돋보기 아이콘을 눌러 포장비를 먼저 계산해 주세요.");
+                    }
+                };
+            }
     }
 
     // ✨ 2. 세부 비용 및 토글 공지사항 렌더링
@@ -231,7 +218,7 @@
                             if (typeof tFee === 'number') sum += tFee; else isText = true;
 
                             // 둘 중 하나라도 "별도 문의" 같은 텍스트면 합계를 문자로 표시
-                            packEl.textContent = (isText && sum === 0) ? "별도 문의 필요" : sum.toLocaleString() + '원';
+                            packEl.textContent = (isText && sum === 0) ? "별도 문의 필요" : sum.toLocaleString();
                             
                             // 상세 내역을 팝업에 넘겨주기 위해 태그에 데이터 저장!
                             packEl.dataset.packInfo = JSON.stringify({ partner: partner, data: result.data });

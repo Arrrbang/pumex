@@ -78,7 +78,7 @@
 
                         const select = document.getElementById('trcTypeSelect');
                         if (cargo.toUpperCase().includes('CON') || cargo.toUpperCase().includes('LCL')) {
-                            select.value = 'console';
+                            select.value = 'console40';
                         } else if (cargo.includes('20')) {
                             select.value = 'cost20';
                         } else if (cargo.includes('40')) {
@@ -145,22 +145,52 @@
                     const costData = await costRes.json();
 
                     if (costData.found) {
+
+                        // 1. 상세 주소 (Origin Address) 업데이트
+                        const originAddEl = document.getElementById('q_origin_add');
+                        if (originAddEl) {
+                            originAddEl.textContent = start; // 입력한 출발지 주소 반영
+                            originAddEl.classList.add('is-typed'); // 진한 색상 변경
+                        }
+
+                        // 2. 출항 포트 (Origin Port) 업데이트 - q_discharge_port로 변경 반영
+                        const dischargePortEl = document.getElementById('q_discharge_port');
+                        if (dischargePortEl) {
+                            let portText = '';
+                            // 도착지(end) 주소에 포함된 키워드로 포트명 판별
+                            if (end.includes('부산')) {
+                                portText = 'BUSAN, KOREA';
+                            } else if (end.includes('인천')) {
+                                portText = 'INCHEON, KOREA';
+                            } else {
+                                // 기타 지역은 주소의 앞부분(시/도)을 가져옴
+                                portText = `${end.split(' ')[0].toUpperCase()}, KOREA`;
+                            }
+                            dischargePortEl.textContent = portText;
+                            dischargePortEl.classList.add('is-typed'); // 진한 색상 변경
+                        }
+
                         let finalCost = 0;
 
-                        // 🌟 CONSOLE (LCL) 계산 로직
-                        if (type === 'console') {
-                            const base40Cost = Number(costData.data.cost40) || 0;
-                            
+                        // 🌟 CONSOLE (LCL) 및 기본 계산 로직
+                        if (type === 'console40' || type === 'console20') {
                             // CBM이 0이하 거나 에러면 방어코드 (최소 1CBM)
                             if (currentCbmValue <= 0) {
                                 alert("견적 데이터에 유효한 CBM 정보가 없어 기본 1 CBM으로 계산합니다.");
                                 currentCbmValue = 1;
                             }
-                            
-                            // (40HC 금액 / 68) * 화물 CBM -> 소수점 반올림
-                            finalCost = Math.round((base40Cost / 68) * currentCbmValue);
-                            
+
+                            if (type === 'console') {
+                                // 기존 40HC 기준 (50 나누기)
+                                const base40Cost = Number(costData.data.cost40) || 0;
+                                finalCost = Math.round((base40Cost / 50) * currentCbmValue);
+                            } else if (type === 'console20') {
+                                // 👇 신규 20DR 기준 (20 나누기)
+                                const base20Cost = Number(costData.data.cost20) || 0;
+                                finalCost = Math.round((base20Cost / 20) * currentCbmValue);
+                            }
                         } else {
+                            // FCL 등 기본 운임
                             finalCost = Number(costData.data[type]);
                         }
 
@@ -168,16 +198,20 @@
                         const shortStart = start.split(' ').slice(0, 3).join(' ');
                         const shortEnd = end.split(' ').slice(0, 3).join(' ');
 
-                        document.getElementById('q_route_start').textContent = `출발지: ${shortStart}`;
-                        document.getElementById('q_route_end').textContent = `도착지: ${shortEnd}`;
-                        
-                        if (type === 'console') {
+                        const routeStartEl = document.getElementById('q_route_start');
+                        if (routeStartEl) routeStartEl.textContent = `출발지: ${shortStart}`;
+
+                        const routeEndEl = document.getElementById('q_route_end');
+                        if (routeEndEl) routeEndEl.textContent = `도착지: ${shortEnd}`;
+
+                        // 결과 텍스트 출력도 console20을 포함하도록 수정
+                        if (type === 'console40' || type === 'console20') {
                             document.getElementById('q_route_dist').textContent = `${roundedDist}km (CBM 비례적용)`;
                         } else {
                             document.getElementById('q_route_dist').textContent = roundedDist + 'km';
                         }
                         
-                        document.getElementById('q_trucking_total').textContent = finalCost.toLocaleString() + '원';
+                        document.getElementById('q_trucking_total').textContent = finalCost.toLocaleString();
 
                         document.dispatchEvent(new CustomEvent('updateQuoteTotal'));
                         modal.style.display = 'none';

@@ -45,40 +45,29 @@
         document.getElementById('btnSosInfoClose').onclick = closePopup;
         overlay.onclick = closePopup;
 
-        // ✨ [핵심 수정] 글씨가 아닌 네모 박스 전체를 버튼으로 만듭니다!
+
+            // ✨ [수정됨] 표 전체가 꿀렁거리는 효과(parentElement) 삭제! 
+            // 금액 칸(td)만 클릭할 수 있게 하고, 돋보기와 역할을 분리합니다.
         const sosValueEl = document.getElementById('q_cost_sos');
-        if (sosValueEl) {
-            // 글씨(sosValueEl)를 감싸고 있는 부모 요소(네모 컨테이너)를 찾습니다.
-            const clickableBox = sosValueEl.parentElement; 
-            
-            clickableBox.style.cursor = 'pointer';
-            clickableBox.title = "클릭하여 적용된 상세 정보 확인";
-            
-            // ✨ UX 디테일: 마우스를 올리면 버튼처럼 살짝 들어가는 효과
-            clickableBox.style.transition = 'transform 0.1s ease, box-shadow 0.2s';
-            clickableBox.onmouseenter = () => {
-                clickableBox.style.transform = 'scale(0.98)';
-                clickableBox.style.boxShadow = 'inset 0 2px 5px rgba(0,0,0,0.05)';
-            };
-            clickableBox.onmouseleave = () => {
-                clickableBox.style.transform = 'scale(1)';
-                clickableBox.style.boxShadow = 'none';
-            };
-            
-            // 박스를 클릭했을 때의 동작
-            clickableBox.onclick = () => {
-                const info = sosValueEl.dataset.sosInfo; // 정보는 글씨 태그 안에 저장되어 있음
-                if (info) {
-                    document.getElementById('sosInfoText').textContent = info;
-                    overlay.style.display = 'block';
-                    popup.style.display = 'block';
-                } else {
-                    const btnOpenSos = document.getElementById('btnOpenSos');
-                    if (btnOpenSos) btnOpenSos.click();
-                }
-            };
+            if (sosValueEl) {
+                sosValueEl.style.cursor = 'pointer';
+                sosValueEl.title = "조회 완료 후 클릭하여 상세 정보 확인";
+                
+                // 칸(금액)을 클릭했을 때의 동작
+                sosValueEl.onclick = () => {
+                    const info = sosValueEl.dataset.sosInfo; 
+                    if (info) {
+                        // 1. 조회된 데이터가 있으면 상세 정보 팝업 열기
+                        document.getElementById('sosInfoText').textContent = info;
+                        overlay.style.display = 'block';
+                        popup.style.display = 'block';
+                    } else {
+                        // 2. 조회 전에는 칸을 눌러도 검색창이 안 뜨게 막고 안내창 띄우기
+                        alert("돋보기 아이콘을 눌러 SOS 원가를 먼저 조회해 주세요.");
+                    }
+                };
+            }
         }
-    }
 
     function initSosEvents() {
         const btnOpenSos = document.getElementById('btnOpenSos');
@@ -152,7 +141,7 @@
                     if (data.ok && data.match?.value != null) {
                         const sosValueEl = document.getElementById('q_cost_sos');
                         if (sosValueEl) {
-                            sosValueEl.textContent = data.match.value.toLocaleString() + '원';
+                            sosValueEl.textContent = data.match.value.toLocaleString();
                             
                             const dayOfWeek = new Date(dateVal).getDay(); 
                             const dayType = (dayOfWeek === 0 || dayOfWeek === 6) ? '주말' : '주중';
