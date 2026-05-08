@@ -87,7 +87,7 @@ body{
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 50px;
+  gap: 25px;
 }
 
 .GNB-top .logo{
@@ -96,7 +96,7 @@ body{
 }
 
 .GNB-top .logo img{
-  width: 125px;
+  width: 160px;
   display: block;
 }
 

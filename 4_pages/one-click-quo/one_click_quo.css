@@ -471,6 +471,11 @@ body {
     vertical-align: middle !important;
 }
 
+.excluded-charges-table tbody tr:last-child td,
+.excluded-charges-table tbody .relative-cell {
+    border-bottom: var(--table-side-bold-border) !important;
+}
+
 /* #endregion */
 
 /* #region [3. invoice-total-wrapper CSS] */

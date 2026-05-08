@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>로그인</title>
+  <title>P.A.S.S</title>
+  <link rel="icon" href="/pumex/1_assets/1_image/favicon.png" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
@@ -100,7 +101,7 @@
         // JWT 토큰 저장 및 이동
         localStorage.setItem('token', result.token);
         localStorage.setItem('username', username);
-        window.location.href = '/pumex/4_pages/home/index.html';
+        window.location.href = './4_pages/home/index.html';
       } else {
         alert('아이디 또는 비밀번호가 올바르지 않습니다.');
       }

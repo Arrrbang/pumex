@@ -242,7 +242,7 @@
                     </td>
                     <td colspan="3" class="section-title">DESTINATION CHARGES</td>
                 </tr>
-<tr>
+                <tr>
                     <td>
                         <div style="display: flex; align-items: center; gap: 8px;"> 
                             Complete Destination Charges
@@ -266,7 +266,40 @@
                         <div id="add_amt_list" style="font-size: 0.85em; color: var(--medium-gray); margin-top: 4px;"></div>
                     </td>
                 </tr>
-            <tr>
+            </tbody>
+            <tfoot>
+                <tr class="section-total-row"> 
+                    <th></th> 
+                    <th>TOTAL DESTINATION CHARGES</th>
+                    <th>
+                        <select id="destCurrencySelect" class="minimal-currency-select" style="padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: 700; color: #333; outline: none; cursor: pointer;">
+                            <option value="KRW" selected>KRW</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </th>
+                    <th class="text-right" id="q_summary_subtotal" style="font-size: 1.1em; color: var(--deep-teal);">0</th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <table class="quote-cost-table excluded-charges-table">
+            <thead>
+                <tr>
+                    <th style="width: 45px; min-width: 45px;"></th> 
+                    <th style="width: 70%;">DESCRIPTION</th>
+                    <th style="width: 30%;"></th>
+                    <th style="width: 0%; visibility: hidden;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="section-header-row">
+                    <td rowspan="5" class="relative-cell">
+                        <div class="overlapping-block">4</div>
+                    </td>
+                    <td colspan="3" class="section-title">EXCLUDED CHARGES</td>
+                </tr>
+                <tr>
                     <td colspan="3">
                         <div style="display: flex; flex-direction: column; gap: 4px;">
                             <div style="display: flex; align-items: center; gap: 8px;"> 
@@ -289,20 +322,6 @@
                     </td>
                 </tr>
             </tbody>
-            <tfoot>
-                <tr class="section-total-row"> 
-                    <th></th> 
-                    <th>TOTAL DESTINATION CHARGES</th>
-                    <th>
-                        <select id="destCurrencySelect" class="minimal-currency-select" style="padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: 700; color: #333; outline: none; cursor: pointer;">
-                            <option value="KRW" selected>KRW</option>
-                            <option value="USD">USD</option>
-                            <option value="EUR">EUR</option>
-                        </select>
-                    </th>
-                    <th class="text-right" id="q_summary_subtotal" style="font-size: 1.1em; color: var(--deep-teal);">0</th>
-                </tr>
-            </tfoot>
         </table>
 
         <div style="display: none;">

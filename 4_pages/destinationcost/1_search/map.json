@@ -582,6 +582,17 @@
     { "name": "South Burlington VT", "lat": 44.4664, "lng": -73.171 },
     { "name": "Essex VT", "lat": 44.4926, "lng": -73.101 }
   ],
+  "멕시코": [
+    { "name": "Mexico City", "lat": 19.4326, "lng": -99.1332 },
+    { "name": "Queretaro", "lat": 20.5888, "lng": -100.3899 },
+    { "name": "Puebla", "lat": 19.0414, "lng": -98.2063 },
+    { "name": "Tampico City", "lat": 22.2331, "lng": -97.8611 },
+    { "name": "Altamira City", "lat": 22.3922, "lng": -97.9386 },
+    { "name": "Saltillo", "lat": 25.4383, "lng": -100.9737 },
+    { "name": "Monterrey", "lat": 25.6866, "lng": -100.3161 },
+    { "name": "San Luis Potosi", "lat": 22.1565, "lng": -100.9855 },
+    { "name": "Guadalajara", "lat": 20.6597, "lng": -103.3496 }
+  ],
   "브라질": [
     { "name": "Brasilia, Brazil", "lat": -15.8267, "lng": -47.9218 }
   ]
