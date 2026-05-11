@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Booking Mail Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      max-width: 820px;
+      margin: 0 auto;
+      color: #222;
+    }
+
+    h2 {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      margin-top: 18px;
+      font-weight: bold;
+    }
+
+    select,
+    input,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 170px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    button {
+      margin-top: 24px;
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      background: #1f5f99;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 15px;
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Booking Mail Test</h2>
+
+  <label for="poeSelect">1. POE 선택</label>
+  <select id="poeSelect">
+    <option value="">POE 로딩 중...</option>
+  </select>
+
+  <label for="forwarderSelect">2. 포워딩 선택</label>
+  <select id="forwarderSelect" disabled>
+    <option value="">먼저 POE를 선택하세요</option>
+  </select>
+
+  <label for="contactBox">조회된 연락처</label>
+  <textarea id="contactBox" readonly placeholder="포워딩을 선택하면 연락처가 표시됩니다."></textarea>
+
+  <div class="row">
+    <div>
+      <label for="polSelect">POL</label>
+      <select id="polSelect" disabled>
+        <option value="">먼저 POE와 포워딩을 선택하세요</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="podInput">POD</label>
+      <input id="podInput" readonly placeholder="POE 선택 시 자동 입력" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label for="shipperInput">화주명</label>
+      <input id="shipperInput" placeholder="예: HONG GIL DONG" />
+    </div>
+
+    <div>
+      <label for="containerSelect">CONTAINER SIZE</label>
+      <select id="containerSelect">
+        <option value="">선택하세요</option>
+        <option value="20DR * 1">20DR * 1</option>
+        <option value="40HC * 1">40HC * 1</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="pickupAddressInput">픽업지</label>
+  <input id="pickupAddressInput" placeholder="픽업지 입력" />
+
+  <div class="row">
+    <div>
+      <label for="truckCompanyInput">운송사</label>
+      <input id="truckCompanyInput" placeholder="운송사 입력" />
+    </div>
+
+    <div>
+      <label for="pickupDateInput">픽업일</label>
+      <input id="pickupDateInput" placeholder="예: 2026-05-20" />
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label for="docClosingInput">서류마감 가능일</label>
+      <input id="docClosingInput" placeholder="예: 2026-05-22" />
+    </div>
+
+    <div>
+      <label for="carrierInput">선사</label>
+      <input id="carrierInput" placeholder="예: HMM / ONE / MAERSK" />
+    </div>
+  </div>
+
+  <label for="blTypeInput">BL TYPE</label>
+  <input id="blTypeInput" placeholder="예: SWB / Surrendered B/L / Original B/L" />
+
+  <label for="subjectInput">메일 제목</label>
+  <input id="subjectInput" readonly />
+
+  <label for="bodyInput">메일 본문</label>
+  <textarea id="bodyInput" readonly></textarea>
+
+  <button id="openMailBtn" disabled>Outlook 메일 작성</button>
+
+  <div class="status" id="status"></div>
+
+  <script>
+    const API_BASE = "https://notion-api-hub.vercel.app";
+
+    const poeSelect = document.getElementById("poeSelect");
+    const forwarderSelect = document.getElementById("forwarderSelect");
+    const contactBox = document.getElementById("contactBox");
+    const polSelect = document.getElementById("polSelect");
+    const podInput = document.getElementById("podInput");
+
+    const shipperInput = document.getElementById("shipperInput");
+    const containerSelect = document.getElementById("containerSelect");
+    const pickupAddressInput = document.getElementById("pickupAddressInput");
+    const truckCompanyInput = document.getElementById("truckCompanyInput");
+    const pickupDateInput = document.getElementById("pickupDateInput");
+    const docClosingInput = document.getElementById("docClosingInput");
+    const carrierInput = document.getElementById("carrierInput");
+    const blTypeInput = document.getElementById("blTypeInput");
+
+    const subjectInput = document.getElementById("subjectInput");
+    const bodyInput = document.getElementById("bodyInput");
+    const openMailBtn = document.getElementById("openMailBtn");
+    const statusBox = document.getElementById("status");
+
+    let selectedContactText = "";
+    let selectedForwarderName = "";
+    let selectedPoeCode = "";
+    let selectedPoeName = "";
+
+    function setStatus(msg) {
+      statusBox.textContent = msg || "";
+    }
+
+    async function fetchJson(url) {
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (!res.ok || data.ok === false) {
+        throw new Error(data.error || "API 요청 실패");
+      }
+
+      return data;
+    }
+
+    function extractEmails(text) {
+      const matches = String(text || "").match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi);
+      return matches ? [...new Set(matches)] : [];
+    }
+
+    function updateMailContent() {
+      const pol = polSelect.value || "";
+      const pod = podInput.value || "";
+      const shipper = shipperInput.value || "";
+
+      subjectInput.value = `[퓨멕스/부킹요청] ${pol} TO ${pod} C/${shipper}`;
+
+      bodyInput.value =
+`하기와 같이 부킹 디테일 전달 드리오니 부킹 진행 부탁 드립니다.
+${pol} TO ${pod}
+
+화주명 : ${shipper}
+SIZE : ${containerSelect.value || ""}
+픽업지 : ${pickupAddressInput.value || ""}
+운송사 : ${truckCompanyInput.value || ""}
+픽업일 : ${pickupDateInput.value || ""}
+서류마감가능일 : ${docClosingInput.value || ""}
+선사 : ${carrierInput.value || ""}
+BL TYPE : ${blTypeInput.value || ""}`;
+    }
+
+    function updateMailButtonState() {
+      const emails = extractEmails(selectedContactText);
+      openMailBtn.disabled = !emails.length;
+    }
+
+    async function loadPoeOptions() {
+      try {
+        setStatus("POE 목록 불러오는 중...");
+
+        const data = await fetchJson(`${API_BASE}/api/mail/booking/poe-options`);
+
+        poeSelect.innerHTML = `<option value="">POE를 선택하세요</option>`;
+
+        data.options.forEach(item => {
+          const option = document.createElement("option");
+          option.value = item.code;
+          option.textContent = item.label || item.name || item.code;
+          option.dataset.name = item.name || item.code;
+          poeSelect.appendChild(option);
+        });
+
+        setStatus(`POE ${data.options.length}개 로드 완료`);
+      } catch (err) {
+        poeSelect.innerHTML = `<option value="">POE 로드 실패</option>`;
+        setStatus(err.message);
+      }
+    }
+
+    async function loadForwardersByPoe(poe) {
+      try {
+        forwarderSelect.disabled = true;
+        forwarderSelect.innerHTML = `<option value="">포워딩 로딩 중...</option>`;
+
+        selectedContactText = "";
+        selectedForwarderName = "";
+        contactBox.value = "";
+        resetPolSelect();
+
+        setStatus("포워딩 목록 불러오는 중...");
+
+        const data = await fetchJson(
+          `${API_BASE}/api/mail/booking/forwarders?poe=${encodeURIComponent(poe)}`
+        );
+
+        forwarderSelect.innerHTML = `<option value="">포워딩을 선택하세요</option>`;
+
+        data.forwarders.forEach(item => {
+          const option = document.createElement("option");
+          option.value = item.id;
+          option.textContent = item.name;
+          forwarderSelect.appendChild(option);
+        });
+
+        forwarderSelect.disabled = false;
+        setStatus(`포워딩 ${data.forwarders.length}개 로드 완료`);
+      } catch (err) {
+        forwarderSelect.innerHTML = `<option value="">포워딩 로드 실패</option>`;
+        setStatus(err.message);
+      }
+    }
+
+    async function loadForwarderContact(id) {
+      try {
+        contactBox.value = "";
+        selectedContactText = "";
+        selectedForwarderName = "";
+        updateMailButtonState();
+
+        setStatus("연락처 불러오는 중...");
+
+        const data = await fetchJson(
+          `${API_BASE}/api/mail/booking/forwarder-contact?id=${encodeURIComponent(id)}`
+        );
+
+        selectedForwarderName = data.contact?.name || "";
+        selectedContactText = data.contact?.contact || "";
+
+        contactBox.value = selectedContactText;
+
+        const emails = extractEmails(selectedContactText);
+        setStatus(
+          emails.length
+            ? `연락처 로드 완료 / 이메일 ${emails.length}개 발견`
+            : "연락처는 로드됐지만 이메일 주소를 찾지 못했습니다."
+        );
+
+        updateMailButtonState();
+      } catch (err) {
+        contactBox.value = "";
+        selectedContactText = "";
+        updateMailButtonState();
+        setStatus(err.message);
+      }
+    }
+
+    function resetPolSelect() {
+      polSelect.disabled = true;
+      polSelect.innerHTML = `<option value="">먼저 POE와 포워딩을 선택하세요</option>`;
+      updateMailContent();
+    }
+
+    async function loadPolOptions() {
+      const poe = selectedPoeCode;
+      const forwarderId = forwarderSelect.value;
+
+      if (!poe || !forwarderId) {
+        resetPolSelect();
+        return;
+      }
+
+      try {
+        polSelect.disabled = true;
+        polSelect.innerHTML = `<option value="">POL 로딩 중...</option>`;
+
+        const data = await fetchJson(
+          `${API_BASE}/api/mail/booking/pol-options?poe=${encodeURIComponent(poe)}&forwarderId=${encodeURIComponent(forwarderId)}`
+        );
+
+        polSelect.innerHTML = `<option value="">POL을 선택하세요</option>`;
+
+        data.options.forEach(pol => {
+          const option = document.createElement("option");
+          option.value = pol;
+          option.textContent = pol;
+          polSelect.appendChild(option);
+        });
+
+        polSelect.disabled = false;
+        setStatus(`POL ${data.options.length}개 로드 완료`);
+      } catch (err) {
+        polSelect.innerHTML = `<option value="">POL 로드 실패</option>`;
+        setStatus(err.message);
+      }
+    }
+
+    function openOutlookMail() {
+      const emails = extractEmails(selectedContactText);
+
+      if (!emails.length) {
+        alert("연락처에서 이메일 주소를 찾을 수 없습니다.");
+        return;
+      }
+
+      updateMailContent();
+
+      const to = emails.join(";");
+      const subject = subjectInput.value || "";
+      const body = bodyInput.value || "";
+
+      const mailto =
+        `mailto:${to}` +
+        `?subject=${encodeURIComponent(subject)}` +
+        `&body=${encodeURIComponent(body)}`;
+
+      window.location.href = mailto;
+    }
+
+    poeSelect.addEventListener("change", () => {
+      const selectedOption = poeSelect.options[poeSelect.selectedIndex];
+
+      selectedPoeCode = poeSelect.value;
+      selectedPoeName = selectedOption?.dataset?.name || selectedPoeCode;
+
+      podInput.value = selectedPoeName || "";
+
+      forwarderSelect.innerHTML = `<option value="">먼저 POE를 선택하세요</option>`;
+      forwarderSelect.disabled = true;
+
+      selectedContactText = "";
+      selectedForwarderName = "";
+      contactBox.value = "";
+
+      resetPolSelect();
+      updateMailButtonState();
+      updateMailContent();
+
+      if (selectedPoeCode) {
+        loadForwardersByPoe(selectedPoeCode);
+      }
+    });
+
+    forwarderSelect.addEventListener("change", async () => {
+      const id = forwarderSelect.value;
+
+      selectedContactText = "";
+      contactBox.value = "";
+      updateMailButtonState();
+      resetPolSelect();
+
+      if (id) {
+        await loadForwarderContact(id);
+        await loadPolOptions();
+      }
+    });
+
+    polSelect.addEventListener("change", updateMailContent);
+
+    [
+      shipperInput,
+      containerSelect,
+      pickupAddressInput,
+      truckCompanyInput,
+      pickupDateInput,
+      docClosingInput,
+      carrierInput,
+      blTypeInput
+    ].forEach(el => {
+      el.addEventListener("input", updateMailContent);
+      el.addEventListener("change", updateMailContent);
+    });
+
+    openMailBtn.addEventListener("click", openOutlookMail);
+
+    loadPoeOptions();
+    updateMailContent();
+  </script>
+
+</body>
+</html>

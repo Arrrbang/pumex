@@ -1,0 +1,35 @@
+/* 모든 페이지 하단에 균일한 여백 확보 (푸터가 콘텐츠를 가리지 않게 함) */
+body {
+    padding-bottom: 130px !important; 
+    position: relative;
+    min-height: 100vh;
+}
+
+/* 푸터(하단바) 고정 스타일 */
+.common-footer {
+    position: absolute; /* body 하단에 착 달라붙게 함 */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background-color: var(--double-deep-blue, #081f27); /* 헤더 메뉴와 동일한 톤다운된 색상 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid #000;
+    z-index: 100;
+}
+
+.common-footer-inner {
+    max-width: var(--container-max, 1320px);
+    width: 100%;
+    padding: 0 var(--gutter, 20px);
+    text-align: center;
+}
+
+.footer-copy {
+    color: #888;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}

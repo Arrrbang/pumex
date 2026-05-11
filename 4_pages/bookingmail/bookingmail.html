@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>P.A.S.S</title>
+  <link rel="icon" href="/pumex/1_assets/1_image/favicon.png" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../2_common/1_css/color.css" />
+  <link rel="stylesheet" href="../../2_common/1_css/common.css" />
+  
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+  <link rel="stylesheet" href="./bookingmail.css">
+</head>
+
+<body>
+<div id="header-placeholder"></div>
+
+<div class="main-layout">
+    <div class="left-wrap">
+        <h2>운임표</h2>
+        <div class="table-container">
+            <table id="rateTable">
+                <thead>
+                    <tr>
+                        <th>포워딩</th>
+                        <th>선사</th>
+                        <th>20DR</th>
+                        <th>40HC</th>
+                        <th>VALIDITY</th>
+                    </tr>
+                </thead>
+                <tbody id="rateTbody">
+                    <tr>
+                        <td colspan="5" class="empty-msg">POE를 선택하면 운임 정보가 표시됩니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="right-wrap">
+        <h2>Booking Mail</h2>
+
+        <div class="form-section">
+            <div class="grid-row col-2">
+                <div class="input-group">
+                    <label for="poeSelect">1. POE 선택</label>
+                    <select id="poeSelect">
+                        <option value="">POE 로딩 중...</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="forwarderSelect">2. 포워딩 선택</label>
+                    <select id="forwarderSelect" disabled>
+                        <option value="">먼저 POE를 선택하세요</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <div class="grid-row col-3">
+                <div class="input-group">
+                    <label for="polSelect">POL</label>
+                    <select id="polSelect" disabled>
+                        <option value="">먼저 POE와 포워딩을 선택하세요</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="shipperInput">화주명</label>
+                    <input id="shipperInput" placeholder="예: HONG GIL DONG" />
+                </div>
+                <div class="input-group">
+                    <label for="containerSelect">CONTAINER SIZE</label>
+                    <select id="containerSelect">
+                        <option value="">선택하세요</option>
+                        <option value="20DR * 1">20DR * 1</option>
+                        <option value="40HC * 1">40HC * 1</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="email-mockup">
+            <div class="email-header">
+                <span class="mac-btns"></span>
+                새 메시지 작성
+            </div>
+            <div class="email-row">
+                <label>받는사람</label>
+                <input type="text" id="contactBox" placeholder="포워딩 선택 시 연락처 자동 연동" readonly>
+            </div>
+            <div class="email-row">
+                <label for="subjectInput">제목</label>
+                <input id="subjectInput" value="[퓨멕스/부킹요청] TO C/" />
+            </div>
+            <div class="email-body">
+                <textarea id="bodyInput" placeholder="메일 본문을 입력하세요...">하기와 같이 부킹 디테일 전달 드리오니 부킹 진행 부탁 드립니다.
+TO</textarea>
+            </div>
+        </div>
+
+        <button id="openMailBtn" class="btn-submit" disabled>Outlook 메일 작성</button>
+        <div class="status" id="status"></div>
+    </div>
+</div>
+
+<script src="../../2_common/3_api/api.js"></script>
+<script src="../../2_common/2_js/loading.js"></script>
+<script src="./bookingmail.js"></script>
+</body>
+</html>

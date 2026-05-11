@@ -5,8 +5,8 @@ function setActiveHeaderMenu() {
     { id: "menu-destination", path: "/destinationcost" },
     { id: "menu-sos", path: "/sos" },
     { id: "menu-provincial_packing_fee", path: "/ExternalPackagingCosts" },
-    { id: "menu-TRC", path: "추후입력" }, 
-    { id: "menu-console", path: "추후입력" }, 
+    { id: "menu-origin", path: "추후입력" }, 
+    { id: "menu-operation", path: "/bookingmail" }, 
     { id: "menu-supporting-documents", path: "/review-of-destination-proof" },
     { id: "menu-account", path: "/account" }
   ];
