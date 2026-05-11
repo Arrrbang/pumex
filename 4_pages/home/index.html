@@ -266,13 +266,13 @@
                 } else {
                     document.getElementById('dashboard-title').textContent = "DASHBOARD(준비중...)";
                 }
-            } catch (e) {
-                console.error(e);
-                infoText.className = 'error';
-                infoText.textContent = "데이터 로딩 중 오류 발생: " + e.message;
-            } finally {
-                loadingContainer.style.display = 'none';
-            }
+                } catch (e) {
+                    console.error(e);
+                    // infoText 대신 브라우저 기본 경고창(alert)으로 에러를 띄우도록 변경
+                    alert("데이터 로딩 중 오류 발생: " + e.message);
+                } finally {
+                    loadingContainer.style.display = 'none';
+                }
         });
     </script>
 </body>
