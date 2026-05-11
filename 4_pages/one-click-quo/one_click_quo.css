@@ -741,6 +741,7 @@ body {
     }
 
     #header-placeholder,
+    .common-footer,
     .action-buttons,
     .list-toggle-container,
     [class*="floating"],
