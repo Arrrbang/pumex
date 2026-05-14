@@ -42,7 +42,29 @@
       return (j?.types || j?.options || []).filter(Boolean);
     },
 
-    // 4. 비용(표 데이터) 가져오기 (순수하게 데이터만 넘겨줍니다!)
+    // 4. 컨테이너 타입 목록 가져오기
+    fetchContainerTypes: async function(country, region, company, poe, cargo) {
+      const qs = new URLSearchParams({
+        country: country || '',
+        region: region || '',
+        company: company || '',
+        poe: poe || '',
+        cargo: cargo || ''
+      });
+
+      const res = await fetch(
+        `${BASE}/api/container-types/by-selection?${qs.toString()}`,
+        { cache: 'no-store' }
+      );
+
+      if (!res.ok) {
+        throw new Error('container-types fetch failed: ' + res.status);
+      }
+
+      const data = await res.json();
+      return data.types || [];
+    },
+    // 5. 비용(표 데이터) 가져오기 (순수하게 데이터만 넘겨줍니다!)
     fetchCosts: async function(country, region, company, cargo, type, cbm, poe) {
       const roles = cargo ? [String(cargo).toUpperCase()] : [];
       const params = new URLSearchParams();

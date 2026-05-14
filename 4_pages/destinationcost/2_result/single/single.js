@@ -133,10 +133,34 @@ function makeController(){
       tableWrap: 'tableWrap'
     };
 
-    function setTypeComboFixed(){
-      const api = getComboAPI(ids.typeCombo);
-      api.setItems(['20FT','40HC','CONSOLE']);
-      api.enable(true);
+    async function loadContainerTypes(){
+      const country = getValueSoft('countryCombo');
+      const region  = getValueSoft('regionCombo');
+      const company = getValueSoft(ids.company);
+      const poe     = getValueSoft(ids.poe);
+      const cargo   = getValueSoft(ids.cargo);
+
+      const typeAPI = getComboAPI(ids.typeCombo);
+      typeAPI.setValue?.('');
+
+      if (!country || !company || !poe || !cargo) {
+        typeAPI.setItems([]);
+        typeAPI.enable(false);
+        return;
+      }
+
+      setComboLoading(ids.typeCombo, true);
+
+      try {
+        const items = await window.CostAPI.fetchContainerTypes(country, region, company, poe, cargo);
+        typeAPI.setItems(items);
+        typeAPI.enable(items.length > 0);
+      } catch (e) {
+        typeAPI.setItems([]);
+        typeAPI.enable(false);
+      } finally {
+        setComboLoading(ids.typeCombo, false);
+      }
     }
 
     async function loadCompanies(){
@@ -228,6 +252,7 @@ function makeController(){
       const ctEl = document.querySelector('#countryCombo input')|| document.getElementById('countryCombo');
       const compEl = document.querySelector(`#${ids.company} input`) || document.getElementById(ids.company);
       const poeEl  = document.querySelector(`#${ids.poe} input`) || document.getElementById(ids.poe);
+      const cargoEl = document.querySelector(`#${ids.cargo} input`) || document.getElementById(ids.cargo);
 
       const resetAll = ()=>{
         const companyAPI = getComboAPI(ids.company);
@@ -252,8 +277,20 @@ function makeController(){
 
       poeEl?.addEventListener('change', async ()=>{
         const cargoAPI = getComboAPI(ids.cargo);
+        const typeAPI = getComboAPI(ids.typeCombo);
+
         cargoAPI.setValue?.('');
+        typeAPI.setValue?.('');
+        typeAPI.setItems([]);
+        typeAPI.enable(false);
+
         await loadCargoTypesForPartner();
+      });
+
+      cargoEl?.addEventListener('change', async ()=>{
+        const typeAPI = getComboAPI(ids.typeCombo);
+        typeAPI.setValue?.('');
+        await loadContainerTypes();
       });
 
       const btn = document.getElementById(ids.btnFetch);
@@ -344,7 +381,6 @@ function makeController(){
     }
 
     function init(){
-      setTypeComboFixed();
       wireEvents();
       if (getValueSoft('countryCombo') && getValueSoft('regionCombo')){
         loadCompanies();
