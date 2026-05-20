@@ -12,6 +12,15 @@
       { "name": "Stuttgart", "lat": 48.7758, "lng": 9.1829 },
       { "name": "Braunschweig", "lat": 52.2689, "lng": 10.5268 }
     ],
+    
+    "체코": [
+      { "name": "Praha", "lat": 50.0755, "lng": 14.4378 },
+      { "name": "Ostrava", "lat": 49.8209, "lng": 18.2625 },
+      { "name": "Brno", "lat": 49.1951, "lng": 16.6068 },
+      { "name": "Dobris", "lat": 49.7811, "lng": 14.1672 },
+      { "name": "Zilina", "lat": 49.2231, "lng": 18.7394 },
+      { "name": "Bratislava", "lat": 48.1486, "lng": 17.1077 }
+    ],
   
   "미국": [
     { "name": "Stanton CA", "lat": 33.8025, "lng": -117.9931 }, 
