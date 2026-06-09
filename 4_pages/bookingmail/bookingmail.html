@@ -51,16 +51,24 @@
         <h2>Booking Mail</h2>
 
         <div class="form-section">
-            <div class="grid-row col-2">
+            <div class="grid-row col-3">
                 <div class="input-group">
-                    <label for="poeSelect">1. POE 선택</label>
+                    <label for="containerSelect">1. CONTAINER SIZE</label>
+                    <select id="containerSelect">
+                        <option value="">선택하세요</option>
+                        <option value="20DR * 1">20DR * 1</option>
+                        <option value="40HC * 1">40HC * 1</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="poeSelect">2. POE 선택</label>
                     <select id="poeSelect">
                         <option value="">POE 로딩 중...</option>
                     </select>
                 </div>
                 <div class="input-group">
-                    <label for="forwarderSelect">2. 포워딩 선택</label>
-                    <select id="forwarderSelect" disabled>
+                    <label for="polSelect">3. POL 선택</label>
+                    <select id="polSelect" disabled>
                         <option value="">먼저 POE를 선택하세요</option>
                     </select>
                 </div>
@@ -68,24 +76,16 @@
 
             <hr class="divider">
 
-            <div class="grid-row col-3">
+            <div class="grid-row col-2">
                 <div class="input-group">
-                    <label for="polSelect">POL</label>
-                    <select id="polSelect" disabled>
-                        <option value="">먼저 POE와 포워딩을 선택하세요</option>
+                    <label for="forwarderSelect">4. 포워딩 선택</label>
+                    <select id="forwarderSelect" disabled>
+                        <option value="">먼저 POE를 선택하세요</option>
                     </select>
                 </div>
                 <div class="input-group">
                     <label for="shipperInput">화주명</label>
                     <input id="shipperInput" placeholder="예: HONG GIL DONG" />
-                </div>
-                <div class="input-group">
-                    <label for="containerSelect">CONTAINER SIZE</label>
-                    <select id="containerSelect">
-                        <option value="">선택하세요</option>
-                        <option value="20DR * 1">20DR * 1</option>
-                        <option value="40HC * 1">40HC * 1</option>
-                    </select>
                 </div>
             </div>
         </div>

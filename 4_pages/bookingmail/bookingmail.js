@@ -232,15 +232,14 @@ async function loadForwarderContact(id) {
 
 function resetPolSelect() {
   polSelect.disabled = true;
-  polSelect.innerHTML = `<option value="">먼저 POE와 포워딩을 선택하세요</option>`;
+  polSelect.innerHTML = `<option value="">먼저 POE를 선택하세요</option>`;
   updateMailContent();
 }
 
 async function loadPolOptions() {
   const poe = selectedPoeCode;
-  const forwarderId = forwarderSelect.value;
 
-  if (!poe || !forwarderId) {
+  if (!poe) {
     resetPolSelect();
     return;
   }
@@ -249,8 +248,9 @@ async function loadPolOptions() {
     polSelect.disabled = true;
     polSelect.innerHTML = `<option value="">POL 로딩 중...</option>`;
 
+    // 포워딩 조건 제거하고 url 파라미터 수정됨
     const data = await fetchJson(
-      `${API_BASE}/api/mail/booking/pol-options?poe=${encodeURIComponent(poe)}&forwarderId=${encodeURIComponent(forwarderId)}`
+      `${API_BASE}/api/mail/booking/pol-options?poe=${encodeURIComponent(poe)}`
     );
 
     polSelect.innerHTML = `<option value="">POL을 선택하세요</option>`;
@@ -305,7 +305,8 @@ poeSelect.addEventListener("change", () => {
 
   if (selectedPoeCode) {
     loadForwardersByPoe(selectedPoeCode);
-    loadRatesByPoe(selectedPoeCode); // 표 데이터 불러오기
+    loadPolOptions(); // <--- 추가됨: POE 선택 시 즉시 POL 로드
+    loadRatesByPoe(selectedPoeCode); 
   } else {
     rateTbody.innerHTML = `<tr><td colspan="5" class="empty-msg">POE를 선택하면 운임 정보가 표시됩니다.</td></tr>`;
     currentRatesData = [];
@@ -317,10 +318,10 @@ forwarderSelect.addEventListener("change", async () => {
   selectedContactText = "";
   contactBox.value = "";
   updateMailButtonState();
-  resetPolSelect();
+  // resetPolSelect(); <--- 삭제됨
   if (id) {
     await loadForwarderContact(id);
-    await loadPolOptions();
+    // await loadPolOptions(); <--- 삭제됨
   }
 });
 
