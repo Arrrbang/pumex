@@ -189,18 +189,27 @@ function makeController(){
       const country = getValueSoft('countryCombo');
       const region  = getValueSoft('regionCombo');
       const company = getValueSoft(ids.company);
+      const cargo   = getValueSoft(ids.cargo); // ✨ 화물타입(cargo) 값 가져오기 추가
       const poeAPI  = getComboAPI(ids.poe);
 
       poeAPI.setValue?.('');
-      if(!country || !region || !company) return;
+      
+      // ✨ cargo 조건 추가 (country, region, company, cargo가 모두 있어야 작동)
+      if(!country || !region || !company || !cargo) {
+        poeAPI.setItems([]);
+        poeAPI.enable(false);
+        return;
+      }
 
       setComboLoading(ids.poe, true);
       try{
-        const poes = await window.CostAPI.fetchPOEs(country, region, company);
+        // ✨ CostAPI.fetchPOEs 인자에 cargo 추가
+        const poes = await window.CostAPI.fetchPOEs(country, region, company, cargo);
         poeAPI.setItems(poes);
         poeAPI.enable(poes.length>0);
       }catch(e){
         poeAPI.setItems([]);
+        poeAPI.enable(false);
       }finally{
         setComboLoading(ids.poe, false);
       }
@@ -210,20 +219,22 @@ function makeController(){
       const country = getValueSoft('countryCombo');
       const region  = getValueSoft('regionCombo');
       const partner = getValueSoft(ids.company);
-      const poe     = getValueSoft(ids.poe);
-    
+      // ✨ poe 가져오는 부분 삭제
+
       const cargoAPI = getComboAPI(ids.cargo);
       cargoAPI.setValue?.('');
-    
-      if (!country || !partner || !poe){
+
+      // ✨ poe 조건 삭제
+      if (!country || !partner){
         cargoAPI.setItems([]);
         cargoAPI.enable(false);
         return;
       }
-    
+
       setComboLoading(ids.cargo, true);
       try{
-        const items = await window.CostAPI.fetchCargoTypes(country, region, partner, poe);
+        // ✨ CostAPI.fetchCargoTypes 인자에서 poe 삭제
+        const items = await window.CostAPI.fetchCargoTypes(country, region, partner);
         cargoAPI.setItems(items);
         cargoAPI.enable(items.length>0);
       }catch(e){
@@ -266,30 +277,49 @@ function makeController(){
       rcEl?.addEventListener('change', async ()=>{ resetAll(); await loadCompanies(); });
       ctEl?.addEventListener('change', async ()=>{ resetAll(); await loadCompanies(); });
 
+      // 1. 파트너(업체) 선택 시 -> 화물타입 로드
       compEl?.addEventListener('change', async ()=>{
         const poeAPI   = getComboAPI(ids.poe);
         const cargoAPI = getComboAPI(ids.cargo);
+        const typeAPI  = getComboAPI(ids.typeCombo);
+
+        // 하위 콤보박스 모두 초기화 및 잠금
         poeAPI.setValue?.('');
-        cargoAPI.setValue?.('');
-        await loadPOEs();
-        await loadCargoTypesForPartner();
-      });
-
-      poeEl?.addEventListener('change', async ()=>{
-        const cargoAPI = getComboAPI(ids.cargo);
-        const typeAPI = getComboAPI(ids.typeCombo);
-
-        cargoAPI.setValue?.('');
+        poeAPI.setItems([]);
+        poeAPI.enable(false);
+        
         typeAPI.setValue?.('');
         typeAPI.setItems([]);
         typeAPI.enable(false);
 
+        cargoAPI.setValue?.('');
+        
+        // ✨ 화물타입만 불러옵니다 (loadPOEs 삭제)
         await loadCargoTypesForPartner();
       });
 
+      // 2. 화물타입 선택 시 -> POE 로드
       cargoEl?.addEventListener('change', async ()=>{
+        const poeAPI  = getComboAPI(ids.poe);
+        const typeAPI = getComboAPI(ids.typeCombo);
+
+        // 하위 콤보박스 초기화
+        typeAPI.setValue?.('');
+        typeAPI.setItems([]);
+        typeAPI.enable(false);
+
+        poeAPI.setValue?.('');
+        
+        // ✨ 화물타입 선택 후 POE를 불러옵니다
+        await loadPOEs();
+      });
+
+      // 3. POE 선택 시 -> 컨테이너 타입/CBM 로드
+      poeEl?.addEventListener('change', async ()=>{
         const typeAPI = getComboAPI(ids.typeCombo);
         typeAPI.setValue?.('');
+        
+        // ✨ POE가 맨 마지막이므로 여기서 최종 컨테이너 타입을 불러옵니다
         await loadContainerTypes();
       });
 

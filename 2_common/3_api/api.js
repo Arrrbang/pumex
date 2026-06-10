@@ -14,15 +14,17 @@
       return (j.companies || j.options || []).filter(Boolean);
     },
     
-    // 2. POE 목록 가져오기
-    fetchPOEs: async function(country, region, company) {
-      let url = `${BASE}/api/poe/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&mode=options`;
+    // 2. POE 목록 가져오기 (✨ cargo 파라미터 추가)
+    fetchPOEs: async function(country, region, company, cargo) {
+      // URL에 &cargo=... 추가
+      let url = `${BASE}/api/poe/by-company?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&company=${encodeURIComponent(company)}&cargo=${encodeURIComponent(cargo)}&mode=options`;
       let res = await fetch(url, { cache: 'no-store' });
       let j = res.ok ? await res.json().catch(() => null) : null;
       let poes = (j?.poes || j?.POE || j?.options || []).filter(Boolean);
       
       if (!poes.length) {
-        url = `${BASE}/api/poe/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&mode=options`;
+        // 혹시 모를 fallback URL에도 cargo 추가
+        url = `${BASE}/api/poe/by-region?country=${encodeURIComponent(country)}&region=${encodeURIComponent(region)}&cargo=${encodeURIComponent(cargo)}&mode=options`;
         res = await fetch(url, { cache: 'no-store' });
         j = await res.json().catch(() => null);
         poes = (j?.poes || j?.POE || j?.options || []).filter(Boolean);
@@ -30,9 +32,10 @@
       return poes;
     },
 
-    // 3. 화물타입 목록 가져오기
-    fetchCargoTypes: async function(country, region, company, poe) {
-      let url = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&company=${encodeURIComponent(company)}&poe=${encodeURIComponent(poe)}`;
+    // 3. 화물타입 목록 가져오기 (✨ poe 파라미터 제거)
+    fetchCargoTypes: async function(country, region, company) {
+      // URL에서 poe 조건 삭제
+      let url = `${BASE}/api/cargo-types/by-partner?country=${encodeURIComponent(country)}&company=${encodeURIComponent(company)}`;
       if (region) url += `&region=${encodeURIComponent(region)}`;
       url += `&mode=options`;
 
