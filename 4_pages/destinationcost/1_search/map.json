@@ -39,7 +39,7 @@
       { "name": "서주(XuZhou)", "lat": 34.2044, "lng": 117.2858 },
       { "name": "장사(Changsha)", "lat": 28.2282, "lng": 112.9388 },
       { "name": "곤산(Kunshan)", "lat": 31.3856, "lng": 120.9807 },
-      { "name": "장가항(Zangjiagang)", "lat": 31.8754, "lng": 120.5558 },
+      { "name": "장가항(Zhangjiagang)", "lat": 31.8754, "lng": 120.5558 },
       { "name": "심천(Shenzhen)", "lat": 22.5431, "lng": 114.0579 },
       { "name": "혜주(Huizhou)", "lat": 23.1118, "lng": 114.4168 },
       { "name": "동관(Dongguan)", "lat": 23.0207, "lng": 113.7518 },
@@ -52,7 +52,9 @@
       { "name": "정주(Zhengzhou)", "lat": 34.7466, "lng": 113.6254 },
       { "name": "남창(Nanchang)", "lat": 28.6820, "lng": 115.8581 },
       { "name": "면양(Mianyang)", "lat": 31.4675, "lng": 104.6796 },
-      { "name": "곤명(Kunming)", "lat": 25.0389, "lng": 102.7183 }
+      { "name": "곤명(Kunming)", "lat": 25.0389, "lng": 102.7183 },
+      { "name": "항주(Hangzhou)", "lat": 30.2741, "lng": 120.1551 },
+      { "name": "상숙(Changshu)", "lat": 31.6538, "lng": 120.7522 }
     ],
   "독일": [
       { "name": "Eschborn", "lat": 50.1420, "lng": 8.5715 },
