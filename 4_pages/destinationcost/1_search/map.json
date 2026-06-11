@@ -45,7 +45,14 @@
       { "name": "동관(Dongguan)", "lat": 23.0207, "lng": 113.7518 },
       { "name": "하문(Xiamen)", "lat": 24.4798, "lng": 118.0894 },
       { "name": "광주(Guangzhou)", "lat": 23.1291, "lng": 113.2644 },
-      { "name": "중산(Zhongshan)", "lat": 22.5176, "lng": 113.3928 }
+      { "name": "중산(Zhongshan)", "lat": 22.5176, "lng": 113.3928 },
+      { "name": "회안(Huai'an)", "lat": 33.6104, "lng": 119.0153 },
+      { "name": "황산(Huangshan)", "lat": 29.7147, "lng": 118.3375 },
+      { "name": "타이저우(Taizhou)", "lat": 28.6564, "lng": 121.4208 },
+      { "name": "정주(Zhengzhou)", "lat": 34.7466, "lng": 113.6254 },
+      { "name": "남창(Nanchang)", "lat": 28.6820, "lng": 115.8581 },
+      { "name": "면양(Mianyang)", "lat": 31.4675, "lng": 104.6796 },
+      { "name": "곤명(Kunming)", "lat": 25.0389, "lng": 102.7183 }
     ],
   "독일": [
       { "name": "Eschborn", "lat": 50.1420, "lng": 8.5715 },
