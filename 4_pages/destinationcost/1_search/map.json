@@ -9,6 +9,7 @@
       { "name": "하얼빈(Ha'erbin)", "lat": 45.8038, "lng": 126.5349 },
       { "name": "길림(jilin)", "lat": 43.8378, "lng": 126.5494 },
       { "name": "심양(Shenyang)", "lat": 41.8057, "lng": 123.4315 },
+      { "name": "합비/허페이(Hefei)", "lat": 31.8206, "lng": 117.2272 },
       { "name": "북경(Beijing)", "lat": 39.9042, "lng": 116.4074 },
       { "name": "랑팡(Langfang/廊坊)", "lat": 39.5377, "lng": 116.6838 },
       { "name": "바오딩(baoding/保定)", "lat": 38.8745, "lng": 115.4646 },
