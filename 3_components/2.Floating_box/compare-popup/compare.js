@@ -69,13 +69,14 @@ document.addEventListener('floatingReady', () => {
     });
   }
 
-  function createComparePopupUI(country, region) {
+function createComparePopupUI(country, region) {
     if (document.getElementById('comparePopupOverlay')) return;
 
     const overlay = document.createElement('div');
     overlay.id = 'comparePopupOverlay';
     overlay.className = 'compare-popup-overlay'; // CSS 클래스 연결
 
+    // ✨ 1. UI 순서 변경: 파트너 -> 화물타입 -> POE 순서로 배치
     overlay.innerHTML = `
       <div class="compare-popup-modal">
         <h3 class="compare-popup-title">비교할 파트너 선택</h3>
@@ -93,16 +94,16 @@ document.addEventListener('floatingReady', () => {
         </div>
 
         <div class="compare-form-group">
-          <label class="compare-popup-label">POE 선택</label>
-          <select id="popPoe" class="compare-popup-input" disabled>
+          <label class="compare-popup-label">화물타입 선택</label>
+          <select id="popCargo" class="compare-popup-input" disabled>
             <option value="">파트너를 먼저 선택하세요</option>
           </select>
         </div>
 
         <div class="compare-form-group last-group">
-          <label class="compare-popup-label">화물타입 선택</label>
-          <select id="popCargo" class="compare-popup-input" disabled>
-            <option value="">POE를 먼저 선택하세요</option>
+          <label class="compare-popup-label">POE 선택</label>
+          <select id="popPoe" class="compare-popup-input" disabled>
+            <option value="">화물타입을 먼저 선택하세요</option>
           </select>
         </div>
 
@@ -124,71 +125,78 @@ document.addEventListener('floatingReady', () => {
       return res.ok ? await res.json() : {};
     };
 
-    // ✨ 파트너 로딩 중 애니메이션 시작
+    // [1] 초기 로드: 파트너 목록 가져오기
     const popPartner = document.getElementById('popPartner');
     animateDots(popPartner.querySelector('option'));
 
     fetchJson(`${BASE_URL}/api/companies/by-region?country=${country}&region=${region}&mode=options`)
       .then(data => {
-        // ✨ 파트너 로딩 완료, 애니메이션 중지
         stopAnimateDots(popPartner.querySelector('option'));
-
         const partners = (data.companies || data.options || []).filter(Boolean);
         popPartner.innerHTML = `<option value="">파트너를 선택하세요</option>` + 
           partners.map(p => `<option value="${p}">${p}</option>`).join('');
       });
 
+    // ✨ 2. 파트너 선택 시 -> 화물타입 로드 (POE에서 변경)
     document.getElementById('popPartner').addEventListener('change', async (e) => {
       const partner = e.target.value;
+      const popCargo = document.getElementById('popCargo');
       const popPoe = document.getElementById('popPoe');
-      const popCargo = document.getElementById('popCargo');
       
-      // ✨ POE 로딩 시작
-      popPoe.innerHTML = '<option value="">로딩중...</option>';
-      animateDots(popPoe.querySelector('option'));
-      popPoe.disabled = true; popCargo.disabled = true;
-
-      if (!partner) return;
-
-      const data = await fetchJson(`${BASE_URL}/api/poe/by-company?country=${country}&region=${region}&company=${partner}&mode=options`);
-      let poes = (data.poes || data.POE || data.options || []).filter(Boolean);
-      
-      // ✨ POE 로딩 완료, 애니메이션 중지
-      stopAnimateDots(popPoe.querySelector('option'));
-      popPoe.innerHTML = `<option value="">POE를 선택하세요</option>` + 
-        poes.map(p => `<option value="${p}">${p}</option>`).join('');
-      popPoe.disabled = false;
-    });
-
-    document.getElementById('popPoe').addEventListener('change', async (e) => {
-      const partner = document.getElementById('popPartner').value;
-      const poe = e.target.value;
-      const popCargo = document.getElementById('popCargo');
-
-      // ✨ 화물타입 로딩 시작
+      // 하위 드롭다운 초기화
       popCargo.innerHTML = '<option value="">로딩중...</option>';
+      popPoe.innerHTML = '<option value="">화물타입을 먼저 선택하세요</option>';
+      popCargo.disabled = true; popPoe.disabled = true;
+
+      if (!partner) {
+        popCargo.innerHTML = '<option value="">파트너를 먼저 선택하세요</option>';
+        return;
+      }
+
       animateDots(popCargo.querySelector('option'));
-      popCargo.disabled = true;
 
-      if (!poe) return;
-
-      const data = await fetchJson(`${BASE_URL}/api/cargo-types/by-partner?country=${country}&region=${region}&company=${partner}&poe=${poe}&mode=options`);
+      const data = await fetchJson(`${BASE_URL}/api/cargo-types/by-partner?country=${country}&region=${region}&company=${partner}&mode=options`);
       const cargos = (data.types || data.options || []).filter(Boolean);
       
-      // ✨ 화물타입 로딩 완료, 애니메이션 중지
       stopAnimateDots(popCargo.querySelector('option'));
       popCargo.innerHTML = `<option value="">화물타입을 선택하세요</option>` + 
         cargos.map(c => `<option value="${c}">${c}</option>`).join('');
       popCargo.disabled = false;
     });
 
+    // ✨ 3. 화물타입 선택 시 -> POE 로드 (인자에 cargo 조건 추가!)
+    document.getElementById('popCargo').addEventListener('change', async (e) => {
+      const partner = document.getElementById('popPartner').value;
+      const cargo = e.target.value;
+      const popPoe = document.getElementById('popPoe');
+
+      popPoe.innerHTML = '<option value="">로딩중...</option>';
+      popPoe.disabled = true;
+
+      if (!cargo) {
+        popPoe.innerHTML = '<option value="">화물타입을 먼저 선택하세요</option>';
+        return;
+      }
+
+      animateDots(popPoe.querySelector('option'));
+
+      const data = await fetchJson(`${BASE_URL}/api/poe/by-company?country=${country}&region=${region}&company=${partner}&cargo=${cargo}&mode=options`);
+      let poes = (data.poes || data.POE || data.options || []).filter(Boolean);
+      
+      stopAnimateDots(popPoe.querySelector('option'));
+      popPoe.innerHTML = `<option value="">POE를 선택하세요</option>` + 
+        poes.map(p => `<option value="${p}">${p}</option>`).join('');
+      popPoe.disabled = false;
+    });
+
+    // [4] 비교하기 버튼 클릭 이벤트 (유지)
     document.getElementById('btnPopCompare').addEventListener('click', () => {
       const popPartner = document.getElementById('popPartner').value;
-      const popPoe = document.getElementById('popPoe').value;
       const popCargo = document.getElementById('popCargo').value;
+      const popPoe = document.getElementById('popPoe').value;
 
       if (!popPartner || !popPoe || !popCargo) {
-        alert("파트너, POE, 화물타입을 모두 선택해주세요.");
+        alert("파트너, 화물타입, POE를 모두 선택해주세요.");
         return;
       }
 
@@ -211,8 +219,8 @@ document.addEventListener('floatingReady', () => {
         company: popPartner,
         poe: popPoe,
         cargo: popCargo,
-        type: originalData.type, 
-        cbm: originalData.cbm
+        type: originalData.type, // 컨테이너 타입은 유지
+        cbm: originalData.cbm    // CBM도 유지
       };
 
       sessionStorage.setItem('compareOriginal', JSON.stringify(originalData));

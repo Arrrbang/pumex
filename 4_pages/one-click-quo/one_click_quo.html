@@ -283,6 +283,47 @@
             </tfoot>
         </table>
 
+        <table class="quote-cost-table">
+            <thead>
+                <tr>
+                    <th style="width: 45px; min-width: 45px;"></th> 
+                    <th style="width: 70%;">DESCRIPTION</th>
+                    <th style="width: 12%;">CUR</th>
+                    <th style="width: 18%;">TOTAL</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="section-header-row">
+                    <td rowspan="2" class="relative-cell"> <div class="overlapping-block">4</div>
+                    </td>
+                    <td colspan="3" class="section-title">INSURANCE</td>
+                </tr>
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;"> 
+                            <span id="desc_irc">Insurance Premium</span> <button id="btnOpenIrc" class="icon-square-btn icon-search" title="보험료 산출"></button>
+                        </div>
+                    </td>
+                    <td class="text-center" id="cur_irc">KRW</td> 
+                    <td class="text-right" id="q_cost_irc">0</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr class="section-total-row"> 
+                    <th></th> 
+                    <th>TOTAL INSURANCE</th>
+                    <th>
+                        <select id="ircCurrencySelect" class="minimal-currency-select" style="padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: 700; color: #333; outline: none; cursor: pointer;">
+                            <option value="KRW" selected>KRW</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </th>
+                    <th class="text-right" id="q_irc_subtotal" style="font-size: 1.1em; color: var(--deep-teal);">0</th>
+                </tr>
+            </tfoot>
+        </table>
+
         <table class="quote-cost-table excluded-charges-table">
             <thead>
                 <tr>
@@ -295,7 +336,7 @@
             <tbody>
                 <tr class="section-header-row">
                     <td rowspan="5" class="relative-cell">
-                        <div class="overlapping-block">4</div>
+                        <div class="overlapping-block">5</div>
                     </td>
                     <td colspan="3" class="section-title">EXCLUDED CHARGES</td>
                 </tr>
@@ -388,6 +429,7 @@
     <div id="trc-modal-placeholder"></div>
     <div id="packing-modal-placeholder"></div>
     <div id="des-modal-placeholder"></div>
+    <div id="irc-modal-placeholder"></div>
 
     <script src="../../2_common/3_api/outbound_sos_api.js"></script>
     <script src="../../2_common/3_api/api.js"></script>
@@ -408,6 +450,8 @@
     <script src="./ocq_des_modal.js"></script>
 
     <script src="./ocq_sum.js"></script>
+
+    <script src="./ocq_irc.js"></script>
 
 <!-- 
     <script src="./one_click_quo.js"></script>

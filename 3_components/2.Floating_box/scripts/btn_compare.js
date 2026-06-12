@@ -1,6 +1,5 @@
 /* Floating_box/scripts/btn_compare.js */
 
-
 (function() {
   // ✨ 견적서 페이지에서는 비교 팝업 스크립트를 아예 작동시키지 않음! (CSS 에러 원천 차단)
   if (window.location.pathname.includes('one_click_quo.html')) return;
@@ -60,13 +59,15 @@
     const overlay = document.createElement('div');
     overlay.id = 'comparePopupOverlay';
     overlay.className = 'compare-popup-overlay';
+    
+    // ✨ 1. UI 순서 변경: 파트너 -> 화물타입 -> POE 순서로 배치
     overlay.innerHTML = `
       <div class="compare-popup-modal">
         <h3 class="compare-popup-title">비교할 파트너 선택</h3>
         <div class="compare-form-group"><label class="compare-popup-label">국가/지역</label><input type="text" class="compare-popup-input" value="${country} / ${region}" disabled></div>
         <div class="compare-form-group"><label class="compare-popup-label">파트너 선택</label><select id="popPartner" class="compare-popup-input"><option value="loading">로딩중</option></select></div>
-        <div class="compare-form-group"><label class="compare-popup-label">POE 선택</label><select id="popPoe" class="compare-popup-input" disabled><option value="">파트너를 먼저 선택하세요</option></select></div>
-        <div class="compare-form-group last-group"><label class="compare-popup-label">화물타입 선택</label><select id="popCargo" class="compare-popup-input" disabled><option value="">POE를 먼저 선택하세요</option></select></div>
+        <div class="compare-form-group"><label class="compare-popup-label">화물타입 선택</label><select id="popCargo" class="compare-popup-input" disabled><option value="">파트너를 먼저 선택하세요</option></select></div>
+        <div class="compare-form-group last-group"><label class="compare-popup-label">POE 선택</label><select id="popPoe" class="compare-popup-input" disabled><option value="">화물타입을 먼저 선택하세요</option></select></div>
         <div class="compare-popup-actions"><button id="btnPopCancel" class="compare-btn-cancel">취소</button><button id="btnPopCompare" class="compare-btn-submit">비교하기</button></div>
       </div>
     `;
@@ -77,16 +78,16 @@
     });
 
     const popPartner = document.getElementById('popPartner');
-    const popPoe = document.getElementById('popPoe');
     const popCargo = document.getElementById('popCargo');
+    const popPoe = document.getElementById('popPoe');
 
-    // ✨ 1. 파트너 로딩 애니메이션 시작!
+    // [1] 파트너 로딩 애니메이션 시작!
     const partnerOpt = popPartner.querySelector('option');
     animateDots(partnerOpt);
 
     if(window.CostAPI) {
       window.CostAPI.fetchCompanies(country, region).then(partners => {
-        stopAnimateDots(partnerOpt); // 로딩 끝! 엔진 정지
+        stopAnimateDots(partnerOpt);
         popPartner.innerHTML = `<option value="">파트너를 선택하세요</option>` + partners.map(p => `<option value="${p}">${p}</option>`).join('');
       });
     } else {
@@ -94,42 +95,53 @@
       alert('API 통신 모듈을 찾을 수 없습니다.');
     }
 
+    // ✨ 2. 파트너 선택 시 -> 화물타입 로드
     popPartner.addEventListener('change', async (e) => {
-      popPoe.innerHTML = '<option value="loading">로딩중</option>'; 
-      popPoe.disabled = true; popCargo.disabled = true;
-      if (!e.target.value) return;
-
-      // ✨ 2. POE 로딩 애니메이션 시작!
-      const poeOpt = popPoe.querySelector('option');
-      animateDots(poeOpt);
-
-      const poes = await window.CostAPI.fetchPOEs(country, region, e.target.value);
-      
-      stopAnimateDots(poeOpt); // 로딩 끝! 엔진 정지
-      popPoe.innerHTML = `<option value="">POE를 선택하세요</option>` + poes.map(p => `<option value="${p}">${p}</option>`).join('');
-      popPoe.disabled = false;
-    });
-
-    popPoe.addEventListener('change', async (e) => {
       popCargo.innerHTML = '<option value="loading">로딩중</option>'; 
-      popCargo.disabled = true;
-      if (!e.target.value) return;
+      popPoe.innerHTML = '<option value="">화물타입을 먼저 선택하세요</option>';
+      popCargo.disabled = true; popPoe.disabled = true;
+      
+      if (!e.target.value) {
+        popCargo.innerHTML = '<option value="">파트너를 먼저 선택하세요</option>';
+        return;
+      }
 
-      // ✨ 3. 화물타입 로딩 애니메이션 시작!
       const cargoOpt = popCargo.querySelector('option');
       animateDots(cargoOpt);
 
-      const cargos = await window.CostAPI.fetchCargoTypes(country, region, popPartner.value, e.target.value);
+      // fetchCargoTypes 파라미터 맞춤 (country, region, company)
+      const cargos = await window.CostAPI.fetchCargoTypes(country, region, e.target.value);
       
-      stopAnimateDots(cargoOpt); // 로딩 끝! 엔진 정지
+      stopAnimateDots(cargoOpt);
       popCargo.innerHTML = `<option value="">화물타입을 선택하세요</option>` + cargos.map(c => `<option value="${c}">${c}</option>`).join('');
       popCargo.disabled = false;
     });
 
+    // ✨ 3. 화물타입 선택 시 -> POE 로드
+    popCargo.addEventListener('change', async (e) => {
+      popPoe.innerHTML = '<option value="loading">로딩중</option>'; 
+      popPoe.disabled = true;
+      
+      if (!e.target.value) {
+        popPoe.innerHTML = '<option value="">화물타입을 먼저 선택하세요</option>';
+        return;
+      }
+
+      const poeOpt = popPoe.querySelector('option');
+      animateDots(poeOpt);
+
+      // fetchPOEs 파라미터 맞춤 (country, region, company, cargo)
+      const poes = await window.CostAPI.fetchPOEs(country, region, popPartner.value, e.target.value);
+      
+      stopAnimateDots(poeOpt);
+      popPoe.innerHTML = `<option value="">POE를 선택하세요</option>` + poes.map(p => `<option value="${p}">${p}</option>`).join('');
+      popPoe.disabled = false;
+    });
+
     document.getElementById('btnPopCompare').addEventListener('click', () => {
       const partnerVal = popPartner.value;
-      const poeVal = popPoe.value;
       const cargoVal = popCargo.value;
+      const poeVal = popPoe.value;
 
       if (!partnerVal || partnerVal === "loading" || !poeVal || poeVal === "loading" || !cargoVal || cargoVal === "loading") { 
         alert("모두 선택해주세요."); return; 
@@ -144,7 +156,8 @@
         cbm: document.getElementById('cbmSelect')?.value ? parseFloat(document.getElementById('cbmSelect').value) : undefined
       };
 
-      const newData = { ...originalData, company: partnerVal, poe: poeVal, cargo: cargoVal };
+      // newData 할당 구조 맞춤
+      const newData = { ...originalData, company: partnerVal, cargo: cargoVal, poe: poeVal };
 
       document.body.removeChild(document.getElementById('comparePopupOverlay'));
 

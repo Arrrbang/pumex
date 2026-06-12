@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const placeholder = document.getElementById('des-modal-placeholder');
     if(placeholder) {
         placeholder.innerHTML = `
-        <div id="desModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999;">
+        <div id="desModal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 9999;">
             <div class="modal-content" style="background: #fff; border-radius: 8px; max-width: 550px; width: 90%; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 85vh; display: flex; flex-direction: column;">
                 
                 <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--invoice-blue, #1A365D); padding-bottom: 12px; margin-bottom: 20px; flex-shrink: 0;">

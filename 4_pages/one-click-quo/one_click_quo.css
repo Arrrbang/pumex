@@ -488,6 +488,9 @@ body {
     align-items: flex-end;
     margin-top: 40px;
     margin-bottom: 20px;
+
+    page-break-inside: avoid;
+    break-inside: avoid;
 }
 
 .exchange-rate-display-section {

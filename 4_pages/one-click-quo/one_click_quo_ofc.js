@@ -193,9 +193,9 @@ function renderOceanFreight() {
 }
 
 /**
- * 4. [모달 로직] OFC 상세 운임 팝업창 생성
+ * 4. [모달 로직] OFC 상세 운임 팝업창 생성 (디자인 통일)
  */
-    function openOfcDetailModal(pageId, extraCosts = [], baseCost = 0, ofcTotal = 0, validityDate = "", totalOceanUsd = 0) {
+function openOfcDetailModal(pageId, extraCosts = [], baseCost = 0, ofcTotal = 0, validityDate = "", totalOceanUsd = 0) {
     const existingModal = document.getElementById('ofc-detail-modal');
     if (existingModal) existingModal.remove();
 
@@ -209,18 +209,19 @@ function renderOceanFreight() {
 
     const notionLink = pageId ? `https://www.notion.so/${pageId.replace(/-/g, '')}` : '#';
 
+    // 콘솔 토글 UI (디자인 통일)
     let consoleToggleHtml = '';
     if (ofcGlobalState.isConsole) {
         consoleToggleHtml = `
-            <div style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd; text-align: center;">
-                <div style="font-weight: bold; margin-bottom: 12px; color: var(--deep-teal); font-size: 15px;">🚢 콘솔 컨테이너 요율 기준 선택</div>
+            <div style="margin-bottom: 20px; padding: 15px; background: #f4f6f8; border-radius: 8px; border: 1px solid #ddd; text-align: center;">
+                <div style="font-weight: 800; margin-bottom: 12px; color: var(--invoice-blue, #1A365D); font-size: 0.95rem;">🚢 콘솔 컨테이너 요율 기준 선택</div>
                 <div style="display: flex; justify-content: center; gap: 20px;">
-                    <label style="cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px;">
-                        <input type="radio" name="consoleBase" value="20FT" ${ofcGlobalState.consoleBase === '20FT' ? 'checked' : ''} style="width:16px; height:16px;">
+                    <label style="cursor: pointer; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px; color: #333;">
+                        <input type="radio" name="consoleBase" value="20FT" ${ofcGlobalState.consoleBase === '20FT' ? 'checked' : ''} style="width:16px; height:16px; accent-color: var(--invoice-blue, #1A365D);">
                         20DR 기준 (÷20)
                     </label>
-                    <label style="cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px;">
-                        <input type="radio" name="consoleBase" value="40HC" ${ofcGlobalState.consoleBase === '40HC' ? 'checked' : ''} style="width:16px; height:16px;">
+                    <label style="cursor: pointer; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px; color: #333;">
+                        <input type="radio" name="consoleBase" value="40HC" ${ofcGlobalState.consoleBase === '40HC' ? 'checked' : ''} style="width:16px; height:16px; accent-color: var(--invoice-blue, #1A365D);">
                         40HC 기준 (÷50)
                     </label>
                 </div>
@@ -228,56 +229,61 @@ function renderOceanFreight() {
         `;
     }
 
+    // 추가 요금 리스트 UI
     let extraCostRows = extraCosts.map(c => `
         <tr>
-            <td style="padding: 10px; border-bottom: 1px solid #eee; color: #555;">${c.name}</td>
-            <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right; font-weight: 600;">$${(c.amount || 0).toLocaleString('en-US')}</td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee; color: #555;">${c.name}</td>
+            <td style="padding: 12px; border-bottom: 1px solid #eee; text-align: right; font-weight: 700;">$${(c.amount || 0).toLocaleString('en-US')}</td>
         </tr>
     `).join('');
 
     if (extraCosts.length === 0) {
-        extraCostRows = `<tr><td colspan="2" style="padding: 15px; text-align:center; color:#999;">해당 타입에 적용된 추가 운임이 없습니다.</td></tr>`;
+        extraCostRows = `<tr><td colspan="2" style="padding: 15px; text-align:center; color:#999; font-weight: 600;">해당 타입에 적용된 추가 운임이 없습니다.</td></tr>`;
     }
 
-    let validityTextHtml = validityDate ? `<div style="text-align: center; color: var(--medium-gray); font-size: 0.9rem; font-weight: 600; margin-bottom: 15px;">유효 기간 : ~${validityDate} 까지</div>` : '';
+    let validityTextHtml = validityDate ? `<div style="text-align: center; color: var(--invoice-blue, #1A365D); font-size: 0.9rem; font-weight: 700; margin-bottom: 15px;">유효 기간 : ~${validityDate} 까지</div>` : '';
 
+    // 메인 모달 UI 조립 (DES, IRC와 구조/색상 통일)
     const modalContent = `
-        <div style="background: #fff; padding: 25px; border-radius: 12px; width: 420px; max-width: 90%; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; animation: fadeIn 0.2s ease-in-out;">
-            <button id="closeOfcModalBtn" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; line-height: 1;">&times;</button>
+        <div class="modal-content" style="background: #fff; border-radius: 8px; max-width: 450px; width: 90%; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column;">
             
-            <h3 style="margin: 0 0 15px 0; font-size: 18px; color: var(--deep-teal, #0d3b45); border-bottom: 2px solid var(--primary-color, #1A73E8); padding-bottom: 10px;">운임 상세 및 추가 비용</h3>
-            
-            ${validityTextHtml}
-            
-            ${consoleToggleHtml}
-
-            <h4 style="margin: 0 0 10px 0; font-size: 15px; color: #333;">[운임 구성 내역]</h4>
-            <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin-bottom: 25px;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                    <thead style="background: #f8f9fa;">
-                        <tr>
-                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd; color: #555;">항목명</th>
-                            <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd; color: #555;">금액 (USD)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd; color: #333;">OFC (기본 해상운임)</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right; font-weight: 600;">$${baseCost.toLocaleString('en-US')}</td>
-                        </tr>
-                        ${extraCostRows}
-                    </tbody>
-                    <tfoot style="background: #f1f5f9;">
-                        <tr>
-                            <td style="padding: 12px 10px; border-top: 2px solid #ddd; font-weight: bold; color: #1e293b;">총 해상 운임 합계</td>
-                            <td style="padding: 12px 10px; border-top: 2px solid #ddd; text-align: right; font-weight: bold; color: #1e293b; font-size: 16px;">$${totalOceanUsd.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
-                        </tr>
-                    </tfoot>
-                </table>
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--invoice-blue, #1A365D); padding-bottom: 12px; margin-bottom: 20px; flex-shrink: 0;">
+                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--invoice-blue, #1A365D);">운임 상세 및 추가 비용</h3>
+                <button id="closeOfcModalBtn" style="background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #999; line-height: 1;">&times;</button>
             </div>
 
-            <div style="text-align: center;">
-                <a href="${notionLink}" target="_blank" style="display: inline-block; background: var(--primary-color, #1A73E8); color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 15px; width: 90%; box-shadow: 0 3px 6px rgba(26,115,232,0.3); transition: background 0.2s;">
+            <div class="modal-body" style="overflow-y: auto; flex-grow: 1;">
+                ${validityTextHtml}
+                ${consoleToggleHtml}
+
+                <h4 style="margin: 0 0 10px 0; font-size: 0.95rem; font-weight: 700; color: #333;">[운임 구성 내역]</h4>
+                <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; margin-bottom: 25px;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                        <thead style="background: #f4f6f8;">
+                            <tr>
+                                <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd; color: #555; font-weight: 600;">항목명</th>
+                                <th style="padding: 12px; text-align: right; border-bottom: 1px solid #ddd; color: #555; font-weight: 600;">금액 (USD)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding: 12px; border-bottom: 1px solid #ddd; color: #333;">OFC (기본 해상운임)</td>
+                                <td style="padding: 12px; border-bottom: 1px solid #ddd; text-align: right; font-weight: 700;">$${baseCost.toLocaleString('en-US')}</td>
+                            </tr>
+                            ${extraCostRows}
+                        </tbody>
+                        <tfoot style="background: #f8f9fa;">
+                            <tr>
+                                <td style="padding: 12px; border-top: 2px solid #ddd; font-weight: 800; color: var(--invoice-blue, #1A365D);">총 해상 운임 합계</td>
+                                <td style="padding: 12px; border-top: 2px solid #ddd; text-align: right; font-weight: 800; color: var(--invoice-blue, #1A365D); font-size: 1.1rem;">$${totalOceanUsd.toLocaleString('en-US', {maximumFractionDigits:2})}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="text-align: center; flex-shrink: 0;">
+                <a href="${notionLink}" target="_blank" style="display: inline-block; background: var(--invoice-blue, #1A365D); color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 4px; font-weight: 700; font-size: 1rem; width: 100%; box-sizing: border-box; transition: opacity 0.2s;">
                     🔗 포워딩/선사별 운임 상세 확인
                 </a>
             </div>
@@ -287,9 +293,11 @@ function renderOceanFreight() {
     modalOverlay.innerHTML = modalContent;
     document.body.appendChild(modalOverlay);
 
+    // 닫기 이벤트 연결
     document.getElementById('closeOfcModalBtn').onclick = () => modalOverlay.remove();
     modalOverlay.onclick = (e) => { if(e.target === modalOverlay) modalOverlay.remove(); }
 
+    // 라디오 버튼(콘솔일 때) 이벤트 연결
     if (ofcGlobalState.isConsole) {
         const radios = modalOverlay.querySelectorAll('input[name="consoleBase"]');
         radios.forEach(r => {
