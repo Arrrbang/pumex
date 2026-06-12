@@ -3,16 +3,10 @@
    역할: 견적서 화면의 합계 계산 전담
 
    1) ORIGIN CHARGES
-      - q_cost_sos + q_trucking_total + q_cost_surcharge + q_cost_rcc → q_origin_total
-      - originCurrencySelect 선택 통화에 따라 KRW 기준 환전 적용
-
    2) TOTAL FREIGHT
-      - q_ocean_total → q_freight_total
-      - freightCurrencySelect 선택 통화에 따라 USD 기준 환전 적용
-
-   3) FINAL TOTAL / EXCHANGE RATE
-      - q_origin_total + q_freight_total + q_summary_subtotal 기준 최종 합계 계산
-      - 하단 환율 표시 업데이트
+   3) DESTINATION CHARGES
+   4) INSURANCE (신규 추가!)
+   5) FINAL TOTAL / EXCHANGE RATE
    ========================================================================== */
 
 (function () {
@@ -301,17 +295,6 @@
         return 0;
     }
 
-    async function convertToKrw(currency, amount, rates) {
-        if (!amount) return 0;
-
-        if (currency === 'KRW') return amount;
-
-        const amountUsd = await convertToUsd(currency, amount, rates);
-        const krwRate = rates?.KRW || 1400;
-
-        return amountUsd * krwRate;
-    }
-
     async function updateFinalTotal() {
         const rates = await fetchUsdRates();
         const rateKRW = rates?.KRW || 1400;
@@ -319,10 +302,16 @@
         const originCurrency = document.getElementById('originCurrencySelect')?.value || 'KRW';
         const freightCurrency = document.getElementById('freightCurrencySelect')?.value || 'USD';
         const destCurrency = document.getElementById('destCurrencySelect')?.value || 'KRW';
+        
+        // ✨ 보험(IRC) 섹션 통화 가져오기 추가
+        const ircCurrency = document.getElementById('ircCurrencySelect')?.value || 'KRW';
 
         const originAmount = parseMoneyText(document.getElementById('q_origin_total')?.textContent);
         const freightAmount = parseMoneyText(document.getElementById('q_freight_total')?.textContent);
         const destAmount = parseMoneyText(document.getElementById('q_summary_subtotal')?.textContent);
+        
+        // ✨ 보험(IRC) 섹션 금액 가져오기 추가
+        const ircAmount = parseMoneyText(document.getElementById('q_irc_subtotal')?.textContent);
 
         let sumKRW = 0;
         let sumUSD = 0;
@@ -340,13 +329,14 @@
             }
         }
 
-        // 선택된 통화 기준으로만 각 합계 칸에 배분
+        // 선택된 통화 기준으로 각 합계 칸에 배분
         addBySelectedCurrency(originCurrency, originAmount);
         addBySelectedCurrency(freightCurrency, freightAmount);
         addBySelectedCurrency(destCurrency, destAmount);
+        // ✨ 보험료도 분배 로직에 탑재!
+        addBySelectedCurrency(ircCurrency, ircAmount);
 
-        // EUR 등 기타 통화는 KRW 최종합계에는 반영하되,
-        // TOTAL USD COST에는 강제 환산해서 넣지 않음
+        // EUR 등 기타 통화는 KRW 최종합계에 환산 반영
         let otherToKrw = 0;
 
         for (const [currency, amount] of Object.entries(sumOther)) {
@@ -392,40 +382,31 @@
         }
 
         console.log('[OCQ SUM] 최종 합계 업데이트:', {
-            origin: {
-                currency: originCurrency,
-                amount: originAmount
-            },
-            freight: {
-                currency: freightCurrency,
-                amount: freightAmount
-            },
-            destination: {
-                currency: destCurrency,
-                amount: destAmount
-            },
-            result: {
-                sumKRW,
-                sumUSD,
-                sumOther,
-                otherToKrw
-            }
+            origin: { currency: originCurrency, amount: originAmount },
+            freight: { currency: freightCurrency, amount: freightAmount },
+            destination: { currency: destCurrency, amount: destAmount },
+            insurance: { currency: ircCurrency, amount: ircAmount }, // 로그에 보험 추가
+            result: { sumKRW, sumUSD, sumOther, otherToKrw }
         });
     }
 
     function initFinalTotal() {
+        // ✨ q_irc_subtotal(보험료 합계) 변경 감지 추가
         [
             'q_origin_total',
             'q_freight_total',
-            'q_summary_subtotal'
+            'q_summary_subtotal',
+            'q_irc_subtotal'
         ].forEach(id => {
             observeTextChange(id, updateFinalTotal);
         });
 
+        // ✨ ircCurrencySelect(보험료 통화 변경) 감지 추가
         [
             'originCurrencySelect',
             'freightCurrencySelect',
-            'destCurrencySelect'
+            'destCurrencySelect',
+            'ircCurrencySelect'
         ].forEach(id => {
             const selectEl = document.getElementById(id);
             if (selectEl) {
@@ -437,6 +418,8 @@
         document.addEventListener('originChargeTotalUpdated', updateFinalTotal);
         document.addEventListener('freightTotalUpdated', updateFinalTotal);
         document.addEventListener('destinationChargeTotalUpdated', updateFinalTotal);
+        // ✨ ocq_irc.js에서 던지는 costUpdated 이벤트 수신
+        document.addEventListener('costUpdated', updateFinalTotal); 
 
         updateFinalTotal();
     }

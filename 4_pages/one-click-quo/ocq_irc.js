@@ -1,7 +1,7 @@
 // ocq_irc.js
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. 모달(팝업) HTML 구조 정의 (DES 모달 테마 적용, 오버레이 블러/투명도 조정, 크기 통일)
+    // 1. 모달(팝업) HTML 구조 정의
     const ircModalHtml = `
     <div id="ircModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index:9999; justify-content:center; align-items:center;">
         <div class="modal-content" style="background:#fff; border-radius:8px; max-width:450px; width:90%; padding:25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column;">
@@ -61,22 +61,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultUnit = document.getElementById('irc_result_unit');
     
     const btnCancel = document.getElementById('btn_irc_cancel');
-    const btnCloseX = document.getElementById('btn_irc_close_x'); // 우측 상단 X 버튼
+    const btnCloseX = document.getElementById('btn_irc_close_x'); 
     const btnApply = document.getElementById('btn_irc_apply');
 
-    // 본문 페이지에 반영될 요소들
+    // 본문 페이지 요소들
     const descIrc = document.getElementById('desc_irc');
     const curIrc = document.getElementById('cur_irc');
     const qCostIrc = document.getElementById('q_cost_irc');
     const qIrcSubtotal = document.getElementById('q_irc_subtotal');
     const ircCurrencySelect = document.getElementById('ircCurrencySelect');
 
-    // 3. 숫자 포맷 유틸 함수
+    // 3. 숫자 포맷 유틸
     const formatNumber = (numStr) => {
         let val = numStr.replace(/[^0-9.]/g, '');
         const points = val.split('.');
         if (points.length > 2) val = points[0] + '.' + points.slice(1).join('');
-        
         if (val && !val.endsWith('.')) {
             const parts = val.split('.');
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -84,36 +83,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return val;
     };
-    
     const unformatNumber = (str) => Number(str.replace(/,/g, '')) || 0;
 
     // 4. 모달 열기/닫기 이벤트
-    btnOpenIrc.addEventListener('click', () => {
-        ircModal.style.display = 'flex';
-    });
-
-    const closeModal = () => {
-        ircModal.style.display = 'none';
-    };
-
+    btnOpenIrc.addEventListener('click', () => { ircModal.style.display = 'flex'; });
+    const closeModal = () => { ircModal.style.display = 'none'; };
     btnCancel.addEventListener('click', closeModal);
     btnCloseX.addEventListener('click', closeModal);
 
-    // 5. 팝업 내 통화 변경 시 실시간 단위 텍스트 변경 및 재계산
+    // 5. 팝업 내 통화 변경 시 실시간 재계산
     popCurrency.addEventListener('change', (e) => {
-        const curr = e.target.value;
-        resultUnit.textContent = curr;
+        resultUnit.textContent = e.target.value;
         calculatePremium();
     });
 
-    // 6. 입력 시 실시간 보험료 계산
+    // 6. 팝업 내 실시간 보험료 계산
     const calculatePremium = () => {
         const isUsd = popCurrency.value === 'USD';
         inputAmount.value = formatNumber(inputAmount.value);
-
         const amount = unformatNumber(inputAmount.value);
         const rate = Number(inputRate.value) || 0;
-
         let premium = amount * (rate / 100); 
         
         if (isUsd) {
@@ -130,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     inputAmount.addEventListener('input', calculatePremium);
     inputRate.addEventListener('input', calculatePremium);
 
-    // 7. 적용 버튼 이벤트
+    // 7. 적용 버튼 클릭 시 (메인으로 데이터 전송)
     btnApply.addEventListener('click', () => {
         const currency = popCurrency.value;
         const amountStr = inputAmount.value;
@@ -138,22 +127,79 @@ document.addEventListener('DOMContentLoaded', () => {
         const premiumStr = calcAmtText.textContent;
 
         if (!amountStr || !rateStr) {
-            alert("보험가액과 요율을 모두 입력해주세요.");
-            return;
+            alert("보험가액과 요율을 모두 입력해주세요."); return;
         }
 
-        // 본문 업데이트 로직
-        descIrc.textContent = `Insurance Premium (${currency} ${amountStr} * ${rateStr}%)`;
-        
+        // ✨ 핵심: 메인 표의 드롭다운에서 환율 변환할 때 사용할 수 있도록 '기본 순수 금액'과 '기본 통화'를 html 속성(dataset)에 저장해둡니다.
+        const amountNum = unformatNumber(amountStr);
+        const rateNum = Number(rateStr) || 0;
+        if (qCostIrc) {
+            qCostIrc.dataset.baseAmt = amountNum * (rateNum / 100);
+            qCostIrc.dataset.baseCur = currency;
+        }
+
+        descIrc.textContent = `Insurance (${currency} ${amountStr} * ${rateStr}%)`;
         if (curIrc) curIrc.textContent = currency;
         if (qCostIrc) qCostIrc.textContent = premiumStr;
         if (qIrcSubtotal) qIrcSubtotal.textContent = premiumStr;
-        
-        if (ircCurrencySelect) {
-            ircCurrencySelect.value = currency;
-        }
+        if (ircCurrencySelect) ircCurrencySelect.value = currency;
 
         document.dispatchEvent(new Event('costUpdated'));
         closeModal();
     });
+
+    // ✨ 8. [신규 추가] 메인 표 드롭다운 통화 변경 시 환율 실시간 변환 로직!
+    if (ircCurrencySelect) {
+        ircCurrencySelect.addEventListener('change', (e) => {
+            const targetCur = e.target.value;
+            if (!qCostIrc) return;
+
+            const baseAmt = Number(qCostIrc.dataset.baseAmt || 0);
+            const baseCur = qCostIrc.dataset.baseCur || 'KRW';
+
+            // 값이 없으면 텍스트만 바꾸고 리턴
+            if (baseAmt === 0) {
+                if (curIrc) curIrc.textContent = targetCur;
+                return;
+            }
+
+            // 하단 환율표(APPLIED EXCHANGE RATES)에서 현재 환율 숫자를 읽어오는 함수
+            const getRate = (cur) => {
+                if (cur === 'KRW') return 1;
+                const el = document.getElementById(`disp_rate_${cur.toLowerCase()}`);
+                if (el && el.textContent !== '-') {
+                    const rate = Number(el.textContent.replace(/[^0-9.]/g, ''));
+                    if (rate > 0) return rate;
+                }
+                return 1; // 로딩 전이거나 에러 시 기본값
+            };
+
+            const rateBase = getRate(baseCur);
+            const rateTarget = getRate(targetCur);
+
+            // 환율 적용! (원래 통화 -> KRW -> 바꿀 통화)
+            const amtInKrw = baseAmt * rateBase;
+            let convertedAmt = amtInKrw / rateTarget;
+
+            // 포맷팅 (USD, EUR는 소수점 2자리 / KRW는 정수)
+            let finalStr = '';
+            if (targetCur === 'USD' || targetCur === 'EUR') {
+                convertedAmt = Number(convertedAmt.toFixed(2));
+                const parts = convertedAmt.toString().split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                finalStr = parts.join('.');
+            } else {
+                convertedAmt = Math.round(convertedAmt);
+                finalStr = convertedAmt.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+
+            // 표의 금액 글자 업데이트
+            if (curIrc) curIrc.textContent = targetCur;
+            qCostIrc.textContent = finalStr;
+            if (qIrcSubtotal) qIrcSubtotal.textContent = finalStr;
+
+            // 마지막으로 ocq_sum.js가 총합계(Grand Total)를 다시 계산하도록 신호(Event) 전송
+            document.dispatchEvent(new Event('costUpdated'));
+        });
+    }
 });
