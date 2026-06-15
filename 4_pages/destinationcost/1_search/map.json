@@ -56,6 +56,49 @@
       { "name": "항주(Hangzhou)", "lat": 30.2741, "lng": 120.1551 },
       { "name": "상숙(Changshu)", "lat": 31.6538, "lng": 120.7522 }
     ],
+  "일본": [
+      { "name": "Tokyo", "lat": 35.6762, "lng": 139.6503 },
+      { "name": "Yokohama City", "lat": 35.4437, "lng": 139.6380 },
+
+      { "name": "Kanagawa", "lat": 35.4478, "lng": 139.6425 },
+      { "name": "Saitama", "lat": 35.8617, "lng": 139.6455 },
+      { "name": "Chiba", "lat": 35.6074, "lng": 140.1065 },
+
+      { "name": "Yamanashi", "lat": 35.6639, "lng": 138.5683 },
+      { "name": "Tochigi", "lat": 36.5658, "lng": 139.8836 },
+      { "name": "Ibaraki", "lat": 36.3418, "lng": 140.4468 },
+      { "name": "Shizuoka", "lat": 34.9756, "lng": 138.3828 },
+      { "name": "Gunma", "lat": 36.3911, "lng": 139.0608 },
+
+      { "name": "Aichi", "lat": 35.1815, "lng": 136.9066 },
+      { "name": "Nagoya", "lat": 35.1815, "lng": 136.9066 },
+      { "name": "Nagano", "lat": 36.6486, "lng": 138.1948 },
+      { "name": "Fukushima", "lat": 37.7608, "lng": 140.4747 },
+      { "name": "Hamamatsu", "lat": 34.7108, "lng": 137.7261 },
+
+      { "name": "Osaka", "lat": 34.6937, "lng": 135.5023 },
+      { "name": "Kyoto", "lat": 35.0116, "lng": 135.7681 },
+      { "name": "Shiga", "lat": 35.0045, "lng": 135.8686 },
+      { "name": "Nara", "lat": 34.6851, "lng": 135.8048 },
+      { "name": "Mie", "lat": 34.7303, "lng": 136.5086 },
+      { "name": "Gifu", "lat": 35.4233, "lng": 136.7607 },
+
+      { "name": "Sendai", "lat": 38.2682, "lng": 140.8694 },
+      { "name": "Niigata", "lat": 37.9161, "lng": 139.0364 },
+      { "name": "Yamagata", "lat": 38.2554, "lng": 140.3396 },
+      { "name": "Hyogo", "lat": 34.6901, "lng": 135.1955 },
+
+      { "name": "Hiroshima", "lat": 34.3853, "lng": 132.4553 },
+      { "name": "Okayama", "lat": 34.6551, "lng": 133.9195 },
+      { "name": "Kagawa", "lat": 34.3401, "lng": 134.0434 },
+      { "name": "Ehime", "lat": 33.8416, "lng": 132.7661 },
+
+      { "name": "Fukuoka", "lat": 33.5904, "lng": 130.4017 },
+      { "name": "Yamaguchi", "lat": 34.1785, "lng": 131.4737 },
+
+      { "name": "Oita", "lat": 33.2396, "lng": 131.6093 },
+      { "name": "Kumamoto", "lat": 32.8031, "lng": 130.7079 }
+    ],
   "독일": [
       { "name": "Eschborn", "lat": 50.1420, "lng": 8.5715 },
       { "name": "Frankfurt", "lat": 50.1109, "lng": 8.6821 },
