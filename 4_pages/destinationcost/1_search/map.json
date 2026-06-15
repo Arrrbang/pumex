@@ -97,7 +97,15 @@
       { "name": "Yamaguchi", "lat": 34.1785, "lng": 131.4737 },
 
       { "name": "Oita", "lat": 33.2396, "lng": 131.6093 },
-      { "name": "Kumamoto", "lat": 32.8031, "lng": 130.7079 }
+      { "name": "Kumamoto", "lat": 32.8031, "lng": 130.7079 },
+
+      { "name": "Ishikawa", "lat": 36.5944, "lng": 136.6256 },
+      { "name": "Miyagi", "lat": 38.2682, "lng": 140.8694 },
+      { "name": "Toyama", "lat": 36.6953, "lng": 137.2113 },
+      { "name": "Tottori", "lat": 35.5011, "lng": 134.2351 },
+      { "name": "Iwate", "lat": 39.7036, "lng": 141.1527 },
+      { "name": "Okinawa", "lat": 26.2124, "lng": 127.6809 },
+      { "name": "Sapporo", "lat": 43.0618, "lng": 141.3545 }
     ],
   "독일": [
       { "name": "Eschborn", "lat": 50.1420, "lng": 8.5715 },
