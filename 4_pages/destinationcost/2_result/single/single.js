@@ -189,12 +189,11 @@ function makeController(){
       const country = getValueSoft('countryCombo');
       const region  = getValueSoft('regionCombo');
       const company = getValueSoft(ids.company);
-      const cargo   = getValueSoft(ids.cargo); // ✨ 화물타입(cargo) 값 가져오기 추가
+      const cargo   = getValueSoft(ids.cargo); 
       const poeAPI  = getComboAPI(ids.poe);
 
       poeAPI.setValue?.('');
       
-      // ✨ cargo 조건 추가 (country, region, company, cargo가 모두 있어야 작동)
       if(!country || !region || !company || !cargo) {
         poeAPI.setItems([]);
         poeAPI.enable(false);
@@ -202,16 +201,25 @@ function makeController(){
       }
 
       setComboLoading(ids.poe, true);
+      let fetchedPoes = [];
       try{
-        // ✨ CostAPI.fetchPOEs 인자에 cargo 추가
-        const poes = await window.CostAPI.fetchPOEs(country, region, company, cargo);
-        poeAPI.setItems(poes);
-        poeAPI.enable(poes.length>0);
+        fetchedPoes = await window.CostAPI.fetchPOEs(country, region, company, cargo);
+        poeAPI.setItems(fetchedPoes);
       }catch(e){
         poeAPI.setItems([]);
-        poeAPI.enable(false);
       }finally{
         setComboLoading(ids.poe, false);
+        
+        if (fetchedPoes && fetchedPoes.length > 0) {
+          poeAPI.enable(true);
+        } else {
+          // ✨ 조회된 POE가 없을 경우 고정 메시지 출력 및 비활성화 처리
+          const poeInput = document.querySelector(`#${ids.poe} input`);
+          if (poeInput) {
+            poeInput.value = '조회되는 POE가 없습니다. 화물타입을 변경해주세요.';
+            poeInput.disabled = true;
+          }
+        }
       }
     }
 
@@ -294,7 +302,7 @@ function makeController(){
 
         cargoAPI.setValue?.('');
         
-        // ✨ 화물타입만 불러옵니다 (loadPOEs 삭제)
+        // ✨ 화물타입만 불러옵니다
         await loadCargoTypesForPartner();
       });
 
@@ -395,8 +403,6 @@ function makeController(){
             }
 
             // ✨ 화면이 "따닥" 하고 튀는 원인이었던 지연 스크롤(setTimeout) 제거!
-            // 지도가 접히면서 빈 공간이 사라지면 결과창이 자연스럽게 맨 위로 올라오므로,
-            // 엇박자 없이 깔끔하게 최상단으로 한 번만 맞춰줍니다.
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
           }catch(e){
