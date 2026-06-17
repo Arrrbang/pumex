@@ -107,6 +107,24 @@
       { "name": "Okinawa", "lat": 26.2124, "lng": 127.6809 },
       { "name": "Sapporo", "lat": 43.0618, "lng": 141.3545 }
     ],
+
+  "베트남":[
+    { "name": "Hanoi (하노이)", "lat": 21.0278, "lng": 105.8342 },
+    { "name": "Ho Chi Minh (호치민)", "lat": 10.8231, "lng": 106.6297 },
+    { "name": "Bac Ninh (박닌)", "lat": 21.1861, "lng": 106.0763 },
+    { "name": "Da Nang (다낭)", "lat": 16.0544, "lng": 108.2022 },
+    { "name": "Haiphong (하이퐁)", "lat": 20.8449, "lng": 106.6881 },
+    { "name": "Ba Ria Vung Tau (바리아붕따우)", "lat": 10.5417, "lng": 107.2428 },
+    { "name": "Thai Nguyen (타이응우옌)", "lat": 21.5942, "lng": 105.8482 },
+    { "name": "Binh Duong (빈즈엉)", "lat": 11.3254, "lng": 106.4770 },
+    { "name": "Dong Nai (동나이)", "lat": 11.0686, "lng": 107.1676 },
+    { "name": "Phu My Hung (푸미흥)", "lat": 10.7286, "lng": 106.7218 },
+    { "name": "Ha Nam (하남)", "lat": 20.5835, "lng": 105.9229 },
+    { "name": "Bien Hoa (비엔호아)", "lat": 10.9447, "lng": 106.8243 },
+    { "name": "Vinh Phuc (빈푹)", "lat": 21.3609, "lng": 105.5474 },
+    { "name": "Hoan Kiem (호안끼엠)", "lat": 21.0285, "lng": 105.8542 }
+    ],
+    
   "독일": [
       { "name": "Eschborn", "lat": 50.1420, "lng": 8.5715 },
       { "name": "Frankfurt", "lat": 50.1109, "lng": 8.6821 },
