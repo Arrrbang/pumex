@@ -137,6 +137,11 @@
     { "name": "Bali", "lat": -8.6705, "lng": 115.2126 }
   ],
   
+  "아랍에미레이트":[
+    { "name": "Dubai", "lat": 25.2048, "lng": 55.2708 },
+    { "name": "Abu Dhabi", "lat": 24.4539, "lng": 54.3773 }
+  ],
+  
   "독일": [
     { "name": "Eschborn", "lat": 50.1420, "lng": 8.5715 },
     { "name": "Frankfurt", "lat": 50.1109, "lng": 8.6821 },
