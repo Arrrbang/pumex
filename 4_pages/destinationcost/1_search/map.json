@@ -124,20 +124,24 @@
     { "name": "Vinh Phuc (빈푹)", "lat": 21.3609, "lng": 105.5474 },
     { "name": "Hoan Kiem (호안끼엠)", "lat": 21.0285, "lng": 105.8542 }
     ],
-    
+  
+  "싱가포르":[
+    { "name": "Singapore", "lat": 1.3521, "lng": 103.8198 }
+  ],
+  
   "독일": [
-      { "name": "Eschborn", "lat": 50.1420, "lng": 8.5715 },
-      { "name": "Frankfurt", "lat": 50.1109, "lng": 8.6821 },
-      { "name": "Muenchen", "lat": 48.1351, "lng": 11.5820 },
-      { "name": "Schwalbach", "lat": 50.1500, "lng": 8.5333 },
-      { "name": "Hamburg", "lat": 53.5511, "lng": 9.9937 },
-      { "name": "Bonn", "lat": 50.7337, "lng": 7.0982 },
-      { "name": "Leipzig", "lat": 51.3397, "lng": 12.3731 },
-      { "name": "Düsseldorf", "lat": 51.2277, "lng": 6.7735 },
-      { "name": "Berlin", "lat": 52.3667, "lng": 13.5033 },
-      { "name": "Stuttgart", "lat": 48.7758, "lng": 9.1829 },
-      { "name": "Braunschweig", "lat": 52.2689, "lng": 10.5268 }
-    ],
+    { "name": "Eschborn", "lat": 50.1420, "lng": 8.5715 },
+    { "name": "Frankfurt", "lat": 50.1109, "lng": 8.6821 },
+    { "name": "Muenchen", "lat": 48.1351, "lng": 11.5820 },
+    { "name": "Schwalbach", "lat": 50.1500, "lng": 8.5333 },
+    { "name": "Hamburg", "lat": 53.5511, "lng": 9.9937 },
+    { "name": "Bonn", "lat": 50.7337, "lng": 7.0982 },
+    { "name": "Leipzig", "lat": 51.3397, "lng": 12.3731 },
+    { "name": "Düsseldorf", "lat": 51.2277, "lng": 6.7735 },
+    { "name": "Berlin", "lat": 52.3667, "lng": 13.5033 },
+    { "name": "Stuttgart", "lat": 48.7758, "lng": 9.1829 },
+    { "name": "Braunschweig", "lat": 52.2689, "lng": 10.5268 }
+  ],
     
     "체코": [
       { "name": "Praha", "lat": 50.0755, "lng": 14.4378 },
