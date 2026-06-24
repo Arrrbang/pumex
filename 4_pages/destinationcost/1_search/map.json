@@ -129,6 +129,14 @@
     { "name": "Singapore", "lat": 1.2903, "lng": 103.8519 }
   ],
   
+  "인도네시아":[
+    { "name": "Cikarang", "lat": -6.2615, "lng": 107.1522 },
+    { "name": "Jakarta", "lat": -6.2088, "lng": 106.8456 },
+    { "name": "Surabaya", "lat": -7.2575, "lng": 112.7521 },
+    { "name": "Tangerang", "lat": -6.1783, "lng": 106.6319 },
+    { "name": "Bali", "lat": -8.6705, "lng": 115.2126 }
+  ],
+  
   "독일": [
     { "name": "Eschborn", "lat": 50.1420, "lng": 8.5715 },
     { "name": "Frankfurt", "lat": 50.1109, "lng": 8.6821 },
