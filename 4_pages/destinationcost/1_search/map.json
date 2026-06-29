@@ -710,5 +710,14 @@
     { "name": "Monterrey", "lat": 25.6866, "lng": -100.3161 },
     { "name": "San Luis Potosi", "lat": 22.1565, "lng": -100.9855 },
     { "name": "Guadalajara", "lat": 20.6597, "lng": -103.3496 }
-  ]
+  ],
+  "브라질":[
+    { "name": "Brasilia", "lat": -15.7939, "lng": -47.8828 },
+    { "name": "Campinas", "lat": -22.9056, "lng": -47.0608 },
+    { "name": "Manaus", "lat": -3.1190, "lng": -60.0217 },
+    { "name": "Rio de Janeiro", "lat": -22.9068, "lng": -43.1729 },
+    { "name": "Santos", "lat": -23.9608, "lng": -46.3336 },
+    { "name": "Sao Paulo", "lat": -23.5558, "lng": -46.6396 },
+    { "name": "Santa Cruz", "lat": -22.9194, "lng": -43.6842 }
+      ]
 }
