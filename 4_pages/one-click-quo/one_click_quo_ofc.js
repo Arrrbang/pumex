@@ -10,8 +10,11 @@ let ofcGlobalState = {
     containerType: '',
     isConsole: false,
     consoleBase: '40HC',
+    ofcDataList: [],     // 🚨 추가: 백엔드에서 받은 배열(부산, 인천 등) 모두 저장
+    extraCostsList: [],  // 🚨 추가: 추가비용 모두 저장
     ofcData: null,
     extraCosts: [],
+    currentPrefix: '',   // 🚨 추가: 현재 선택된 항구 접두사 (BUS) 또는 (INC)
     krwToUsdRate: 0.00075,
     validityDate: ''
 };
@@ -45,7 +48,7 @@ async function fetchOceanFreightData(poe) {
         console.groupEnd();
 
         return {
-            ofcData: result.ofcData && result.ofcData.length > 0 ? result.ofcData[0] : null,
+            ofcData: result.ofcData || [], // 🚨 수정: [0]번째가 아닌 배열 전체를 반환
             extraCosts: result.extraCosts || [],
             targetPoe: targetPoeArray 
         };
@@ -95,30 +98,20 @@ async function applyOfcCostToQuote() {
     }
 
     if (result) {
-        ofcGlobalState.ofcData = result.ofcData;
-        ofcGlobalState.extraCosts = result.extraCosts;
+            ofcGlobalState.ofcDataList = result.ofcData;
+            ofcGlobalState.extraCostsList = result.extraCosts;
 
-        if (result.ofcData?.validity) {
-            const rawDate = result.ofcData.validity.end || result.ofcData.validity.start;
-            if (rawDate) ofcGlobalState.validityDate = rawDate.replace(/-/g, '/');
-        }
-
-        if (typeof window.setupPolDropdown === 'function') {
-            window.setupPolDropdown(result.targetPoe); 
+            if (typeof window.setupPolDropdown === 'function') {
+                window.setupPolDropdown(result.targetPoe); 
+            }
         } else {
-            window.__pendingPolPoes = result.targetPoe;
+            if (typeof window.setupPolDropdown === 'function') {
+                window.setupPolDropdown([]);
+            }
         }
-    } else {
-        // API 실패 시에만 전체 항구 표시
-        if (typeof window.setupPolDropdown === 'function') {
-            window.setupPolDropdown([]);
-        } else {
-            window.__pendingPolPoes = [];
-        }
+        // 🚨 수정: 여기서 renderOceanFreight()를 바로 호출하지 않습니다.
+        // setupPolDropdown 내부에서 항목 선택(change) 이벤트를 통해 자동으로 필터링 및 렌더링되게 합니다.
     }
-    
-    renderOceanFreight();
-}
 
 /**
  * 3. [렌더링 모듈] 계산 및 화면/이벤트 업데이트
@@ -314,3 +307,75 @@ function openOfcDetailModal(pageId, extraCosts = [], baseCost = 0, ofcTotal = 0,
 }
 
 document.addEventListener('DOMContentLoaded', applyOfcCostToQuote);
+
+/* ==========================================================================
+   [POL 드롭다운 및 운임 필터링 모듈]
+   ========================================================================== */
+window.setupPolDropdown = function(mappedPoes) {
+    const polSelect = document.getElementById('pol_select');
+    if (!polSelect) return;
+
+    const safePoes = Array.isArray(mappedPoes) ? mappedPoes : [];
+    const hasBus = safePoes.some(v => typeof v === 'string' && v.includes('(BUS)'));
+    const hasInc = safePoes.some(v => typeof v === 'string' && v.includes('(INC)'));
+
+    let optionsHtml = '';
+    // value는 TRC(내륙운송)를 위한 주소, data-prefix는 OFC(해상운임) 필터링용
+    if (hasBus) {
+        optionsHtml += '<option value="부산광역시 강서구 신항남로 330" data-prefix="(BUS)">부산신항 (미국, 유럽 등 장거리)</option>';
+        optionsHtml += '<option value="부산광역시 남구 신선로 294" data-prefix="(BUS)">부산북항 (아시아, 인도네시아 등 단거리)</option>';
+    }
+    if (hasInc) {
+        optionsHtml += '<option value="인천 연수구 인천신항대로 707" data-prefix="(INC)">인천항</option>';
+    }
+    
+    if (!hasBus && !hasInc) {
+        optionsHtml += '<option value="부산광역시 강서구 신항남로 330" data-prefix="">기본 항구(부산)</option>';
+    }
+
+    polSelect.innerHTML = optionsHtml;
+    
+    const handlePolChange = (e) => {
+        // 1. 내륙운송료(TRC) 재계산 트리거 (ocq_trc.js)
+        if (typeof autoCalculateTrc === 'function') {
+            autoCalculateTrc();
+        }
+        
+        // 2. 해상운임(OFC) 업데이트 트리거
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const prefix = selectedOption.getAttribute('data-prefix'); 
+        window.updateOfcByPrefix(prefix);
+    };
+
+    // 중복 이벤트 방지 후 등록
+    polSelect.removeEventListener('change', handlePolChange);
+    polSelect.addEventListener('change', handlePolChange);
+
+    // 데이터 로드 직후 첫 번째 항목을 기준으로 OFC 및 TRC 초기 세팅
+    setTimeout(() => handlePolChange({ target: polSelect }), 100);
+};
+
+window.updateOfcByPrefix = function(prefix) {
+    ofcGlobalState.currentPrefix = prefix;
+
+    // 선택한 접두사 (BUS 또는 INC)가 poeList에 포함된 해상운임 데이터를 찾음
+    if (prefix && ofcGlobalState.ofcDataList.length > 0) {
+        ofcGlobalState.ofcData = ofcGlobalState.ofcDataList.find(data => 
+            data.poeList && data.poeList.some(code => code.includes(prefix))
+        ) || ofcGlobalState.ofcDataList[0];
+    } else {
+        ofcGlobalState.ofcData = ofcGlobalState.ofcDataList[0] || null;
+    }
+
+    // 추가 비용은 그대로 전달
+    ofcGlobalState.extraCosts = ofcGlobalState.extraCostsList;
+
+    // 유효기간 갱신
+    if (ofcGlobalState.ofcData?.validity) {
+        const rawDate = ofcGlobalState.ofcData.validity.end || ofcGlobalState.ofcData.validity.start;
+        ofcGlobalState.validityDate = rawDate ? rawDate.replace(/-/g, '/') : '';
+    }
+
+    // 찾아낸 데이터를 바탕으로 화면에 다시 그림
+    renderOceanFreight();
+};
