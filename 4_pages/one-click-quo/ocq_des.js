@@ -157,9 +157,11 @@
                 if (!otherCheck) {
                     firstTd.innerHTML = `
                         <label class="sel-check">
-                            <input type="checkbox" class="other-check">
+                            <input type="checkbox" class="other-check" checked>
                         </label>
                     `;
+                } else {
+                    otherCheck.checked = true; // 이미 DOM에 존재하는 경우에도 체크 상태 강제
                 }
             } else {
                 const isBasic = row.classList.contains('row-basic');

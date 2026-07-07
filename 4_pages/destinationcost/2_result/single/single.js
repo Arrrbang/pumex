@@ -382,10 +382,13 @@ function makeController(){
             window.TableRenderer.render(ids.tableWrap, data, type, Boolean(region), cbm);
             window.BottomBar.initTotalCalculator(ids.tableWrap, 'totalDisplayOne', type);
 
-            const btnOneClickA = document.getElementById('btnOneClickA');
-            if (btnOneClickA) {
-                btnOneClickA.textContent = `${company} 원클릭 견적`;
-            }
+              const btnOneClickA = document.getElementById('btnOneClickA');
+              if (btnOneClickA) {
+                  btnOneClickA.innerHTML = `
+                    <div class="btn-partner-name">${company}</div>
+                    <div class="btn-sub-text">원클릭 견적</div>
+                  `;
+              }
 
             if (window.CurrencyConverter) {
               window.CurrencyConverter.init(); 

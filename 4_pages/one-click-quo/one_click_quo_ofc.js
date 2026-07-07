@@ -335,17 +335,23 @@ window.setupPolDropdown = function(mappedPoes) {
 
     polSelect.innerHTML = optionsHtml;
     
-    const handlePolChange = (e) => {
-        // 1. 내륙운송료(TRC) 재계산 트리거 (ocq_trc.js)
-        if (typeof autoCalculateTrc === 'function') {
-            autoCalculateTrc();
-        }
-        
-        // 2. 해상운임(OFC) 업데이트 트리거
-        const selectedOption = e.target.options[e.target.selectedIndex];
-        const prefix = selectedOption.getAttribute('data-prefix'); 
-        window.updateOfcByPrefix(prefix);
-    };
+        const handlePolChange = (e) => {
+            // 1. 내륙운송료(TRC) 재계산 트리거 (ocq_trc.js)
+            if (typeof autoCalculateTrc === 'function') {
+                autoCalculateTrc();
+            }
+            
+            // 2. 해상운임(OFC) 업데이트 트리거
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const prefix = selectedOption.getAttribute('data-prefix'); 
+            window.updateOfcByPrefix(prefix);
+
+            // ✅ 추가: 인쇄 및 PDF 저장용 텍스트 매칭 (공백 버그 해결)
+            const polPrintText = document.getElementById('pol_print_text');
+            if (polPrintText && selectedOption) {
+                polPrintText.textContent = selectedOption.textContent;
+            }
+        };
 
     // 중복 이벤트 방지 후 등록
     polSelect.removeEventListener('change', handlePolChange);

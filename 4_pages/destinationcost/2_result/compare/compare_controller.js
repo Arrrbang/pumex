@@ -27,8 +27,18 @@ window.CompareController = {
 
     const btnOneClickA = document.getElementById('btnOneClickA');
     const btnOneClickB = document.getElementById('btnOneClickB');
-    if (btnOneClickA) btnOneClickA.textContent = `${orig.company} 원클릭 견적`;
-    if (btnOneClickB) btnOneClickB.textContent = `${target.company} 원클릭 견적`;
+    if (btnOneClickA) {
+      btnOneClickA.innerHTML = `
+        <div class="btn-partner-name">${orig.company}</div>
+        <div class="btn-sub-text">원클릭 견적</div>
+      `;
+    }
+    if (btnOneClickB) {
+      btnOneClickB.innerHTML = `
+        <div class="btn-partner-name">${target.company}</div>
+        <div class="btn-sub-text">원클릭 견적</div>
+      `;
+    }
 
     try {
       const [resA, resB] = await Promise.all([
