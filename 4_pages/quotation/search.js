@@ -37,7 +37,7 @@ async function loadMapJson() {
     }
 }
 
-// 2. 검색 가능한 콤보박스 구현
+// 2. 검색 가능한 콤보박스 구현 (모바일 연필 아이콘 적용 버전)
 function makeSelectSearchable(selectId, items, onSelect) {
     const selectEl = document.getElementById(selectId);
     if (!selectEl) return;
@@ -53,25 +53,39 @@ function makeSelectSearchable(selectId, items, onSelect) {
     wrapper.setAttribute('data-searchable-for', selectId);
     wrapper.style.position = 'relative';
 
+    // 💡 [추가] 텍스트 입력창 왼쪽 연필 아이콘 생성
+    const editIcon = document.createElement('i');
+    editIcon.className = 'fa-solid fa-pen';
+    editIcon.style.cssText = 'position:absolute; left:12px; top:50%; transform:translateY(-50%); color:#159b64; font-size:0.9rem; cursor:pointer; z-index:10; padding:5px;';
+
     const input = document.createElement('input');
     input.type = 'text';
     input.id = `${selectId}_search_input`;
-    input.placeholder = '';
+    input.placeholder = ''; // 기본 문구 삭제
     input.className = selectEl.className;
     input.style.width = '100%';
     input.style.boxSizing = 'border-box';
+    input.style.paddingLeft = '35px'; // 💡 연필 아이콘과 글자가 겹치지 않게 여백 추가
 
     input.setAttribute('autocomplete', 'off');
     input.setAttribute('spellcheck', 'false');
-    input.setAttribute('readonly', 'true');
+    input.setAttribute('readonly', 'true'); // 기본적으로 터치 시 자판 안 올라오게 막기
 
     const listDiv = document.createElement('div');
     listDiv.className = 'searchable-list';
     listDiv.style.cssText = 'position:absolute; top:100%; left:0; right:0; max-height:220px; overflow-y:auto; background:#fff; border:1px solid #ccc; border-top:none; z-index:1000; display:none; box-shadow:0 4px 6px rgba(0,0,0,0.1);';
 
+    wrapper.appendChild(editIcon);
     wrapper.appendChild(input);
     wrapper.appendChild(listDiv);
     parent.appendChild(wrapper);
+
+    // 💡 [핵심] 연필 아이콘 클릭 시에만 잠금을 풀고 키보드 올리기
+    editIcon.addEventListener('click', (e) => {
+        e.stopPropagation(); 
+        input.removeAttribute('readonly'); // 잠금 해제
+        input.focus(); // 커서를 활성화하여 자판 띄우기
+    });
 
     const renderList = (filterText = '') => {
         listDiv.innerHTML = '';
@@ -98,7 +112,14 @@ function makeSelectSearchable(selectId, items, onSelect) {
             const div = document.createElement('div');
             div.className = 'searchable-item';
             div.textContent = text;
-            div.style.cssText = 'padding:10px; cursor:pointer; font-size:14px; border-bottom:1px solid #f1f1f1;';
+            
+            // 💡 [수정] 값이 없거나 '~선택' 문구인 경우 연한 회색 처리
+            if (!val || text.includes('선택')) {
+                div.style.cssText = 'padding:10px; cursor:pointer; font-size:14px; border-bottom:1px solid #f1f1f1; color:#aaa; font-style:italic;';
+            } else {
+                div.style.cssText = 'padding:10px; cursor:pointer; font-size:14px; border-bottom:1px solid #f1f1f1; color:#333;';
+            }
+
             div.addEventListener('mouseenter', () => div.style.backgroundColor = '#f8f9fa');
             div.addEventListener('mouseleave', () => div.style.backgroundColor = '#fff');
 
@@ -106,6 +127,7 @@ function makeSelectSearchable(selectId, items, onSelect) {
                 input.value = text;
                 selectEl.value = val;
                 listDiv.style.display = 'none';
+                input.setAttribute('readonly', 'true');
                 selectEl.dispatchEvent(new Event('change', { bubbles: true }));
                 if (typeof onSelect === 'function') onSelect(val);
             });
@@ -115,7 +137,7 @@ function makeSelectSearchable(selectId, items, onSelect) {
         if (selectId === 'region' && __currentCountryPoints.length > 0) {
             const nearBtn = document.createElement('div');
             nearBtn.className = 'searchable-item-nearest';
-            nearBtn.textContent = '🗺️ [가까운 지역으로 설정] (지도 팝업)';
+            nearBtn.textContent = '🗺️ [가까운 지역으로 설정]';
             nearBtn.style.cssText = 'padding:12px; cursor:pointer; font-size:14px; font-weight:bold; color:#2980b9; background:#ebf5fb; border-top:2px solid #3498db; text-align:center; position:sticky; bottom:0;';
             
             nearBtn.addEventListener('mouseenter', () => nearBtn.style.backgroundColor = '#d4e6f1');
@@ -138,6 +160,7 @@ function makeSelectSearchable(selectId, items, onSelect) {
     document.addEventListener('click', (e) => {
         if (!wrapper.contains(e.target)) {
             listDiv.style.display = 'none';
+            input.setAttribute('readonly', 'true'); // 💡 바깥을 클릭해서 닫힐 때도 다시 잠금
         }
     });
 }
