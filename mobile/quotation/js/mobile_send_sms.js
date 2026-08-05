@@ -55,21 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const q_final_total_converted = document.getElementById('q_final_total_converted')?.textContent?.trim() || '';
             
             // 3. 발송될 메시지 내용 세팅 
-            const messageText = `
-            안녕하세요 ${q_customer_name} 고객님, PUMEX 해외이사 견적 안내드립니다.\n\n
-            [견적 요약]\n
-            - 포장지: ${q_origin_add}\n
-            - 배송지: ${q_location}\n
-            - 예상 총 비용: ${q_final_total_converted} 원\n\n
-            - 주의 사항\n
-            ※본 임시견적의 비용은 운임 변동, 환율 변동으로 인해 추후 변경될 수 있습니다.\n
-            최종 견적서는 추후 고객님께서 입력하신 이메일(${q_customer_email})로 발송될 예정입니다.\n\n
-            기타 문의는 아래 담당 영업사원에게 문의 바랍니다. 감사합니다.\n\n
-            영업담당\n
-            담당자: ${managerName} ${managerPosition}\n
-            연락처: ${salesTel}\n
-            이메일: ${salesEmail}
-            `; 
+            const messageText = `안녕하세요 ${q_customer_name} 고객님, PUMEX 해외이사 견적 안내드립니다.\n\n[견적 요약]\n- 포장지: ${q_origin_add}\n- 배송지: ${q_location}\n- 예상 총 비용: ${q_final_total_converted} 원\n\n- 주의 사항\n※본 임시견적의 비용은 운임 변동, 환율 변동으로 인해 추후 변경될 수 있습니다.\n최종 견적서는 추후 고객님께서 입력하신 이메일(${q_customer_email})로 발송될 예정입니다.\n\n기타 문의는 아래 담당 영업사원에게 문의 바랍니다. 감사합니다.\n\n영업담당\n담당자: ${managerName} ${managerPosition}\n연락처: ${salesTel}\n이메일: ${salesEmail}`; 
             
             // 4. 스마트폰 OS(아이폰/안드로이드)에 따른 문자 프로토콜 분기 처리
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
