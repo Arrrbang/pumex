@@ -99,13 +99,12 @@ function makeSelectSearchable(selectId, items, onSelect) {
             return matchA - matchB;
         });
 
-        // 💡 [수정] '~선택' 단어가 포함되거나 빈 값인 항목은 목록에서 제외
+        // 💡 [수정] '~선택'이 포함된 안내 문구는 아예 목록 배열에서 제외시킵니다.
         const filtered = sortedItems.filter(item => {
             const text = (typeof item === 'object' ? (item.text || item.name) : item).toLowerCase();
             const val = typeof item === 'object' ? (item.value || item.name) : item;
             
-            // '선택'이 포함되어 있거나 값이 없으면 목록에 표시하지 않음
-            if (!val || text.includes('선택')) return false; 
+            if (!val || text.includes('선택')) return false; // 기본 안내 문구 숨김
             if (!query) return true;
             
             return text.includes(query);
@@ -119,12 +118,8 @@ function makeSelectSearchable(selectId, items, onSelect) {
             div.className = 'searchable-item';
             div.textContent = text;
             
-            // 💡 [수정] 값이 없거나 '~선택' 문구인 경우 연한 회색 처리
-            if (!val || text.includes('선택')) {
-                div.style.cssText = 'padding:10px; cursor:pointer; font-size:14px; border-bottom:1px solid #f1f1f1; color:#aaa; font-style:italic;';
-            } else {
-                div.style.cssText = 'padding:10px; cursor:pointer; font-size:14px; border-bottom:1px solid #f1f1f1; color:#333;';
-            }
+            // 깔끔한 리스트 아이템 디자인 적용
+            div.style.cssText = 'padding:10px; cursor:pointer; font-size:14px; border-bottom:1px solid #f1f1f1; color:#333;';
 
             div.addEventListener('mouseenter', () => div.style.backgroundColor = '#f8f9fa');
             div.addEventListener('mouseleave', () => div.style.backgroundColor = '#fff');
