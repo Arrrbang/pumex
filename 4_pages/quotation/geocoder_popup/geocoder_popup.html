@@ -1,0 +1,21 @@
+<!-- geocoder_popup.html -->
+<div id="nearestMapModalOverlay" class="map-modal-overlay">
+    <div class="map-modal-content">
+        <!-- 헤더 영역 -->
+        <div class="map-modal-header">
+            <h3 class="map-modal-title">가장 가까운 지역 선택 (지도 확인)</h3>
+            <button id="closeMapModal" class="map-modal-close">&times;</button>
+        </div>
+        
+        <!-- 지도 컨테이너 -->
+        <div id="popupMapContainer" class="map-modal-body"></div>
+        
+        <!-- 하단 푸터 영역 -->
+        <div class="map-modal-footer">
+            <div id="mapModalDescTxt" class="map-modal-desc">
+                📍 지도를 클릭하거나 좌측 상단 검색창을 이용해 가장 가까운 지역을 확인하세요.
+            </div>
+            <button id="confirmNearestBtn" class="map-modal-btn" disabled>이 지역으로 설정</button>
+        </div>
+    </div>
+</div>

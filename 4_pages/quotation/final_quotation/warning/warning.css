@@ -1,0 +1,87 @@
+/* warning.css */
+.warning-container {
+    position: absolute;
+    left: 8px; /* 칸의 왼쪽 끝부분에 여백을 두고 고정 */
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    z-index: 50; /* 기준 z-index */
+}
+
+.warning-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #e74c3c;
+    border-radius: 50%; /* 💡 동그라미 모양이 더 예쁩니다 */
+    color: #e74c3c;
+    font-weight: 900;
+    font-size: 13px;
+    cursor: help;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+}
+
+.warning-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 120%; 
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #34495e;
+    color: #fff;
+    text-align: left;
+    
+    /* 💡 핵심: 위 6px, 오른쪽 12px, 아래 6px, 왼쪽 4px */
+    padding: 6px 28px 6px 0px; 
+    
+    border-radius: 6px;
+    white-space: nowrap; 
+    font-size: 0.8rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    pointer-events: none; 
+    z-index: 9999; 
+}
+
+/* 말풍선 꼬리 */
+.warning-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: #34495e transparent transparent transparent;
+}
+
+/* 마우스 오버 시 말풍선 노출 */
+.warning-container:hover .warning-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+#warning_message_list {
+    margin: 0;
+    padding-left: 0px; /* 💡 리스트의 불필요한 기본 들여쓰기 완벽 제거 */
+    list-style-position: inside; 
+    
+    list-style-type: disc;
+    line-height: 1.4; 
+}
+
+#warning_message_list li {
+    /* 💡 수정 포인트: 리스트 항목 아래쪽 간격 축소 */
+    margin-bottom: 2px;
+}
+#warning_message_list li:last-child {
+    margin-bottom: 0;
+}

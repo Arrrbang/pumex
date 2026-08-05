@@ -38,9 +38,13 @@
         <span class="gnb-category-label">카테고리</span>
       </div>
       
-      <div class="title-wrap" id="menu-destination">
-          <a href="/pumex/4_pages/destinationcost/1_search/index.html" class="site-title">도착지비용 조회</a>
-          <div class="title-bar"></div>
+      <div class="title-wrap has-dropdown" id="menu-destination">
+        <a href="#" class="site-title">도착지비용 조회</a>
+        <div class="title-bar"></div>
+
+        <div class="menu-dropdown">
+          <a class="menu-item" href="/pumex/4_pages/destinationcost/1_search/index.html">도착지비용 조회</a>
+        </div>
       </div>
 
       <div class="title-wrap has-dropdown" id="menu-sos">
@@ -64,9 +68,16 @@
         </div>
       </div>
 
-      <div class="title-wrap" id="menu-origin">
-          <a href="#" class="site-title">국내비용(예정)</a>
-          <div class="title-bar"></div>
+      <div class="title-wrap has-dropdown" id="menu-sos">
+        <a href="#" class="site-title">B2C 견적서</a>
+        <div class="title-bar"></div>
+
+        <div class="menu-dropdown">
+          <a class="menu-item" href="/pumex/4_pages/quotation/index.html">신규 견적 생성</a>
+          <a class="menu-item" 
+              href="/pumex/4_pages/quotation/load_quotation/load_quotation.html" 
+              onclick="sessionStorage.removeItem('finalQuotationData');">기존 견적 열람</a>
+          </div>
       </div>
 
       <div class="title-wrap has-dropdown" id="menu-operation">

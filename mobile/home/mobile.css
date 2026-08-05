@@ -1,0 +1,176 @@
+/* ================= 1. 히어로 타이틀 ================= */
+.m-hero { margin-bottom: 24px; }
+.m-hero-title {
+    font-size: 1.45rem;
+    line-height: 1.35;
+    font-weight: 800;
+    color: var(--m-text);
+    margin: 0;
+}
+.m-hero-title .user-name { font-weight: 800; }
+.m-hero-title .highlight-green { color: var(--m-green); }
+
+
+/* ================= 2. 요약 카드 그리드 ================= */
+.m-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.m-summary-card {
+    background: var(--m-card-bg);
+    border: 1px solid var(--m-border);
+    border-radius: 16px;
+    padding: 16px 14px;
+    box-shadow: var(--m-shadow);
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.m-icon-wrap {
+    width: 44px; height: 44px;
+    background: #f0fdf4;
+    border-radius: 12px;
+    display: flex; justify-content: center; align-items: center;
+    flex-shrink: 0;
+}
+.m-icon-wrap img { width: 24px; height: 24px; object-fit: contain; }
+
+.m-summary-info {
+    margin-left: 12px;
+    display: flex;
+    flex-direction: column;
+}
+.m-summary-info h2 {
+    margin: 0 0 2px 0; font-size: 0.75rem; font-weight: 700; color: var(--m-text);
+}
+.m-count-text {
+    font-size: 1.4rem; font-weight: 800; color: var(--m-green); line-height: 1;
+}
+.m-summary-info p {
+    margin: 4px 0 0; font-size: 0.65rem; color: var(--m-text-sub); font-weight: 600;
+    display: flex; align-items: center;
+}
+
+.dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+.dot.orange { background: #f59e0b; }
+.dot.blue { background: #3b82f6; }
+
+/* 오른쪽 화살표 */
+.m-chevron-right {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%) rotate(45deg);
+    width: 6px; height: 6px; border-top: 1.5px solid #cbd5e1; border-right: 1.5px solid #cbd5e1;
+}
+
+
+/* ================= 3. 아코디언 디테일 리스트 ================= */
+.m-detail-list-wrap { display: flex; flex-direction: column; gap: 16px; }
+
+.m-detail-card {
+    background: var(--m-card-bg);
+    border: 1px solid var(--m-border);
+    border-radius: 16px;
+    box-shadow: var(--m-shadow);
+    overflow: hidden;
+}
+
+.m-detail-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px; cursor: pointer;
+    border-bottom: 1px solid var(--m-border);
+}
+
+.m-head-title { display: flex; align-items: center; gap: 10px; }
+.m-head-title h3 { margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--m-text); }
+.m-head-title .sub-text { font-size: 0.75rem; font-weight: 500; color: var(--m-text-sub); }
+
+.m-icon-sm {
+    width: 28px; height: 28px; background: #f0fdf4; border-radius: 8px;
+    display: flex; justify-content: center; align-items: center;
+}
+.m-icon-sm img { width: 14px; height: 14px; opacity: 0.8; }
+
+.m-head-action { display: flex; align-items: center; gap: 10px; }
+.m-badge {
+    background: #f3f4f6; color: #4b5563; font-size: 0.75rem; font-weight: 700;
+    padding: 4px 10px; border-radius: 20px;
+}
+
+.m-chevron-up {
+    width: 8px; height: 8px; border-top: 2px solid #6b7280; border-left: 2px solid #6b7280;
+    transform: rotate(45deg); transition: transform 0.2s ease;
+}
+
+/* 닫혔을 때 (Collapsed) */
+.m-detail-card.collapsed .m-detail-body { display: none; }
+.m-detail-card.collapsed .m-chevron-up { transform: rotate(225deg); margin-top: -4px; }
+.m-detail-card.collapsed .m-detail-head { border-bottom: none; }
+
+
+/* ================= 4. 테이블 리스트 디자인 ================= */
+.m-table { width: 100%; border-collapse: collapse; }
+.m-table thead { display: none; } /* 모바일에서는 헤더 숨김 */
+
+.m-table tr { border-bottom: 1px solid var(--m-border); position: relative; }
+.m-table tr:last-child { border-bottom: none; }
+
+.m-table td {
+    padding: 14px 4px;
+    font-size: 0.85rem;
+    color: var(--m-text);
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* 첫 번째 열 (날짜) 회색 처리 */
+.m-table td:nth-child(1) { color: var(--m-text-sub); font-size: 0.8rem; width: 25%; }
+/* 두 번째 열 (고객명) 강조 */
+.m-table td:nth-child(2) { font-weight: 600; width: 35%; text-align: left; padding-left: 8px; }
+/* 마지막 열 (담당자) 여백 및 중앙 정렬 */
+.m-table td:last-child { padding-right: 24px; color: var(--m-text-sub); width: 20%; }
+
+/* 리스트 화살표 (>) 삽입 */
+.m-table tr::after {
+    content: ''; position: absolute; right: 14px; top: 50%;
+    width: 6px; height: 6px; border-top: 1.5px solid #cbd5e1; border-right: 1.5px solid #cbd5e1;
+    transform: translateY(-50%) rotate(45deg);
+}
+
+/* 데이터가 없을 때 (빈 상태) 디자인 */
+.m-table td[colspan] {
+    padding: 40px 0; color: #9ca3af; font-size: 0.85rem; font-weight: 500; text-align: center;
+}
+.m-table td[colspan]::before {
+    content: ''; display: block; width: 42px; height: 42px; margin: 0 auto 10px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23cbd5e1" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>') no-repeat center;
+}
+.m-table tr:has(td[colspan])::after { display: none; }
+
+/* 전체보기 푸터 */
+.m-view-all {
+    display: flex; justify-content: center; align-items: center; gap: 6px;
+    padding: 12px; font-size: 0.8rem; font-weight: 600; color: var(--m-text-sub);
+    background: #fbfcfd; border-top: 1px solid var(--m-border); cursor: pointer;
+}
+.m-chevron-down {
+    width: 6px; height: 6px; border-bottom: 2px solid #9ca3af; border-right: 2px solid #9ca3af;
+    transform: rotate(45deg); margin-bottom: 2px;
+}
+
+/* 💡 1. 평소에는 6번째 줄(tr)부터 '무조건 강제' 숨김 처리 */
+.m-detail-body:not(.is-expanded) .m-table tbody tr:nth-child(n+6) {
+    display: none !important;
+}
+
+/* 💡 2. 전체보기 상태일 때 숨겨뒀던 줄을 '무조건 강제' 표시 */
+.m-detail-body.is-expanded .m-table tbody tr:nth-child(n+6) {
+    display: table-row !important;
+}
+
+/* 💡 3. [핵심 스마트 UI] 데이터가 5개 이하라면 '전체보기' 버튼을 알아서 숨김! */
+.m-detail-body:not(:has(tbody tr:nth-child(6))) .m-view-all {
+    display: none !important;
+}

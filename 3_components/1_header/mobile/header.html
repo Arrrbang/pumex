@@ -1,0 +1,55 @@
+<!-- /pumex/3_components/1_header/mobile/header.html -->
+<div class="m-header-container">
+  <!-- 상단 네비게이션 바 -->
+  <div class="m-top-bar">
+    <button class="m-hamburger-btn" id="m-menu-open" aria-label="메뉴 열기">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="m-logo">
+      <a href="/pumex/mobile/home/index.html">
+        <img src="/pumex/1_assets/1_image/passicon.png" alt="PASS Logo">
+      </a>
+    </div>
+    
+    <!-- 💡 우측 아이콘 2개 나란히 배치 -->
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <!-- 톱니바퀴 버튼 추가 -->
+      <button class="m-user-btn" id="m-header-gear-btn" aria-label="수익 설정" style="font-size: 1.3rem;">
+        <i class="fa-solid fa-gear"></i>
+      </button>
+      <button class="m-user-btn" id="m-user-icon" aria-label="사용자 정보">
+        <i class="fa-solid fa-circle-user"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- 슬라이드 사이드바 메뉴 -->
+  <div class="m-sidebar" id="m-sidebar">
+    <div class="m-sidebar-header">
+      <img src="/pumex/1_assets/1_image/passicon.png" alt="PASS Logo" class="m-sidebar-logo">
+      <button class="m-menu-close" id="m-menu-close" aria-label="메뉴 닫기">&times;</button>
+    </div>
+
+    <div class="m-sidebar-content">
+      <div class="m-nav-category">
+        <i class="fa-regular fa-folder-open"></i> 카테고리
+      </div>
+      <ul class="m-nav-list">
+        <li id="menu-destination">
+          <a href="/pumex/mobile/quotation/mobile_quotation.html">도착지비용 조회</a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 하단 사용자 정보 & 로그아웃 -->
+    <div class="m-sidebar-footer" id="m-userInfoWrap">
+      <span class="m-user-id" id="m-displayUserId"></span>
+      <button class="m-logout-btn" id="m-btnLogout">로그아웃</button>
+    </div>
+  </div>
+
+  <!-- 배경 오버레이 -->
+  <div class="m-overlay" id="m-overlay"></div>
+</div>

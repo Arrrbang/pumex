@@ -1,0 +1,124 @@
+/* irc_popup.css */
+.irc-modal-overlay {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); z-index: 9999;
+    justify-content: center; align-items: center;
+}
+
+.irc-modal-content {
+    background: #fff; border-radius: 8px; max-width: 500px; width: 95%; 
+    padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: flex; flex-direction: column; font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* 헤더 영역 */
+.irc-modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 2px solid #0f2950; padding-bottom: 12px; margin-bottom: 24px;
+}
+.irc-modal-header h3 { margin: 0; font-size: 1.35rem; font-weight: 800; color: #0f2950; }
+.irc-btn-close { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: #888; line-height: 1; transition: color 0.2s; }
+.irc-btn-close:hover { color: #333; }
+
+/* 입력 필드 공통 (Flex 가로 배치) */
+.irc-field-row {
+    display: flex; align-items: stretch; gap: 15px; margin-bottom: 16px;
+}
+
+/* 좌측 라벨 그룹 (아이콘 + 텍스트) */
+.irc-label-group {
+    display: flex; align-items: stretch; width: 150px; flex-shrink: 0;
+    border-radius: 4px; overflow: hidden;
+}
+.irc-icon {
+    background: #0f2950; color: #fff; width: 44px; display: flex; 
+    justify-content: center; align-items: center; font-size: 1.15rem;
+    position: relative;
+}
+.irc-icon .icon-inner-text {
+    position: absolute; font-size: 0.65rem; font-weight: 900; margin-top: 1px; color: #0f2950;
+}
+.irc-label-text {
+    background: #f4f6f9; color: #0f2950; font-weight: 700; font-size: 0.9rem;
+    flex: 1; display: flex; align-items: center; padding-left: 12px;
+}
+
+/* 우측 입력창 그룹 */
+.irc-input-group {
+    flex: 1; position: relative; display: flex; align-items: center;
+}
+.irc-input-wrapper {
+    width: 100%; position: relative;
+}
+.irc-input-group select, .irc-input-group input {
+    width: 100%; padding: 6px 16px; border-radius: 4px; border: 1px solid #cbd5e1;
+    box-sizing: border-box; font-size: 1rem; outline: none; font-family: inherit;
+    color: #333; transition: border-color 0.2s;
+}
+.irc-input-group select {
+    appearance: none;
+    background: url('data:image/svg+xml;utf8,<svg fill="%230f2950" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>') no-repeat right 12px center;
+    background-color: #fff;
+    cursor: pointer;
+}
+.irc-input-group input { text-align: right; }
+.irc-input-group input:focus, .irc-input-group select:focus { border-color: #0f2950; }
+.irc-input-group input::placeholder { color: #94a3b8; }
+
+/* 결과 박스 (지도 배경 및 우측 정렬) */
+.irc-result-container {
+    margin-top: 24px; margin-bottom: 24px; padding: 10px 30px; 
+    background: #f8fafc; border-radius: 6px; border: 1px solid #e2e8f0;
+    border-left: 6px solid #0f2950;
+    display: flex; justify-content: flex-end; align-items: center;
+    position: relative; overflow: hidden; min-height: 100px;
+}
+
+/* 지도 점선 그래픽 (CSS 패턴으로 유사하게 구현) */
+.irc-map-bg {
+    position: absolute; left: 15px; top: 15px; bottom: 15px; width: 45%;
+    background-image: radial-gradient(#cbd5e1 1.5px, transparent 1.5px);
+    background-size: 8px 8px;
+    mask-image: radial-gradient(ellipse at left, black 30%, transparent 70%);
+    -webkit-mask-image: -webkit-radial-gradient(ellipse at left, black 30%, transparent 70%);
+}
+
+.irc-result-content {
+    position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-end;
+}
+.irc-result-title {
+    font-size: 0.95rem; color: #0f2950; font-weight: 700; 
+    border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 8px;
+    min-width: 140px; text-align: right;
+}
+.irc-result-value {
+    display: flex; align-items: baseline; gap: 8px;
+}
+.irc-result-amt { color: #0f2950; font-size: 2.4rem; font-weight: 800; line-height: 1; letter-spacing: -1px; }
+.irc-result-unit { font-weight: 800; color: #0f2950; font-size: 1.1rem; }
+
+/* 하단 버튼 */
+.irc-modal-footer { display: flex; justify-content: flex-end; gap: 12px; }
+.irc-btn-cancel { 
+    padding: 12px 32px; border-radius: 6px; border: 1px solid #cbd5e1; 
+    background: #fff; color: #333; cursor: pointer; font-weight: 700; font-size: 1rem; 
+    transition: background 0.2s;
+}
+.irc-btn-cancel:hover { background: #f1f5f9; }
+.irc-btn-apply { 
+    padding: 12px 32px; border-radius: 6px; border: none; 
+    background: #0f2950; color: #fff; cursor: pointer; font-weight: 700; font-size: 1rem; 
+    transition: opacity 0.2s;
+}
+.irc-btn-apply:hover { opacity: 0.9; }
+
+.irc-input-unit {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #0f2950;
+    font-weight: 800;
+    font-size: 0.95rem;
+    pointer-events: none; /* 클릭 방해 금지 */
+}

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P.A.S.S</title>
+    <link rel="icon" href="/pumex/1_assets/1_image/favicon.png" type="image/x-icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome 아이콘 추가 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="../../2_common/1_css/common.css">
+    <link rel="stylesheet" href="../../2_common/1_css/color.css">
+
+    <link rel="stylesheet" href="./geocoder_popup/geocoder_popup.css">
+    <link rel="stylesheet" href="./search.css">
+
+</head>
+<body>
+    <div id="desktop-header-placeholder" class="desktop-only"></div>
+
+    <div class="container">
+        <h2>도착지비용 조회</h2>
+        <p class="sub-title-text">정확한 견적을 위해 아래 정보를 선택/입력해 주세요.</p>
+        
+        <div class="form-grid">
+            <!-- 나라 선택 -->
+            <div class="form-group-wrapper">
+                <div class="form-group-header">
+                    <div class="icon-circle"><i class="fa-solid fa-globe"></i></div>
+                    <label for="country">Country (나라)</label>
+                </div>
+                <div class="form-group">
+                    <select id="country">
+                        <option value="">나라를 선택하세요</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 지역 선택 -->
+            <div class="form-group-wrapper">
+                <div class="form-group-header">
+                    <div class="icon-circle"><i class="fa-solid fa-location-dot"></i></div>
+                    <label for="region">Region (지역)</label>
+                </div>
+                <div class="form-group">
+                    <select id="region">
+                        <option value="">지역을 먼저 선택하세요</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 파트너 선택 -->
+            <div class="form-group-wrapper">
+                <div class="form-group-header">
+                    <div class="icon-circle"><i class="fa-solid fa-users"></i></div>
+                    <label for="partner">Partner (파트너)</label>
+                </div>
+                <div class="form-group">
+                    <select id="partner">
+                        <option value="">파트너를 선택하세요</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 화물 타입 선택 -->
+            <div class="form-group-wrapper">
+                <div class="form-group-header">
+                    <div class="icon-circle"><i class="fa-solid fa-box"></i></div>
+                    <label for="cargoType">Cargo Type (화물 타입)</label>
+                </div>
+                <div class="form-group">
+                    <select id="cargoType">
+                        <option value="">화물 타입을 선택하세요</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- POE 선택 -->
+            <div class="form-group-wrapper">
+                <div class="form-group-header">
+                    <div class="icon-circle"><i class="fa-solid fa-ship"></i></div>
+                    <label for="poe">POE (Port of Entry)</label>
+                </div>
+                <div class="form-group">
+                    <select id="poe">
+                        <option value="">POE를 선택하세요</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 컨테이너 타입 선택 -->
+            <div class="form-group-wrapper">
+                <div class="form-group-header">
+                    <div class="icon-circle"><i class="fa-solid fa-truck-fast"></i></div>
+                    <label for="containerType">Container Type (컨테이너 타입)</label>
+                </div>
+                <div class="form-group">
+                    <select id="containerType">
+                        <option value="">컨테이너 타입을 선택하세요</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- CBM 입력 -->
+            <div class="form-group-wrapper full-width">
+                <div class="form-group-header">
+                    <div class="icon-circle"><i class="fa-solid fa-ruler-combined"></i></div>
+                    <label for="cbm">CBM (Volume)</label>
+                </div>
+                <div class="form-group cbm-input-group">
+                    <input type="number" id="cbm" placeholder="CBM 수치를 입력하세요 (예: 5.5)" step="1" min="0">
+                    <span class="cbm-unit">CBM</span>
+                </div>
+            </div>
+
+            <!-- 조회 버튼 -->
+            <div class="btn-container">
+                <button id="searchBtn" type="button"><i class="fa-solid fa-magnifying-glass" style="margin-right: 8px;"></i> 조회하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../2_common/3_api/api.js"></script>
+    <script src="../../2_common/2_js/loading.js"></script>
+    <script src="./search.js"></script>
+    
+    <script src="./js/cds_calculate.js"></script>
+    <script src="./js/btn_move_to_quotation.js"></script>
+
+</body>
+</html>

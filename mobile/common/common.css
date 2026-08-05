@@ -1,0 +1,40 @@
+/* =========================================================
+   모바일 공통 CSS (common.css)
+   ========================================================= */
+:root {
+    --m-bg: #f8fafc;
+    --m-text: #1f2937;
+    --m-text-sub: #6b7280;
+    --m-green: #159b64;
+    --m-border: #f0f3f6;
+    --m-card-bg: #ffffff;
+    --m-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background-color: var(--m-bg);
+    color: var(--m-text);
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* 💡 모든 모바일 페이지의 메인 콘텐츠를 감싸는 공통 뼈대 규격 */
+.m-container {
+    padding: 20px 16px 40px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* 로딩 애니메이션 */
+#loading-container {
+    position: fixed; inset: 0; background: #fff; z-index: 9999;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+}
+.spinner {
+    width: 40px; height: 40px; border: 4px solid #eee; border-top: 4px solid var(--m-green);
+    border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.loading-msg { font-size: 0.9rem; font-weight: 600; color: var(--m-text-sub); }

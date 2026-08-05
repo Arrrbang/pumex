@@ -90,7 +90,7 @@ async function initAlwaysOnMap(){
     }).addTo(map);
 
   try {
-    const r = await fetch('./map.json', {cache:'no-store'});
+    const r = await fetch('/pumex/4_pages/destinationcost/1_search/map.json', {cache:'no-store'});
     mapData = await r.json();
   } catch(e) {
     console.warn('map.json 로드 실패:', e);
@@ -228,7 +228,7 @@ let __mapData = null;
 async function loadMapJson() {
   if (__mapData) return __mapData;
   try {
-    const r = await fetch('./map.json', { cache: 'no-store' });
+    const r = await fetch('/pumex/4_pages/destinationcost/1_search/map.json', { cache: 'no-store' });
     __mapData = await r.json();
     return __mapData;
   } catch (e) {

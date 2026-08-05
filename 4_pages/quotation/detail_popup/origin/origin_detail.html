@@ -1,0 +1,35 @@
+<!-- origin_detail.html -->
+<div id="originDetailModal" class="origin-detail-overlay">
+    <div class="origin-detail-content">
+        <div class="origin-detail-header">
+            <h3>출발지 비용 상세 내역 (Origin Charges)</h3>
+            <button type="button" id="btn_origin_close_x" class="origin-btn-close">&times;</button>
+        </div>
+        
+        <div class="origin-detail-body">
+            <div class="origin-table-wrapper">
+                <table class="origin-detail-table">
+                    <thead>
+                        <tr>
+                            <th>비용 항목명 (Description)</th>
+                            <th style="width: 130px; text-align: right;">금액 (Amount)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="origin_detail_tbody">
+                        <!-- JS에서 동적으로 리스트가 삽입됩니다 -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td style="font-weight: 800; color: #1A365D; text-align: center;">총 합계 (Total)</td>
+                            <td id="origin_detail_total" style="font-weight: 800; color: #1A365D; text-align: right;">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        
+        <div class="origin-detail-footer">
+            <button type="button" id="btn_origin_close" class="origin-btn-apply">닫기</button>
+        </div>
+    </div>
+</div>

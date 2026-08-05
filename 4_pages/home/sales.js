@@ -160,7 +160,7 @@ function renderSalesTable(tbodyId, dataList, showDeadline, showPackingDate = fal
         return;
     }
 
-    dataList.slice(0, 5).forEach(item => {
+    dataList.forEach(item => { 
         const tr = document.createElement("tr");
         let html = "";
 
@@ -194,7 +194,7 @@ function renderConsoleTable(tbodyId, dataList) {
         return;
     }
 
-    dataList.slice(0, 5).forEach(item => {
+    dataList.forEach(item => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${escapeHtml(item.poe || "-")}</td>

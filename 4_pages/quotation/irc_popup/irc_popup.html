@@ -1,0 +1,74 @@
+<!-- irc_popup.html -->
+<div id="ircModal" class="irc-modal-overlay">
+    <div class="irc-modal-content">
+        <div class="irc-modal-header">
+            <h3>보험료 산출</h3>
+            <button type="button" id="btn_irc_close_x" class="irc-btn-close">&times;</button>
+        </div>
+        
+        <div class="irc-modal-body">
+            
+            <!-- 통화 선택 -->
+            <div class="irc-field-row">
+                <div class="irc-label-group">
+                    <div class="irc-icon"><i class="fa-solid fa-won-sign"></i></div>
+                    <div class="irc-label-text">통화 선택</div>
+                </div>
+                <div class="irc-input-group">
+                    <select id="irc_pop_currency">
+                        <option value="KRW" selected>KRW (₩)</option>
+                        <option value="USD">USD ($)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 보험가액 -->
+            <div class="irc-field-row">
+                <div class="irc-label-group">
+                    <div class="irc-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                    <div class="irc-label-text">보험가액</div>
+                </div>
+                <div class="irc-input-group">
+                    <div class="irc-input-wrapper">
+                        <!-- 단위 글자가 들어갈 공간을 위해 style로 padding-right 추가 -->
+                        <input type="text" id="irc_amount" autocomplete="off" placeholder="" style="padding-right: 55px;">
+                        <!-- 💡 단위를 다시 표시하고 전용 클래스 부여 -->
+                        <span id="irc_amount_unit" class="irc-input-unit">만 원</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 보험요율 -->
+            <div class="irc-field-row">
+                <div class="irc-label-group">
+                    <div class="irc-icon">
+                        <i class="fa-solid fa-shield"></i>
+                        <span class="icon-inner-text">%</span>
+                    </div>
+                    <div class="irc-label-text">보험요율 (%)</div>
+                </div>
+                <div class="irc-input-group">
+                    <input type="number" id="irc_rate" step="0.01" placeholder="예: 2.0" autocomplete="off">
+                </div>
+            </div>
+            
+            <!-- 산출 결과 박스 -->
+            <div class="irc-result-container">
+                <div class="irc-map-bg"></div>
+                <div class="irc-result-content">
+                    <div class="irc-result-title">산출된 보험료</div>
+                    <div class="irc-result-value">
+                        <span id="irc_calculated_amt" class="irc-result-amt">0</span> 
+                        <span id="irc_result_unit" class="irc-result-unit">KRW</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="irc-modal-footer">
+            <button type="button" id="btn_irc_cancel" class="irc-btn-cancel">취소</button>
+            <button type="button" id="btn_irc_apply" class="irc-btn-apply">적용</button>
+        </div>
+    </div>
+</div>

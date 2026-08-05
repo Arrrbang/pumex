@@ -1,0 +1,52 @@
+<!-- ofc_detail.html -->
+<div id="ofcDetailModal" class="ofc-detail-overlay">
+    <div class="ofc-detail-content">
+        <div class="ofc-detail-header">
+            <h3>운임 상세 및 추가 비용 (OFC)</h3>
+            <button type="button" id="btn_ofc_close_x" class="ofc-btn-close">&times;</button>
+        </div>
+        
+        <div class="ofc-detail-body">
+            <div id="ofc_validity_text" style="text-align: center; color: #1A365D; font-size: 0.9rem; font-weight: 700; margin-bottom: 15px;"></div>
+            
+            <div id="ofc_console_toggle" style="margin-bottom: 20px; padding: 15px; background: #f4f6f8; border-radius: 8px; border: 1px solid #ddd; text-align: center; display: none;">
+                <div style="font-weight: 800; margin-bottom: 12px; color: #1A365D; font-size: 0.95rem;">🚢 콘솔 컨테이너 요율 기준 선택</div>
+                <div style="display: flex; justify-content: center; gap: 20px;">
+                    <label style="cursor: pointer; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px; color: #333;">
+                        <input type="radio" name="consoleBase" value="20FT" style="width:16px; height:16px; accent-color: #1A365D;">
+                        20DR 기준 (÷20)
+                    </label>
+                    <label style="cursor: pointer; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 5px; color: #333;">
+                        <input type="radio" name="consoleBase" value="40HC" style="width:16px; height:16px; accent-color: #1A365D;">
+                        40HC 기준 (÷50)
+                    </label>
+                </div>
+            </div>
+
+            <h4 style="margin: 0 0 10px 0; font-size: 0.95rem; font-weight: 700; color: #333;">[운임 구성 내역]</h4>
+            <div class="ofc-table-wrapper">
+                <table class="ofc-detail-table">
+                    <thead>
+                        <tr>
+                            <th>항목명 (Description)</th>
+                            <th style="width: 130px; text-align: right;">금액 (<span id="ofc_th_currency">USD</span>)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ofc_detail_tbody">
+                        <!-- JS에서 동적으로 리스트가 삽입됩니다 -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td style="font-weight: 800; color: #1A365D;">총 해상 운임 합계</td>
+                            <td id="ofc_detail_total" style="font-weight: 800; color: #1A365D; text-align: right; font-size: 1.1rem;">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+        
+        <div class="ofc-detail-footer">
+            <button type="button" id="btn_ofc_apply" class="ofc-btn-apply">닫기</button>
+        </div>
+    </div>
+</div>

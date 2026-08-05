@@ -1,0 +1,46 @@
+<!-- destination_popup.html -->
+<div id="cdsDetailModal" class="cds-detail-overlay">
+    <div class="cds-detail-content">
+        <div class="cds-detail-header">
+            <h3>도착지 비용 상세 내역</h3>
+            <button type="button" id="btn_cds_close_x" class="cds-btn-close">&times;</button>
+        </div>
+        
+        <div class="cds-detail-body">
+            <div class="cds-table-wrapper">
+                <table class="cds-detail-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px; text-align: center;"></th>
+                            <th>비용 항목명 (Description)</th>
+                            <th style="width: 120px; text-align: right;">금액</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cds_detail_tbody">
+                        <!-- JS에서 동적으로 리스트가 삽입됩니다 -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" style="font-weight: 800; color: #1A365D; text-align: center;">기본 합계 (Total CDS)</td>
+                            <td id="cds_detail_total" style="font-weight: 800; color: #1A365D; text-align: right;">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <!-- 💡 추가 비용(ADD) 체크 시 나타나는 하단 영역 -->
+            <div id="cds_add_summary" style="margin-top: 15px; padding: 15px; background: #fdf2f2; border: 1px solid #fabebb; border-radius: 6px; display: none;">
+                <div style="font-weight: 700; color: #c0392b; margin-bottom: 8px;">선택된 추가 비용 내역 (Additional Charges)</div>
+                <div id="cds_add_desc" style="font-size: 0.85rem; color: #555; margin-bottom: 10px; line-height: 1.4;"></div>
+                <div style="text-align: right; font-weight: 800; font-size: 1.1rem; color: #c0392b;">
+                    <span id="cds_add_total_currency" style="font-size: 0.85rem; margin-right: 5px; color: #777;">KRW</span>
+                    <span id="cds_add_total">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="cds-detail-footer">
+            <button type="button" id="btn_cds_apply" class="cds-btn-apply">적용 및 닫기</button>
+        </div>
+    </div>
+</div>

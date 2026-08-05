@@ -1,0 +1,256 @@
+/* /pumex/3_components/1_header/mobile/header.css */
+:root {
+  --m-header-bg: #081f27; /* 시안의 다크 블루 */
+  --m-header-active: #153A47;
+  --m-primary: #1F9461;
+  --m-text-light: #ffffff;
+  --m-border-color: rgba(255, 255, 255, 0.1);
+  --m-top-bar-height: 56px;
+  --m-notice-height: 50px;
+}
+
+body {
+  /* 모바일 헤더(탑바+공지사항) 높이만큼 본문 내리기 */
+  padding-top: calc(var(--m-top-bar-height)); 
+}
+
+/* ================= 1. 상단 바 ================= */
+.m-header-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.m-top-bar {
+  height: var(--m-top-bar-height);
+  background: var(--m-header-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+
+.m-hamburger-btn {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.m-hamburger-btn span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--m-text-light);
+  border-radius: 2px;
+}
+
+.m-logo img {
+  height: 38px;
+  display: block;
+  filter: brightness(0) invert(1);
+}
+
+.m-user-btn {
+  background: none;
+  border: none;
+  color: var(--m-text-light);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* ================= 2. 공지사항 영역 ================= */
+.m-notice-area {
+  height: var(--m-notice-height);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.m-notice-area .notice-box {
+  width: 100%;
+  min-width: unset;
+  border-radius: 999px;
+  background: #f5f5f5;
+  height: 32px;
+}
+
+/* 데스크탑 css 재활용 부가 설정 */
+.m-notice-area .notice-rolling-container { background: transparent; }
+.m-notice-area .header-notice-item { height: 32px; font-size: 0.85rem; }
+
+/* ================= 3. 사이드바 메뉴 ================= */
+.m-sidebar {
+  position: fixed;
+  top: 0;
+  left: -100%; /* 기본 숨김 */
+  width: 280px;
+  height: 100vh;
+  background: var(--m-header-bg);
+  z-index: 1002;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  color: var(--m-text-light);
+}
+
+.m-sidebar.open {
+  left: 0;
+}
+
+.m-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--m-border-color);
+}
+
+.m-sidebar-logo {
+  height: 38px;
+  filter: brightness(0) invert(1);
+}
+
+.m-menu-close {
+  background: none;
+  border: none;
+  color: var(--m-text-light);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.m-sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 20px;
+}
+
+.m-nav-category {
+  padding: 20px 20px 10px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.m-nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.m-nav-list > li > a,
+.m-nav-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  color: var(--m-text-light);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-bottom: 1px solid var(--m-border-color);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.m-nav-list > li > a:active,
+.m-nav-link:active {
+  background: var(--m-header-active);
+}
+
+/* 활성화(Active) 메뉴 디자인 */
+.m-nav-list > li.active > a,
+.m-nav-list > li.active > .m-nav-link {
+  background: var(--m-header-active);
+  border-left: 4px solid var(--m-primary);
+  padding-left: 16px;
+}
+
+/* 아코디언 서브메뉴 */
+.m-sub-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(0,0,0,0.2);
+  display: none; /* 기본 숨김 */
+}
+
+.has-sub.open .m-sub-list {
+  display: block;
+}
+
+.has-sub .arrow {
+  font-size: 0.7rem;
+  transition: transform 0.3s ease;
+}
+
+.has-sub.open .arrow {
+  transform: rotate(180deg);
+}
+
+.m-sub-list a {
+  display: block;
+  padding: 12px 20px 12px 40px;
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  font-size: 0.85rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.m-sub-list a:active {
+  color: #fff;
+  background: rgba(255,255,255,0.05);
+}
+
+/* ================= 4. 하단 푸터 & 오버레이 ================= */
+.m-sidebar-footer {
+  padding: 16px 20px;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.m-user-id {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.m-logout-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.m-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(2px);
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.m-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}

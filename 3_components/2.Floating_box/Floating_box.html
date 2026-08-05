@@ -1,7 +1,26 @@
+<!-- Floating_box.html -->
 <aside id="floatingMenu" class="floating-menu" hidden>
-  <button id="btnBackToSearch" class="floating-btn" type="button">조회 화면으로 돌아가기</button>
-  <button id="btnCompare" class="floating-btn" type="button">다른 업체와 비교하기</button>
   
-  <button id="btnOneClickA" class="floating-btn" type="button" hidden></button>
-  <button id="btnOneClickB" class="floating-btn" type="button" hidden></button>
+  <button id="btnBackToSearch" class="floating-btn basic-btn icon-back" type="button">조회 화면으로 돌아가기</button>
+  <button id="btnCompare" class="floating-btn basic-btn icon-compare" type="button">다른 업체와 비교하기</button>
+  <button id="btnSaveQuotation" class="floating-btn basic-btn icon-print" type="button" hidden>견적서 출력</button>
+
+  <button id="btnSaveToNotion" class="floating-btn notion-btn icon-notion-save" type="button" hidden>노션에 저장</button>
+  <button id="btnLoadFromNotion" class="floating-btn notion-btn icon-notion-load" type="button" hidden>노션에서 불러오기</button>
+
+  <!-- 파트너 비교 버튼은 내부에 2줄 글씨만 존재 -->
+  <button id="btnOneClickA" class="floating-btn partner-btn icon-partner" type="button" hidden>
+    <div class="f-text-group">
+        <span class="btn-partner-name" id="oneClickNameA">(주)파트너A</span>
+        <span class="btn-sub-text">원클릭 견적 문의</span>
+    </div>
+  </button>
+
+  <button id="btnOneClickB" class="floating-btn partner-btn icon-partner" type="button" hidden>
+    <div class="f-text-group">
+        <span class="btn-partner-name" id="oneClickNameB">(주)파트너B</span>
+        <span class="btn-sub-text">원클릭 견적 문의</span>
+    </div>
+  </button>
+
 </aside>

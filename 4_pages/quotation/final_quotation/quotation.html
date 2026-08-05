@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>P.A.S.S</title>
+    <link rel="icon" href="/pumex/1_assets/1_image/favicon.png" type="image/x-icon">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../../2_common/1_css/common.css" />
+    <link rel="stylesheet" href="../../../2_common/1_css/color.css" />
+    <link rel="stylesheet" href="../../../3_components/1_header/header.css" />
+    <link rel="stylesheet" href="./final_quotation.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+<body>
+    <div id="desktop-header-placeholder" class="desktop-only"></div>
+    <main class="page-container">
+        <div class="quote-paper">
+            <div class="invoice-header-first">
+                <div class="header-col-left">
+                    <img src="../../../1_assets/1_image/passicon_with_pumex.png" alt="PASS Logo" class="header-new-logo">
+                    <div class="header-new-maintitle">PUMEX INT'L MOVERS & RELOCATION</div>
+                    <div class="header-new-subtitle">Professional International Moving Services</div>
+                </div>
+
+                <div class="header-col-manager">
+                    <div class="manager-title-box">
+                        <i class="fa-solid fa-circle-user manager-icon"></i>
+                        <div class="manager-text">
+                            <span class="m-role">Sales Manager</span>
+                            <strong class="m-name" id="sales-name">Jason Kim</strong>
+                        </div>
+                    </div>
+                    <hr class="manager-divider">
+                    <div class="header-contact-item">
+                        <i class="fa-regular fa-envelope"></i>
+                        <span id="sales-email">jason.kim@pumex.co.kr</span>
+                    </div>
+                    <div class="header-contact-item">
+                        <i class="fa-solid fa-mobile-screen"></i>
+                        <span id="sales-tel">+82-10-1234-5678</span>
+                    </div>
+                    <div class="header-contact-item">
+                        <i class="fa-solid fa-phone"></i>
+                        <span id="sales-dir">+82-2-333-5384</span>
+                    </div>
+                </div>
+
+                <div class="header-col-right">
+                    <table class="new-quote-meta-table">
+                        <tbody>
+                            <tr>
+                                <th>Quote No.</th>
+                                <td class="input_highlight" contenteditable="true" id="quo_no"></td>
+                            </tr>
+                            <tr>
+                                <th>Quote Date</th>
+                                <td class="input_highlight" contenteditable="true" id="quo_date"></td>
+                            </tr>
+                            <tr>
+                                <th>Validity Until</th>
+                                <td class="input_highlight" contenteditable="true" id="quo_validity">1 MONTH</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="title">
+                QUOTATION
+            </div>
+            <table class="master-info-table">
+                <colgroup>
+                    <col style="width: 14%;"> <col style="width: 36%;"> <col style="width: 14%;"> <col style="width: 36%;"> </colgroup>
+                <tbody>
+                    <tr>
+                        <th class="main-label">CUSTOMER</th>
+                        <td class="data-cell">
+                            <div class="info-row">
+                                <span class="data-value input_highlight" contenteditable="true" id="q_customer_name"></span>
+                            </div>
+                        </td>
+                        <th class="main-label">E-mail</th>
+                        <td class="data-cell">
+                            <div class="info-row">
+                                <span class="data-value input_highlight" id="q_customer_email" contenteditable="true" spellcheck="false" data-placeholder="클릭하여 이메일 기재"></span>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th class="main-label">PACKING DATE</th>
+                        <td class="data-cell">
+                            <div class="info-row" style="display: flex; align-items: center; gap: 5px;">
+                                <!-- 💡 달력 아이콘 버튼 추가 -->
+                                <button type="button" id="q_pdate_btn" style="background:none; border:none; cursor:pointer; font-size:16px; padding:0;" title="포장일 선택">📅</button>
+                                
+                                <!-- 💡 날짜 입력용 input (기본은 text 타입) -->
+                                <input 
+                                    type="text" 
+                                    id="q_pdate" 
+                                    class="data-value input_highlight" 
+                                    style="border:none; outline:none; background:transparent; font-family:inherit; font-size:inherit; flex: 1; cursor:pointer;" 
+                                    placeholder="클릭하여 포장일 설정"
+                                    readonly
+                                >
+                            </div>
+                        </td>
+
+                        <th class="main-label">MODE/TYPE</th>
+                        <!-- 💡 수정된 부분: td에 position: relative 부여 및 버튼 표 밖으로 이동 -->
+                        <td class="data-cell" style="position: relative;">
+                            <div class="info-row"> 
+                                <span class="data-value input_highlight" id="q_mode_type" contenteditable="true" spellcheck="false" data-placeholder="클릭하여 내용 기재" style="width: 100%;"></span>
+                            </div>
+                            
+                            <!-- 💡 조건 변경 버튼 (다른 버튼들과 동일한 side-action-btn 클래스 사용 및 우측으로 배치) -->
+                            <button type="button" id="btnEditModeType" class="side-action-btn" style="top: 50%; transform: translateY(-50%); margin-top: 0; background-color: #1A365D;">변경</button>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                    <th class="main-label">SHIPMENT<br>DETAILS</th>
+                        <td colspan="3" class="data-cell no-internal-line">
+                            <div class="info-row">
+                                <span class="sub-label">Origin :</span>
+                                <!-- 💡 수정: 클릭 가능하도록 커서 변경 및 플레이스홀더 텍스트 추가 -->
+                                <span class="data-value input_highlight" id="q_origin_add" style="cursor: pointer;" title="클릭하여 출발지 주소 검색" data-placeholder="클릭하여 출발지 검색">클릭하여 출발지 검색</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="sub-label">Destination :</span>
+                                <span class="data-value input_highlight" contenteditable="true" id="q_location"></span>
+                            </div>
+                            <div class="internal-grid">
+                                <div class="grid-column">
+                                    <div class="info-row">
+                                        <span class="sub-label">POL :</span>
+                                        <span class="data-value input_highlight" id="q_loading_port_wrap">
+                                            <!-- 💡 수정: 항구 선택 드롭다운 추가 -->
+                                            <select id="pol_select" style="padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: 700; color: #333; outline: none; cursor: pointer;">
+                                                <option value="">항구 로딩 중...</option>
+                                            </select>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="grid-column">
+                                    <div class="info-row">
+                                        <span class="sub-label">POE :</span>
+                                        <span class="data-value input_highlight" contenteditable="true" id="q_dest_port"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+
+            <table class="quote-cost-table">
+                <thead>
+                    <tr>
+                        <th style="width: 45px; min-width: 45px;"></th> 
+                        <th style="width: 77%;">DESCRIPTION</th>
+                        <th style="width: 6%;">CUR</th>
+                        <th style="width: 17%;">AMOUNT</th>
+                    </tr>
+                </thead>
+                
+                <tbody>
+                    <tr class="section-header-row">
+                        <td rowspan="5" class="relative-cell">
+                            <div class="overlapping-block">1</div>
+                            <button type="button" class="add-row-btn" title="항목 행 추가">+</button>
+                        </td>
+                        <td colspan="4" class="section-title">
+                            Complete Origin Service Charge (출발지 비용)
+                            <!-- 💡 추가된 사이드 버튼 -->
+                            <button type="button" id="btnOpenOriginDetail" class="side-action-btn" style="top: 42px;">상세<br>조회</button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <!-- 💡 버튼이 밖으로 나갔으므로 텍스트만 깔끔하게 복구 -->
+                            <div class="section-content">
+                                Packing, Inland transportation, Port service charge, Customs clearance<BR>(국제포장, 컨테이너 내륙운송, 항만부대비용, 수출통관비용)
+                            </div>
+                        </td>
+                        <td class="text-center" contenteditable="true">KRW</td>
+                        <td class="text-right" contenteditable="true" id="q_origin_amount"></td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <!-- 💡 1. 글씨 칸에는 버튼을 지우고 원래대로 깔끔하게 둡니다. -->
+                            <div class="section-content"> 
+                                Ocean Freight Charge(해상운임)<br>
+                                (※해상 운임은 견적일 기준으로, 실제 선적되는 시점 및 환율에 따라 변동될 수 있음)
+                            </div>
+                        </td>
+                        <td class="text-center" id="cur_freight" contenteditable="true"></td>
+                        
+                        <!-- 💡 2. 표의 가장 우측 칸을 기준으로 버튼을 밀어냅니다. (이곳에 button이 와야 합니다!) -->
+                        <td style="position: relative; padding: 0; vertical-align: middle;">
+                            <!-- 기존 금액 칸의 동작을 유지하기 위해 div로 감싸 보호 -->
+                            <div class="text-right" contenteditable="true" id="q_freight_amount" style="width: 100%; min-height: 48px; padding: 12px; box-sizing: border-box; outline: none;"></div>
+                            
+                            <!-- OFC 상세조회 버튼 (상하 정중앙, 우측 표 바깥 배치) -->
+                            <button type="button" id="btnOpenOfcDetail" class="side-action-btn" style="top: 50%; transform: translateY(-50%); margin-top: 0;" contenteditable="false">상세<br>조회</button>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="section-total-row">
+                        <th></th> 
+                        <th>TOTAL</th>
+                        <th>KRW</th>
+                        <th class="text-right" id="q_origin_total" style="font-size: 1.1em; color: var(--deep-teal);">0</th>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <table class="quote-cost-table">
+                <thead>
+                    <tr>
+                        <th style="width: 45px; min-width: 45px;"></th> 
+                        <th style="width: 77%;">DESCRIPTION</th>
+                        <th style="width: 6%;">CUR</th>
+                        <th style="width: 17%;">AMOUNT</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr class="section-header-row">
+                        <td rowspan="4" class="relative-cell">
+                            <div class="overlapping-block">2</div>
+                            <button type="button" class="add-row-btn" title="항목 행 추가">+</button>
+                        </td>
+                        <td colspan="3" class="section-title">
+                            Complete Destination Service Charge (도착지 비용)
+                            <!-- 💡 나중에 도착지 비용 작업 시 사용할 수 있도록 버튼 미리 추가 -->
+                            <button type="button" id="btnOpenCdsDetail" class="side-action-btn" style="top: 42px;">상세<br>조회</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="section-content"> 
+                                Delivery Service, Unpacking, Inland transportation, Port service charge, Customs clearance <BR> (자택 배송비용, 컨테이너 내륙운송 및 트럭운송, 항만부대비용, 수입통관비용) 
+                            </div>
+                        </td>
+                        <td class="text-center" id="cur_cds">KRW</td>
+                        <td class="text-right" contenteditable="true" id="q_destination_amount"></td>
+                    </tr>
+                    <!-- 2행 신설: 추가 비용 행 (otc_item 항목명 목록 및 sum_add 금액 대입) -->
+                    <tr id="destination-add-row">
+                        <td>
+                            <div class="section-content" id="q_destination_add">
+                                <!-- 이전 페이지에서 넘어온 추가 항목명들이 쉼표로 표시될 자리 -->
+                            </div>
+                        </td>
+                        <td class="text-center" id="cur_add">KRW</td>
+                        <td class="text-right" contenteditable="true" id="q_destination_add_amount"></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="section-total-row"> <th></th> 
+                        <th>TOTAL</th>
+                        <th>KRW</th>
+                        <th class="text-right" id="q_destination_total" style="font-size: 1.1em; color: var(--deep-teal);">0</th>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <table class="quote-cost-table">
+                <thead>
+                    <tr>
+                        <th style="width: 45px; min-width: 45px;"></th> 
+                        <th style="width: 77%;">DESCRIPTION</th>
+                        <th style="width: 6%;">CUR</th>
+                        <th style="width: 17%;">AMOUNT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="section-header-row">
+                        <td rowspan="5" class="relative-cell">
+                            <div class="overlapping-block">3</div>
+                            <button type="button" class="add-row-btn" title="항목 행 추가">+</button>
+                        </td>
+                        <!-- 💡 여기를 수정합니다 -->
+                        <td colspan="3" class="section-title">
+                            <div style="display: flex; justify-content: flex-start; align-items: center; gap: 10px;">
+                                <span>Other Charges (기타 추가 비용)</span>
+                                <button type="button" id="btnOpenIrc" style="background-color: #1A365D; color: #fff; border: none; padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; font-weight: 700;">보험 추가</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="section-content" id="irc_info" contenteditable="true"> 
+                            </div>
+                        </td>
+                        <td class="text-center" id="cur_irc" contenteditable="true">KRW</td> 
+                        <td class="text-right" contenteditable="true" id="q_irc_amount"></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class="section-total-row"> 
+                        <th></th> 
+                        <th>TOTAL</th>
+                        <th>KRW</th>
+                        <th class="text-right" id="q_irc_total" style="font-size: 1.1em; color: var(--deep-teal);">0</th>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div style="display: none;">
+                <div id="q_dest_wrap"></div>
+            </div>
+
+
+            <div class="invoice-total-wrapper">
+                <div class="remittance_information">
+                </div>
+                <div class="invoice-total-box">
+                    <div class="grand-total-row">
+                        <span class="grand-label">TOTAL AMOUNT</span>
+                        <span class="grand-value" id="q_final_total_converted">test</span>
+                    </div>
+                    <!--<div class="total-breakdown">
+                        <div class="total-row">
+                            <span class="total-label">Quo Exchange Rate:</span>
+                            <span class="total-value" id="exchange_rate_usdtokrw">test</span>
+                        </div>
+                        
+                    </div>-->
+                    <div class="exchange_info">
+                        <span>Exchage rate : 출항일 하나은행 최초고시 매매기준율 적용예정</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="new-footer-banner">
+                <div class="footer-col-logo">
+                    <img src="../../../1_assets/1_image/pumexlogonew.png" alt="PASS Logo" class="footer-pass-logo">
+                </div>
+
+                <div class="footer-col-info">
+                    <div class="f-company-name">PUMEX INT'L MOVERS & RELOCATION</div>
+                    <div class="f-company-address">Pumex BLDG, 796-5, Seolmun-dong, Ilsandong-gu, Goyang-si, Gyeonggi-do, Korea</div>
+                    <div class="f-company-contacts">
+                        <span><i class="fa-regular fa-envelope"></i> pumex@pumex.co.kr</span>
+                        <span class="divider">|</span>
+                        <span><i class="fa-solid fa-globe"></i> www.pumex.co.kr</span>
+                        <span class="divider">|</span>
+                        <span><i class="fa-solid fa-phone"></i> 1588-6534</span>
+                        <span class="divider">|</span>
+                        <span><i class="fa-solid fa-print"></i> 82-2-333-5384</span>
+                    </div>
+                </div>
+
+                <div class="footer-col-cert">
+                    <div class="f-cert-title">MEMBERSHIP & CERTIFICATION</div>
+                    <img src="../../../1_assets/1_image/License_Logo.png" alt="License Logo" class="footer-license-logo">
+                </div>
+            </div>
+        </div>
+        
+        <div class="quote-paper">
+            <div class="terms_and_conditions_title">
+                <img src="../../../1_assets/1_image/pumex_png.png" alt="Company Logo" class="terms_and_conditions_title-top-logo">
+                <div class="quo_date_copy" id="quo_date_copy">
+                </div>
+            </div>
+            <hr class="divider_2">
+            <div class="terms_and_conditions">
+                <div class="terms_and_conditions_subtitle">
+                    GENERAL TERMS AND CONDITIONS OF THE MOVING CONTRACT
+                </div>
+
+                <div class="terms-columns-container">
+                    
+                    <div class="terms-item">
+                        <div class="terms-columns-container-subtitle">
+                            These general terms and conditions of sale, along with the specific conditions negotiated between the company and the client, define the rights and obligations of each party. They apply by law to the moving operations covered by this contract.
+                            (본 약관은 회사와 고객 간에 별도로 합의된 개별 조건과 함께 해당 계약의 일부를 구성하며, 양 당사자의 권리와 의무를 규정합니다.)
+                        </div>
+                    </div>
+                    
+                    <div class="terms-item">
+                        <div class="terms-item-title_1">CHAPTER I: INFORMATION ON THE CONDITIONS FOR CARRYING OUT THE MOVE</div>
+                        <div class="terms-item-title_2">Article 1 – Information on the Conditions for Carrying Out the Move</div>
+                        <div class="terms-item-content">
+                            At the company's request, the client must provide all known information necessary for the physical execution of the move, both at the loading and delivery locations (access conditions for personnel and vehicles, parking availability, ongoing construction, and any other specific details). The client is informed in advance of any additional costs that may arise due to missing or inaccurate information. The client must also declare any items subject to special regulations (wine, alcohol, weapons, etc.), with any administrative formalities being their responsibility.
+                            (회사의 요청이 있을 경우 고객은 이사 작업을 원활하게 수행하기 위해 필요한 모든 정보를 제공해야 합니다. 여기에는 출발지와 도착지의 출입 조건, 차량 진입 가능 여부, 주차 가능 여부, 공사 여부 등 작업에 영향을 줄 수 있는 사항이 포함됩니다. 고객이 제공하지 않았거나 잘못 제공한 정보로 인해 추가 비용이 발생할 경우 해당 비용은 고객이 부담합니다. 또한 와인, 주류, 무기 등 특별 규제를 받는 물품이 있는 경우 반드시 사전에 신고해야 하며, 이에 필요한 행정 절차는 고객의 책임입니다.)
+                        </div>
+
+                        <div class="terms-item-title_2">Article 2 – Services Provided by the Company</div>
+                        <div class="terms-item-content">
+                            Services are agreed upon with the client before each operation and clearly defined in the estimate. The company does not handle people, animals, plants, hazardous, foul, explosive or flammable materials, jewelry, currency, precious metals, or valuables. Any exception must be agreed upon in writing before execution.
+                            (서비스 내용은 견적서에 명시됩니다. 회사는 다음 품목은 운송하지 않습니다. 사람/동물/식물/위험물/폭발물/인화성 물질/보석/현금/귀금속/기타 귀중품. 예외 사항은 반드시 사전에 서면 합의가 필요합니다.)
+                        </div>
+
+                        <div class="terms-item-title_1">CHAPTER II: QUOTATION INFORMATION</div>
+                        <div class="terms-item-title_2">This quotation has been prepared based on the following conditions:</div>
+                        <div class="terms-item-content">
+                            <ul>
+                                <li>The moving vehicle has access to the area near the building entrance. <br>(작업 차량이 건물 출입구 인근까지 진입 가능한 경우)</li>
+                                <li>The moving work can be carried out during normal business hours on weekdays. (평일 정상 근무시간 내 작업이 가능한 경우)</li>
+                                <li>The moving service is limited to the 1st or 2nd floor (this limitation does not apply if an elevator is available). <br>(1층 또는 2층까지의 작업 (엘리베이터 사용 가능 시 제외))</li>
+                                <li>The quotation is based on a standard household moving shipment.<br>(일반적인 가정 이삿짐 기준)</li>
+                            </ul>
+                        </div>
+
+                        <div class="terms-item-title_1">CHAPTER III: Included Services</div>
+                        <div class="terms-item-title_2">This quotation includes the following services:</div>
+                        <div class="terms-item-content">
+                            <ul>
+                                <li>Professional packing and transportation of household goods by container <br>(포장 및 화물 컨테이너 운송) </li>
+                                <li>Customs clearance services at both origin and destination <br>(출발지 및 도착지 통관 업무)</li>
+                                <li>Delivery of household goods into the residence under normal working conditions (일반적인 작업 환경에서의 자택 내 반입 작업)</li>
+                                <li>Basic reassembly and placement of standard furniture (e.g. beds, dining tables, desks, and wardrobes) <br>(침대, 식탁, 책상, 장롱 등 일반 가구의 기본 재조립 및 배치)</li>
+                                <li>Placement of packed household items (such as clothing, books, and kitchenware) in the rooms designated by the customer <br>(잔짐(의류, 서적, 주방용품 등)은 원하는 위치에 박스 배치)</li>
+                                <li>Collection and disposal of packing materials on the day of delivery <br>(작업 당일 포장재 및 폐기물 수거)</li>
+                                <li>Return of the empty container (applicable to FCL shipments) <br>(컨테이너 반납 업무 (FCL 화물 기준))</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="terms-item">
+                        <div class="terms-item-title_1">CHAPTER IV: Excluded Services</div>
+                        <div class="terms-item-title_2">Unless otherwise specified, the following items are not included in this quotation:</div>
+                        <div class="terms-item-content">
+                            <ul>
+                                <li>Customs duties, Value Added Tax (VAT), GST, and any other applicable taxes <br>(관세, 부가가치세(VAT), GST 및 기타 세금)</li>
+                                <li>Costs related to customs inspections, X-ray inspections, quarantine inspections, and fumigation (세관 검사, X-ray 검사, 검역 검사, 훈증 관련 비용)</li>
+                                <li>Demurrage, detention, and storage charges <br>(Demurrage, Detention, Storage 비용)</li>
+                                <li>Administrative fees such as parking permits and road occupancy permits <br>(주차 허가증, 도로 점용 허가 등 행정 비용)</li>
+                                <li>Long carry services (장거리 운반(Long Carry))</li>
+                                <li>Stair carry services (계단 작업(Stair Carry))</li>
+                                <li>Shuttle vehicle services (셔틀 차량(Shuttle Service))</li>
+                                <li>Charges for special equipment such as ladder trucks or external lifts <br>(사다리차, 외부 리프트 등 특수 장비 사용 비용)</li>
+                                <li>Moving services above the 2nd floor where no elevator is available <br>(엘리베이터가 없는 3층 이상 작업)</li>
+                                <li>Assembly of IKEA furniture, flat-pack furniture, exercise equipment, or newly purchased furniture <br>(IKEA 가구, 조립식 가구, 운동기구, 신규 구매 가구 조립)</li>
+                                <li>Disconnection or reconnection of electricity, water, gas, and air-conditioning systems (전기, 수도, 가스, 에어컨 연결 및 철거 작업)</li>
+                                <li>Installation of wall-mounted TVs, shelves, curtains, or similar fixtures <br>(벽걸이 TV, 선반, 커튼 등 설치 작업)</li>
+                                <li>Unpacking and organizing items inside boxes, wardrobes, closets, or kitchen cabinets (박스 내 물품의 수납 정리, 옷장, 주방장 내부 정리 서비스)</li>
+                                <li>Handling of special heavy items such as pianos, safes, large exercise equipment, or machinery (피아노, 금고, 대형 운동기구, 기계류 등 특수 중량물 작업)</li>
+                                <li>Additional services or extra deliveries not included in the quotation <br>(추가 작업 또는 추가 배송)</li>
+                                <li>Storage-in-Transit (SIT) services and related handling charges <br>(창고 보관(SIT) 및 입출고 비용)</li>
+                                <li>Insurance premium (보험료)</li>
+                                <li>Weekend, public holiday, or after-hours services (주말, 공휴일 및 야간 작업)</li>
+                            </ul>
+                        </div>
+
+                        <div class="terms-item-title_1" style="color:#8B0000;">CHAPTER V: General Notes</div>
+                        <div class="terms-item-title_2" style="color:#CD5C5C;">Important Information</div>
+                        <div class="terms-item-content" style="color:#CD5C5C;">
+                            <ul>
+                                <li>This quotation has been prepared based on the information provided by the customer and the findings of the pre-move survey. The quotation is valid for one (1) month.
+                                    (본 견적은 고객이 제공한 정보 및 사전 조사 내용을 기준으로 작성되었으며 유효기간은 1개월입니다.)</li>
+                                <li>Additional charges may apply if the actual volume, weight, working conditions, access conditions, or scope of services differ from those stated at the time of quotation.
+                                    (실제 작업 시 물량, 중량, 작업 환경, 출입 조건 또는 서비스 범위가 변경될 경우 추가 비용이 발생할 수 있습니다.)</li>
+                                <li>Ocean freight rates are subject to change between the quotation date and the actual sailing date. The applicable freight rate at the time of sailing will be charged.(해상운임은 견적 시점과 실제 출항 시점의 운임이 다를 수 있으며, 실제 출항일 기준 운임이 적용됩니다.)</li>
+                                <li>The exchange rate applied in this quotation is based on the rate on the quotation date. The final invoice will be calculated using Hana Bank's first announced base exchange rate on the vessel's actual sailing date.(본 견적서의 환율은 견적일 기준 환율이 적용되었으며, 실제 청구 시에는 선박 출항일의 하나은행 최초 고시 매매기준율이 적용됩니다.)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="new-footer-banner">
+                <div class="footer-col-logo">
+                    <img src="../../../1_assets/1_image/pumexlogonew.png" alt="PASS Logo" class="footer-pass-logo">
+                </div>
+
+                <div class="footer-col-info">
+                    <div class="f-company-name">PUMEX INT'L MOVERS & RELOCATION</div>
+                    <div class="f-company-address">Pumex BLDG, 796-5, Seolmun-dong, Ilsandong-gu, Goyang-si, Gyeonggi-do, Korea</div>
+                    <div class="f-company-contacts">
+                        <span><i class="fa-regular fa-envelope"></i> pumex@pumex.co.kr</span>
+                        <span class="divider">|</span>
+                        <span><i class="fa-solid fa-globe"></i> www.pumex.co.kr</span>
+                        <span class="divider">|</span>
+                        <span><i class="fa-solid fa-phone"></i> 1588-6534</span>
+                        <span class="divider">|</span>
+                        <span><i class="fa-solid fa-print"></i> 82-2-333-5384</span>
+                    </div>
+                </div>
+
+                <div class="footer-col-cert">
+                    <div class="f-cert-title">MEMBERSHIP & CERTIFICATION</div>
+                    <img src="../../../1_assets/1_image/License_Logo.png" alt="License Logo" class="footer-license-logo">
+                </div>
+            </div>
+        </div>
+    </main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const savedData = sessionStorage.getItem('finalQuotationData');
+
+        if (!savedData) {
+            console.warn('전달받은 견적 데이터가 없습니다.');
+            return;
+        }
+
+        try {
+            const quotationData = JSON.parse(savedData);
+
+            // =========================================================================
+            // 💡 1. 페이지가 렌더링되자마자 콘솔창에 가져온 전체 데이터를 출력합니다!
+            // =========================================================================
+            console.group('%c[Received Quotation Data]', 'color: #27ae60; font-weight: bold; font-size: 14px;');
+            
+            console.log('%c3. 통화(Currency): ' + quotationData._currency, 'color: #e74c3c; font-size: 13px; font-weight: bold;');
+            
+            console.log('1. 검색 파라미터 (Search Parameters):');
+            console.table(quotationData._fullSearchParams);
+            
+            console.log('2. API 조회 결과 배열 (Result Array):');
+            console.table(quotationData._fullResultData); 
+            
+            console.log('4. 백엔드 응답 원본 전체 (Raw Data):');
+            console.dir(quotationData._rawData);
+            
+            console.groupEnd();
+
+
+            // =========================================================================
+            // 💡 [특수 처리] 국가명 추출 및 정제 (괄호 안 한글 제거)
+            let cleanCountry = '';
+            if (quotationData._fullSearchParams && quotationData._fullSearchParams.country) {
+                // "U.S.A (미국)" -> "U.S.A"
+                cleanCountry = quotationData._fullSearchParams.country.split('(')[0].trim();
+            }
+
+            // 💡 [특수 처리] 영문 Title Case 변환 함수
+            function toTitleCase(str) {
+                if (!str || typeof str !== 'string') return '';
+                return str.toLowerCase().split(' ').map(word => {
+                    return word.charAt(0).toUpperCase() + word.slice(1);
+                }).join(' ');
+            }
+
+            // 💡 [신규 특수 처리] 텍스트가 넘칠 때 폰트 크기를 줄여 한 줄로 맞추는 동적 함수
+            function adjustFontSizeToFit(element) {
+                element.style.whiteSpace = 'nowrap'; // 강제 줄바꿈 방지
+                element.style.wordBreak = 'keep-all';
+                
+                const parentWidth = element.parentElement.clientWidth; // 부모 컨테이너(칸)의 너비
+                let fontSize = 14.4; // 초기 기본 폰트 크기 (0.9rem)
+                element.style.fontSize = fontSize + 'px';
+                
+                // 실제 텍스트 폭(scrollWidth)이 부모 너비를 초과하면 폰트를 0.5px씩 축소 (최소 8px까지)
+                while (element.scrollWidth > parentWidth && fontSize > 8) {
+                    fontSize -= 0.5;
+                    element.style.fontSize = fontSize + 'px';
+                }
+            }
+            // =========================================================================
+
+            // 2. 기존 데이터 매칭 루프 (sessionStorage 값을 각 ID에 매칭)
+            Object.entries(quotationData).forEach(function ([id, value]) {
+                if (id.startsWith('_')) return; 
+
+                const target = document.getElementById(id);
+                if (!target) return; 
+
+                // 도착지 및 도착항 포맷팅
+                if (id === 'q_location' || id === 'q_dest_port') {
+                    let formattedValue = toTitleCase(value); 
+                    if (formattedValue && cleanCountry) {
+                        formattedValue += `, ${cleanCountry}`; 
+                    } else if (!formattedValue && cleanCountry) {
+                        formattedValue = cleanCountry; 
+                    }
+                    target.textContent = formattedValue;
+                    target.classList.add('is-typed');
+                }
+                else if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+                    target.value = value || '';
+                } 
+                else if (target.tagName === 'SELECT') {
+                    // 💡 [핵심 해결] ofc.js 등 외부 스크립트가 select 요소를 비동기로 통째로 갈아끼울 수 있습니다.
+                    // 예전 target 객체는 껍데기가 되므로, 매번 document.getElementById로 '진짜' 요소를 찾아야 합니다.
+                    let attempts = 0;
+                    const selectInterval = setInterval(() => {
+                        attempts++;
+                        const freshSelect = document.getElementById(id); // 매번 살아있는 DOM 새로 탐색
+                        
+                        if (freshSelect) {
+                            // "로딩 중" 옵션이 사라지고 진짜 항구 목록이 들어왔거나, 충분히 기다렸을 때
+                            if (freshSelect.options.length > 1 || attempts > 10) {
+                                clearInterval(selectInterval);
+                                
+                                if (value && !freshSelect.querySelector(`option[value="${value}"]`)) {
+                                    const opt = document.createElement('option');
+                                    opt.value = value;
+                                    opt.textContent = value;
+                                    freshSelect.appendChild(opt);
+                                }
+                                freshSelect.value = value || '';
+                                freshSelect.dispatchEvent(new Event('change', { bubbles: true })); // 해상운임 재계산
+                            }
+                        } else if (attempts > 10) {
+                            clearInterval(selectInterval); // 무한 루프 방지
+                        }
+                    }, 400); // 0.4초 간격으로 최대 4초간 진짜 콤보박스 탐색
+                }
+                else {
+                    // 💡 환율 오류 방지: 통화 입력칸(cur_)이 비어있으면 하이픈(-)을 넣지 않고 완전히 비워둡니다.
+                    if (id.startsWith('cur_')) {
+                        target.textContent = value || '';
+                    } else {
+                        // 💡 출발지 주소 플레이스홀더 복구 처리
+                        if (id === 'q_origin_add' && !value) {
+                            target.textContent = '클릭하여 출발지 검색';
+                        } else {
+                            target.textContent = value || '-';
+                            target.classList.add('is-typed');
+                        }
+                    }
+                }
+
+                // 💡 값을 넣은 직후 q_mode_type 크기 조절 최초 1회 실행
+                if (id === 'q_mode_type') {
+                    setTimeout(() => { adjustFontSizeToFit(target); }, 0);
+                }
+            });
+
+            // 💡 사용자가 화면에서 직접 타이핑하여 내용을 추가할 때도 실시간으로 조절되도록 이벤트 추가
+            const modeTypeEl = document.getElementById('q_mode_type');
+            if (modeTypeEl) {
+                modeTypeEl.addEventListener('input', function() {
+                    adjustFontSizeToFit(this);
+                });
+            }
+
+            // 💡 추가 비용(Additional Charge) 값이 없거나 0일 경우 행 자체를 숨김 처리
+            const addAmountVal = quotationData.q_destination_add_amount ? quotationData.q_destination_add_amount.replace(/,/g, '').trim() : '';
+            const addNameVal = quotationData.q_destination_add ? quotationData.q_destination_add.trim() : '';
+            const addRow = document.getElementById('destination-add-row');
+
+            if (addRow) {
+                if (!addAmountVal || addAmountVal === '0' || addAmountVal === '0.00' || addNameVal === '' || addNameVal === 'Additional Charges') {
+                    addRow.style.display = 'none';
+                }
+            }
+
+            // 신규 .input_highlight 클래스 요소 동작 처리
+            const inputHighlights = document.querySelectorAll('.input_highlight');
+            inputHighlights.forEach(function (element) {
+                element.addEventListener('input', function () {
+                    this.classList.add('is-typed'); 
+                }, { once: true }); 
+            });
+
+            // [공통] 표 안의 금액(Amount) 칸들에 실시간 천 단위 쉼표 포맷팅 적용
+            document.addEventListener('input', function (e) {
+                const target = e.target;
+                if (target.classList && target.classList.contains('text-right') && target.getAttribute('contenteditable') === 'true') {
+                    target.classList.add('is-typed');
+                    
+                    let text = target.textContent.replace(/[^0-9]/g, '');
+                    if (text === '') {
+                        target.textContent = '';
+                        return;
+                    }
+                    let formatted = Number(text).toLocaleString('en-US');
+                    target.textContent = formatted;
+
+                    const range = document.createRange();
+                    const sel = window.getSelection();
+                    range.selectNodeContents(target);
+                    range.collapse(false);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+            });
+
+        } catch (error) {
+            console.error('견적 데이터를 불러오는 중 오류가 발생했습니다.', error);
+        }
+    });
+
+    // =========================================================================
+    // 💡 [포장일 달력 로직] PACKING DATE 선택 및 포맷팅 (YYYY/MM/DD (DAY))
+    // =========================================================================
+
+    // 요일 영문 반환 함수
+    function getEnglishWeekday(dateValue) {
+        if (!dateValue) return '';
+        const date = new Date(dateValue);
+        if (Number.isNaN(date.getTime())) return '';
+        const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+        return weekdays[date.getDay()];
+    }
+
+    const pdateEl = document.getElementById('q_pdate');
+    const pdateBtn = document.getElementById('q_pdate_btn');
+
+    if (pdateEl) {
+        // 1. 클릭(포커스) 시 date 타입으로 변환하여 기본 달력 표시 
+        pdateEl.addEventListener('click', function() {
+            // 기존에 저장된 원본 YYYY-MM-DD 값이 있다면 달력에 바인딩되도록 복구
+            const rawVal = this.getAttribute('data-raw-date');
+            if (rawVal) this.value = rawVal;
+            
+            this.type = 'date';
+            this.removeAttribute('readonly'); // 달력 조작을 위해 잠금 해제
+            try { this.showPicker(); } catch(e) {} // 달력 팝업 강제 오픈
+        });
+
+        // 2. 날짜 선택이 끝나거나(포커스 아웃, 변경) 창을 닫을 때 포맷팅 적용
+        const formatAndSetDate = function() {
+            const val = pdateEl.value; // 달력에서 선택한 값 (예: 2026-07-23)
+            
+            pdateEl.type = 'text'; // 다시 텍스트 타입으로 롤백
+            pdateEl.setAttribute('readonly', 'true'); // 키보드 직접 입력 방지
+            
+            if (val) {
+                pdateEl.setAttribute('data-raw-date', val); // 원본 값 백업
+                
+                // 날짜 포맷 변환 로직
+                const dateObj = new Date(val);
+                const yyyy = dateObj.getFullYear();
+                const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const dd = String(dateObj.getDate()).padStart(2, '0');
+                const day = getEnglishWeekday(val);
+                
+                // 화면에 보여줄 텍스트 입력 (요청하신 포맷)
+                pdateEl.value = `${yyyy}/${mm}/${dd} (${day})`;
+                pdateEl.classList.add('is-typed'); // 형광펜 효과 제거 클래스
+            } else {
+                // 선택 안하고 닫았을 때 초기화
+                pdateEl.value = '';
+                pdateEl.removeAttribute('data-raw-date');
+                pdateEl.classList.remove('is-typed');
+            }
+        };
+
+        pdateEl.addEventListener('change', formatAndSetDate);
+        pdateEl.addEventListener('blur', formatAndSetDate);
+    }
+
+    // 3. 버튼(📅) 클릭 시 인풋 창을 클릭한 것과 동일한 효과
+    if (pdateBtn) {
+        pdateBtn.addEventListener('click', () => {
+            if (pdateEl) {
+                pdateEl.click();
+            }
+        });
+    }
+</script>
+
+<!-- origin 상세보기 관련 로직 -->
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. CSS 로드
+    const cssLink = document.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = '../detail_popup/origin/origin_detail.css';
+    document.head.appendChild(cssLink);
+
+    // 2. HTML 팝업 비동기 로드
+    try {
+        const response = await fetch('../detail_popup/origin/origin_detail.html');
+        if (response.ok) {
+            const htmlText = await response.text();
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = htmlText;
+            document.body.appendChild(wrapper);
+
+            // 팝업 삽입 후 이벤트 바인딩 실행
+            initOriginDetailPopup();
+        }
+    } catch (e) {
+        console.error("Origin 상세 팝업 로드 실패:", e);
+    }
+});
+
+function initOriginDetailPopup() {
+    const btnOpen = document.getElementById('btnOpenOriginDetail');
+    const modal = document.getElementById('originDetailModal');
+    const btnClose = document.getElementById('btn_origin_close');
+    const btnCloseX = document.getElementById('btn_origin_close_x');
+    const tbody = document.getElementById('origin_detail_tbody');
+    const totalEl = document.getElementById('origin_detail_total');
+
+    if (!btnOpen || !modal) return;
+
+    // 모달 닫기
+    const closeModal = () => { modal.style.display = 'none'; };
+    btnClose.addEventListener('click', closeModal);
+    btnCloseX.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
+
+    // 모달 열기 및 세부 데이터 세팅
+    btnOpen.addEventListener('click', () => {
+        const savedData = sessionStorage.getItem('finalQuotationData');
+        const quotationData = savedData ? JSON.parse(savedData) : {};
+        
+        const cbmVal = parseFloat(quotationData.q_cbm) || 1;
+        const containerType = (quotationData.q_container || '20FT').toUpperCase();
+        const isConsole = containerType.includes('CON') || containerType.includes('LCL');
+        
+        // 💡 콘솔에 출력하던 계산식을 그대로 가져와서 변수에 담습니다
+        const rccCost = 10000;
+        let surchargeCost = 0;
+        let surchargeName = '';
+
+        if (isConsole) {
+            surchargeCost = Math.round((250000 / 55) * cbmVal);
+            surchargeName = `컨테이너 추가 비용 (250,000 / 55 * ${cbmVal}CBM)`;
+        } else if (containerType.includes('20')) {
+            surchargeCost = 200000;
+            surchargeName = `컨테이너 추가 비용 (20FT 고정)`;
+        } else {
+            surchargeCost = 250000;
+            surchargeName = `컨테이너 추가 비용 (40HC 고정)`;
+        }
+
+        // result_origin.js에서 백그라운드로 계산해둔 전역 변수 값 불러오기
+        const sosCost = (window.originCosts && window.originCosts.sos) ? window.originCosts.sos : 0;
+        const trcCost = (window.originCosts && window.originCosts.trc) ? window.originCosts.trc : 0;
+        
+        const totalAmount = sosCost + trcCost + rccCost + surchargeCost;
+
+        // 테이블 행(Row) 생성
+        const htmlRows = `
+            <tr>
+                <td>SOS 비용 (국제포장 등)</td>
+                <td style="text-align: right; font-weight: 600;">${sosCost.toLocaleString('en-US')}</td>
+            </tr>
+            <tr>
+                <td>TRC 비용 (내륙운송료)</td>
+                <td style="text-align: right; font-weight: 600;">${trcCost.toLocaleString('en-US')}</td>
+            </tr>
+            <tr>
+                <td>RCC 비용 (고정비)</td>
+                <td style="text-align: right; font-weight: 600;">${rccCost.toLocaleString('en-US')}</td>
+            </tr>
+            <tr>
+                <td>${surchargeName}</td>
+                <td style="text-align: right; font-weight: 600;">${surchargeCost.toLocaleString('en-US')}</td>
+            </tr>
+        `;
+
+        // 화면 갱신
+        tbody.innerHTML = htmlRows;
+        totalEl.innerHTML = `<span style="font-size:0.85rem; margin-right:5px; color:#555;">KRW</span>${totalAmount.toLocaleString('en-US')}`;
+
+        modal.style.display = 'flex';
+    });
+}
+</script>
+
+<script src="../../../2_common/3_api/api.js"></script>
+<script src="../../../2_common/2_js/loading.js"></script>
+<script src="../../../3_components/2.Floating_box/Floating_loader.js?v=notion"></script>
+
+<script src="./quo_info.js"></script>
+<script src="./add_row.js"></script>
+<script src="./sum.js"></script>
+<script src="./sales_info.js"></script>
+
+<script src="../js/sos.js"></script>
+
+<!-- 💡 추가: 다음 주소 검색 및 카카오 지도(좌표 변환) API -->
+<script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d8014be9aeabfb44e1705e125f327105&libraries=services"></script>
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+
+<script src="../js/irc_calculate.js"></script>
+<script src="../js/ofc.js"></script>
+<script src="../js/trc.js"></script>
+<script src="../js/result_origin.js"></script>
+<script src="../js/mode_type_editor.js"></script>
+<script src="../detail_popup/destination/destination_popup.js"></script>
+<script src="../detail_popup/ofc/ofc_detail.js"></script>
+
+<script src="./warning/warning.js"></script>
+
+
+</body>
+</html>

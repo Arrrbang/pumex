@@ -1,0 +1,48 @@
+    .m-header { margin-bottom: 24px; }
+    .m-sub-title { font-size: 0.8rem; font-weight: 700; color: #6b7280; margin-bottom: 6px; display: block; }
+    .m-main-title { font-size: 1.6rem; font-weight: 800; color: #0f172a; line-height: 1.35; margin: 0 0 10px 0; }
+    .m-main-title .highlight { color: #159b64; }
+    .m-desc { font-size: 0.85rem; color: #6b7280; font-weight: 500; margin: 0; }
+    
+    /* 프로그레스 바 */
+    .progress-wrapper { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .progress-bars { display: flex; gap: 6px; flex: 1; margin-right: 16px; }
+    .p-bar { height: 4px; border-radius: 2px; background-color: #e2e8f0; flex: 1; transition: background-color 0.3s ease; }
+    .p-bar.active { background-color: #159b64; }
+    .progress-text { font-size: 0.85rem; font-weight: 700; color: #9ca3af; }
+    
+    /* 슬라이더 래퍼 */
+    .slider-wrapper { overflow: hidden; flex: 1; margin: 0 -20px; padding: 0 20px; }
+    .slider-container { display: flex; width: 300%; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+    .step-panel { width: 33.3333%; padding-right: 20px; box-sizing: border-box; flex-shrink: 0; display: flex; flex-direction: column; }
+    
+    /* 입력 폼 공통 박스 */
+    .form-group-wrapper { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 16px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    
+    .step-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .step-icon { width: 36px; height: 36px; background: #dcfce7; color: #159b64; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1rem; flex-shrink: 0; }
+    .step-title h3 { margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a; }
+    .step-title p { margin: 2px 0 0; font-size: 0.75rem; color: #6b7280; }
+
+    .input-item { margin-bottom: 16px; }
+    .input-item:last-child { margin-bottom: 0; }
+    .input-item label { display: block; font-size: 0.85rem; font-weight: 700; color: #374151; margin-bottom: 8px; }
+    
+    .input-item input, .input-item select { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 14px; font-size: 0.95rem; color: #111; outline: none; transition: border 0.2s; background: #fff; box-sizing: border-box; }
+    .input-item input:focus, .input-item select:focus { border-color: #159b64; }
+    
+    .input-item select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: right 10px center; }
+    
+    /* CBM 입력용 특수 클래스 */
+    .cbm-input-group { position: relative; }
+    .cbm-input-group input { padding-right: 60px; }
+    .cbm-unit { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-weight: 600; font-size: 0.95rem; pointer-events: none; }
+
+    /* 하단 고정 버튼 영역 */
+    .bottom-nav { margin-top: 20px; display: flex; flex-direction: row; gap: 10px; padding-bottom: 20px; }
+    .btn-nav { flex: 1; padding: 16px; border-radius: 10px; font-size: 1.05rem; font-weight: 700; cursor: pointer; text-align: center; border: none; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    /* 💡 여기서 display: none; 을 삭제했습니다! */
+    .btn-prev { background-color: #f1f5f9; color: #475569; }
+    .btn-prev:active { background-color: #e2e8f0; }
+    .btn-next { background-color: #159b64; color: #fff; box-shadow: 0 4px 12px rgba(21, 155, 100, 0.2); }
+    .btn-next:active { transform: translateY(2px); }

@@ -382,10 +382,12 @@ summary.notion-toggle-summary {
 }
 
 @media (max-width: 760px) {
-    .dashboard-shell { width: min(100% - 20px, 1440px); padding-top: 18px; }
+    /* 기존 padding-top: 18px 에서 8px로 대폭 축소 (필요시 0으로 변경) */
+    .dashboard-shell { width: min(100% - 20px, 1440px); padding-top: 8px; }
     .dashboard-filter-bar,
     .summary-card-grid,
     .dashboard-detail-grid { grid-template-columns: 1fr; }
     .summary-card { min-height: 116px; padding: 18px; }
     .dashboard-title { font-size: 1.35rem; }
+
 }

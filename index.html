@@ -8,13 +8,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" media="screen and (min-width: 769px)" href="./desktop.css" />
+  <link rel="stylesheet" media="screen and (max-width: 768px)" href="mobile.css">
 </head>
 <body>
   <!-- 전체 배경 -->
   <div class="page-bg" aria-hidden="true"></div>
   <header class="container site-header" aria-label="헤더">
-    <a class="brand" href="#">PUMEX</a>
   </header>
   <main class="container section" role="main">
     <div class="auth">
@@ -61,6 +61,7 @@
       rememberToggle.checked = true;
     }
   });
+
   // 🔹 Caps Lock 감지 (기존 코드 유지)
   const capsLockWarning = document.getElementById('caps-lock-warning');
   passwordInput.addEventListener('keydown', (event) => {
@@ -73,11 +74,13 @@
   passwordInput.addEventListener('blur', () => {
     capsLockWarning.style.display = 'none';
   });
+
   // 🔹 로그인 제출 이벤트
   loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
+
     try {
       const response = await fetch('https://backend-beta-lemon.vercel.app/login', {
         method: 'POST',
@@ -85,6 +88,7 @@
         body: JSON.stringify({ username, password })
       });
       const result = await response.json();
+
       if (result.success) {
         // ✅ 로그인 유지가 켜져 있을 경우
         if (rememberToggle.checked) {
@@ -98,10 +102,19 @@
           localStorage.setItem('rememberState', 'false');
         }
 
-        // JWT 토큰 저장 및 이동
+        // JWT 토큰 저장
         localStorage.setItem('token', result.token);
         localStorage.setItem('username', username);
-        window.location.href = './4_pages/home/index.html';
+
+        // 💡 [수정됨] 기기 감지 후 분기 이동 처리
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+          window.location.href = '/pumex/mobile/home/index.html'; // 모바일 경로로 이동
+        } else {
+          window.location.href = './4_pages/home/index.html'; // 기존 PC 경로로 이동
+        }
+
       } else {
         alert('아이디 또는 비밀번호가 올바르지 않습니다.');
       }

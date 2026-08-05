@@ -10,7 +10,7 @@ function saveAsPDF() {
         document.getElementById('drop-zone'),
         document.getElementById('control-panel'),
         document.getElementById('result-area'),
-        document.getElementById('header-placeholder'),
+        document.getElementById('desktop-header-placeholder'),
         document.querySelector('.left-wrap'),
         document.querySelector('.vertical-divider')
     ];

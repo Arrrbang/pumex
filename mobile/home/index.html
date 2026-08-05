@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>P.A.S.S - Mobile Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" href="/pumex/1_assets/1_image/favicon.png" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="../../3_components/1_header/mobile/header.css">
+    <link rel="stylesheet" href="../common/common.css">
+    <link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+    <div id="mobile-header-placeholder"></div>
+
+    <div id="loading-container">
+        <div class="spinner"></div>
+        <div class="loading-msg">데이터를 불러오는 중...</div>
+    </div>
+
+    <main class="m-container">
+        <section id="sales-dashboard-view" class="m-sales-dashboard">
+            <!-- 1. 히어로 타이틀 -->
+            <header class="m-hero">
+                <h1 id="dashboard-title" class="m-hero-title">
+                    <span id="sales-user-display" class="user-name">담당자</span>님,<br>
+                    확인이 필요한 업무가 <strong id="sales-total-need" class="highlight-green">0건</strong> 있습니다.
+                </h1>
+            </header>
+
+            <!-- 2. 요약 카드 2x2 그리드 -->
+            <section class="m-summary-grid">
+                <article class="m-summary-card">
+                    <div class="m-icon-wrap"><img src="/pumex/1_assets/1_image/PASSPORT.png" alt=""></div>
+                    <div class="m-summary-info">
+                        <h2>여권 미접수</h2>
+                        <strong class="m-count-text"><span id="sales-summary-passport-count">0</span>건</strong>
+                        <p><i class="dot orange"></i>확인 필요</p>
+                    </div>
+                    <i class="m-chevron-right"></i>
+                </article>
+
+                <article class="m-summary-card">
+                    <div class="m-icon-wrap"><img src="/pumex/1_assets/1_image/INSURANCE.png" alt=""></div>
+                    <div class="m-summary-info">
+                        <h2>보험가입서 미전달</h2>
+                        <strong class="m-count-text"><span id="sales-summary-insurance-count">0</span>건</strong>
+                        <p><i class="dot orange"></i>마감 임박</p>
+                    </div>
+                    <i class="m-chevron-right"></i>
+                </article>
+
+                <article class="m-summary-card">
+                    <div class="m-icon-wrap"><img src="/pumex/1_assets/1_image/STORAGE.png" alt=""></div>
+                    <div class="m-summary-info">
+                        <h2>보관 중</h2>
+                        <strong class="m-count-text"><span id="sales-summary-storage-count">0</span>건</strong>
+                        <p><i class="dot blue"></i>전체 기준</p>
+                    </div>
+                    <i class="m-chevron-right"></i>
+                </article>
+
+                <article class="m-summary-card">
+                    <div class="m-icon-wrap"><img src="/pumex/1_assets/1_image/SHIP.png" alt=""></div>
+                    <div class="m-summary-info">
+                        <h2>콘솔 대기</h2>
+                        <strong class="m-count-text"><span id="sales-summary-console-count">0</span>건</strong>
+                        <p><i class="dot blue"></i>전체 기준</p>
+                    </div>
+                    <i class="m-chevron-right"></i>
+                </article>
+            </section>
+
+            <!-- 3. 상세 리스트 (아코디언 형태) -->
+            <section class="m-detail-list-wrap">
+                <!-- 여권 미접수 리스트 -->
+                <div class="m-detail-card">
+                    <div class="m-detail-head">
+                        <div class="m-head-title">
+                            <div class="m-icon-sm"><img src="/pumex/1_assets/1_image/PASSPORT.png" alt=""></div>
+                            <h3>여권 미접수</h3>
+                        </div>
+                        <div class="m-head-action">
+                            <span id="passport-count" class="m-badge">전체 0건</span>
+                            <i class="m-chevron-up"></i>
+                        </div>
+                    </div>
+                    <div class="m-detail-body">
+                        <table class="m-table">
+                            <thead><tr><th>마감</th><th>고객명</th><th>국가</th><th>담당</th></tr></thead>
+                            <tbody id="passport-table-body"></tbody>
+                        </table>
+                        <div class="m-view-all">전체보기 <i class="m-chevron-down"></i></div>
+                    </div>
+                </div>
+
+                <!-- 보험가입서 미전달 리스트 -->
+                <div class="m-detail-card">
+                    <div class="m-detail-head">
+                        <div class="m-head-title">
+                            <div class="m-icon-sm"><img src="/pumex/1_assets/1_image/INSURANCE.png" alt=""></div>
+                            <h3>보험가입서 미전달</h3>
+                        </div>
+                        <div class="m-head-action">
+                            <span id="insurance-count" class="m-badge">전체 0건</span>
+                            <i class="m-chevron-up"></i>
+                        </div>
+                    </div>
+                    <div class="m-detail-body">
+                        <table class="m-table">
+                            <thead><tr><th>입항</th><th>고객명</th><th>국가</th><th>담당</th></tr></thead>
+                            <tbody id="insurance-table-body"></tbody>
+                        </table>
+                        <div class="m-view-all">전체보기 <i class="m-chevron-down"></i></div>
+                    </div>
+                </div>
+
+                <!-- 보관 중 리스트 -->
+                <div class="m-detail-card">
+                    <div class="m-detail-head">
+                        <div class="m-head-title">
+                            <div class="m-icon-sm"><img src="/pumex/1_assets/1_image/STORAGE.png" alt=""></div>
+                            <h3>보관 중</h3>
+                        </div>
+                        <div class="m-head-action">
+                            <span id="storage-count" class="m-badge">전체 0건</span>
+                            <i class="m-chevron-up"></i>
+                        </div>
+                    </div>
+                    <div class="m-detail-body">
+                        <table class="m-table">
+                            <thead><tr><th>포장</th><th>고객명</th><th>국가</th><th>담당</th></tr></thead>
+                            <tbody id="storage-table-body"></tbody>
+                        </table>
+                        <div class="m-view-all">전체보기 <i class="m-chevron-down"></i></div>
+                    </div>
+                </div>
+
+                <!-- 콘솔 대기 리스트 -->
+                <div class="m-detail-card">
+                    <div class="m-detail-head">
+                        <div class="m-head-title">
+                            <div class="m-icon-sm"><img src="/pumex/1_assets/1_image/SHIP.png" alt=""></div>
+                            <h3>콘솔 대기</h3>
+                        </div>
+                        <div class="m-head-action">
+                            <span id="console-count" class="m-badge">전체 0건</span>
+                            <i class="m-chevron-up"></i>
+                        </div>
+                    </div>
+                    <div class="m-detail-body">
+                        <table class="m-table m-table-console">
+                            <thead><tr><th>POE</th><th>포장</th><th>CBM</th><th>고객명</th><th>영업</th><th>업무</th></tr></thead>
+                            <tbody id="console-table-body"></tbody>
+                        </table>
+                        <div class="m-view-all">전체보기 <i class="m-chevron-down"></i></div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- ===================================== -->
+        <!-- 업무부 대시보드 -->
+        <!-- ===================================== -->
+        <section id="ops-dashboard-view" class="m-ops-dashboard" style="display: none;">
+            <!-- 여권 수취 필요 -->
+            <div class="m-detail-card">
+                <div class="m-detail-head">
+                    <div class="m-head-title">
+                        <div class="m-icon-sm"><img src="/pumex/1_assets/1_image/PASSPORT.png" alt=""></div>
+                        <h3>여권 수취 필요</h3>
+                    </div>
+                    <div class="m-head-action">
+                        <span id="ops-passport-count" class="m-badge">0건</span>
+                        <i class="m-chevron-up"></i>
+                    </div>
+                </div>
+                <div class="m-detail-body">
+                    <table class="m-table">
+                        <thead><tr><th>마감일</th><th>고객명</th><th>영업담당</th></tr></thead>
+                        <tbody id="ops-passport-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 마감 임박 -->
+            <div class="m-detail-card">
+                <div class="m-detail-head">
+                    <div class="m-head-title">
+                        <div class="m-icon-sm"><img src="/pumex/1_assets/1_image/INSURANCE.png" alt=""></div>
+                        <h3>2일 이내 마감 <span class="sub-text">(공휴일 제외)</span></h3>
+                    </div>
+                    <div class="m-head-action">
+                        <span id="ops-deadline-count" class="m-badge">0건</span>
+                        <i class="m-chevron-up"></i>
+                    </div>
+                </div>
+                <div class="m-detail-body">
+                    <table class="m-table">
+                        <thead><tr><th>마감일</th><th>고객명</th><th>컨일정</th></tr></thead>
+                        <tbody id="ops-deadline-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- JS 스크립트 연결 -->
+    <script src="../../2_common/2_js/login.js"></script>
+    <script src="../../4_pages/home/sales.js"></script>
+    <script src="../../4_pages/home/ops.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const loadingContainer = document.getElementById('loading-container');
+            
+            // 💡 모바일 헤더 동적 로드
+            fetch('../../3_components/1_header/mobile/header.html')
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById('mobile-header-placeholder').innerHTML = html;
+                    const headerScript = document.createElement('script');
+                    headerScript.src = '../../3_components/1_header/mobile/header.js';
+                    document.body.appendChild(headerScript);
+                });
+
+            // 💡 로그인 검증 및 대시보드 렌더링
+            const username = localStorage.getItem('username');
+            if (!username) {
+                alert("로그인 정보가 없습니다.");
+                location.href = '/pumex/index.html';
+                return;
+            }
+
+            const salesGroup = ['salea', 'saleb', 'salek', 'oh', 'eric', 'kbs', 'pjs', 'jackson', 'crjung', 'sk', 'sjh'];
+            const opsGroup   = ['admin', 'opere', 'opero', 'operd'];
+
+            try {
+                if (salesGroup.includes(username)) {
+                    await initSalesDashboard(username);
+                    document.getElementById('sales-dashboard-view').style.display = 'block';
+                } else if (opsGroup.includes(username)) {
+                    await initOpsDashboard(username);
+                    document.getElementById('ops-dashboard-view').style.display = 'block';
+                } else {
+                    document.querySelector('.m-container').innerHTML = '<h1 class="m-hero-title">DASHBOARD 준비중...</h1>';
+                }
+            } catch (e) {
+                console.error(e);
+            } finally {
+                loadingContainer.style.display = 'none';
+            }
+
+            // 💡 리스트 카드 아코디언 토글 이벤트
+            document.querySelectorAll('.m-detail-head').forEach(head => {
+                head.addEventListener('click', () => {
+                    head.parentElement.classList.toggle('collapsed');
+                });
+            });
+
+            document.querySelectorAll('.m-view-all').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const detailBody = this.closest('.m-detail-body');
+                    
+                    // 펼침 상태(is-expanded)를 토글(on/off)합니다.
+                    detailBody.classList.toggle('is-expanded');
+                    
+                    // 상태에 따라 버튼 글씨와 화살표 방향을 바꿉니다.
+                    if (detailBody.classList.contains('is-expanded')) {
+                        this.innerHTML = '접기 <i class="m-chevron-up"></i>';
+                    } else {
+                        this.innerHTML = '전체보기 <i class="m-chevron-down"></i>';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

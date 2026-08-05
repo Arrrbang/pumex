@@ -1,0 +1,190 @@
+/* search.css */
+
+body {
+    background-color: #f7f9fb;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #333;
+}
+
+.container {
+    max-width: 900px;
+    margin: 50px auto;
+    background: transparent;
+    padding: 0 20px;
+}
+
+h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #0f2950;
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.sub-title-text {
+    text-align: center;
+    color: #777;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 30px;
+    padding-bottom: 25px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 20px;
+}
+
+/* 각 항목을 감싸는 흰색 라운드 박스 */
+.form-group-wrapper {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.form-group-wrapper.full-width {
+    grid-column: span 2;
+}
+
+/* 아이콘과 라벨 묶음 */
+.form-group-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.icon-circle {
+    width: 24px;
+    height: 24px;
+    background-color: #1A9280; /* 시안의 청록색 계열 */
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.7rem;
+    margin-right: 10px;
+}
+
+label {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #333;
+    margin: 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* 입력 필드 (select, input) */
+select, input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #333;
+    outline: none;
+    box-sizing: border-box;
+    background-color: #fff;
+    transition: border-color 0.2s;
+}
+
+select {
+    appearance: none;
+    background: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>') no-repeat right 10px center;
+    cursor: pointer;
+}
+
+select:focus, input:focus, .searchable-select-wrapper input:focus {
+    border-color: #1A365D; /* 포커스 시 다크 블루 라인 */
+}
+
+input::placeholder {
+    color: #aaa;
+    font-weight: 400;
+}
+
+/* CBM 입력 그룹 (우측 단위 표시) */
+.cbm-input-group {
+    position: relative;
+}
+
+.cbm-input-group input {
+    padding-right: 60px; /* 우측 단위 공간 확보 */
+}
+
+.cbm-unit {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-weight: 600;
+    font-size: 0.95rem;
+    pointer-events: none;
+}
+
+/* 조회 버튼 */
+.btn-container {
+    grid-column: span 2;
+    text-align: center;
+    margin-top: 25px;
+    margin-bottom: 40px;
+}
+
+button#searchBtn {
+    background-color: #0f2950; /* 시안의 다크 블루 버튼 */
+    color: white;
+    border: none;
+    padding: 14px 45px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(15, 41, 80, 0.2);
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+button#searchBtn:hover {
+    background-color: #0a1c36;
+}
+button#searchBtn:active {
+    transform: translateY(2px);
+}
+
+/* search.js 연동 검색 가능한 콤보박스 디자인 오버라이딩 */
+.searchable-select-wrapper input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #333;
+    outline: none;
+    box-sizing: border-box;
+    background-color: #fff;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+.searchable-list {
+    border-color: #e2e8f0 !important;
+    border-radius: 0 0 6px 6px;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important;
+    overflow-x: hidden;
+}
+
+.searchable-item {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #333;
+}

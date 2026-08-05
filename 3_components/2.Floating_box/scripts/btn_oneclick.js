@@ -1,80 +1,111 @@
 /* Floating_box/scripts/btn_oneclick.js */
 (function() {
   
-  function handleOneClick(mode) {
-    let partnerName, country, region, cargo, tableWrapId, totalDisplayId;
-    let actualPoe = ''; // ✨ 추가: POE 값을 담을 변수 선언
+  function getSafeValue(wrapId) {
+    const input = document.querySelector(`#${wrapId} input`);
+    return input ? input.value.trim() : '';
+  }
 
-    if (mode === 'SINGLE') {
-      partnerName = document.getElementById('sumCompany')?.textContent || '-';
-      country = document.getElementById('sumCountry')?.textContent || '-';
-      region = document.getElementById('sumRegion')?.textContent || '-';
-      cargo = document.getElementById('sumCbmType')?.textContent || '-';
-      tableWrapId = 'tableWrap';
-      totalDisplayId = 'totalDisplayOne';
-      
-      // ✨ 단일 조회 시 POE 값을 가져옴 (예: 결과창 어딘가에 숨겨진 값이나 title에서 추출)
-      // 만약 결과창의 제목(title)이 "미국 파트너명 (USLAX) 견적" 이런 식이라면
-      // 괄호 안의 값을 추출하는 기존 로직이 맞는지 확인해야 합니다.
-      actualPoe = document.querySelector('#poeCombo input')?.value.trim();
-      
-    } else if (mode === 'A') {
-      partnerName = document.getElementById('cmpPartnerA')?.textContent || '-';
-      country = document.getElementById('cmpCountry')?.textContent || '-';
-      region = document.getElementById('cmpRegion')?.textContent || '-';
-      cargo = document.getElementById('cmpCbmType')?.textContent || '-';
-      tableWrapId = 'tableWrapA';
-      totalDisplayId = 'totalDisplayA';
-      
-      actualPoe = document.querySelector('#poeCombo input')?.value.trim() || document.getElementById('titleA')?.textContent.match(/\(([^)]+)\)/)?.[1];
-      
-    } else if (mode === 'B') {
-      partnerName = document.getElementById('cmpPartnerB')?.textContent || '-';
-      country = document.getElementById('cmpCountry')?.textContent || '-';
-      region = document.getElementById('cmpRegion')?.textContent || '-';
-      cargo = document.getElementById('cmpCbmType')?.textContent || '-';
-      tableWrapId = 'tableWrapB';
-      totalDisplayId = 'totalDisplayB';
-      
-      actualPoe = document.getElementById('titleB')?.textContent.match(/\(([^)]+)\)/)?.[1];
-    }
-
-    const location = `${country} / ${region}`;
-    const tableWrap = document.getElementById(tableWrapId);
-    const tableHtml = tableWrap ? tableWrap.innerHTML : '';
-    const destTotal = document.getElementById(totalDisplayId)?.textContent || '0';
-
-    const compareState = {
-        orig: {
-            country: document.querySelector('#countryCombo input')?.value.trim(),
-            region: document.querySelector('#regionCombo input')?.value.trim(),
-            company: document.getElementById('cmpPartnerA')?.textContent || document.getElementById('sumCompany')?.textContent,
-            poe: document.querySelector('#poeCombo input')?.value.trim() || document.getElementById('titleA')?.textContent.match(/\(([^)]+)\)/)?.[1],
-            cargo: document.querySelector('#cargoTypeCombo input')?.value.trim(),
-            type: document.querySelector('#typeCombo input')?.value.trim(),
-            cbm: document.getElementById('cbmSelect')?.value
-        },
-        target: (mode === 'A' || mode === 'B') ? {
-            company: document.getElementById('cmpPartnerB')?.textContent,
-            poe: document.getElementById('titleB')?.textContent.match(/\(([^)]+)\)/)?.[1],
-            cargo: document.querySelector('#cargoTypeCombo input')?.value.trim()
-        } : null,
-        isCompare: (mode === 'A' || mode === 'B')
-    };
-    sessionStorage.setItem('lastSearchState', JSON.stringify(compareState));
+  // 💡 비동기(async) 함수로 변경하여 데이터를 백엔드에서 직접 다시 가져옵니다.
+  async function handleOneClick(mode, btnElement) {
     
-    const quoteData = {
-      partner: partnerName,
-      location: location,
-      cargo: cargo,
-      tableHtml: tableHtml,
-      destTotal: destTotal,
-      poe: actualPoe
-    };
+    // 버튼 로딩 상태 표시 (데이터를 챙기는 동안 클릭 방지)
+    const originalText = btnElement.innerHTML;
+    btnElement.innerHTML = '<div class="btn-sub-text" style="font-size:0.85rem; margin-top:5px;">데이터 구성 중...</div>';
+    btnElement.style.pointerEvents = 'none';
 
-    // 배낭에 짐 싸고 원클릭 페이지로 출발! (경로는 무조건 한 칸 위로)
-    sessionStorage.setItem('oneClickQuoteData', JSON.stringify(quoteData));
-    window.open((window.PUMEX_BASE || '') + '/pumex/4_pages/one-click-quo/one_click_quo.html', '_blank');
+    try {
+        let partnerName, actualPoe = ''; 
+
+        // 1. 구형 화면의 입력창 및 텍스트에서 검색 조건 추출
+        const country = getSafeValue('countryCombo') || document.getElementById('sumCountry')?.textContent || '';
+        const region = getSafeValue('regionCombo') || document.getElementById('sumRegion')?.textContent || '';
+        const cargoType = getSafeValue('cargoTypeCombo') || document.getElementById('sumCbmType')?.textContent || '';
+        const containerType = getSafeValue('typeCombo') || '20FT';
+        
+        // CBM 추출 (숫자만 남기기)
+        const rawCbm = getSafeValue('cbmCombo_Wrapper') || getSafeValue('cbmCombo2_Wrapper') || document.getElementById('cbmSelect')?.value || '1';
+        const cbmVal = rawCbm.replace(/[^0-9.]/g, ''); 
+
+        const defaultPoe = getSafeValue('poeCombo') || '';
+        let totalDisplayId;
+
+        // 모드에 따른 파트너명, POE 세팅
+        if (mode === 'SINGLE') {
+          partnerName = document.getElementById('sumCompany')?.textContent || '-';
+          actualPoe = document.getElementById('sumPoe')?.textContent || defaultPoe;
+          totalDisplayId = 'totalDisplayOne';
+        } else if (mode === 'A') {
+          partnerName = document.getElementById('cmpPartnerA')?.textContent || '-';
+          actualPoe = document.getElementById('titleA')?.textContent.match(/\(([^)]+)\)/)?.[1] || defaultPoe;
+          totalDisplayId = 'totalDisplayA';
+        } else if (mode === 'B') {
+          partnerName = document.getElementById('cmpPartnerB')?.textContent || '-';
+          actualPoe = document.getElementById('titleB')?.textContent.match(/\(([^)]+)\)/)?.[1] || defaultPoe;
+          totalDisplayId = 'totalDisplayB';
+        }
+
+        let destTotal = document.getElementById(totalDisplayId)?.textContent || '';
+        destTotal = destTotal.replace(/[^0-9,.]/g, '').replace(/^,/, '').trim();
+
+        // 💡 2. 핵심 수정: 백엔드 API를 찔러서 원본 데이터를 확실하게 다시 받아옵니다.
+        let resultData = {};
+        let dataArray = [];
+        let currency = 'KRW';
+
+        if (window.CostAPI && typeof window.CostAPI.fetchCosts === 'function') {
+            try {
+                // 백엔드 재요청 (0.1~0.3초 소요)
+                resultData = await window.CostAPI.fetchCosts(country, region, partnerName, cargoType, containerType, cbmVal, actualPoe);
+                dataArray = resultData?.rows ? resultData.rows : (Array.isArray(resultData) ? resultData : []);
+                currency = resultData?.currency || 'USD';
+            } catch(e) {
+                console.error('견적 데이터 원본 백업 실패:', e);
+            }
+        }
+
+        // 3. MODE/TYPE 자동 완성 문구 생성
+        const isConsole = containerType.toUpperCase().includes('CON') || containerType.toUpperCase().includes('LCL');
+        const modeTypeStr = isConsole 
+            ? `Door to Door / ${containerType} (${cbmVal} CBM)`
+            : `Door to Door / ${containerType} Single Container (${cbmVal} CBM)`;
+
+        // 4. 새로운 견적서(quotation.html)가 기대하는 데이터 구조로 완벽히 조립
+        const quotationData = {
+            q_location: region,
+            q_dest_port: actualPoe,
+            q_cbm: cbmVal,
+            q_container: containerType,
+            q_mode_type: modeTypeStr,
+            cur_cds: currency, 
+            
+            // 화면의 금액을 최우선으로 매핑
+            q_destination_amount: destTotal, 
+            
+            // ✨ 이제 텅 비어있지 않고 진짜 백엔드 데이터가 들어갑니다! (상세보기, 조건변경 모두 정상작동)
+            _fullSearchParams: {
+                country: country,
+                region: region,
+                partner: partnerName,
+                cargoType: cargoType,
+                poe: actualPoe,
+                containerType: containerType,
+                cbm: cbmVal
+            },
+            _fullResultData: dataArray,
+            _currency: currency,
+            _rawData: resultData
+        };
+
+        // 5. 세션 스토리지 저장 및 견적서 페이지 띄우기
+        sessionStorage.setItem('finalQuotationData', JSON.stringify(quotationData));
+        window.open((window.PUMEX_BASE || '') + '/pumex/4_pages/quotation/final_quotation/quotation.html', '_blank');
+
+    } finally {
+        // 창이 열리면 버튼 상태를 원래대로 복구
+        btnElement.innerHTML = originalText;
+        btnElement.style.pointerEvents = 'auto';
+    }
   }
 
   // ✨ 버튼 클릭 감지
@@ -83,17 +114,16 @@
     const btnB = e.target.closest('#btnOneClickB');
 
     if (btnA) {
-      // 비교 창이 열려있는지 확인해서 모드를 결정합니다.
       const compareSec = document.getElementById('resultSectionCompare');
       const isCompareMode = compareSec && !compareSec.hidden;
       
       if (isCompareMode) {
-        handleOneClick('A');      // 비교 중이면 A 파트너 데이터 가져오기
+        handleOneClick('A', btnA);      
       } else {
-        handleOneClick('SINGLE'); // 단일 조회면 단일 데이터 가져오기
+        handleOneClick('SINGLE', btnA); 
       }
     } else if (btnB) {
-      handleOneClick('B');
+      handleOneClick('B', btnB);
     }
   });
 
