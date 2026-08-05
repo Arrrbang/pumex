@@ -31,6 +31,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const tel = salesInfo.tel || '';
             const dir = salesInfo.dir || '';
 
+            const position = salesInfo.position || '';
+            const koreanName = salesInfo.korean_name || '';
+            sessionStorage.setItem('sms_manager_position', position);
+            sessionStorage.setItem('sms_manager_name', koreanName);
+            
             // 4. quotation.html의 HTML 요소에 각각 대입
             const salesNameEl = document.getElementById('sales-name');
             const salesEmailEl = document.getElementById('sales-email');

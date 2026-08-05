@@ -14,13 +14,36 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 2. 고객명과 총 금액 가져오기
-            const customerName = document.getElementById('q_customer_name')?.textContent?.trim() || '고객';
-            const totalAmt = document.getElementById('q_final_total_converted')?.textContent?.trim() || '0';
-            const pol = document.getElementById('pol_select')?.value || '한국';
-            const poe = document.getElementById('q_dest_port')?.textContent?.trim() || '도착지';
+            const salesName = document.getElementById('sales-name')?.textContent?.trim() || '';
+            const salesEmail = document.getElementById('sales-email')?.textContent?.trim() || '';
+            const salesTel = document.getElementById('sales-tel')?.textContent?.trim() || '';
+
+            const managerPosition = sessionStorage.getItem('sms_manager_position') || '';
+            const managerName = sessionStorage.getItem('sms_manager_name') || '';
+
+            const q_customer_name = document.getElementById('q_customer_name')?.textContent?.trim() || '';
+            const q_customer_email = document.getElementById('q_customer_email')?.textContent?.trim() || '';
+            const q_origin_add = document.getElementById('q_origin_add')?.textContent?.trim() || '';
+            const q_location = document.getElementById('q_location')?.textContent?.trim() || '';
+            const q_mode_type = document.getElementById('q_mode_type')?.textContent?.trim() || '';
+            const q_final_total_converted = document.getElementById('q_final_total_converted')?.textContent?.trim() || '';
             
             // 3. 발송될 메시지 내용 세팅 
-            const messageText = `안녕하세요 ${customerName} 고객님, PUMEX 해외이사 견적 안내드립니다.\n\n[견적 요약]\n- 출발: ${pol}\n- 도착: ${poe}\n- 예상 총 비용: ${totalAmt} 원\n\n자세한 사항은 담당자에게 문의해 주시기 바랍니다. 감사합니다.`;
+            const messageText = `
+            안녕하세요 ${q_customer_name} 고객님, PUMEX 해외이사 견적 안내드립니다.\n\n
+            [견적 요약]\n
+            - 포장지: ${q_origin_add}\n
+            - 배송지: ${q_location}\n
+            - 예상 총 비용: ${q_final_total_converted} 원\n\n
+            - 주의 사항\n
+            ※본 임시견적의 비용은 운임 변동, 환율 변동으로 인해 추후 변경될 수 있습니다.\n
+            최종 견적서는 추후 고객님께서 입력하신 이메일(${q_customer_email})로 발송될 예정입니다.\n\n
+            기타 문의는 아래 담당 영업사원에게 문의 바랍니다. 감사합니다.\n\n
+            영업담당\n
+            담당자: ${managerName} ${managerPosition}\n
+            연락처: ${salesTel}\n
+            이메일: ${salesEmail}
+            `; 
             
             // 4. 스마트폰 OS(아이폰/안드로이드)에 따른 문자 프로토콜 분기 처리
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
