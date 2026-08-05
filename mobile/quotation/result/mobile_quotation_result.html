@@ -183,15 +183,16 @@
                     <span class="m-label" style="margin-bottom:8px;">SHIPMENT DETAILS</span>
                     <div class="m-ship-row"><span>Origin :</span> <span class="input_highlight" id="q_origin_add"></span></div>
                     <div class="m-ship-row"><span>Destination :</span> <span class="input_highlight" id="q_location"></span></div>
-                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:2px;">
-                        <!-- 💡 [수정] POL 선택 전 눈에 띄게 하늘색 배경 적용 및 패딩 조절 -->
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-top:4px;">
+                        <!-- 💡 POL 한 줄 전체 차지 -->
                         <div class="m-ship-row" style="margin:0; align-items: center;">
                             <span>POL :</span> 
-                            <select id="pol_select" class="input_highlight" style="background-color: #e0f2fe; color: #0369a1; padding: 4px 25px 4px 10px; border-radius: 6px; border: 1px solid #7dd3fc;"></select>
+                            <select id="pol_select" class="input_highlight" style="width: 100%; background-color: #e0f2fe; color: #0369a1; padding: 8px 25px 8px 10px; border-radius: 6px; border: 1px solid #7dd3fc;"></select>
                         </div>
+                        <!-- 💡 POE 한 줄 전체 차지 -->
                         <div class="m-ship-row" style="margin:0; align-items: center;">
                             <span>POE :</span> 
-                            <span class="input_highlight" id="q_dest_port"></span>
+                            <span class="input_highlight" id="q_dest_port" style="width: 100%; padding: 8px 10px;"></span>
                         </div>
                     </div>
                 </div>

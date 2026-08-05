@@ -56,13 +56,14 @@ function makeSelectSearchable(selectId, items, onSelect) {
     const input = document.createElement('input');
     input.type = 'text';
     input.id = `${selectId}_search_input`;
-    input.placeholder = selectEl.options[0]?.text || '선택 또는 입력하세요';
+    input.placeholder = '';
     input.className = selectEl.className;
     input.style.width = '100%';
     input.style.boxSizing = 'border-box';
 
     input.setAttribute('autocomplete', 'off');
     input.setAttribute('spellcheck', 'false');
+    input.setAttribute('readonly', 'true');
 
     const listDiv = document.createElement('div');
     listDiv.className = 'searchable-list';
