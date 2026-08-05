@@ -99,14 +99,15 @@ function makeSelectSearchable(selectId, items, onSelect) {
             return matchA - matchB;
         });
 
-        // 💡 [수정] '~선택'이 포함된 안내 문구는 아예 목록 배열에서 제외시킵니다.
+        // 💡 [최종 방어막] '선택'이라는 단어가 들어가거나 값이 비어있으면 목록에 절대 추가하지 않음
         const filtered = sortedItems.filter(item => {
             const text = (typeof item === 'object' ? (item.text || item.name) : item).toLowerCase();
             const val = typeof item === 'object' ? (item.value || item.name) : item;
             
-            if (!val || text.includes('선택')) return false; // 기본 안내 문구 숨김
-            if (!query) return true;
+            if (!val) return false;
+            if (text.includes('선택') || text.includes('먼저')) return false; // '선택하세요', '먼저 선택하세요' 완벽 차단
             
+            if (!query) return true;
             return text.includes(query);
         });
 
@@ -117,9 +118,7 @@ function makeSelectSearchable(selectId, items, onSelect) {
             const div = document.createElement('div');
             div.className = 'searchable-item';
             div.textContent = text;
-            
-            // 깔끔한 리스트 아이템 디자인 적용
-            div.style.cssText = 'padding:10px; cursor:pointer; font-size:14px; border-bottom:1px solid #f1f1f1; color:#333;';
+            div.style.cssText = 'padding:10px; cursor:pointer; font-size:14px; border-bottom:1px solid #f1f1f1; color:#333; background:#fff;';
 
             div.addEventListener('mouseenter', () => div.style.backgroundColor = '#f8f9fa');
             div.addEventListener('mouseleave', () => div.style.backgroundColor = '#fff');
@@ -134,6 +133,7 @@ function makeSelectSearchable(selectId, items, onSelect) {
             });
             listDiv.appendChild(div);
         });
+
 
         if (selectId === 'region' && __currentCountryPoints.length > 0) {
             const nearBtn = document.createElement('div');
@@ -323,7 +323,7 @@ async function loadCountries() {
         
         const selectEl = document.getElementById('country');
         if (selectEl) {
-            selectEl.innerHTML = '<option value="">나라를 선택하세요</option>';
+            selectEl.innerHTML = '<option value=""></option>';
             countries.forEach(c => {
                 const opt = document.createElement('option');
                 opt.value = c;
@@ -360,7 +360,7 @@ async function loadRegions(selectedCountry) {
             .map(r => r.name)
             .sort((a, b) => a.localeCompare(b, 'ko'));
 
-        regionSelect.innerHTML = '<option value="">지역을 선택하세요</option>';
+        regionSelect.innerHTML = '<option value=""></option>';
         __currentCountryPoints.forEach(r => {
             const opt = document.createElement('option');
             opt.value = r.name;
@@ -378,7 +378,7 @@ async function loadRegions(selectedCountry) {
 async function loadCompanies(country, region) {
     const partnerSelect = document.getElementById('partner');
     if (!partnerSelect) return;
-    partnerSelect.innerHTML = '<option value="">파트너를 선택하세요</option>';
+    partnerSelect.innerHTML = '<option value=""></option>';
     partnerSelect.disabled = true;
     if (!country || !region) return;
 
@@ -396,7 +396,7 @@ async function loadCompanies(country, region) {
 async function loadCargoTypes(country, region, partner) {
     const cargoSelect = document.getElementById('cargoType');
     if (!cargoSelect) return;
-    cargoSelect.innerHTML = '<option value="">화물 타입을 선택하세요</option>';
+    cargoSelect.innerHTML = '<option value=""></option>';
     cargoSelect.disabled = true;
     if (!country || !partner) return;
 
@@ -414,7 +414,7 @@ async function loadCargoTypes(country, region, partner) {
 async function loadPOEs(country, region, partner, cargo) {
     const poeSelect = document.getElementById('poe');
     if (!poeSelect) return;
-    poeSelect.innerHTML = '<option value="">POE를 선택하세요</option>';
+    poeSelect.innerHTML = '<option value=""></option>';
     poeSelect.disabled = true;
     if (!country || !region || !partner || !cargo) return;
 
@@ -432,7 +432,7 @@ async function loadPOEs(country, region, partner, cargo) {
 async function loadContainerTypes(country, region, partner, poe, cargo) {
     const containerSelect = document.getElementById('containerType');
     if (!containerSelect) return;
-    containerSelect.innerHTML = '<option value="">컨테이너 타입을 선택하세요</option>';
+    containerSelect.innerHTML = '<option value=""></option>';
     containerSelect.disabled = true;
     if (!country || !partner || !poe || !cargo) return;
 

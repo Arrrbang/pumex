@@ -14,23 +14,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch(url);
         const result = await response.json();
 
+        // 💡 [디버깅 로그] 노션에서 실제로 어떤 데이터를 받아왔는지 콘솔에 통째로 출력
+        console.log("📌 [Sales Info API 원본 응답 데이터]:", result);
+
         if (result.ok && result.data) {
             const salesInfo = result.data;
+
+            // 💡 [디버깅 로그] 개별 속성값 확인
+            console.log("📌 추출된 직책(position):", salesInfo.position);
+            console.log("📌 추출된 한글명(korean_name):", salesInfo.korean_name);
 
             const englishName = salesInfo.english_name || '';
             const email = salesInfo.email || '';
             const tel = salesInfo.tel || '';
             const dir = salesInfo.dir || '';
             
-            // 💡 [핵심] SMS 문자 발송을 위해 한글명과 직책을 세션에 확실히 저장
             const position = salesInfo.position || '';
             const koreanName = salesInfo.korean_name || '';
+            
             sessionStorage.setItem('sms_manager_position', position);
             sessionStorage.setItem('sms_manager_name', koreanName);
             sessionStorage.setItem('sms_manager_tel', tel);
             sessionStorage.setItem('sms_manager_email', email);
 
-            // 화면 요소 매핑 (영문명 표시)
             const salesNameEl = document.getElementById('sales-name');
             const salesEmailEl = document.getElementById('sales-email');
             const salesTelEl = document.getElementById('sales-tel');
