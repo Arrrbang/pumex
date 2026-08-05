@@ -99,9 +99,15 @@ function makeSelectSearchable(selectId, items, onSelect) {
             return matchA - matchB;
         });
 
+        // 💡 [수정] '~선택' 단어가 포함되거나 빈 값인 항목은 목록에서 제외
         const filtered = sortedItems.filter(item => {
-            if (!query) return true;
             const text = (typeof item === 'object' ? (item.text || item.name) : item).toLowerCase();
+            const val = typeof item === 'object' ? (item.value || item.name) : item;
+            
+            // '선택'이 포함되어 있거나 값이 없으면 목록에 표시하지 않음
+            if (!val || text.includes('선택')) return false; 
+            if (!query) return true;
+            
             return text.includes(query);
         });
 

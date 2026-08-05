@@ -425,9 +425,8 @@
 </body>
 </html>
 
-    <!-- 모달 팝업 스크립트들 -->
+<!-- 💡 Origin 상세 팝업 로드 스크립트 -->
     <script>
-        // Origin 상세 팝업 로드
         document.addEventListener('DOMContentLoaded', async () => {
             try {
                 const cssLink = document.createElement('link'); cssLink.rel = 'stylesheet'; cssLink.href = '../detail_popup/origin/origin_detail.css'; document.head.appendChild(cssLink);
@@ -435,15 +434,29 @@
                 if (response.ok) {
                     const wrapper = document.createElement('div'); wrapper.innerHTML = await response.text(); document.body.appendChild(wrapper);
                     
-                    // 이벤트 바인딩 (기존 로직 동일)
                     document.getElementById('btnOpenOriginDetail')?.addEventListener('click', (e) => {
-                        e.stopPropagation(); // 아코디언 토글 방지
+                        e.stopPropagation(); 
                         document.getElementById('originDetailModal').style.display = 'flex';
-                        // ... 상세 값 세팅 로직은 result_origin.js 등에 위임 ...
                     });
                 }
             } catch(e) {}
         });
     </script>
+
+    <!-- 💡 [추가] 문자 발송용 전화번호 입력 커스텀 팝업 HTML -->
+    <div id="smsPhoneModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; align-items:center; justify-content:center;">
+        <div style="background:#fff; width:90%; max-width:360px; border-radius:16px; padding:24px; box-shadow:0 10px 25px rgba(0,0,0,0.2); box-sizing:border-box;">
+            <h3 style="margin:0 0 8px 0; font-size:1.1rem; color:#113c5f; font-weight:800;">📱 문자 발송</h3>
+            <p style="margin:0 0 16px 0; font-size:0.85rem; color:#666; line-height:1.4;">문자를 받을 고객의 전화번호를 입력해 주세요.</p>
+            
+            <input type="tel" id="smsPhoneNumberInput" placeholder="01012345678 (하이픈 없이 입력)" style="width:100%; padding:12px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.95rem; outline:none; box-sizing:border-box; margin-bottom:20px;">
+            
+            <div style="display:flex; gap:10px;">
+                <button type="button" id="smsModalCancelBtn" style="flex:1; padding:12px; background:#f1f5f9; color:#475569; border:none; border-radius:8px; font-weight:700; cursor:pointer;">취소</button>
+                <button type="button" id="smsModalConfirmBtn" style="flex:1; padding:12px; background:#159b64; color:#fff; border:none; border-radius:8px; font-weight:700; cursor:pointer;">발송하기</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

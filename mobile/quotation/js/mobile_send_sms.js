@@ -2,16 +2,42 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. 문자 버튼 클릭 시 기본 프롬프트 대신 커스텀 팝업 띄우기
     document.body.addEventListener('click', (e) => {
         const btnSms = e.target.closest('#btnSendSms');
         if (btnSms) {
-            // 💡 1. 문자 발송 전, 전화번호를 입력받는 알림창 띄우기
-            const phoneNumber = prompt("문자를 발송할 고객의 전화번호를 입력하세요.\n(예: 01012345678, 하이픈 빼고 입력)", "");
-
-            // 취소 버튼을 누르거나 아무것도 입력하지 않으면 발송 취소
-            if (phoneNumber === null || phoneNumber.trim() === "") {
-                return; 
+            const modal = document.getElementById('smsPhoneModal');
+            const input = document.getElementById('smsPhoneNumberInput');
+            if (modal && input) {
+                input.value = ''; // 열 때마다 입력창 초기화
+                modal.style.display = 'flex';
+                input.focus();
             }
+        }
+    });
+
+    // 2. 팝업 안의 [취소] 버튼 클릭 시 닫기
+    document.body.addEventListener('click', (e) => {
+        if (e.target.id === 'smsModalCancelBtn' || e.target.id === 'smsPhoneModal') {
+            const modal = document.getElementById('smsPhoneModal');
+            if (modal) modal.style.display = 'none';
+        }
+    });
+
+    // 3. 팝업 안의 [발송하기] 버튼 클릭 시 문자 앱 실행
+    document.body.addEventListener('click', (e) => {
+        if (e.target.id === 'smsModalConfirmBtn') {
+            const input = document.getElementById('smsPhoneNumberInput');
+            const phoneNumber = input ? input.value.trim() : '';
+
+            if (!phoneNumber) {
+                alert('전화번호를 입력해 주세요.');
+                return;
+            }
+
+            // 모달 닫기
+            const modal = document.getElementById('smsPhoneModal');
+            if (modal) modal.style.display = 'none';
 
             // 2. 고객명과 총 금액 가져오기
             const salesName = document.getElementById('sales-name')?.textContent?.trim() || '';
