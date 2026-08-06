@@ -30,9 +30,7 @@
                 </div>
                 <div class="irc-input-group">
                     <div class="irc-input-wrapper">
-                        <!-- 단위 글자가 들어갈 공간을 위해 style로 padding-right 추가 -->
-                        <input type="number" id="irc_amount" autocomplete="off" placeholder="" style="padding-right: 55px;">
-                        <!-- 💡 단위를 다시 표시하고 전용 클래스 부여 -->
+                        <input type="text" id="irc_amount" inputmode="numeric" autocomplete="off" placeholder="" style="padding-right: 55px;" oninput="formatNumberWithComma(this)">
                         <span id="irc_amount_unit" class="irc-input-unit">만 원</span>
                     </div>
                 </div>
