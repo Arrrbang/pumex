@@ -11,20 +11,36 @@
     <link rel="stylesheet" href="../../3_components/1_header/header.css">
     <link rel="stylesheet" href="../../2_common/1_css/color.css">
     <link rel="stylesheet" href="home.css">
-    <link rel="stylesheet" href="../../2_common/1_css/common.css"
+    <link rel="stylesheet" href="../../2_common/1_css/common.css">
 </head>
 <body>
     <!-- 데스크탑 전용 헤더 -->
     <div id="desktop-header-placeholder" class="desktop-only"></div>
 
+    <!-- 💡 1. 영업부 전용 원형 버튼 랜딩 화면 (초기엔 숨겨져 있음) -->
+    <div id="sales-landing-overlay">
+        <!-- 사내 조회 페이지 버튼 (기존 대시보드 로드) -->
+        <button type="button" id="btn-go-dashboard" class="circle-btn btn-white">
+            <span class="btn-title">사내 조회 페이지<br>바로가기</span>
+            <span class="btn-click">↼ CLICK</span>
+        </button>
+
+        <!-- 고객 견적 페이지 버튼 (외부 링크 이동) -->
+        <a href="/pumex/4_pages/customer_quo/customer_quotation.html" class="circle-btn btn-blue">
+            <span class="btn-title">고객 견적페이지<br>바로가기</span>
+            <span class="btn-click">CLICK ⇀</span>
+        </a>
+    </div>
+
+    <!-- 2. 기존 로딩 스피너 및 메인 대시보드 영역 -->
     <div id="loading-container">
         <div class="spinner"></div>
         <div class="loading-msg">데이터를 불러오는 중...</div>
     </div>
 
-    <main class="dashboard-shell">
-
-        <section id="sales-dashboard-view" class="sales-dashboard" aria-label="영업부 대시보드">
+    <main class="dashboard-shell" style="display: none;" id="main-dashboard-shell">
+        <section id="sales-dashboard-view" class="sales-dashboard" aria-label="영업부 대시보드" style="display: none;">
+            <!-- ... 기존 영업부 대시보드 HTML ... -->
             <header class="dashboard-hero">
                 <div>
                     <p class="dashboard-eyebrow">Sales Dashboard</p>
@@ -37,103 +53,61 @@
 
             <section class="summary-card-grid" aria-label="업무 요약">
                 <article class="summary-card" data-status="passport">
-                    <div class="summary-icon passport-icon" aria-hidden="true">
-                        <img src="/pumex/1_assets/1_image/PASSPORT.png" alt="">
-                    </div>
-                    <div class="summary-content">
-                        <h2>여권 미접수</h2>
-                        <strong><span id="sales-summary-passport-count">0</span>건</strong>
-                        <p><span class="dot dot-warning"></span>확인 필요</p>
-                    </div>
+                    <div class="summary-icon passport-icon" aria-hidden="true"><img src="/pumex/1_assets/1_image/PASSPORT.png" alt=""></div>
+                    <div class="summary-content"><h2>여권 미접수</h2><strong><span id="sales-summary-passport-count">0</span>건</strong><p><span class="dot dot-warning"></span>확인 필요</p></div>
                 </article>
 
                 <article class="summary-card" data-status="insurance">
-                    <div class="summary-icon insurance-icon" aria-hidden="true">
-                        <img src="/pumex/1_assets/1_image/INSURANCE.png" alt="">
-                    </div>
-                    <div class="summary-content">
-                        <h2>보험가입서 미전달</h2>
-                        <strong><span id="sales-summary-insurance-count">0</span>건</strong>
-                        <p><span class="dot dot-warning"></span>마감 임박</p>
-                    </div>
+                    <div class="summary-icon insurance-icon" aria-hidden="true"><img src="/pumex/1_assets/1_image/INSURANCE.png" alt=""></div>
+                    <div class="summary-content"><h2>보험가입서 미전달</h2><strong><span id="sales-summary-insurance-count">0</span>건</strong><p><span class="dot dot-warning"></span>마감 임박</p></div>
                 </article>
 
                 <article class="summary-card" data-status="storage">
-                    <div class="summary-icon storage-icon" aria-hidden="true">
-                        <img src="/pumex/1_assets/1_image/STORAGE.png" alt="">
-                    </div>
-                    <div class="summary-content">
-                        <h2>보관 중</h2>
-                        <strong><span id="sales-summary-storage-count">0</span>건</strong>
-                        <p><span class="dot dot-info"></span>전체 기준</p>
-                    </div>
+                    <div class="summary-icon storage-icon" aria-hidden="true"><img src="/pumex/1_assets/1_image/STORAGE.png" alt=""></div>
+                    <div class="summary-content"><h2>보관 중</h2><strong><span id="sales-summary-storage-count">0</span>건</strong><p><span class="dot dot-info"></span>전체 기준</p></div>
                 </article>
 
                 <article class="summary-card" data-status="console">
-                    <div class="summary-icon console-icon" aria-hidden="true">
-                        <img src="/pumex/1_assets/1_image/SHIP.png" alt="">
-                    </div>
-                    <div class="summary-content">
-                        <h2>콘솔 대기</h2>
-                        <strong><span id="sales-summary-console-count">0</span>건</strong>
-                        <p><span class="dot dot-info"></span>전체 기준</p>
-                    </div>
+                    <div class="summary-icon console-icon" aria-hidden="true"><img src="/pumex/1_assets/1_image/SHIP.png" alt=""></div>
+                    <div class="summary-content"><h2>콘솔 대기</h2><strong><span id="sales-summary-console-count">0</span>건</strong><p><span class="dot dot-info"></span>전체 기준</p></div>
                 </article>
             </section>
 
             <section class="dashboard-detail-grid" aria-label="상세 업무 리스트">
                 <div class="dashboard-card">
                     <h2 class="card-title">여권 미접수 <span id="passport-count" class="count-badge"></span></h2>
-                    <table class="modern-table sales-passport">
-                        <thead><tr><th>서류마감</th><th>고객명</th><th>국가</th><th>업무담당</th></tr></thead>
-                        <tbody id="passport-table-body"></tbody>
-                    </table>
+                    <table class="modern-table sales-passport"><thead><tr><th>서류마감</th><th>고객명</th><th>국가</th><th>업무담당</th></tr></thead><tbody id="passport-table-body"></tbody></table>
                 </div>
 
                 <div class="dashboard-card">
                     <h2 class="card-title">보험가입서 미전달 <span id="insurance-count" class="count-badge"></span></h2>
-                    <table class="modern-table sales-insurance">
-                        <thead><tr><th>입항일</th><th>고객명</th><th>국가</th><th>업무담당</th></tr></thead>
-                        <tbody id="insurance-table-body"></tbody>
-                    </table>
+                    <table class="modern-table sales-insurance"><thead><tr><th>입항일</th><th>고객명</th><th>국가</th><th>업무담당</th></tr></thead><tbody id="insurance-table-body"></tbody></table>
                 </div>
 
                 <div class="dashboard-card">
                     <h2 class="card-title">보관 중 <span id="storage-count" class="count-badge"></span></h2>
-                    <table class="modern-table sales-storage">
-                        <thead><tr><th>포장일</th><th>고객명</th><th>국가</th><th>업무담당</th></tr></thead>
-                        <tbody id="storage-table-body"></tbody>
-                    </table>
+                    <table class="modern-table sales-storage"><thead><tr><th>포장일</th><th>고객명</th><th>국가</th><th>업무담당</th></tr></thead><tbody id="storage-table-body"></tbody></table>
                 </div>
 
                 <div class="dashboard-card">
                     <h2 class="card-title">콘솔 대기 <span id="console-count" class="count-badge"></span></h2>
-                    <table class="modern-table sales-console">
-                        <thead><tr><th>POE</th><th>포장일</th><th>CBM</th><th>고객명</th><th>영업담당</th><th>업무담당</th></tr></thead>
-                        <tbody id="console-table-body"></tbody>
-                    </table>
+                    <table class="modern-table sales-console"><thead><tr><th>POE</th><th>포장일</th><th>CBM</th><th>고객명</th><th>영업담당</th><th>업무담당</th></tr></thead><tbody id="console-table-body"></tbody></table>
                 </div>
             </section>
         </section>
 
-        <section id="ops-dashboard-view" class="dashboard-detail-grid" aria-label="업무부 대시보드">
+        <section id="ops-dashboard-view" class="dashboard-detail-grid" aria-label="업무부 대시보드" style="display: none;">
+             <!-- ... 기존 업무부 대시보드 HTML ... -->
             <div class="dashboard-card">
                 <h2 class="card-title">여권 수취 필요 <span id="ops-passport-count" class="count-badge"></span></h2>
-                <table class="modern-table ops-passport">
-                    <thead><tr><th>서류 마감일</th><th>고객명</th><th>영업담당</th></tr></thead>
-                    <tbody id="ops-passport-body"></tbody>
-                </table>
+                <table class="modern-table ops-passport"><thead><tr><th>서류 마감일</th><th>고객명</th><th>영업담당</th></tr></thead><tbody id="ops-passport-body"></tbody></table>
             </div>
 
             <div class="dashboard-card">
                 <h2 class="card-title">2일 이내 마감 <span class="loading-text">(공휴일 제외)</span> <span id="ops-deadline-count" class="count-badge"></span></h2>
-                <table class="modern-table ops-documentcut">
-                    <thead><tr><th>서류 마감일</th><th>고객명</th><th>컨작업일정</th></tr></thead>
-                    <tbody id="ops-deadline-body"></tbody>
-                </table>
+                <table class="modern-table ops-documentcut"><thead><tr><th>서류 마감일</th><th>고객명</th><th>컨작업일정</th></tr></thead><tbody id="ops-deadline-body"></tbody></table>
             </div>
         </section>
-
     </main>
 
     <script src="../../2_common/2_js/loading.js"></script>
@@ -144,6 +118,9 @@
     <script>
         document.addEventListener("DOMContentLoaded", async () => {
             const loadingContainer = document.getElementById('loading-container');
+            const landingOverlay = document.getElementById('sales-landing-overlay');
+            const mainShell = document.getElementById('main-dashboard-shell');
+            
             const username = localStorage.getItem('username');
 
             if (!username) {
@@ -156,21 +133,50 @@
             const salesGroup = ['salea', 'saleb', 'salek', 'oh', 'eric', 'kbs', 'pjs', 'jackson', 'crjung', 'sk'];
             const opsGroup   = ['admin', 'opere', 'opero', 'operd'];
 
-            try {
-                if (salesGroup.includes(username)) {
-                    await initSalesDashboard(username);
-                    document.getElementById('sales-dashboard-view').style.display = 'block';
-                } else if (opsGroup.includes(username)) {
+            // 💡 1. 영업부(salesGroup)가 접속했을 때
+            if (salesGroup.includes(username)) {
+                // 로딩 창을 감추고 두 개의 원형 버튼 화면을 띄움
+                loadingContainer.style.display = 'none';
+                landingOverlay.style.display = 'flex';
+
+                // '사내 조회 페이지 바로가기' 버튼 클릭 시
+                document.getElementById('btn-go-dashboard').addEventListener('click', async () => {
+                    // 원형 버튼 화면 숨기기
+                    landingOverlay.style.display = 'none';
+                    // 로딩 스피너 작동
+                    loadingContainer.style.display = 'flex';
+                    mainShell.style.display = 'block';
+                    
+                    try {
+                        await initSalesDashboard(username);
+                        document.getElementById('sales-dashboard-view').style.display = 'block';
+                    } catch (e) {
+                        console.error(e);
+                        alert("데이터 로딩 중 오류 발생: " + e.message);
+                    } finally {
+                        loadingContainer.style.display = 'none';
+                    }
+                });
+
+            // 💡 2. 업무부(opsGroup)가 접속했을 때
+            } else if (opsGroup.includes(username)) {
+                // 랜딩 화면 건너뛰고 바로 메인 대시보드 로딩
+                mainShell.style.display = 'block';
+                try {
                     await initOpsDashboard(username);
                     document.getElementById('ops-dashboard-view').style.display = 'grid';
-                } else {
-                    document.querySelector('.dashboard-shell').innerHTML = '<h1 class="dashboard-title">DASHBOARD 준비중...</h1>';
+                } catch (e) {
+                    console.error(e);
+                    alert("데이터 로딩 중 오류 발생: " + e.message);
+                } finally {
+                    loadingContainer.style.display = 'none';
                 }
-            } catch (e) {
-                console.error(e);
-                alert("데이터 로딩 중 오류 발생: " + e.message);
-            } finally {
+
+            // 💡 3. 그 외 권한 없는 유저
+            } else {
                 loadingContainer.style.display = 'none';
+                mainShell.style.display = 'block';
+                mainShell.innerHTML = '<h1 class="dashboard-title" style="text-align:center; padding: 50px;">DASHBOARD 준비중...</h1>';
             }
         });
     </script>

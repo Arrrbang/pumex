@@ -208,3 +208,15 @@ if (document.readyState === 'loading') {
   initNoticeRolling();
   initUserHeader();
 }
+
+// 💡 [추가] 데스크탑 헤더가 로드될 때 수익 설정 스크립트 강제 주입
+function loadGlobalProfitMarginScript() {
+  if (!document.getElementById('global-profit-script')) {
+    const script = document.createElement('script');
+    script.id = 'global-profit-script';
+    // 모바일용으로 작성된 공용 수익 설정 자바스크립트 연동
+    script.src = '/pumex/mobile/quotation/js/mobile_profit_margin.js';
+    document.body.appendChild(script);
+  }
+}
+loadGlobalProfitMarginScript();

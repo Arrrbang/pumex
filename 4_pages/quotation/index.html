@@ -2,134 +2,193 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P.A.S.S</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>P.A.S.S - 도착지비용 조회</title>
     <link rel="icon" href="/pumex/1_assets/1_image/favicon.png" type="image/x-icon">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome 아이콘 추가 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="../../2_common/1_css/common.css">
     <link rel="stylesheet" href="../../2_common/1_css/color.css">
-
-    <link rel="stylesheet" href="./geocoder_popup/geocoder_popup.css">
+    
+    <!-- 💡 수정된 search.css 연결 -->
     <link rel="stylesheet" href="./search.css">
-
+    <link rel="stylesheet" href="./geocoder_popup/geocoder_popup.css">
 </head>
 <body>
     <div id="desktop-header-placeholder" class="desktop-only"></div>
 
-    <div class="container">
-        <h2>도착지비용 조회</h2>
-        <p class="sub-title-text">정확한 견적을 위해 아래 정보를 선택/입력해 주세요.</p>
-        
-        <div class="form-grid">
-            <!-- 나라 선택 -->
-            <div class="form-group-wrapper">
-                <div class="form-group-header">
-                    <div class="icon-circle"><i class="fa-solid fa-globe"></i></div>
-                    <label for="country">Country (나라)</label>
-                </div>
-                <div class="form-group">
-                    <select id="country">
-                        <option value="">나라를 선택하세요</option>
-                    </select>
-                </div>
-            </div>
+    <div class="m-container">
+        <!-- 💡 텍스트 헤더 -->
+        <header class="m-header">
+            <span class="m-sub-title">DESTINATION COST</span>
+            <h1 class="m-main-title">도착지비용을 <span class="highlight">빠르게 조회하세요.</span></h1>
+            <p class="m-desc">정확한 견적 산출을 위해 아래 정보를 순서대로 입력해 주세요.</p>
+        </header>
 
-            <!-- 지역 선택 -->
-            <div class="form-group-wrapper">
-                <div class="form-group-header">
-                    <div class="icon-circle"><i class="fa-solid fa-location-dot"></i></div>
-                    <label for="region">Region (지역)</label>
-                </div>
-                <div class="form-group">
-                    <select id="region">
-                        <option value="">지역을 먼저 선택하세요</option>
-                    </select>
-                </div>
+        <!-- 💡 프로그레스 바 -->
+        <div class="progress-wrapper">
+            <div class="progress-bars">
+                <div class="p-bar active" id="pbar-1"></div>
+                <div class="p-bar" id="pbar-2"></div>
+                <div class="p-bar" id="pbar-3"></div>
             </div>
+            <div class="progress-text"><span id="p-text">1</span>/3</div>
+        </div>
 
-            <!-- 파트너 선택 -->
-            <div class="form-group-wrapper">
-                <div class="form-group-header">
-                    <div class="icon-circle"><i class="fa-solid fa-users"></i></div>
-                    <label for="partner">Partner (파트너)</label>
+        <!-- 💡 폼 슬라이더 영역 -->
+        <div class="slider-wrapper">
+            <div class="slider-container" id="sliderContainer">
+                
+                <!-- ================= 1/3: 도착 지역 ================= -->
+                <div class="step-panel">
+                    <div class="form-group-wrapper">
+                        <div class="step-header">
+                            <div class="step-icon"><i class="fa-solid fa-earth-asia"></i></div>
+                            <div class="step-title">
+                                <h3>도착 지역</h3>
+                                <p>나라와 지역을 먼저 선택해 주세요.</p>
+                            </div>
+                        </div>
+                        <div class="input-item">
+                            <label for="country">Country (나라)</label>
+                            <select id="country"><option value="">나라를 선택하세요</option></select>
+                        </div>
+                        <div class="input-item">
+                            <label for="region">Region (지역)</label>
+                            <select id="region"><option value="">지역을 먼저 선택하세요</option></select>
+                        </div>
+                        <div class="input-item">
+                            <label for="partner">Partner (파트너)</label>
+                            <select id="partner"><option value="">파트너를 선택하세요</option></select>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <select id="partner">
-                        <option value="">파트너를 선택하세요</option>
-                    </select>
-                </div>
-            </div>
 
-            <!-- 화물 타입 선택 -->
-            <div class="form-group-wrapper">
-                <div class="form-group-header">
-                    <div class="icon-circle"><i class="fa-solid fa-box"></i></div>
-                    <label for="cargoType">Cargo Type (화물 타입)</label>
+                <!-- ================= 2/3: 화물 정보 ================= -->
+                <div class="step-panel">
+                    <div class="form-group-wrapper">
+                        <div class="step-header">
+                            <div class="step-icon"><i class="fa-solid fa-ship"></i></div>
+                            <div class="step-title">
+                                <h3>화물 정보</h3>
+                                <p>화물 타입 및 POE를 선택해 주세요.</p>
+                            </div>
+                        </div>
+                        <div class="input-item">
+                            <label for="cargoType">Cargo Type (화물 타입)</label>
+                            <select id="cargoType"><option value="">화물 타입을 선택하세요</option></select>
+                        </div>
+                        <div class="input-item">
+                            <label for="poe">POE (Port of Entry)</label>
+                            <select id="poe"><option value="">POE를 선택하세요</option></select>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <select id="cargoType">
-                        <option value="">화물 타입을 선택하세요</option>
-                    </select>
-                </div>
-            </div>
 
-            <!-- POE 선택 -->
-            <div class="form-group-wrapper">
-                <div class="form-group-header">
-                    <div class="icon-circle"><i class="fa-solid fa-ship"></i></div>
-                    <label for="poe">POE (Port of Entry)</label>
+                <!-- ================= 3/3: 컨테이너 및 물량 ================= -->
+                <div class="step-panel">
+                    <div class="form-group-wrapper">
+                        <div class="step-header">
+                            <div class="step-icon"><i class="fa-solid fa-box-open"></i></div>
+                            <div class="step-title">
+                                <h3>컨테이너 및 물량</h3>
+                                <p>컨테이너 타입과 물량을 입력해 주세요.</p>
+                            </div>
+                        </div>
+                        <div class="input-item">
+                            <label for="containerType">Container Type (컨테이너 타입)</label>
+                            <select id="containerType"><option value="">컨테이너 타입을 선택하세요</option></select>
+                        </div>
+                        <div class="input-item">
+                            <label for="cbm">CBM (Volume)</label>
+                            <div class="cbm-input-group">
+                                <input type="number" id="cbm" placeholder="예: 5" step="1" min="0">
+                                <span class="cbm-unit">CBM</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <select id="poe">
-                        <option value="">POE를 선택하세요</option>
-                    </select>
-                </div>
-            </div>
 
-            <!-- 컨테이너 타입 선택 -->
-            <div class="form-group-wrapper">
-                <div class="form-group-header">
-                    <div class="icon-circle"><i class="fa-solid fa-truck-fast"></i></div>
-                    <label for="containerType">Container Type (컨테이너 타입)</label>
-                </div>
-                <div class="form-group">
-                    <select id="containerType">
-                        <option value="">컨테이너 타입을 선택하세요</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- CBM 입력 -->
-            <div class="form-group-wrapper full-width">
-                <div class="form-group-header">
-                    <div class="icon-circle"><i class="fa-solid fa-ruler-combined"></i></div>
-                    <label for="cbm">CBM (Volume)</label>
-                </div>
-                <div class="form-group cbm-input-group">
-                    <input type="number" id="cbm" placeholder="CBM 수치를 입력하세요 (예: 5)" step="1" min="0">
-                    <span class="cbm-unit">CBM</span>
-                </div>
-            </div>
-
-            <!-- 조회 버튼 -->
-            <div class="btn-container">
-                <button id="searchBtn" type="button"><i class="fa-solid fa-magnifying-glass" style="margin-right: 8px;"></i> 조회하기</button>
             </div>
         </div>
+
+        <!-- 💡 네비게이션 버튼 (이전/다음) -->
+        <div class="bottom-nav">
+            <button class="btn-nav btn-prev" id="btnPrev" type="button">이전 단계</button>
+            <button class="btn-nav btn-next" id="btnNext" type="button">다음 단계 <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+
+        <!-- 기존 search.js 연동용 숨겨진 조회 버튼 -->
+        <button id="searchBtn" style="display: none;"></button>
     </div>
+
+    <!-- 💡 UI 슬라이드 로직 처리 스크립트 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentStep = 1;
+            const totalSteps = 3;
+            
+            const sliderContainer = document.getElementById('sliderContainer');
+            const btnNext = document.getElementById('btnNext');
+            const btnPrev = document.getElementById('btnPrev');
+            const pText = document.getElementById('p-text');
+            const realSearchBtn = document.getElementById('searchBtn');
+
+            function updateUI() {
+                const translateX = -(currentStep - 1) * 33.3333;
+                sliderContainer.style.transform = `translateX(${translateX}%)`;
+
+                for(let i=1; i<=totalSteps; i++) {
+                    const bar = document.getElementById(`pbar-${i}`);
+                    if (i <= currentStep) bar.classList.add('active');
+                    else bar.classList.remove('active');
+                }
+                
+                pText.textContent = currentStep;
+                btnPrev.style.visibility = (currentStep === 1) ? 'hidden' : 'visible';
+                
+                if (currentStep === totalSteps) {
+                    btnNext.innerHTML = '비용 조회하기 <i class="fa-solid fa-magnifying-glass"></i>';
+                } else {
+                    btnNext.innerHTML = '다음 단계 <i class="fa-solid fa-arrow-right"></i>';
+                }
+            }
+
+            // '다음' 버튼 클릭 시
+            btnNext.addEventListener('click', () => {
+                // 💡 [핵심 추가] 다음 단계로 넘어가기 전에 빈칸 검사 함수 실행!
+                if (typeof window.validateStep === 'function' && !window.validateStep(currentStep)) {
+                    return; // 빈칸이 있으면 여기서 진행을 멈춥니다.
+                }
+
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    updateUI();
+                } else {
+                    // 마지막 단계에서 조회하기 버튼 클릭 시 진짜 버튼 강제 실행
+                    realSearchBtn.click(); 
+                }
+            });
+
+            btnPrev.addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateUI();
+                }
+            });
+            updateUI();
+        });
+    </script>
 
     <script src="../../2_common/3_api/api.js"></script>
     <script src="../../2_common/2_js/loading.js"></script>
-    <script src="./search.js"></script>
-    
+    <script src="./search.js?v=20260606"></script>
     <script src="./js/cds_calculate.js"></script>
     <script src="./js/btn_move_to_quotation.js"></script>
-
+    <script src="./js/warning.js"></script>
 </body>
 </html>

@@ -1,190 +1,89 @@
 /* search.css */
 
 body {
-    background-color: #f7f9fb;
+    background-color: #f5f7fa;
     font-family: 'Noto Sans KR', sans-serif;
-    color: #333;
-}
-
-.container {
-    max-width: 900px;
-    margin: 50px auto;
-    background: transparent;
-    padding: 0 20px;
-}
-
-h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #0f2950;
-    font-size: 1.6rem;
-    font-weight: 800;
-    text-align: center;
-}
-
-.sub-title-text {
-    text-align: center;
-    color: #777;
-    font-size: 0.95rem;
-    font-weight: 500;
-    margin-bottom: 30px;
-    padding-bottom: 25px;
-    border-bottom: 2px solid #e2e8f0;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px 20px;
-}
-
-/* 각 항목을 감싸는 흰색 라운드 박스 */
-.form-group-wrapper {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 16px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-}
-
-.form-group-wrapper.full-width {
-    grid-column: span 2;
-}
-
-/* 아이콘과 라벨 묶음 */
-.form-group-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.icon-circle {
-    width: 24px;
-    height: 24px;
-    background-color: #1A9280; /* 시안의 청록색 계열 */
-    color: #fff;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 0.7rem;
-    margin-right: 10px;
-}
-
-label {
-    font-weight: 700;
-    font-size: 0.95rem;
-    color: #333;
-    margin: 0;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-}
-
-/* 입력 필드 (select, input) */
-select, input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    color: #333;
-    outline: none;
-    box-sizing: border-box;
-    background-color: #fff;
-    transition: border-color 0.2s;
-}
-
-select {
-    appearance: none;
-    background: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>') no-repeat right 10px center;
-    cursor: pointer;
-}
-
-select:focus, input:focus, .searchable-select-wrapper input:focus {
-    border-color: #1A365D; /* 포커스 시 다크 블루 라인 */
-}
-
-input::placeholder {
-    color: #aaa;
-    font-weight: 400;
-}
-
-/* CBM 입력 그룹 (우측 단위 표시) */
-.cbm-input-group {
-    position: relative;
-}
-
-.cbm-input-group input {
-    padding-right: 60px; /* 우측 단위 공간 확보 */
-}
-
-.cbm-unit {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #aaa;
-    font-weight: 600;
-    font-size: 0.95rem;
-    pointer-events: none;
-}
-
-/* 조회 버튼 */
-.btn-container {
-    grid-column: span 2;
-    text-align: center;
-    margin-top: 25px;
-    margin-bottom: 40px;
-}
-
-button#searchBtn {
-    background-color: #0f2950; /* 시안의 다크 블루 버튼 */
-    color: white;
-    border: none;
-    padding: 14px 45px;
-    font-size: 1.05rem;
-    font-weight: 700;
-    border-radius: 6px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(15, 41, 80, 0.2);
-    transition: background-color 0.2s, transform 0.1s;
-}
-
-button#searchBtn:hover {
-    background-color: #0a1c36;
-}
-button#searchBtn:active {
-    transform: translateY(2px);
-}
-
-/* search.js 연동 검색 가능한 콤보박스 디자인 오버라이딩 */
-.searchable-select-wrapper input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    color: #333;
-    outline: none;
-    box-sizing: border-box;
-    background-color: #fff;
-    background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-}
-
-.searchable-list {
-    border-color: #e2e8f0 !important;
-    border-radius: 0 0 6px 6px;
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important;
+    color: #111;
+    margin-bottom: 0px;
+    padding: 0;
     overflow-x: hidden;
 }
 
-.searchable-item {
-    font-family: 'Noto Sans KR', sans-serif;
-    color: #333;
+.m-container {
+    padding: 0px 20px 0px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* 헤더 영역 */
+.m-header { margin-bottom: 10px; }
+.m-sub-title { font-size: 0.8rem; font-weight: 700; color: #6b7280; margin-bottom: 2px; display: block; }
+.m-main-title { font-size: 1.6rem; font-weight: 800; color: #0f172a; line-height: 1.35; margin: 0 0 5px 0; }
+.m-main-title .highlight { color: #159b64; }
+.m-desc { font-size: 0.85rem; color: #6b7280; font-weight: 500; margin: 0; }
+
+/* 프로그레스 바 */
+.progress-wrapper { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.progress-bars { display: flex; gap: 6px; flex: 1; margin-right: 16px; }
+.p-bar { height: 4px; border-radius: 2px; background-color: #e2e8f0; flex: 1; transition: background-color 0.3s ease; }
+.p-bar.active { background-color: #159b64; }
+.progress-text { font-size: 0.85rem; font-weight: 700; color: #9ca3af; }
+
+/* 슬라이더 래퍼 */
+.slider-wrapper { 
+    margin: 0 -20px; 
+    padding: 0 20px; 
+    /* 💡 [핵심 교체] 위아래(Top, Bottom)는 -200%까지 넘치게 뚫어두고, 좌우(Left, Right)는 0으로 딱 맞게 자름 */
+    clip-path: inset(-200% 0 -200% 0); 
+}
+.slider-container { display: flex; width: 300%; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+.step-panel { width: 33.3333%; padding-right: 20px; box-sizing: border-box; flex-shrink: 0; display: flex; flex-direction: column; }
+
+/* 입력 폼 공통 박스 */
+.form-group-wrapper { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+
+.step-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+.step-icon { width: 40px; height: 40px; background: #eef8f4; color: #159b64; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; flex-shrink: 0; }
+.step-title h3 { margin: 0; font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+.step-title p { margin: 4px 0 0; font-size: 0.8rem; color: #6b7280; }
+
+/* 입력 아이템 */
+.input-item { margin-bottom: 10px; position: relative; }
+.input-item:last-child { margin-bottom: 0; }
+.input-item label { display: block; font-size: 0.85rem; font-weight: 700; color: #374151; margin-bottom: 5px; }
+
+.input-item input, .input-item select { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px; font-size: 0.95rem; font-weight: 500; color: #111; outline: none; transition: all 0.2s; background: #fff; box-sizing: border-box; }
+.input-item input:focus, .input-item select:focus { border-color: #159b64; box-shadow: 0 0 0 3px rgba(21,155,100,0.1); }
+
+/* select 화살표 디자인 */
+.input-item select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: right 12px center; cursor: pointer; }
+
+/* CBM 입력용 특수 클래스 */
+.cbm-input-group { position: relative; }
+.cbm-input-group input { padding-right: 60px; }
+.cbm-unit { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-weight: 700; font-size: 0.9rem; pointer-events: none; }
+
+/* 하단 고정 버튼 영역 */
+.bottom-nav { margin-top: 30px; display: flex; flex-direction: row; gap: 12px; }
+.btn-nav { flex: 1; padding: 16px; border-radius: 10px; font-size: 1.05rem; font-weight: 700; cursor: pointer; text-align: center; border: none; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-prev { background-color: #f1f5f9; color: #475569; }
+.btn-prev:active { background-color: #e2e8f0; }
+.btn-next { background-color: #159b64; color: #fff; box-shadow: 0 4px 12px rgba(21, 155, 100, 0.2); }
+.btn-next:active { transform: translateY(2px); }
+
+/* search.js 연동 검색 가능한 콤보박스 디자인 오버라이딩 */
+.searchable-select-wrapper input {
+    width: 100%; padding: 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; font-weight: 500; color: #111; outline: none; box-sizing: border-box; background-color: #fff;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat; background-position: right 12px center;
+}
+.searchable-select-wrapper input:focus { border-color: #159b64; box-shadow: 0 0 0 3px rgba(21,155,100,0.1); }
+.searchable-list { 
+    border: 1px solid #cbd5e1 !important; 
+    border-top: none !important; 
+    border-radius: 0 0 10px 10px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important; 
+    overflow-x: hidden;
+    max-height: 250px !important; /* 스크롤 높이 지정 */
+    z-index: 9999 !important; /* 다른 요소 위로 뜨도록 설정 */
 }

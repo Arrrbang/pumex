@@ -1,6 +1,6 @@
 /* 모든 페이지 하단에 균일한 여백 확보 (푸터가 콘텐츠를 가리지 않게 함) */
 body {
-    padding-bottom: 130px !important; 
+    padding-bottom: 50px !important; 
     position: relative;
     min-height: 100vh;
 }

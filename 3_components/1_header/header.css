@@ -458,3 +458,11 @@ body{
   color: #000;
 }
 
+#m-header-gear-btn {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+#m-header-gear-btn:hover {
+  color: var(--btn-basic-color);
+  transform: rotate(45deg);
+}

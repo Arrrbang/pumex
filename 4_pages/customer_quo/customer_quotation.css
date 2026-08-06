@@ -1,0 +1,92 @@
+/* mobile_quotation.css (데스크탑 뷰 최적화 버전) */
+
+body {
+    background-color: #f5f7fa;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: #111;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; /* 가로 스크롤 방지 */
+}
+
+/* 💡 PC 환경을 위해 컨테이너 너비를 800px로 확장하고 위아래 여백을 시원하게 줌 */
+.m-container {
+    padding: 10px 20px 10px;
+    max-width: 800px; 
+    margin: 0 auto;
+}
+
+/* 헤더 영역 */
+.m-header { margin-bottom: 5px; }
+.m-sub-title { font-size: 0.95rem; font-weight: 700; color: #6b7280; margin-bottom: 3px; display: block; }
+.m-main-title { font-size: 2.2rem; font-weight: 800; color: #0f172a; line-height: 1.4; margin: 0 0 3px 0; }
+.m-main-title .highlight { color: #159b64; }
+.m-desc { font-size: 1rem; color: #6b7280; font-weight: 500; margin: 0; }
+
+
+
+/* 프로그레스 바 */
+.progress-wrapper { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.progress-bars { display: flex; gap: 8px; flex: 1; margin-right: 20px; }
+.p-bar { height: 6px; border-radius: 3px; background-color: #e2e8f0; flex: 1; transition: background-color 0.3s ease; }
+.p-bar.active { background-color: #159b64; }
+.progress-text { font-size: 1rem; font-weight: 700; color: #9ca3af; }
+
+/* 슬라이더 래퍼 */
+.slider-wrapper { 
+    flex: 1;
+    margin: 0 -20px; 
+    padding: 0 20px; 
+    /* 💡 위아래는 넘치게 허용하고, 좌우는 자르는 clip-path 유지 (드롭다운 잘림 방지) */
+    clip-path: inset(-200% 0 -200% 0); 
+}
+.slider-container { display: flex; width: 300%; transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+.step-panel { width: 33.3333%; padding-right: 20px; box-sizing: border-box; flex-shrink: 0; display: flex; flex-direction: column; }
+
+/* 💡 입력 폼 공통 박스 (PC에 맞게 내부 여백 40px로 넉넉하게 변경) */
+.form-group-wrapper { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; margin-bottom: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.04); }
+
+.step-header { display: flex; align-items: center; gap: 16px; margin-bottom: 30px; }
+.step-icon { width: 48px; height: 48px; background: #dcfce7; color: #159b64; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.4rem; flex-shrink: 0; }
+.step-title h3 { margin: 0; font-size: 1.3rem; font-weight: 700; color: #0f172a; }
+.step-title p { margin: 6px 0 0; font-size: 0.95rem; color: #6b7280; }
+
+/* 입력 아이템 */
+.input-item { margin-bottom: 24px; position: relative; }
+.input-item:last-child { margin-bottom: 0; }
+.input-item label { display: block; font-size: 0.95rem; font-weight: 700; color: #374151; margin-bottom: 10px; }
+
+/* 💡 인풋/셀렉트 박스 크기 및 폰트 확장 */
+.input-item input, .input-item select { width: 100%; border: 1px solid #cbd5e1; border-radius: 10px; padding: 16px 18px; font-size: 1rem; font-weight: 500; color: #111; outline: none; transition: border-color 0.2s, box-shadow 0.2s; background: #fff; box-sizing: border-box; }
+.input-item input:focus, .input-item select:focus { border-color: #159b64; box-shadow: 0 0 0 4px rgba(21,155,100,0.1); }
+
+/* select 화살표 디자인 */
+.input-item select { appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill="%23666" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); background-repeat: no-repeat; background-position: right 16px center; cursor: pointer; }
+
+/* CBM 입력용 특수 클래스 */
+.cbm-input-group { position: relative; }
+.cbm-input-group input { padding-right: 70px; }
+.cbm-unit { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-weight: 700; font-size: 1rem; pointer-events: none; }
+
+/* 💡 하단 고정 버튼 영역 (PC 마우스 호버 효과 추가) */
+.bottom-nav { margin-top: 40px; display: flex; flex-direction: row; gap: 16px; padding-bottom: 20px; }
+.btn-nav { flex: 1; padding: 20px; border-radius: 12px; font-size: 1.15rem; font-weight: 700; cursor: pointer; text-align: center; border: none; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn-prev { background-color: #f1f5f9; color: #475569; }
+.btn-prev:hover { background-color: #e2e8f0; }
+.btn-next { background-color: #159b64; color: #fff; box-shadow: 0 6px 16px rgba(21, 155, 100, 0.25); }
+.btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(21, 155, 100, 0.3); }
+.btn-next:active { transform: translateY(2px); }
+
+/* 📱 반응형: 창 크기가 작아지면 자동으로 모바일 사이즈로 축소 */
+@media screen and (max-width: 768px) {
+    .m-container { padding: 30px 20px 50px; }
+    .m-main-title { font-size: 1.6rem; }
+    .m-desc { font-size: 0.85rem; }
+    .form-group-wrapper { padding: 24px 20px; border-radius: 12px; }
+    .step-icon { width: 40px; height: 40px; font-size: 1.1rem; }
+    .step-title h3 { font-size: 1.1rem; }
+    .input-item { margin-bottom: 20px; }
+    .input-item input, .input-item select { padding: 14px; font-size: 0.95rem; }
+    .bottom-nav { margin-top: 30px; gap: 12px; }
+    .btn-nav { padding: 16px; font-size: 1.05rem; }
+}

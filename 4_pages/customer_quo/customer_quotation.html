@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>P.A.S.S 현장 견적 조회</title>
+    <link rel="icon" href="/pumex/1_assets/1_image/favicon.png" type="image/x-icon">
+
+    <!-- 폰트 및 아이콘 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 기존 CSS 로드 -->
+    <link rel="stylesheet" href="../common/common.css">
+    <link rel="stylesheet" href="./customer_quotation.css">
+    <link rel="stylesheet" href="/pumex/3_components/1_header/mobile/header.css">
+    <link rel="stylesheet" href="./geocoder_popup/geocoder_popup.css">
+</head>
+
+<style>
+    body, body[style] {padding-top: 0 !important; padding-bottom: 0 !important;}
+    #mobile-header-placeholder {display: none !important;}
+</style>
+
+<body>
+    <div id="mobile-header-placeholder"></div>
+
+    <div class="m-container">
+        <!-- 💡 텍스트 헤더 -->
+        <header class="m-header">
+            <span class="m-sub-title">DESTINATION COST</span>
+            <h1 class="m-main-title">도착지비용을 <span class="highlight">빠르게 조회하세요.</span></h1>
+            <p class="m-desc">정확한 견적 산출을 위해 아래 정보를 순서대로 입력해 주세요.</p>
+        </header>
+
+        <!-- 💡 프로그레스 바 -->
+        <div class="progress-wrapper">
+            <div class="progress-bars">
+                <div class="p-bar active" id="pbar-1"></div>
+                <div class="p-bar" id="pbar-2"></div>
+                <div class="p-bar" id="pbar-3"></div>
+            </div>
+            <div class="progress-text"><span id="p-text">1</span>/3</div>
+        </div>
+
+        <!-- 💡 폼 슬라이더 영역 -->
+        <div class="slider-wrapper">
+            <div class="slider-container" id="sliderContainer">
+                
+                <!-- ================= 1/3: 출발지 정보 ================= -->
+                <!-- 💡 quotation.html과 ID 완벽 일치 -->
+                <div class="step-panel">
+                    <div class="form-group-wrapper">
+                        <div class="step-header">
+                            <div class="step-icon"><i class="fa-solid fa-house"></i></div>
+                            <div class="step-title">
+                                <h3>출발지 정보</h3>
+                                <p>고객 및 출발지 정보를 입력해 주세요.</p>
+                            </div>
+                        </div>
+                        <div class="input-item">
+                            <label for="q_customer_name">Customer Name (고객명)</label>
+                            <input type="text" id="q_customer_name" placeholder="고객명을 입력하세요">
+                        </div>
+                        <div class="input-item">
+                            <label for="q_customer_email">E-mail (이메일)</label>
+                            <input type="email" id="q_customer_email" placeholder="이메일을 입력하세요">
+                        </div>
+                        <div class="input-item">
+                            <label for="q_pdate">Packing Date (포장일)</label>
+                            <div style="position: relative;">
+                                <input type="text" id="q_pdate" placeholder="클릭하여 포장일 설정" readonly style="cursor: pointer; background-color: #fff; padding-right: 40px;">
+                                <button type="button" id="q_pdate_btn" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 0;">📅</button>
+                            </div>
+                        </div>
+                        <div class="input-item">
+                            <label for="q_origin_add">Origin (출발지 주소)</label>
+                            <div style="position: relative;">
+                                <input type="text" id="q_origin_add" placeholder="클릭하여 출발지 주소 검색" readonly style="cursor: pointer; background-color: #fff; padding-right: 40px;">
+                                <button type="button" id="btn_search_origin" style="position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 0; color: #6b7280;"><i class="fa-solid fa-magnifying-glass"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= 2/3: 도착지 정보 ================= -->
+                <!-- 💡 search.html과 ID 완벽 일치 -->
+                <div class="step-panel">
+                    <div class="form-group-wrapper">
+                        <div class="step-header">
+                            <div class="step-icon"><i class="fa-regular fa-compass"></i></div>
+                            <div class="step-title">
+                                <h3>도착 지역</h3>
+                                <p>나라와 지역을 먼저 선택해 주세요.</p>
+                            </div>
+                        </div>
+                        <div class="input-item">
+                            <label for="country">Country (나라)</label>
+                            <select id="country"><option value="">나라를 선택하세요</option></select>
+                        </div>
+                        <div class="input-item">
+                            <label for="region">Region (지역)</label>
+                            <select id="region"><option value="">지역을 먼저 선택하세요</option></select>
+                        </div>
+                        <div class="input-item">
+                            <label for="partner">Partner (파트너)</label>
+                            <select id="partner"><option value="">파트너를 선택하세요</option></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ================= 3/3: 화물 정보 ================= -->
+                <!-- 💡 search.html과 ID 완벽 일치 -->
+                <div class="step-panel">
+                    <div class="form-group-wrapper">
+                        <div class="step-header">
+                            <div class="step-icon"><i class="fa-solid fa-box-open"></i></div>
+                            <div class="step-title">
+                                <h3>화물 정보</h3>
+                                <p>화물 타입 및 물량을 입력해 주세요.</p>
+                            </div>
+                        </div>
+                        <div class="input-item">
+                            <label for="cargoType">Cargo Type (화물 타입)</label>
+                            <select id="cargoType"><option value="">화물 타입을 선택하세요</option></select>
+                        </div>
+                        <div class="input-item">
+                            <label for="poe">POE (Port of Entry)</label>
+                            <select id="poe"><option value="">POE를 선택하세요</option></select>
+                        </div>
+                        <div class="input-item">
+                            <label for="containerType">Container Type (컨테이너 타입)</label>
+                            <select id="containerType"><option value="">컨테이너 타입을 선택하세요</option></select>
+                        </div>
+                        <div class="input-item">
+                            <label for="cbm">CBM (Volume)</label>
+                            <div class="cbm-input-group">
+                                <input type="number" id="cbm" placeholder="예: 5" step="1" min="0">
+                                <span class="cbm-unit">CBM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 💡 네비게이션 버튼 (이전/다음) -->
+        <div class="bottom-nav">
+            <button class="btn-nav btn-prev" id="btnPrev" type="button">이전 단계</button>
+            <button class="btn-nav btn-next" id="btnNext" type="button">다음 단계 <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+
+        <!-- 기존 search.js와의 연동을 위해 숨겨둔 진짜 조회 버튼 -->
+        <button id="searchBtn" style="display: none;"></button>
+    </div>
+
+    <!-- 💡 UI 슬라이드 로직 처리 스크립트 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentStep = 1;
+            const totalSteps = 3;
+            
+            const sliderContainer = document.getElementById('sliderContainer');
+            const btnNext = document.getElementById('btnNext');
+            const btnPrev = document.getElementById('btnPrev');
+            const pText = document.getElementById('p-text');
+            const realSearchBtn = document.getElementById('searchBtn'); // 숨겨진 진짜 search.js 작동 버튼
+
+            function updateUI() {
+                // 1. 컨테이너 슬라이드 (가로 이동)
+                const translateX = -(currentStep - 1) * 33.3333;
+                sliderContainer.style.transform = `translateX(${translateX}%)`;
+
+                // 2. 프로그레스 바 상태 업데이트
+                for(let i=1; i<=totalSteps; i++) {
+                    const bar = document.getElementById(`pbar-${i}`);
+                    if (i <= currentStep) bar.classList.add('active');
+                    else bar.classList.remove('active');
+                }
+                
+                // 3. 텍스트 카운트 업데이트
+                pText.textContent = currentStep;
+
+                // 4. 버튼 토글 및 텍스트 변경
+                btnPrev.style.visibility = (currentStep === 1) ? 'hidden' : 'visible';
+                
+                if (currentStep === totalSteps) {
+                    btnNext.innerHTML = '비용 조회하기 <i class="fa-solid fa-magnifying-glass"></i>';
+                } else {
+                    btnNext.innerHTML = '다음 단계 <i class="fa-solid fa-arrow-right"></i>';
+                }
+            }
+
+            // '다음' 버튼 클릭 시
+                btnNext.addEventListener('click', () => {
+                // 💡 [추가] 다음 단계로 넘어가기 전에 경고창 띄우기 (warning.js 연동)
+                if (typeof window.validateStep === 'function' && !window.validateStep(currentStep)) {
+                    return; // 빈칸이 있으면 여기서 진행 멈춤!
+                }
+
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    updateUI();
+                } else {
+                    // 마지막 3단계일 경우, 숨겨진 기존 조회 버튼(searchBtn) 강제 클릭 처리
+                    realSearchBtn.click(); 
+                }
+            });
+
+            // '이전' 버튼 클릭 시
+            btnPrev.addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateUI();
+                }
+            });
+            updateUI();
+
+            // =========================================================================
+            // 💡 [추가] 포장일 달력 로직 (YYYY/MM/DD (DAY) 포맷팅)
+            // =========================================================================
+            function getEnglishWeekday(dateValue) {
+                if (!dateValue) return '';
+                const date = new Date(dateValue);
+                if (Number.isNaN(date.getTime())) return '';
+                const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+                return weekdays[date.getDay()];
+            }
+
+            const pdateEl = document.getElementById('q_pdate');
+            const pdateBtn = document.getElementById('q_pdate_btn');
+
+            if (pdateEl) {
+                pdateEl.addEventListener('click', function() {
+                    const rawVal = this.getAttribute('data-raw-date');
+                    if (rawVal) this.value = rawVal;
+                    
+                    this.type = 'date';
+                    this.removeAttribute('readonly');
+                    try { this.showPicker(); } catch(e) {}
+                });
+
+                const formatAndSetDate = function() {
+                    const val = pdateEl.value; 
+                    pdateEl.type = 'text'; 
+                    pdateEl.setAttribute('readonly', 'true'); 
+                    
+                    if (val) {
+                        pdateEl.setAttribute('data-raw-date', val); 
+                        const dateObj = new Date(val);
+                        const yyyy = dateObj.getFullYear();
+                        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+                        const dd = String(dateObj.getDate()).padStart(2, '0');
+                        const day = getEnglishWeekday(val);
+                        pdateEl.value = `${yyyy}/${mm}/${dd} (${day})`;
+                    } else {
+                        pdateEl.value = '';
+                        pdateEl.removeAttribute('data-raw-date');
+                    }
+                };
+
+                pdateEl.addEventListener('change', formatAndSetDate);
+                pdateEl.addEventListener('blur', formatAndSetDate);
+            }
+
+            if (pdateBtn) {
+                pdateBtn.addEventListener('click', () => {
+                    if (pdateEl) pdateEl.click();
+                });
+            }
+            // =========================================================================
+            // 💡 [수정] 출발지 주소(Origin) 다음 우편번호 검색 로직 (모바일 레이어 팝업 방식)
+            // =========================================================================
+            const originInput = document.getElementById('q_origin_add');
+            const originBtn = document.getElementById('btn_search_origin');
+            const addressLayer = document.getElementById('addressLayer');
+            const addressLayerContent = document.getElementById('addressLayerContent');
+            const btnCloseAddressLayer = document.getElementById('btnCloseAddressLayer');
+
+            function openDaumPostcode() {
+                new daum.Postcode({
+                    oncomplete: function(data) {
+                        // 도로명 주소 또는 지번 주소 가져오기
+                        let addr = data.roadAddress || data.jibunAddress;
+                        
+                        if (originInput) {
+                            originInput.value = addr;
+                        }
+                        
+                        // 주소 선택이 끝나면 레이어 숨기기
+                        addressLayer.style.display = 'none';
+                    },
+                    width: '100%',
+                    height: '100%'
+                }).embed(addressLayerContent); // 새 창이 아니라, 우리가 만든 박스 안에 렌더링!
+                
+                // 검색창을 화면에 표시
+                addressLayer.style.display = 'block';
+            }
+
+            // 클릭 이벤트 연결
+            if (originInput) originInput.addEventListener('click', openDaumPostcode);
+            if (originBtn) originBtn.addEventListener('click', openDaumPostcode);
+            
+            // 닫기 버튼 누르면 팝업 숨기기
+            if (btnCloseAddressLayer) {
+                btnCloseAddressLayer.addEventListener('click', () => {
+                    addressLayer.style.display = 'none';
+                });
+            }
+        });
+
+    </script>
+
+    <!-- 💡 기존 자바스크립트 완벽 호환 -->
+    <script src="/pumex/2_common/3_api/api.js"></script>
+    <script src="/pumex/2_common/2_js/loading.js"></script>
+
+    <script src="/pumex/3_components/1_header/mobile/header.js"></script>
+    
+    <!-- search.js 및 견적서 이동 스크립트 -->
+     
+    <script src="../../4_pages/quotation/search.js"></script>
+    <script src="./js/mobile_geocoder.js"></script>
+    <script src="../../4_pages/quotation/js/cds_calculate.js"></script>
+    <script src="./js/btn_mobile_move_to_quotation.js"></script>
+    <script src="./js/warning.js"></script>
+
+    <!-- 💡 추가: 다음 주소 검색 및 카카오 지도 API -->
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=d8014be9aeabfb44e1705e125f327105&libraries=services"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+    <!-- 💡 다음 주소 검색 모바일 전용 레이어 팝업 -->
+    <div id="addressLayer" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6);">
+        <!-- 화면 중앙에 뜨는 흰색 라운드 박스 -->
+        <div style="position:absolute; top:50%; left:50%; width:90%; max-width:500px; height:80%; transform:translate(-50%, -50%); background:#fff; border-radius:12px; overflow:hidden; display:flex; flex-direction:column;">
+            <!-- 상단 닫기 버튼 영역 -->
+            <div style="background:#159b64; padding:12px 16px; text-align:right;">
+                <button type="button" id="btnCloseAddressLayer" style="background:none; border:none; color:#fff; font-size:1rem; font-weight:700; cursor:pointer; padding:0;">✕ 닫기</button>
+            </div>
+            <!-- 실제 주소 검색 API가 들어갈 껍데기 -->
+            <div id="addressLayerContent" style="flex:1; width:100%; height:100%; -webkit-overflow-scrolling:touch;"></div>
+        </div>
+    </div>
+</body>
+</html>
