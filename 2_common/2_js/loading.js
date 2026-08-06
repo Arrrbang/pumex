@@ -40,6 +40,7 @@
     // ==========================================
     const FOOTER_HTML_URL = `${basePath}/3_components/1_footer/footer.html`;
     const FOOTER_CSS_URL = `${basePath}/3_components/1_footer/footer.css`;
+    const FOOTER_JS_URL = `${basePath}/3_components/1_footer/footer.js`; // 💡 푸터 JS 경로 추가
 
     const footerLink = document.createElement("link");
     footerLink.rel = "stylesheet";
@@ -53,9 +54,15 @@
         })
         .then(html => {
             document.body.insertAdjacentHTML('beforeend', html);
+
+            // 💡 푸터 JS를 동적으로 로드하고 실행
+            const footerScript = document.createElement("script");
+            footerScript.src = FOOTER_JS_URL;
+            footerScript.defer = true;
+            document.body.appendChild(footerScript);
         })
         .catch(err => console.error("공통 푸터 로딩 중 오류 발생:", err));
-
+        
     // ==========================================
     // 💡 3. 모바일 헤더(Mobile Header) 로드 로직 (신규 추가!)
     // ==========================================
