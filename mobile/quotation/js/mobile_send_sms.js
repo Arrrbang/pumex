@@ -2,7 +2,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. 문자 버튼 클릭 시 기본 프롬프트 대신 커스텀 팝업 띄우기
+    // 1. 문자 버튼 클릭 시 1차 검증 후 전화번호 입력 팝업 띄우기
     document.body.addEventListener('click', (e) => {
         const btnSms = e.target.closest('#btnSendSms');
         if (btnSms) {
@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 3. 팝업 안의 [발송하기] 버튼 클릭 시 문자 앱 실행
-    document.body.addEventListener('click', (e) => {
+    // 3. 팝업 안의 [발송하기] 버튼 클릭 시 -> [노션 저장 먼저 실행] -> [완료 후 문자 창 오픈]
+    document.body.addEventListener('click', async (e) => {
         if (e.target.id === 'smsModalConfirmBtn') {
             const input = document.getElementById('smsPhoneNumberInput');
             const phoneNumber = input ? input.value.trim() : '';
@@ -39,8 +39,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const modal = document.getElementById('smsPhoneModal');
             if (modal) modal.style.display = 'none';
 
+            // 💡 [핵심] 문자 보내기 전 노션 저장 버튼을 프로그래밍 방식으로 강제 클릭하여 저장 수행
+            const saveBtn = document.getElementById('btnSaveToNotion');
+            if (saveBtn) {
+                console.log('📌 문자 발송 전 노션 자동 저장 시작...');
+                saveBtn.click();
+                
+                // 네트워크 통신 및 노션 저장이 안전하게 끝날 때까지 잠시 대기 (약 1.2초)
+                await new Promise(resolve => setTimeout(resolve, 1200));
+            }
+
             // 2. 고객명과 총 금액 가져오기
-            const salesName = document.getElementById('sales-name')?.textContent?.trim() || '';
             const salesEmail = document.getElementById('sales-email')?.textContent?.trim() || '';
             const salesTel = document.getElementById('sales-tel')?.textContent?.trim() || '';
 
@@ -51,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const q_customer_email = document.getElementById('q_customer_email')?.textContent?.trim() || '';
             const q_origin_add = document.getElementById('q_origin_add')?.textContent?.trim() || '';
             const q_location = document.getElementById('q_location')?.textContent?.trim() || '';
-            const q_mode_type = document.getElementById('q_mode_type')?.textContent?.trim() || '';
             const q_final_total_converted = document.getElementById('q_final_total_converted')?.textContent?.trim() || '';
             
             // 3. 발송될 메시지 내용 세팅 
@@ -60,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // 4. 스마트폰 OS(아이폰/안드로이드)에 따른 문자 프로토콜 분기 처리
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             
-            // 💡 sms: 뒤에 입력받은 전화번호(phoneNumber)를 넣어줍니다!
             let smsUri = `sms:${phoneNumber}?body=${encodeURIComponent(messageText)}`;
             
             // 아이폰(iOS)의 경우 파라미터 연결자가 '&' 임
@@ -68,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 smsUri = `sms:${phoneNumber}&body=${encodeURIComponent(messageText)}`;
             }
 
-            // 모바일 문자 앱 호출 (수신자가 입력된 상태로 신규 창 열림)
+            // 노션 저장이 끝난 후 모바일 문자 앱 호출
             window.location.href = smsUri;
         }
     });
