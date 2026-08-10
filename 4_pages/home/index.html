@@ -116,6 +116,26 @@
     <script src="./ops.js"></script>
 
     <script>
+
+    async function preloadProfitMarginRate() {
+        const userId = localStorage.getItem('username') || localStorage.getItem('userId');
+        if (!userId) return;
+
+        try {
+            const res = await fetch(`https://notion-api-hub.vercel.app/api/sales-info?pass_id=${userId}`);
+            const json = await res.json();
+            if (json.ok && json.data && json.data.profit !== undefined) {
+                sessionStorage.setItem('profitMarginRate', json.data.profit);
+            } else {
+                sessionStorage.setItem('profitMarginRate', 0);
+            }
+        } catch (e) {
+            console.error('초기 마진율 로드 실패:', e);
+            if (sessionStorage.getItem('profitMarginRate') === null) {
+                sessionStorage.setItem('profitMarginRate', 0);
+            }
+        }
+    }
         document.addEventListener("DOMContentLoaded", async () => {
             const loadingContainer = document.getElementById('loading-container');
             const landingOverlay = document.getElementById('sales-landing-overlay');
