@@ -721,12 +721,12 @@
     { "name": "Santa Cruz", "lat": -22.9194, "lng": -43.6842 }
       ],
   "Thailand (태국)":[
-    { "name": "Bangkok", "lat": 13.7563, "lng": 100.5018 },
-    { "name": "Pattaya", "lat": 12.9236, "lng": 100.8825 },
-    { "name": "Rayong", "lat": 12.6814, "lng": 101.2816 },
-    { "name": "Khon Kaen", "lat": 16.4419, "lng": 102.8350 },
-    { "name": "Chiang Mai", "lat": 18.7883, "lng": 98.9853 },
-    { "name": "Phuket", "lat": 7.8804, "lng": 98.3923 },
-    { "name": "Koh Samui", "lat": 9.5120, "lng": 100.0136 }
+    { "name": "Bangkok(방콕)", "lat": 13.7563, "lng": 100.5018 },
+    { "name": "Pattaya(파타야)", "lat": 12.9236, "lng": 100.8825 },
+    { "name": "Rayong(라용)", "lat": 12.6814, "lng": 101.2816 },
+    { "name": "Khon Kaen(콘깬)", "lat": 16.4419, "lng": 102.8350 },
+    { "name": "Chiang Mai(치앙마이)", "lat": 18.7883, "lng": 98.9853 },
+    { "name": "Phuket(푸켓)", "lat": 7.8804, "lng": 98.3923 },
+    { "name": "Koh Samui(코사무이)", "lat": 9.5120, "lng": 100.0136 }
   ]
 }
