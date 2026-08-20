@@ -5,46 +5,87 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="/pumex/3_components/1_header/header.css">
   <link rel="stylesheet" href="/pumex/2_common/1_css/color.css">
   <link rel="stylesheet" href="/pumex/2_common/1_css/common.css">
-
   <link rel="stylesheet" href="./knj.css">
+
   <title>KNJ 증빙 확인</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
-<div id="desktop-header-placeholder" class="desktop-only"></div>
-  
-<div class="main-layout">
-  <div class="left-container">
-    <h1 class="main-title">인보이스 업로드</h1>
-    <div class="title-cost-divider"></div>
-    <p>🧾PDF INVOICE를 업로드하면 INR로 자동 변환됩니다.</p>
+  <div id="desktop-header-placeholder" class="desktop-only"></div>
 
-    <div class="upload-box">
-      <p>드래그&드롭으로 인보이스 PDF 업로드</p>
-      <input type="file" id="fileInput" accept="application/pdf" style="display: none;">
+  <main class="page-shell">
+    <div class="main-layout">
+
+      <!-- LEFT COLUMN -->
+      <section class="left-container">
+        <div class="panel upload-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">PDF INVOICE</p>
+              <h1 class="main-title">인보이스 업로드</h1>
+              <p class="panel-description">PDF INVOICE를 업로드하면 USD 금액을 INR로 자동 변환합니다.</p>
+            </div>
+            <div class="heading-icon" aria-hidden="true">PDF</div>
+          </div>
+
+          <div class="upload-box" role="button" tabindex="0" aria-label="PDF 파일 업로드">
+            <div class="upload-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="none">
+                <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <strong>PDF 파일을 여기에 드래그하세요</strong>
+            <span>또는 클릭해서 파일을 선택하세요.</span>
+            <input type="file" id="fileInput" accept="application/pdf" hidden>
+          </div>
+
+          <div class="upload-note">
+            <span class="note-dot"></span>
+            <span>업로드된 인보이스의 Exchange Rate를 기준으로 INR 금액을 계산합니다.</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="vertical-divider" aria-hidden="true"></div>
+
+      <!-- RIGHT COLUMN -->
+      <section class="right-container">
+        <div class="panel result-panel">
+          <div class="section-heading result-heading">
+            <div>
+              <p class="eyebrow">EXTRACTED DATA</p>
+              <h2>환율 변환 결과</h2>
+              <p class="panel-description">PDF에서 추출된 항목별 USD 및 INR 금액입니다.</p>
+            </div>
+          </div>
+
+          <div id="status" class="status-message"></div>
+
+          <div class="result-box" id="resultArea">
+            <div class="empty-state">
+              <div class="empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="34" height="34" fill="none">
+                  <path d="M8 3h6l4 4v14H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8"/>
+                  <path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <strong>아직 변환된 데이터가 없습니다.</strong>
+              <span>왼쪽에서 PDF 인보이스를 업로드해주세요.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
-
-  </div>
-
-  <div class="vertical-divider"></div>
-
-  <div class="right-container">
-    <h1 class="main-title">환율 변환 결과</h1>
-    <div class="title-cost-divider"></div>
-
-    <div id="status" style="margin-top:10px; color:#666;"></div>
-
-    <div class="result-box" id="resultArea">파일을 업로드하면 결과가 표시됩니다.</div>
-  </div>
-
-</div>
+  </main>
 
   <script src="/pumex/2_common/2_js/loading.js"></script>
   <script src="/pumex/2_common/2_js/login.js"></script>
-<script src="./knj.js"></script>
-  
+  <script src="./knj.js"></script>
 </body>
 </html>
