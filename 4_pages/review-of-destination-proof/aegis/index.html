@@ -3,102 +3,124 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALIM 인보이스 파서 (Smart Calc)</title>
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  
-  <style>
-    body { font-family: "Noto Sans KR", sans-serif; padding: 30px; background: #f0f2f5; color: #333; }
-    .container { max-width: 1100px; margin: 0 auto; }
-    
-    .panel { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-    h3 { margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 15px; text-align: center; color: #444;}
-    
-    /* 업로드 박스 */
-    .upload-box { 
-        border: 2px dashed #ccc; padding: 40px; text-align: center; border-radius: 12px; 
-        cursor: pointer; background: #fafafa; transition: all 0.3s ease; margin-bottom: 20px; position: relative;
-    }
-    .upload-box:hover { border-color: #999; background: #f0f0f0; }
-    .upload-box.drag-over { 
-        background-color: #e3f2fd; border-color: #2196f3; border-style: solid; 
-        transform: scale(1.02); box-shadow: 0 10px 20px rgba(33, 150, 243, 0.2); 
-    }
-    .upload-box * { pointer-events: none; }
-    .upload-box p { font-size: 1.2em; color: #666; margin: 0; font-weight: 500; }
-    .upload-box.drag-over p { color: #1565c0; font-weight: bold; }
+  <title>PDF Invoice Reader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./index.css">
+  <link rel="stylesheet" href="/pumex/3_components/1_header/header.css">
 
-    .status-msg { text-align: center; margin-bottom: 10px; font-weight: bold; color: #4682B4; min-height: 24px;}
-    
-    /* 테이블 공통 */
-    .invoice-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
-    .invoice-table thead tr { background-color: #2c3e50; color: white; } /* 헤더 기본색 */
-    .invoice-table th, .invoice-table td { padding: 8px 8px; border-bottom: 1px solid #ddd; vertical-align: middle; }
-    
-    /* [수정됨] 사우디 숫자 열 스타일 */
-    .col-sar-ar { width: 12%; text-align: right; font-family: sans-serif; }
-    
-    /* 헤더(제목)는 남색 유지 */
-    .invoice-table th.col-sar-ar { 
-        background-color: #2c3e50; 
-        color: white; 
-        font-size: 13px;
-    }
-    /* 본문(데이터)은 글자 키우고 배경색 살짝 */
-    .invoice-table td.col-sar-ar {
-        font-size: 1.5em; /* 글자 크기 대폭 확대 */
-        background-color: #fcfcfc;
-        color: #444;
-        font-weight: 500;
-    }
-
-    /* 나머지 열 */
-    .col-idx { width: 40px; text-align: center; color: #888; }
-    .col-sar { width: 12%; text-align: right; }
-    .col-input { width: 12%; text-align: right; }
-    .col-final { width: 12%; text-align: right; }
-    .col-del { width: 40px; text-align: center; }
-
-    /* 입력 필드 */
-    input.data-input { width: 90%; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 13px; }
-    input.data-input:focus { outline: 2px solid #4682B4; border-color: transparent; }
-    input.sar-input { text-align: right; background-color: #f3f3f3; }
-    input.usd-input { text-align: right; background-color: #fffde7; }
-    
-    .final-usd { font-weight: bold; color: #d32f2f; font-family: monospace; font-size: 1.1em; }
-
-    /* 버튼 및 기타 */
-    .btn-add { width: 100%; padding: 10px; margin-top: 10px; background-color: #f1f8e9; border: 2px dashed #8bc34a; color: #558b2f; font-weight: bold; cursor: pointer; border-radius: 6px; transition: 0.2s; }
-    .btn-add:hover { background-color: #dcedc8; }
-    .btn-del { background: #ffcdd2; border: none; color: #c62828; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-    .calc-info-box { background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #c8e6c9; font-size: 0.95em;}
-
-    /* 검증 박스 */
-    .verify-container { display: flex; gap: 10px; margin-top: 15px; border-top: 2px solid #333; padding-top: 15px; }
-    .verify-box { flex: 1; padding: 15px; border-radius: 8px; background: #f8f9fa; border: 1px solid #ddd; font-size: 0.9em; }
-    .verify-box h4 { margin: 0 0 10px 0; font-size: 1.1em; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px; }
-    .verify-status { font-weight: bold; font-size: 1.1em; margin-bottom: 5px; display: block; }
-    .verify-diff { color: #d32f2f; font-size: 0.9em; margin-top: 5px; display: block; font-family: monospace; }
-    .status-ok { color: #2e7d32; } .status-fail { color: #c62828; }
-  </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="panel">
-    <h3>📄 ALIM 인보이스 파서 (Smart Calc)</h3>
-    
-    <div class="upload-box" id="dropZone1">
-      <p>📂 PDF 파일을 여기로 드래그하세요</p>
-      <input type="file" id="fileInput1" accept="application/pdf" style="display:none">
-    </div>
-    
-    <div class="status-msg" id="status1"></div>
-    <div class="result-box" id="result1"></div>
-  </div>
-</div>
+  <div id="desktop-header-placeholder"></div>
 
-<script src="left.js"></script>
+  <main class="page-shell">
+    <div class="two-column-layout">
+
+      <!-- LEFT COLUMN -->
+      <section class="left-column">
+        <div class="panel upload-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">INVOICE INPUT</p>
+              <h1>INVOICE</h1>
+              <p class="panel-description">AEGIS(MAM)의 INVOICE를 업로드하세요.</p>
+            </div>
+            <div class="heading-icon" aria-hidden="true">PDF</div>
+          </div>
+
+          <div id="dropZone" class="drop-zone" role="button" tabindex="0" aria-label="PDF 파일 업로드">
+            <div class="upload-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="none">
+                <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <strong>PDF 파일을 여기에 드래그하세요</strong>
+            <span>또는 클릭해서 파일을 선택하세요.</span>
+          </div>
+          <input type="file" id="pdfInput" accept="application/pdf" hidden>
+
+          <div id="fileInfo" class="file-card is-hidden">
+            <div class="file-icon">PDF</div>
+            <div class="file-meta">
+              <strong id="fileName">-</strong>
+              <span id="fileMeta">-</span>
+            </div>
+            <button id="clearFile" class="clear-button" type="button" aria-label="파일 제거">×</button>
+          </div>
+
+          <div id="loading" class="loading-box is-hidden">
+            <span class="spinner"></span>
+            <span>PDF 분석 중...</span>
+          </div>
+        </div>
+
+        <div id="currencyBox" class="panel currency-panel is-hidden">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">EXCHANGE RATE</p>
+              <h2>환율 정보</h2>
+            </div>
+          </div>
+
+          <div class="exchange-rate-box">
+            <span class="rate-label">SAR / USD</span>
+            <strong id="exchangeRate">-</strong>
+            <span id="exchangeRateSub" class="rate-sub"></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="vertical-divider" aria-hidden="true"></div>
+
+      <!-- RIGHT COLUMN -->
+      <section class="right-column">
+        <div class="panel result-panel">
+          <div class="section-heading result-heading">
+            <div>
+              <p class="eyebrow">EXCHAGE RATSE CHANGE DATA</p>
+              <h2>SAR TO USD 변환 결과</h2>
+              <p class="panel-description">INVOICE에서 추출된 Product Code, Description 및 금액입니다.</p>
+            </div>
+            <span id="resultCount" class="result-count">0 ITEMS</span>
+          </div>
+
+          <div id="emptyState" class="empty-state">
+            <div class="empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="34" height="34" fill="none">
+                <path d="M8 3h6l4 4v14H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <strong>아직 추출된 데이터가 없습니다.</strong>
+            <span>왼쪽에서 PDF 파일을 업로드해주세요.</span>
+          </div>
+
+          <div id="tableWrap" class="table-wrap is-hidden">
+            <table id="extractTable">
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>Product Code</th>
+                  <th>Description</th>
+                  <th>Total (SAR)</th>
+                  <th>USD</th>
+                </tr>
+              </thead>
+              <tbody id="extractTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="/pumex/2_common/2_js/loading.js"></script>
+  <script src="/pumex/2_common/2_js/login.js"></script>
+
+  <script type="module" src="index.js"></script>
 
 </body>
 </html>
