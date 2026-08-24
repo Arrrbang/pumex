@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>P.A.S.S</title>
+  <link rel="icon" href="/pumex/1_assets/1_image/favicon.png" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../2_common/1_css/color.css" />
+  <link rel="stylesheet" href="../../2_common/1_css/common.css" />
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+  <link rel="stylesheet" href="./greenlightmail.css">
+</head>
+
+<body>
+<div id="desktop-header-placeholder"></div>
+
+<div class="main-layout">
+  <div class="mail-wrap">
+    <h2>Greenlight 요청 메일</h2>
+
+    <div class="form-section">
+      <div class="input-group">
+        <label for="partnerSelect">PARTNER</label>
+        <select id="partnerSelect"><option value="">파트너 목록 로딩 중...</option></select>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="mail-area">
+      <div class="language-tabs">
+        <button class="language-tab active" data-lang="en">EN</button>
+        <button class="language-tab" data-lang="ko">KR</button>
+      </div>
+
+      <div class="email-mockup">
+        <div class="email-header"><span class="mac-btns"></span>새 메시지 작성</div>
+
+        <div class="email-row">
+          <label for="toInput">받는사람</label>
+          <input type="text" id="toInput" placeholder="파트너 선택 시 자동 입력" readonly>
+        </div>
+
+        <div class="email-row">
+          <label for="ccInput">참조</label>
+          <input type="text" id="ccInput" placeholder="파트너 선택 시 자동 입력" readonly>
+        </div>
+
+        <div class="email-row subject-row">
+        <label>제목</label>
+        <div id="subjectEditor" class="subject-editor">
+            <span class="subject-fixed">[PUMEX/NEW SHIPMENT]</span>
+            <span class="subject-field" data-placeholder="POL" contenteditable="true">[POL]</span>
+            <span>TO</span>
+            <span class="subject-field" data-placeholder="POD" contenteditable="true">[POD]</span>
+            <span>C/</span><span class="subject-field" data-placeholder="CUSTOMER NAME" contenteditable="true">[CUSTOMER NAME]</span>
+            <span>(DELIVERY:</span>
+            <span class="subject-field" data-placeholder="ADD" contenteditable="true">[ADD]</span><span>)</span>
+        </div>
+        </div>
+
+        <div class="email-body">
+          <div id="bodyEditor" class="body-editor" contenteditable="true"></div>
+        </div>
+      </div>
+    </div>
+
+    <button id="openMailBtn" class="btn-submit" disabled>Outlook 메일 작성</button>
+    <div class="status" id="status"></div>
+  </div>
+</div>
+
+<script src="../../2_common/3_api/api.js"></script>
+<script src="../../2_common/2_js/loading.js"></script>
+<script src="./greenlightmail.js"></script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+.main-layout { width:100%; max-width:900px; margin:0 auto; padding:30px 20px; box-sizing:border-box; }
+.mail-wrap { width:100%; padding:2rem; border-radius:25px; border:1px solid #CCC; background:#FFF; box-sizing:border-box; }
+
+h2 { font-size:20px; font-weight:700; margin:0 0 24px; padding-bottom:15px; border-bottom:2px solid #f0f0f0; }
+
+.form-section { margin-bottom:24px; }
+.input-group { display:flex; flex-direction:column; }
+.input-group label { font-size:12px; font-weight:600; color:#6b7280; margin-bottom:6px; }
+.input-group input,.input-group select { width:100%; padding:10px 12px; font-size:14px; font-family:inherit; border:1px solid #d1d5db; border-radius:6px; background:#f9fafb; box-sizing:border-box; transition:.2s; }
+.input-group input:focus,.input-group select:focus { outline:none; border-color:#0078d4; background:#fff; box-shadow:0 0 0 3px rgba(0,120,212,.1); }
+
+.divider { border:0; border-top:1px dashed #e5e7eb; margin:24px 0; }
+
+/* 언어 탭 */
+.mail-area { position:relative; padding-top:35px; }
+.language-tabs { position:absolute; top:0; left:12px; display:flex; gap:3px; z-index:5; }
+.language-tab { height:36px; min-width:58px; padding:0 16px; border:1px solid #d1d5db; border-bottom:none; border-radius:9px 9px 0 0; background:#e5e7eb; color:#6b7280; font-size:12px; font-weight:800; cursor:pointer; transition:.15s; }
+.language-tab:hover { background:#f3f4f6; }
+.language-tab.active { background:#0078d4; color:#fff; border-color:#0078d4; transform:translateY(1px); }
+
+.email-mockup { border:1px solid #e5e7eb; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.02); }
+.email-header { position:relative; display:flex; align-items:center; justify-content:center; padding:12px 16px; background:#f3f2f1; border-bottom:1px solid #e5e7eb; font-size:13px; font-weight:600; color:#505050; }
+.mac-btns { position:absolute; left:16px; width:10px; height:10px; background:#ff5f56; border-radius:50%; box-shadow:16px 0 0 #ffbd2e,32px 0 0 #27c93f; }
+
+.email-row { display:flex; align-items:center; padding:10px 16px; border-bottom:1px solid #f3f4f6; background:#fff; }
+.email-row label { width:70px; flex-shrink:0; font-size:13px; color:#6b7280; font-weight:bold; }
+.email-row input { flex:1; width:100%; border:none; outline:none; background:transparent; color:#111827; font-size:14px; font-family:inherit; box-sizing:border-box; }
+
+.email-body { background:#fff; }
+.body-editor { width:100%; min-height:430px; padding:20px; box-sizing:border-box; outline:none; font-size:14px; line-height:1.75; font-family:inherit; color:#111827; white-space:pre-wrap; }
+
+/* 클릭 입력 영역 */
+.mail-field {
+  display:inline-flex;
+  align-items:center;
+  min-width:90px;
+  min-height:22px;
+  padding:0 5px;
+  margin:0 1px;
+  border-radius:4px;
+  background:#eaf3fb;
+  color:#0078d4;
+  font-weight:600;
+  cursor:text;
+  border-bottom:1px dashed #0078d4;
+  white-space:nowrap;
+  vertical-align:baseline;
+  line-height:1.4;
+}
+
+.mail-field:hover {
+  background:#dbeeff;
+}
+
+.mail-field:focus {
+  outline:none;
+}
+
+.mail-field.editing {
+  min-width:120px;
+  min-height:22px;
+  background:#fff3cd;
+  color:#111827;
+  border-bottom:1px solid #f0ad4e;
+  align-items:center;
+}
+
+.mail-field.filled {
+  background:#eef8ef;
+  color:#166534;
+  border-bottom:1px solid #86c78c;
+}
+
+.body-editor strong { font-weight:800; }
+
+.btn-submit { display:block; width:100%; margin-top:24px; padding:14px; border:none; border-radius:6px; background:#0078d4; color:#fff; font-size:15px; font-weight:bold; cursor:pointer; transition:.2s; }
+.btn-submit:hover { background:#005a9e; }
+.btn-submit:disabled { background:#aaa; cursor:not-allowed; }
+
+.status { min-height:20px; margin-top:15px; color:#666; font-size:13px; }
+
+.ts-control { min-height:42px; padding:10px 12px!important; border:1px solid #d1d5db!important; border-radius:6px!important; background:#f9fafb!important; font-size:14px!important; box-shadow:none!important; }
+.ts-control.focus { border-color:#0078d4!important; background:#fff!important; box-shadow:0 0 0 3px rgba(0,120,212,.1)!important; }
+.ts-dropdown { font-size:14px; border:1px solid #d1d5db; border-radius:0 0 6px 6px; margin-top:-1px; }
+.ts-dropdown .option { padding:10px 12px; }
+.ts-dropdown .active { background:#f3f4f6; color:#111827; }
+
+.mail-field.editing {
+  min-width:120px;
+  background:#fff3cd;
+  color:#111827;
+  border-bottom:1px solid #f0ad4e;
+}
+
+.subject-row { align-items:flex-start; }
+
+.subject-editor {
+  flex:1;
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:5px;
+  min-height:28px;
+  font-size:14px;
+  color:#111827;
+  line-height:1.6;
+}
+
+.subject-fixed { font-weight:700; color:#111827; }
+
+.subject-field {
+  display:inline-flex;
+  align-items:center;
+  min-width:42px;
+  min-height:22px;
+  padding:0 4px;
+  border-radius:4px;
+  background:#eaf3fb;
+  color:#0078d4;
+  font-weight:600;
+  border-bottom:1px dashed #0078d4;
+  cursor:text;
+  white-space:nowrap;
+}
+
+.subject-field:hover { background:#dbeeff; }
+.subject-field:focus { outline:none; }
+
+.subject-field.editing {
+  min-width:60px;
+  background:#fff3cd;
+  color:#111827;
+  border-bottom:1px solid #f0ad4e;
+}
+
+.subject-field.filled {
+  background:#eef8ef;
+  color:#166534;
+  border-bottom:1px solid #86c78c;
+}
+
+@media(max-width:768px) {
+  .main-layout { padding:15px 12px; }
+  .mail-wrap { padding:1.3rem; border-radius:18px; }
+  .body-editor { min-height:380px; padding:15px; }
+  .email-row label { width:60px; font-size:12px; }
+  .mail-field { min-width:70px; }
+}
