@@ -192,7 +192,7 @@ function parseInvoiceData(fullText) {
         */
 
         if (
-          amount > 2
+          amount > 0
         ) {
 
           hasData = true;
