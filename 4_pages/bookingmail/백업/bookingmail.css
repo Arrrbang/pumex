@@ -1,0 +1,167 @@
+.booking-page { background: #f1f5f9; border-radius: 12px; --blue: #0078d4; --ink: #122343; --border: #dce4ee; font-family: 'Noto Sans KR', sans-serif; color: var(--ink); max-width: 1500px; margin: 0 auto; padding: 28px 24px 48px; }
+
+.booking-page *, .partner-doc-dialog * { box-sizing: border-box; }
+.page-heading { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
+.brand { font-size: 25px; font-weight: 800; color: var(--blue); text-decoration: none; letter-spacing: -.8px; padding-right: 24px; border-right: 1px solid #cbd5e1; }
+.page-title { display: flex; align-items: center; gap: 18px; flex: 1; }
+.page-title h1 { margin: 0; font-size: 23px; letter-spacing: -.7px; }
+.page-title p { margin: 0; color: #64748b; font-size: 13px; }
+.preview-badge { font-size: 11px; color: #64748b; white-space: nowrap; }
+.main-layout { display: grid; grid-template-columns: minmax(410px, 1fr) minmax(0, 1.8fr); gap: 20px; align-items: start; }
+.workflow-column, .reference-column { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.reference-column { position: sticky; top: 24px; order: -1; }
+.booking-card { padding: 24px; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 2px 7px rgba(18,35,67,.025); }
+.booking-card h2 { font-size: 20px; margin: 0; font-weight: 800; letter-spacing: -.6px; padding: 0; border: 0; }
+.section-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.step-number { display: inline-flex; justify-content: center; align-items: center; width: 35px; height: 31px; border-radius: 7px; background: var(--blue); color: #fff; font-weight: 700; font-size: 15px; }
+.grid-row { display: grid; gap: 20px; }
+.col-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.col-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.input-group { display: flex; flex-direction: column; min-width: 0; gap: 8px; }
+.input-group label { font-size: 12px; font-weight: 700; }
+.input-group select, .email-row input { width: 100%; min-width: 0; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #243653; font-family: inherit; font-size: 13px; padding: 10px 12px; min-height: 40px; }
+.input-group select { padding-right: 28px; }
+.input-group select:focus-visible, .email-row input:focus-visible, .mail-editor:focus-visible { outline: 2px solid #0078d4; outline-offset: 2px; }
+.status-text { color: #7a8799; font-size: 12px; line-height: 1.6; margin: 12px 0 0; }
+.partner-documents { margin-top: 24px; }
+.partner-documents h3 { font-size: 14px; margin: 0; }
+.partner-doc-list { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.partner-doc-button { width: 100%; display: flex; align-items: center; gap: 14px; background: #fff; border: 1px solid var(--border); border-radius: 7px; padding: 12px 16px; font-family: inherit; text-align: left; cursor: pointer; color: var(--ink); }
+.partner-doc-button:hover { background: #f8fbff; border-color: #a8d1f0; }
+.doc-icon { color: var(--blue); font-size: 29px; line-height: 1; }
+.doc-copy { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.doc-copy strong { font-size: 13px; font-weight: 700; }
+.doc-copy small { color: #8390a2; font-size: 11px; }
+.doc-action { color: var(--blue); border: 1px solid #78b7f3; border-radius: 5px; padding: 7px 15px; font-size: 12px; white-space: nowrap; }
+.email-row { display: flex; align-items: center; gap: 16px; margin-top: 10px; }
+.email-row label, .email-label { flex: 0 0 66px; font-size: 12px; font-weight: 700; }
+.body-row { align-items: flex-start; }
+.body-row .email-label { padding-top: 12px; }
+.mail-editor { flex: 1; min-width: 0; min-height: 290px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 14px; font-size: 13px; line-height: 1.75; color: #26354a; background: #fff; overflow-wrap: anywhere; }
+.mail-field { display: inline-block; padding: 0 7px; border-radius: 4px; background: #eaf4ff; color: #0078d4; border-bottom: 1px dashed #69a9e4; min-width: 145px; cursor: text; }
+.mail-field:focus { outline: 2px solid #86bff0; outline-offset: 2px; }
+.mail-footer { display: flex; justify-content: flex-end; align-items: center; gap: 18px; margin-top: 18px; }
+.mail-footer p { color: #77879d; margin: 0; font-size: 11px; line-height: 1.7; }
+.btn-submit { border: 0; border-radius: 6px; color: white; background: var(--blue); padding: 12px 18px; font: 600 13px 'Noto Sans KR',sans-serif; white-space: nowrap; }
+.btn-submit:disabled { cursor: default; opacity: .78; }
+.summary-card h2 { margin-bottom: 12px; }
+.selection-summary { margin: 0; }
+.selection-summary > div { display: grid; grid-template-columns: 120px minmax(0,1fr); gap: 16px; align-items: start; padding: 13px 0; border-bottom: 1px solid #edf1f6; font-size: 12px; }
+.selection-summary > div:last-child { border: 0; padding-bottom: 0; }
+.selection-summary dt { font-weight: 600; }
+.selection-summary dd { margin: 0; overflow-wrap: anywhere; }
+.value-badge { display: inline-block; padding: 2px 8px; background: #eef6ff; color: #0078d4; border-radius: 4px; font-weight: 600; }
+.muted { color: #94a3b8; }
+.rate-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.table-badge { font-size: 11px; color: #0078d4; background: #eff6ff; padding: 4px 8px; border-radius: 4px; }
+.route-caption { font-size: 13px; font-weight: 700; margin: 18px 0 6px; }
+.rate-help { font-size: 11px; color: #8390a2; margin: 0 0 14px; }
+.table-container { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 6px; }
+#rateTable { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
+#rateTable th { padding: 12px 9px; background: #f3f6fa; font-weight: 700; white-space: nowrap; }
+#rateTable td { padding: 14px 9px; border-top: 1px solid #e4ebf2; white-space: nowrap; }
+#rateTable td:nth-child(3), #rateTable td:nth-child(4) { text-align: right; font-variant-numeric: tabular-nums; }
+.rate-option { cursor: pointer; transition: background .15s; }
+.rate-option:hover, .rate-option:focus-within { background: #eff7ff; }
+.rate-option.is-selected { background: #dff0ff; }
+.rate-forwarder { font: inherit; color: inherit; background: none; padding: 0; border: 0; cursor: pointer; text-align: left; }
+.rate-forwarder:focus-visible, .partner-doc-button:focus-visible { outline: 2px solid #0078d4; outline-offset: 3px; }
+/* 문서 팝업: 스크립트 연결 후 사용 */
+.partner-doc-dialog { width: min(860px,calc(100vw - 32px)); max-height: 85vh; padding: 24px; border: 1px solid #e5e7eb; border-radius: 16px; box-sizing: border-box; background: white; color: #37352f; font-family: 'Noto Sans KR',sans-serif; overflow: auto; }
+.partner-doc-dialog::backdrop { background: rgba(17,24,39,.55); }
+.partner-doc-header { display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; }
+.partner-doc-header h2 { margin: 0; font-size: 22px; }
+#partnerDocClose { padding: 7px 12px; border: 1px solid #d1d5db; border-radius: 6px; background: white; cursor: pointer; font: inherit; }
+.partner-doc-updated { font-size: 13px; color: #6b7280; margin: 12px 0 24px; }
+.notion-content { line-height: 1.7; font-size: 15px; overflow-wrap: anywhere; }
+.notion-content .notion-paragraph, .notion-content li, .notion-content td, .notion-content th, .notion-content summary, .notion-content blockquote, .notion-content aside, .notion-content .notion-todo { white-space: pre-wrap; }
+.notion-content h1 { font-size: 30px; }
+.notion-content h2 { font-size: 24px; }
+.notion-content h3 { font-size: 20px; }
+.notion-content h1, .notion-content h2, .notion-content h3 { margin: 24px 0 10px; padding: 0; border: 0; line-height: 1.35; white-space: pre-wrap; }
+.notion-content .notion-paragraph { margin: 8px 0; }
+.notion-content blockquote { border-left: 3px solid #37352f; padding: 8px 16px; margin: 12px 0; }
+.notion-content .notion-callout { padding: 16px; border-radius: 6px; border: 1px solid #e5e7eb; margin: 12px 0; }
+.notion-content details { margin: 10px 0; }
+.notion-content details > :not(summary) { margin-left: 16px; }
+.notion-content code { font-family: monospace; font-size: .9em; background: #f1f1ef; padding: 2px 4px; border-radius: 3px; }
+.notion-content pre { white-space: pre-wrap; padding: 16px; background: #f7f6f3; border-radius: 6px; }
+.notion-content pre code { background: transparent; padding: 0; }
+.notion-table-wrap { overflow-x: auto; margin: 12px 0; }
+.notion-content table { width: 100%; border-collapse: collapse; }
+.notion-content td, .notion-content th { padding: 8px 12px; border: 1px solid #e5e7eb; text-align: left; }
+.partner-doc-footer { padding-top: 20px; margin-top: 24px; border-top: 1px solid #e5e7eb; }
+#partnerDocLink { display: inline-block; padding: 10px 16px; color: white; background: #0078d4; border-radius: 6px; text-decoration: none; }
+#partnerDocLink[hidden] { display: none; }
+@media(max-width:1250px) { .page-title { align-items: flex-start; flex-direction: column; gap: 4px; } .main-layout { grid-template-columns: minmax(370px,1fr) minmax(0,1.6fr); } .booking-card { padding: 20px; } .grid-row { gap: 12px; } }
+@media(max-width:1000px) { .main-layout { grid-template-columns: 1fr; } .reference-column { position: static; } .page-heading { flex-wrap: wrap; } .reference-column { display: grid; grid-template-columns: 1fr 1fr; align-items: start; } }
+@media(max-width:650px) { .booking-page { padding: 20px 14px 32px; } .page-heading { gap: 12px; } .brand { font-size: 21px; padding-right: 12px; } .page-title h1 { font-size: 19px; } .page-title p { display: none; } .preview-badge { width: 100%; } .reference-column, .col-2, .col-3 { display: grid; grid-template-columns: 1fr; } .booking-card { padding: 18px; } .section-heading { margin-bottom: 18px; } .booking-card h2 { font-size: 18px; } .email-row { display: block; } .email-row label, .email-label { display: block; margin-bottom: 7px; } .mail-editor { min-height: 290px; } .mail-footer { align-items: stretch; flex-direction: column; gap: 12px; } .doc-action { padding: 6px 8px; } .doc-icon { display: none; } }
+
+/* 기존 JS 호환: 입력 요소의 종류와 ID 유지 */
+.booking-page .partner-status, .booking-page .status { color: #7a8799; font-size: 12px; line-height: 1.6; margin: 12px 0 0; }
+.booking-page .partner-doc-button { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+.booking-page .partner-doc-button small { color: #8390a2; font-size: 11px; }
+.booking-page .table-container { margin-top: 18px; }
+.booking-page .empty-msg { color: #94a3b8; white-space: normal !important; text-align: center; padding: 28px 12px !important; }
+.booking-page .rate-forwarder-select { margin-top: 18px; border-top: 1px solid #edf1f6; padding-top: 18px; }
+.booking-page .email-body { flex: 1; min-width: 0; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; }
+.booking-page .shipper-inline { display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid #e5edf6; background: #f8fbff; }
+.booking-page .shipper-inline label { flex: 0 0 auto; font-size: 12px; color: #52647b; }
+.booking-page .shipper-inline input { width: 100%; min-width: 0; border: 1px dashed #8fbce3; border-radius: 4px; background: #edf6ff; padding: 6px 9px; color: #0078d4; font: inherit; font-size: 12px; }
+.booking-page #bodyInput { display: block; width: 100%; border: 0; outline: none; min-height: 300px; padding: 12px 14px; resize: vertical; font: 13px/1.75 'Noto Sans KR',sans-serif; color: #26354a; background: #fff; box-sizing: border-box; }
+.booking-page #bodyInput:focus-visible { box-shadow: inset 0 0 0 2px #0078d4; }
+.booking-page .btn-submit { cursor: pointer; }
+.booking-page .btn-submit:disabled { opacity: .55; cursor: not-allowed; }
+.booking-page .ts-control { padding: 10px 12px !important; border: 1px solid #cbd5e1 !important; border-radius: 6px !important; background: white !important; font-size: 13px !important; box-shadow: none !important; min-height: 40px; }
+.booking-page .ts-dropdown { font-size: 13px; border: 1px solid #cbd5e1; border-radius: 6px; }
+
+/* 제목 고객명 / 문서 한 줄 / 운임 선택 */
+.booking-page .subject-editor { flex: 1; min-width: 0; width: 100%; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px; background: white; font-size: 13px; color: #243653; overflow-wrap: anywhere; }
+.booking-page .subject-field { display: inline-block; min-width: 70px; background: #edf6ff; color: #0078d4; border-bottom: 1px dashed #7db4e3; border-radius: 4px; padding: 0 5px; cursor: text; }
+.booking-page .subject-field.filled { background: transparent; color: inherit; border-bottom-color: transparent; }
+.booking-page .subject-field:focus { outline: 2px solid #8fc4ed; outline-offset: 2px; background: #edf6ff; }
+.booking-page .partner-doc-button { flex-direction: row; align-items: center; justify-content: space-between; gap: 16px; }
+.booking-page .partner-doc-button .doc-title { flex: 1; min-width: 0; overflow-wrap: anywhere; text-align: left; }
+.booking-page .partner-doc-button small { flex: 0 0 auto; text-align: right; white-space: nowrap; }
+.booking-page #rateTable td:nth-child(3) { text-align: left; }
+.booking-page #rateTable td:nth-child(4), .booking-page #rateTable td:nth-child(5) { text-align: right; font-variant-numeric: tabular-nums; }
+.booking-page .rate-check-heading, .booking-page .rate-check-cell { width: 38px; text-align: center !important; }
+.booking-page .rate-check { width: 16px; height: 16px; accent-color: #0078d4; cursor: pointer; vertical-align: middle; }
+.booking-page .rate-option.is-locked { cursor: default; color: #94a3b8; }
+.booking-page .rate-option.is-locked:hover { background: transparent; }
+.booking-page .rate-option:focus-visible { outline: 2px solid #0078d4; outline-offset: -2px; }
+
+/* 그린라이트 제목 입력 필드와 동일한 서식 */
+.booking-page .subject-field {
+  display: inline-flex;
+  align-items: center;
+  min-width: 42px;
+  min-height: 22px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: #eaf3fb;
+  color: #0078d4;
+  font-weight: 600;
+  border-bottom: 1px dashed #0078d4;
+  cursor: text;
+  white-space: nowrap;
+}
+.booking-page .subject-field:hover { background: #dbeeff; }
+.booking-page .subject-field:focus { outline: none; outline-offset: 0; }
+.booking-page .subject-field.editing {
+  min-width: 60px;
+  background: #fff3cd;
+  color: #111827;
+  border-bottom: 1px solid #f0ad4e;
+}
+.booking-page .subject-field.filled {
+  background: #eef8ef;
+  color: #166534;
+  border-bottom: 1px solid #86c78c;
+}
+
+/* 참조 직원 선택 및 이메일 */
+.booking-page .cc-controls { flex: 1; min-width: 0; display: grid; grid-template-columns: minmax(110px, .7fr) minmax(0, 1.3fr); gap: 10px; }
+.booking-page .cc-controls select { width: 100%; min-width: 0; min-height: 40px; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; color: #243653; font: 13px 'Noto Sans KR', sans-serif; }
+.booking-page .cc-controls select:focus-visible { outline: 2px solid #0078d4; outline-offset: 2px; }
+@media(max-width:650px) { .booking-page .cc-controls { grid-template-columns: 1fr; } }
