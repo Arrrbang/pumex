@@ -116,6 +116,93 @@
         </table></div>
         <p id="rateSelectionStatus" class="partner-status" role="status">운임 행을 클릭하거나 체크박스를 선택하세요.</p>
       </section>
+
+      <section
+        id="rateInquiryCard"
+        class="booking-card mail-card"
+        aria-labelledby="rateInquiryTitle"
+        hidden
+      >
+        <h2 id="rateInquiryTitle">운임 문의</h2>
+
+        <div class="email-mockup" style="margin-top:16px;">
+          <div class="email-row">
+            <label for="inquiryTo">받는 사람</label>
+            <input
+              id="inquiryTo"
+              type="text"
+              readonly
+              placeholder="포워딩을 선택하세요"
+            >
+          </div>
+
+          <div class="email-row">
+            <label for="inquirySubject">제목</label>
+            <input
+              id="inquirySubject"
+              type="text"
+              aria-label="운임 문의 제목"
+            >
+          </div>
+
+          <div class="email-row body-row">
+            <span class="email-label">본문</span>
+
+            <div class="email-body">
+              <div
+                id="inquiryBody"
+                class="body-editor"
+                style="min-height:200px;padding:14px;font-size:13px;line-height:1.75;"
+              >
+                <div>
+                  수신 : <span id="inquiryPerson">[담당자 이름]</span>님
+                </div>
+                <div>
+                  발신 : <span id="inquirySender">[발송자]</span> / 퓨멕스 수출부
+                </div>
+
+                <div><br></div>
+
+                <div>
+                  안녕하세요 <span id="inquiryGreetingPerson">[담당자 이름]</span>님.
+                </div>
+                <div>
+                  퓨멕스 수출부 <span id="inquiryGreetingSender">[발송자]</span> 입니다.
+                </div>
+
+                <div><br></div>
+
+                <div>
+                  <span id="inquiryPol">[POL]</span> TO
+                  <span id="inquiryPoe">[POE]</span><br>
+                  <span id="inquiryContainer">[선택된 컨테이너]</span>
+                  운임 문의 드립니다.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mail-footer" style="flex-wrap:wrap;">
+          <p>새 메일창에서 Ctrl + V로 붙여넣으세요.</p>
+
+          <button
+            id="openInquiryBtn"
+            type="button"
+            class="btn-submit"
+            disabled
+          >
+            운임 문의 · Outlook 열기
+          </button>
+        </div>
+
+        <div
+          id="inquiryStatus"
+          class="status"
+          role="status"
+          aria-live="polite"
+        ></div>
+      </section>
     </aside>
   </div>
 </main>
