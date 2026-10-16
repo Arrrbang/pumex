@@ -362,3 +362,13 @@ tr { page-break-inside: avoid; }
 .past-date { color: red; font-weight: bold; }
 .future-date { color: blue; }
 .diff-neg { color: red; }
+
+/* 대륙·국가 추가 후 업체명과 기존 열의 폭을 확보합니다. */
+#table-content { overflow-x: auto; }
+table#main-table { min-width: 1200px; }
+.col-continent, .col-country {
+    background-color: #fff;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    line-height: 1.4;
+}

@@ -179,6 +179,7 @@ async function loadHistoryItem(pageId, name) {
             }
         });
 
+        await attachPartnerRegions(globalDataMap);
         const dateText = formatDate(globalB3Date);
         renderMainTable(dateText);
 
@@ -189,7 +190,7 @@ async function loadHistoryItem(pageId, name) {
         alert(`불러오기 실패: ${error.message}`);
         overlay.style.display = 'none';
     } finally {
-        listEl.style.opacity = originalOpacity || '1';
+        overlay.style.display = 'none';
         document.body.style.cursor = 'default';
     }
 }

@@ -61,6 +61,8 @@ function saveAsPDF() {
     const tableHeaderHtml = `
         <table style="width:100%; border-collapse:collapse; font-size:9px; table-layout:fixed; border: 0.5px solid #333;">
             <colgroup>
+                <col style="width: 60px;">
+                <col style="width: 70px;">
                 <col style="width: 25px;"> 
                 <col style="width: auto;"> 
                 <col style="width: 30px;"> 
@@ -83,6 +85,8 @@ function saveAsPDF() {
                     <th style="border:0.5px solid #999; background-color:#f1f1f1;"></th>
                     <th style="border:0.5px solid #999; background-color:#f1f1f1;"></th>
                     <th style="border:0.5px solid #999; background-color:#f1f1f1;"></th>
+                    <th style="border:0.5px solid #999; background-color:#f1f1f1;"></th>
+                    <th style="border:0.5px solid #999; background-color:#f1f1f1;"></th>
                     
                     <th colspan="3" style="border:0.5px solid #999; background-color:#e8f0fe; height:20px; vertical-align:middle; font-weight:bold;">배송 완료 1달 이상 경과</th>
                     <th colspan="3" style="border:0.5px solid #999; background-color:#e0f7fa; height:20px; vertical-align:middle; font-weight:bold;">배송 완료 1달 이내</th>
@@ -91,6 +95,8 @@ function saveAsPDF() {
                     <th style="border:0.5px solid #999; background-color:#f1f1f1;"></th>
                 </tr>
                 <tr style="background-color:#f9f9f9; border-bottom:1px solid #333; height: 30px;">
+                    <th style="border:0.5px solid #999; vertical-align:middle; background-color:#f1f1f1;">대륙</th>
+                    <th style="border:0.5px solid #999; vertical-align:middle; background-color:#f1f1f1;">국가</th>
                     <th style="border:0.5px solid #999; vertical-align:middle; background-color:#f1f1f1;">NO</th>
                     <th style="border:0.5px solid #999; vertical-align:middle; background-color:#f1f1f1;">업체명</th>
                     <th style="border:0.5px solid #999; vertical-align:middle; background-color:#f1f1f1;">CUR</th>
@@ -123,12 +129,8 @@ function saveAsPDF() {
     let tableBodyHtml = "";
     let rawList = Object.values(globalDataMap);
     
-    // 정렬 (업체명 -> 통화)
-    rawList.sort((a, b) => {
-        if (a.n < b.n) return -1; if (a.n > b.n) return 1;
-        if (a.o < b.o) return -1; if (a.o > b.o) return 1;
-        return 0;
-    });
+    // 정렬: 대륙 지정 순서 → 통합 국가 우선 → 국가명 → 파트너명
+    rawList.sort(comparePartnerRegions);
 
     const processedList = [];
     const summaryMap = {}; 
@@ -160,6 +162,8 @@ function saveAsPDF() {
         });
 
         processedList.push({
+            continent: row.continent || "",
+            country: row.country || "",
             n: row.n,
             o: row.o,
             totalCount: filteredDetails.length,
@@ -205,6 +209,8 @@ function saveAsPDF() {
         
         tableBodyHtml += `
             <tr style="height:22px;">
+                <td style="border:0.5px solid #999; padding:3px 2px; text-align:center; background-color:${bgBase};">${escapeRegionText(row.continent)}</td>
+                <td style="border:0.5px solid #999; padding:3px 2px; text-align:center; background-color:${bgBase};">${escapeRegionText(row.country)}</td>
                 <td style="border:0.5px solid #999; padding:3px 2px; text-align:center; background-color:${bgBase};">${index + 1}</td>
                 <td style="border:0.5px solid #999; padding:3px 2px; text-align:left; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; background-color:${bgBase};">${row.n}</td>
                 <td style="border:0.5px solid #999; padding:3px 2px; text-align:center; background-color:${bgBase};">${row.o}</td>
@@ -230,8 +236,8 @@ function saveAsPDF() {
     // 3-5. 통화별 합계 렌더링
     const sortedCurrencies = Object.keys(summaryMap).sort();
 
-    tableBodyHtml += `<tr style="height:10px;"><td colspan="14" style="border:none;"></td></tr>`;
-    tableBodyHtml += `<tr style="background-color:#d1ecf1; font-weight:bold;"><td colspan="14" style="border:0.5px solid #999; text-align:center; padding:5px;">▼ 통화별 합계 (Currency Subtotals)</td></tr>`;
+    tableBodyHtml += `<tr style="height:10px;"><td colspan="16" style="border:none;"></td></tr>`;
+    tableBodyHtml += `<tr style="background-color:#d1ecf1; font-weight:bold;"><td colspan="16" style="border:0.5px solid #999; text-align:center; padding:5px;">▼ 통화별 합계 (Currency Subtotals)</td></tr>`;
 
     sortedCurrencies.forEach(cur => {
         const s = summaryMap[cur];
@@ -245,7 +251,7 @@ function saveAsPDF() {
 
         tableBodyHtml += `
             <tr style="background-color:${bgSub}; font-weight:bold; height:25px;">
-                <td colspan="2" style="border:0.5px solid #999; text-align:right; padding-right:10px; background-color:${bgSub};">${cur} Total</td>
+                <td colspan="4" style="border:0.5px solid #999; text-align:right; padding-right:10px; background-color:${bgSub};">${cur} Total</td>
                 <td style="border:0.5px solid #999; text-align:center; background-color:${bgSub};">${cur}</td>
                 <td style="border:0.5px solid #999; text-align:center; background-color:${bgSub};">${s.totalCount}</td>
                 

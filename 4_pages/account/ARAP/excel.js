@@ -24,6 +24,8 @@ async function saveAsExcel() {
 
     // 1. 열 너비 설정 (PDF와 유사한 비율로 설정)
     wsSummary.columns = [
+        { key: 'continent', width: 16 },
+        { key: 'country', width: 20 },
         { key: 'no', width: 6 },        // A: NO
         { key: 'name', width: 35 },     // B: 업체명
         { key: 'cur', width: 10 },      // C: CUR
@@ -49,7 +51,7 @@ async function saveAsExcel() {
 
     // 2. [1행] 메인 제목
     const titleRow = wsSummary.addRow([mainTitleText]);
-    wsSummary.mergeCells('A1:N1');
+    wsSummary.mergeCells('A1:P1');
     titleRow.height = 35;
     
     const titleCell = titleRow.getCell(1);
@@ -61,7 +63,7 @@ async function saveAsExcel() {
     // 3. [2행 ~ 3행] 헤더 생성 (2단 구조)
     // 2행: 대분류
     const headerRow1 = wsSummary.addRow([
-        'NO', '업체명', 'CUR', '전체\n건수', // 병합될 예정이라 텍스트 위치는 A, B, C, D
+        '대륙', '국가', 'NO', '업체명', 'CUR', '전체\n건수', // 병합될 예정이라 텍스트 위치는 A, B, C, D
         '배송 완료 1달 이상 경과', '', '',   // E열 시작 (3칸 병합)
         '배송 완료 1달 이내', '', '',        // H열 시작 (3칸 병합)
         'TOTAL', '', '',                     // K열 시작 (3칸 병합)
@@ -71,7 +73,7 @@ async function saveAsExcel() {
 
     // 3행: 소분류
     const headerRow2 = wsSummary.addRow([
-        '', '', '', '',                         // A~D는 위와 병합됨
+        '', '', '', '', '', '',                         // A~D는 위와 병합됨
         '건수', 'CREDIT', 'DEBIT',              // 1달 이상
         '건수', 'CREDIT', 'DEBIT',              // 1달 이내
         'CREDIT', 'DEBIT', 'BALANCE',           // TOTAL
@@ -79,23 +81,26 @@ async function saveAsExcel() {
     ]);
     headerRow2.height = 25;
 
+    wsSummary.mergeCells('A2:A3');
+    wsSummary.mergeCells('B2:B3');
+
     // 4. 헤더 병합 (Merge)
-    wsSummary.mergeCells('A2:A3'); // NO
-    wsSummary.mergeCells('B2:B3'); // 업체명
-    wsSummary.mergeCells('C2:C3'); // CUR
-    wsSummary.mergeCells('D2:D3'); // 전체건수
+    wsSummary.mergeCells('C2:C3'); // NO
+    wsSummary.mergeCells('D2:D3'); // 업체명
+    wsSummary.mergeCells('E2:E3'); // CUR
+    wsSummary.mergeCells('F2:F3'); // 전체건수
     
-    wsSummary.mergeCells('E2:G2'); // 1달 이상 경과 그룹
-    wsSummary.mergeCells('H2:J2'); // 1달 이내 그룹
-    wsSummary.mergeCells('K2:M2'); // TOTAL 그룹
+    wsSummary.mergeCells('G2:I2'); // 1달 이상 경과 그룹
+    wsSummary.mergeCells('J2:L2'); // 1달 이내 그룹
+    wsSummary.mergeCells('M2:O2'); // TOTAL 그룹
     
-    wsSummary.mergeCells('N2:N3'); // 비고
+    wsSummary.mergeCells('P2:P3'); // 비고
 
     // 5. 헤더 스타일 적용
     // (범위를 순회하며 스타일 입히기)
     for (let r = 2; r <= 3; r++) {
         const row = wsSummary.getRow(r);
-        for (let c = 1; c <= 14; c++) {
+        for (let c = 1; c <= 16; c++) {
             const cell = row.getCell(c);
             cell.font = { bold: true, size: 10 };
             cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
@@ -104,16 +109,16 @@ async function saveAsExcel() {
             // 배경색 지정 (PDF와 유사하게)
             if (r === 2) {
                 // 대분류 행 배경
-                if (c >= 1 && c <= 4) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F1F1' } }; // 기본
-                else if (c >= 5 && c <= 7) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F0FE' } }; // 파랑
-                else if (c >= 8 && c <= 10) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0F7FA' } }; // 하늘
-                else if (c >= 11 && c <= 13) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF3E0' } }; // 주황
-                else if (c === 14) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F1F1' } };
+                if (c >= 1 && c <= 6) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F1F1' } }; // 기본
+                else if (c >= 7 && c <= 9) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F0FE' } }; // 파랑
+                else if (c >= 10 && c <= 12) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0F7FA' } }; // 하늘
+                else if (c >= 13 && c <= 15) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF3E0' } }; // 주황
+                else if (c === 16) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F1F1' } };
             } else {
                 // 소분류 행 배경
-                if (c >= 5 && c <= 7) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F0FE' } };
-                else if (c >= 8 && c <= 10) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0F7FA' } };
-                else if (c >= 11 && c <= 13) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF3E0' } };
+                if (c >= 7 && c <= 9) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F0FE' } };
+                else if (c >= 10 && c <= 12) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE0F7FA' } };
+                else if (c >= 13 && c <= 15) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF3E0' } };
             }
         }
     }
@@ -121,7 +126,9 @@ async function saveAsExcel() {
     // ==========================================
     // 데이터 처리 및 행 추가
     // ==========================================
-    const keys = Object.keys(globalDataMap).sort();
+    const keys = Object.keys(globalDataMap).sort((a, b) =>
+        comparePartnerRegions(globalDataMap[a], globalDataMap[b])
+    );
     
     // 통화별 합계 계산을 위한 맵
     const summaryMap = {};
@@ -167,6 +174,8 @@ async function saveAsExcel() {
 
         // 엑셀 행 추가
         const row = wsSummary.addRow([
+            data.continent || "",
+            data.country || "",
             index + 1,      // A: NO
             data.n,         // B: 업체명
             data.o,         // C: CUR
@@ -193,7 +202,7 @@ async function saveAsExcel() {
             cell.alignment = { vertical: 'middle' };
 
             // 숫자 포맷 (금액 열: F, G, I, J, K, L, M)
-            if ([6, 7, 9, 10, 11, 12, 13].includes(colNumber)) {
+            if ([8, 9, 11, 12, 13, 14, 15].includes(colNumber)) {
                 cell.numFmt = '#,##0.00';
                 cell.alignment = { horizontal: 'right' };
             } else {
@@ -201,14 +210,14 @@ async function saveAsExcel() {
             }
 
             // 업체명 (B열) - 하이퍼링크 및 왼쪽 정렬
-            if (colNumber === 2) {
+            if (colNumber === 4) {
                 cell.alignment = { horizontal: 'left' };
                 cell.font = { color: { argb: 'FF0000FF' }, underline: true };
-                cell.value = { text: data.n, hyperlink: `#'${safeName}'!A1`, tooltip: '상세 시트로 이동' };
+                cell.value = { text: data.n, hyperlink: `#'${safeName}'!C1`, tooltip: '상세 시트로 이동' };
             }
 
             // Balance 음수일 때 빨간색 (M열)
-            if (colNumber === 13 && diff < 0) {
+            if (colNumber === 15 && diff < 0) {
                 cell.font = { color: { argb: 'FFFF0000' }, bold: true };
             }
         });
@@ -244,10 +253,10 @@ async function saveAsExcel() {
     });
 
     wsSummary.addRow([]); // 빈 줄
-    const subtotalTitleRow = wsSummary.addRow(['', '===== 통화별 합계 (Currency Subtotals) =====']);
-    wsSummary.mergeCells(`B${subtotalTitleRow.number}:N${subtotalTitleRow.number}`);
+    const subtotalTitleRow = wsSummary.addRow(['', '', '', '===== 통화별 합계 (Currency Subtotals) =====']);
+    wsSummary.mergeCells(`D${subtotalTitleRow.number}:P${subtotalTitleRow.number}`);
     
-    const subTitleCell = subtotalTitleRow.getCell(2);
+    const subTitleCell = subtotalTitleRow.getCell(4);
     subTitleCell.font = { bold: true };
     subTitleCell.alignment = { horizontal: 'center' };
     subTitleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD1ECF1' } }; 
@@ -264,6 +273,7 @@ async function saveAsExcel() {
         const sUnderCountStr = `${s.cntUnder}(${sUnderPct}%)`;
 
         const newRow = wsSummary.addRow([
+            '', '',
             '',                 
             `${s.cur} Total`,   // B: 이름 자리에 표시
             s.cur,              // C: CUR
@@ -289,7 +299,7 @@ async function saveAsExcel() {
             cell.font = { color: { argb: 'FF333333' }, bold: true };
 
             // 숫자 포맷
-            if ([6, 7, 9, 10, 11, 12, 13].includes(colNumber)) { 
+            if ([8, 9, 11, 12, 13, 14, 15].includes(colNumber)) { 
                 cell.numFmt = '#,##0.00';
                 cell.alignment = { horizontal: 'right' };
             } else {
@@ -297,10 +307,10 @@ async function saveAsExcel() {
             }
             
             // B열 라벨은 우측 정렬
-            if (colNumber === 2) cell.alignment = { horizontal: 'right' };
+            if (colNumber === 4) cell.alignment = { horizontal: 'right' };
 
             // Balance 음수 빨간색
-            if (colNumber === 13 && sDiff < 0) {
+            if (colNumber === 15 && sDiff < 0) {
                 cell.font = { color: { argb: 'FFFF0000' }, bold: true };
             }
         });

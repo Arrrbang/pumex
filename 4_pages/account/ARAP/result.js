@@ -1,3 +1,66 @@
+// 웹·PDF·엑셀에서 동일한 한국어 정렬을 사용합니다.
+const partnerRegionCollator = new Intl.Collator('ko');
+const partnerContinentOrder = [
+    '동아시아', '서아시아', '남아시아', '동남아시아', '유럽',
+    '남아메리카', '북아메리카', '오세아니아', '아프리카'
+];
+function comparePartnerRegions(a, b) {
+    const text = value => String(value ?? '').trim();
+    const rank = value => {
+        const index = partnerContinentOrder.indexOf(text(value));
+        return index < 0 ? partnerContinentOrder.length : index;
+    };
+    let diff = rank(a.continent) - rank(b.continent);
+    if (diff) return diff;
+
+    const countryA = text(a.country);
+    const countryB = text(b.country);
+    const unifiedA = countryA.includes('통합');
+    const unifiedB = countryB.includes('통합');
+    if (unifiedA !== unifiedB) return unifiedA ? -1 : 1;
+
+    diff = partnerRegionCollator.compare(countryA, countryB);
+    if (diff) return diff;
+    diff = partnerRegionCollator.compare(text(a.n), text(b.n));
+    if (diff) return diff;
+    return partnerRegionCollator.compare(text(a.o), text(b.o));
+}
+
+// CODE는 앞자리 0과 대소문자를 유지하고 앞뒤 공백만 제거합니다.
+function escapeRegionText(value) {
+    return String(value ?? "").replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+}
+
+async function attachPartnerRegions(dataMap) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/account/get-partner-regions`);
+        const result = await response.json();
+        if (!response.ok || !result.ok || !result.regionMap) {
+            throw new Error(result.error || "대륙·국가 조회 실패");
+        }
+        const duplicates = new Set(result.duplicateCodes || []);
+        Object.values(dataMap).forEach(row => {
+            const code = String(row.code ?? "").trim();
+            const region = !duplicates.has(code) &&
+                Object.prototype.hasOwnProperty.call(result.regionMap, code)
+                ? result.regionMap[code] : null;
+            row.continent = region?.continent || "";
+            row.country = region?.country || "";
+        });
+        if (duplicates.size) console.warn("중복 CODE (지역 매칭 제외):", [...duplicates]);
+    } catch (error) {
+        // 조회 실패 시 저장된 지역 정보는 유지하고, 없는 정보만 빈칸으로 표시합니다.
+        Object.values(dataMap).forEach(row => {
+            row.continent = row.continent || "";
+            row.country = row.country || "";
+        });
+        console.error("Partner Regions:", error);
+        alert("대륙·국가 정보를 불러오지 못했습니다. 기존 저장값이 있으면 유지됩니다. 다시 불러와 주세요.");
+    }
+}
+
 let globalDataMap = {}; 
 let globalB3Date = null; 
 let currentModalKey = null; 
@@ -296,6 +359,7 @@ function processExcel(file) {
                 rVal: valR
             });
         }
+        await attachPartnerRegions(globalDataMap);
         renderMainTable(b3Text);
     };
     reader.readAsBinaryString(file);
@@ -318,11 +382,7 @@ function renderMainTable(dateText) {
     tbody.innerHTML = "";
 
     let rawList = Object.values(globalDataMap);
-    rawList.sort((a, b) => {
-        if (a.n < b.n) return -1; if (a.n > b.n) return 1;
-        if (a.o < b.o) return -1; if (a.o > b.o) return 1;
-        return 0;
-    });
+    rawList.sort(comparePartnerRegions);
 
     // [신규] 1달 전 날짜 계산 (기준일 - 1개월)
     const oneMonthAgo = new Date(globalB3Date);
@@ -361,6 +421,8 @@ function renderMainTable(dateText) {
 
         displayList.push({
             n: row.n,
+            continent: row.continent || "",
+            country: row.country || "",
             code: row.code, 
             o: row.o,
             sumP: currentSumP,
@@ -387,6 +449,8 @@ function renderMainTable(dateText) {
 
         // [수정] HTML 생성 시 1달이상/1달이하 열 추가
         tr.innerHTML = `
+            <td class="col-continent">${escapeRegionText(row.continent)}</td>
+            <td class="col-country">${escapeRegionText(row.country)}</td>
             <td class="col-no">${index + 1}</td>
             <td class="col-code">${row.code || ""}</td>
             <td class="clickable col-name" onclick="openModal('${row.originalKey}')">${row.n}</td>
@@ -437,7 +501,7 @@ function renderSummaryRows(list, tbody) {
     // [수정] colspan을 9에서 11로 증가 (열 2개 추가됨)
     const headerRow = document.createElement('tr');
     headerRow.className = 'summary-header-row';
-    headerRow.innerHTML = `<td colspan="11">통화별 합계</td>`;
+    headerRow.innerHTML = `<td colspan="13">통화별 합계</td>`;
     tbody.appendChild(headerRow);
 
     summaryList.forEach(row => {
@@ -447,6 +511,8 @@ function renderSummaryRows(list, tbody) {
         
         // [수정] 1달이상/이하 합계 표시
         tr.innerHTML = `
+            <td class="col-continent"></td>
+            <td class="col-country"></td>
             <td class="col-no"></td>
             <td class="col-code"></td> 
             <td class="col-name"></td>
