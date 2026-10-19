@@ -1318,7 +1318,7 @@ async function openOutlookMail() {
     }
 
     window.location.href =
-      `mailto:${contactBox.value}?${params.toString()}`;
+      `mailto:${contactBox.value}?${params.toString().replace(/\+/g, "%20")}`;
 
     setStatus(
       "본문이 복사되었습니다. 새 메일창에서 Ctrl + V로 붙여넣으세요."
