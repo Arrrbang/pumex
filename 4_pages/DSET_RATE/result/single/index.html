@@ -1,0 +1,44 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>P.A.S.S | 도착지 비용</title>
+<link rel="icon" href="/pumex/1_assets/1_image/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../../2_common/1_css/common.css"><link rel="stylesheet" href="../../../../2_common/1_css/color.css">
+<link rel="stylesheet" href="./render_resulttable.css"><link rel="stylesheet" href="./bottom_bar.css"><link rel="stylesheet" href="./dest_table.css"><link rel="stylesheet" href="../../floating/cost_documents.css"></head><body>
+<div id="desktop-header-placeholder" class="desktop-only"></div>
+<main><div id="resultFeedback" class="container result-feedback"><p id="resultStatus" role="status" aria-live="polite">비용을 조회하고 있습니다…</p><button id="retryResult" type="button" hidden>다시 조회</button></div>
+<section id="resultSection" class="result-section show">
+  <div class="result-container container">
+    <div id="tableWrap" class="table-wrap"></div>
+  </div>
+
+  <section id="currencySection" class="sticky-currency-bar" hidden>
+    <div class="container currency-bar">
+      
+      <div class="summary-left-group">
+        <div id="collapsedSummary" class="summary-info-wrapper">
+          <div class="summary-text-container">
+            <div class="summary-line"><span id="sumRegion">-</span></div>
+            <div class="summary-line"><span id="sumCountry">-</span></div>
+            <div class="summary-line"><span id="sumCbmType">-</span></div>
+          </div>
+          <div class="summary-partner-container"><span id="sumCompany">-</span></div>
+        </div>
+      </div>
+
+      <div class="summary-right-group">
+        <span id="totalDisplayOne" class="header-total">0</span>
+        
+        <div class="currency-controls-wrapper">
+          <span id="currencyRate" class="currency-rate">-</span>
+          <select id="currencySelect" class="dropdown-select currency-select"></select>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</section></main>
+<script src="../../../../2_common/3_api/api.js"></script><script src="../../../../2_common/2_js/loading.js"></script>
+<script src="./render_table.js"></script><script src="./bottom_bar.js"></script>
+<script src="../../../../3_components/4_currency-converter/currency-converter.js"></script>
+<script src="../../../../3_components/2_Floating_box/Floating_loader.js"></script>
+<script src="../../floating/dest_api.js"></script><script src="../../floating/compare_popup.js"></script>
+<script src="../../floating/result_floating.js"></script><script src="./dest_table.js"></script><script src="../../floating/cost_documents.js"></script></body></html>

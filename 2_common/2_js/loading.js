@@ -1,6 +1,18 @@
 // loading.js 전체 교체
 (function() {
     const basePath = window.location.pathname.includes('/pumex/') ? '/pumex' : '';
+    // 전 페이지에서 공통 직원정보 모듈 하나를 공유합니다. 인증 서버를 변경하지 않습니다.
+    if (!window.PumexUserReady) {
+        window.PumexUserReady = window.PumexUser ? Promise.resolve(window.PumexUser) : new Promise((resolve,reject) => {
+            const userScript=document.createElement('script');
+            userScript.src=`${basePath}/2_common/2_js/user_info.js`;
+            userScript.onload=()=>resolve(window.PumexUser);
+            userScript.onerror=()=>reject(new Error('공통 사용자 모듈을 불러오지 못했습니다.'));
+            document.head.appendChild(userScript);
+        });
+        window.PumexUserReady.catch(()=>{});
+    }
+
 
     // ==========================================
     // 1. 데스크탑 헤더(Header) 로드 로직

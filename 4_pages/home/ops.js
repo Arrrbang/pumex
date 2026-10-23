@@ -3,7 +3,7 @@
 async function initOpsDashboard(username) {
     const API_URL = "https://notion-api-hub.vercel.app/api/home/home-ops"; 
 
-    const response = await fetch(`${API_URL}?username=${username}`);
+    const response = await fetch(`${API_URL}?username=${encodeURIComponent(username)}`);
     if (!response.ok) throw new Error(`Ops Dashboard Error`);
     
     const result = await response.json();

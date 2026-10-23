@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>P.A.S.S | 운임 조회</title>
+
+  <link rel="icon" href="/pumex/1_assets/1_image/favicon.png" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../2_common/1_css/color.css" />
+  <link rel="stylesheet" href="../../2_common/1_css/common.css" />
+
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+  <link rel="stylesheet" href="./ratesearch.css">
+</head>
+
+<body>
+<div id="desktop-header-placeholder"></div>
+<main class="booking-page rate-search-page">
+  <header class="page-heading"><div class="page-title"><h1>운임 조회</h1><p>배송지역 또는 도착항구를 검색하세요.</p></div></header>
+  <section class="booking-card" aria-labelledby="searchTitle">
+    <div class="section-heading"><span class="step-number">01</span><h2 id="searchTitle">조회 조건</h2></div>
+    <div class="search-methods">
+      <section class="search-method search-method-region" aria-labelledby="regionMethodTitle"><h3 id="regionMethodTitle" class="search-method-title">배송지역으로 검색</h3><div class="region-search-group"><div class="input-group"><select aria-label="국가" id="countrySelect" disabled><option value="">국가 불러오는 중...</option></select><p id="countryStatus" class="status-text" role="status"></p><button id="retryCountries" class="retry-button" type="button" hidden>국가 다시 불러오기</button></div>
+      <div class="input-group"><select aria-label="배송지역" id="deliveryRegionSelect" disabled><option value="">국가를 먼저 선택하세요</option></select><p id="deliveryRegionStatus" class="status-text" role="status" aria-live="polite"></p><button id="retryRegions" class="retry-button" type="button" hidden>배송지역 다시 불러오기</button></div>
+      </div></section><div class="search-method-divider" aria-hidden="true"><span>또는</span></div><section class="search-method search-method-port" aria-labelledby="portMethodTitle"><h3 id="portMethodTitle" class="search-method-title">도착항구로 검색</h3><div class="input-group"><label for="arrivalPortSelect">도착항구</label><select id="arrivalPortSelect" disabled><option value="">도착항구 불러오는 중...</option></select><button id="requestUnknownPort" class="retry-button" type="button" hidden>입력한 항구 운임 요청</button><p id="arrivalPortStatus" class="status-text" role="status" aria-live="polite"></p><button id="retryPorts" class="retry-button" type="button" hidden>도착항구 다시 불러오기</button></div></section>
+    </div>
+  </section>
+  <div class="rate-search-actions"><button id="searchRates" type="button" disabled>운임 조회</button></div>
+  <p id="rateStatus" class="rate-feedback" role="status" aria-live="polite"></p>
+  <section id="rateResults" class="booking-card rate-results" aria-labelledby="rateResultTitle" hidden>
+    <div class="section-heading"><span class="step-number">02</span><h2 id="rateResultTitle">평균 해상운임</h2></div>
+    <div class="rate-table-scroll"><table class="average-rate-table">
+      <thead><tr><th scope="col">조회 지역 / 항구</th><th scope="col">20FT (20DR)</th><th scope="col">40FT (40HC)</th></tr></thead>
+      <tbody id="averageRateBody"></tbody>
+    </table></div>
+    <p class="rate-average-note">통화: USD · 조회된 운임 행을 중복 제거한 후 컨테이너별 평균을 계산합니다. 0원·빈 금액은 제외합니다.</p>
+  </section>
+  <section id="rateRequest" class="booking-card rate-request" aria-labelledby="requestTitle" hidden>
+    <div class="section-heading"><span class="step-number">02</span><h2 id="requestTitle">운임 요청</h2></div>
+    <p id="requestReason" class="request-reason"></p>
+    <form id="rateRequestForm">
+      <div class="rate-table-scroll"><table class="request-table"><thead><tr><th>요청 POE</th><th>요청자</th><th>컨테이너 타입</th><th>작업예정일</th><th>요청일자</th></tr></thead><tbody><tr>
+        <td><input id="requestPoe" aria-label="요청 POE" maxlength="200" required></td>
+        <td><span id="requesterName">조회중…</span></td>
+        <td><select id="requestContainer" aria-label="컨테이너 타입" required disabled><option value="">조회중…</option></select></td>
+        <td><input id="requestWorkDate" type="date" aria-label="작업예정일" required></td>
+        <td><span id="requestDate"></span></td>
+      </tr></tbody></table></div>
+      <div class="request-actions"><button id="submitRateRequest" type="submit" disabled>운임 요청 등록</button><button id="retryRequestOptions" class="retry-button" type="button" hidden>요청 정보 다시 조회</button></div>
+      <p id="requestStatus" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+  <section id="rateHistory" class="booking-card rate-history" aria-labelledby="historyTitle" hidden>
+    <div class="section-heading"><span class="step-number">03</span><h2 id="historyTitle">운임 변동 그래프</h2></div>
+    <p id="historyStatus" class="status-text" role="status" aria-live="polite"></p>
+    <button id="retryHistory" class="retry-button" type="button" hidden>그래프 다시 조회</button>
+    <div id="historyCharts" class="history-charts"></div>
+    <p class="rate-average-note">통화: USD · 기간 제목 A→Z 순서 · 등록되지 않은 값은 선을 연결하지 않습니다.</p>
+  </section>
+</main>
+<script src="../../2_common/3_api/api.js"></script>
+<script src="../../2_common/2_js/loading.js"></script>
+<script src="./ratesearch.history.js"></script>
+<script src="./ratesearch.nearest.js"></script>
+<script src="./ratesearch.request.js"></script>
+<script src="./ratesearch.js"></script>
+</body>
+</html>

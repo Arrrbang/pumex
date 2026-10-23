@@ -730,6 +730,12 @@
     { "name": "Koh Samui (코사무이)", "lat": 9.5120, "lng": 100.0136 }
   ],
   "United Kingdom (영국)" :[
-    {"name":"London (런던)","lat":51.5074,"lng":-0.1278}
+    { "name": "Billingham (빌링엄)", "lat": 54.6073, "lng": -1.2921 },
+    { "name": "Cambridge (케임브리지)", "lat": 52.2053, "lng": 0.1218 },
+    { "name": "Glasgow (글래스고)", "lat": 55.8642, "lng": -4.2518 },
+    { "name": "London (런던)", "lat": 51.5074, "lng": -0.1278 },
+    { "name": "Manchester (맨체스터)", "lat": 53.4808, "lng": -2.2426 },
+    { "name": "Stockport (스톡포트)", "lat": 53.4106, "lng": -2.1575 },
+    { "name": "Telford (텔퍼드)", "lat": 52.6766, "lng": -2.4493 }
   ]
 }

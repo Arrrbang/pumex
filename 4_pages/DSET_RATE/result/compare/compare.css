@@ -1,0 +1,208 @@
+/* ==========================================================================
+   compare.css (비교 화면 및 팝업 통합 스타일)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. 비교 페이지 메인 레이아웃 및 표 디자인
+   -------------------------------------------------------------------------- */
+.compare-page-wrapper { margin-left: 300px; padding-bottom: 120px; box-sizing: border-box; }
+.compare-main-container { width: 1320px; padding: 0 30px; box-sizing: border-box; display: flex; flex-direction: row; gap: 60px; }
+.compare-col { width: 600px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; }
+
+/* 표 위쪽 제목 디자인 */
+.compare-title {
+  font-size: 1.2rem; font-weight: 700; text-align: center;
+  color: var(--very-pale-mint);
+  background: var(--deep-teal);
+  padding: 10px 15px; border-radius: 8px 8px 0 0;
+  border: 1px solid var(--pale-mint-gray); border-bottom: none;
+}
+
+/* 빈 데이터 메시지 */
+.empty-table-msg {
+  padding: 3rem; text-align: center; border-radius: 12px;
+  background: var(--white);
+  color: var(--medium-gray);
+}
+
+/* 표 하단 합계 (tfoot) */
+.compare-tfoot-row { background-color: var(--deep-teal); color: var(--white); }
+.compare-tfoot-label { text-align: right; font-weight: 700; padding-right: 1.5rem; border-right: none !important; }
+.compare-tfoot-value { font-weight: 800; font-size: 1.1rem; border-left: none !important; }
+
+/* 가로 스크롤 방지용 */
+.compare-col .result-table tbody td.sel { width: 3.2rem !important; min-width: 3.2rem !important; max-width: 3.2rem !important; padding-inline: 0.1rem !important; }
+.compare-col .result-table tbody td:nth-child(2) { min-width: 340px !important; }
+
+/* 스피너 오버레이 */
+.global-spinner-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 11000;
+  display: flex; justify-content: center; align-items: center;
+  background-color: rgba(var(--very-dark-navy-rgb), 0.9);
+  backdrop-filter: blur(5px);
+  color: var(--white);
+}
+.global-spinner-overlay .spinner-container { text-align: center; }
+.global-spinner-overlay .spinner-core {
+  width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 20px auto;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid var(--forest-green); 
+  animation: compareSpinnerAnimate 1s linear infinite;
+}
+@keyframes compareSpinnerAnimate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.global-spinner-overlay .spinner-text { font-size: 1.1rem; font-weight: 500; }
+
+
+/* --------------------------------------------------------------------------
+   2. 비교 파트너 선택 팝업 (모달) 스타일
+   -------------------------------------------------------------------------- */
+.compare-popup-overlay {
+  position: fixed; 
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(11, 15, 20, 0.85); 
+  backdrop-filter: blur(4px);
+  z-index: 9999; 
+  display: flex; justify-content: center; align-items: center;
+}
+
+.compare-popup-modal {
+  background: #1e293b; 
+  padding: 30px; 
+  border-radius: 12px; 
+  width: 400px; 
+  color: #fff; 
+  border: 1px solid rgba(255,255,255,0.2); 
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.compare-popup-title {
+  margin-top: 0; 
+  color: #DDEBE6; 
+  border-bottom: 1px solid rgba(255,255,255,0.1); 
+  padding-bottom: 10px;
+}
+
+.compare-form-group {
+  margin-bottom: 15px;
+}
+
+.compare-form-group.last-group {
+  margin-bottom: 25px;
+}
+
+.compare-popup-label {
+  display: block; 
+  margin-bottom: 5px; 
+  font-size: 0.9rem;
+}
+
+.compare-popup-input {
+  width: 100%; 
+  padding: 8px; 
+  border-radius: 6px; 
+  background: #fff; 
+  color: #333; 
+  box-sizing: border-box;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.compare-popup-input:disabled {
+  background: rgba(0,0,0,0.3); 
+  color: #aaa; 
+  cursor: not-allowed;
+}
+
+.compare-popup-actions {
+  display: flex; 
+  gap: 10px; 
+  justify-content: flex-end;
+}
+
+.compare-btn-cancel {
+  padding: 10px 20px; 
+  border-radius: 6px; 
+  border: 1px solid #aaa; 
+  background: transparent; 
+  color: #fff; 
+  cursor: pointer;
+}
+
+.compare-btn-submit {
+  padding: 10px 20px; 
+  border-radius: 6px; 
+  border: none; 
+  background: #1F9461; 
+  color: #fff; 
+  cursor: pointer; 
+  font-weight: bold;
+}
+.compare-page-wrapper { margin:0 auto; padding:8px 24px 150px 270px; }
+.compare-main-container { width:100%; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; }
+.compare-col { width:auto; min-width:0; }
+.compare-col .table-wrap { margin-top:0 !important; max-width:none !important; }
+.compare-col .result-table tbody td:nth-child(2) { min-width:0 !important; }
+.compare-col .compare-title { margin:0; font-size:14px; }
+.compare-popup-modal { max-height:85vh; overflow-y:auto; }
+.compare-popup-dialog { padding:24px; width:min(480px,calc(100vw - 32px)); border:1px solid #d5e3df; border-radius:14px; background:#123b40; color:#edf6f3; font-family:'Noto Sans KR',sans-serif; }
+.compare-popup-dialog::backdrop { background:rgba(15,23,42,.62); }
+.compare-popup-dialog h2 { margin:0 0 18px; font-size:19px; }
+.compare-popup-dialog label { display:block; margin:12px 0 6px; font-size:13px; }
+.compare-popup-dialog select { width:100%; padding:10px; border:1px solid #bccdc7; border-radius:6px; background:white; color:#193d38; font:inherit; font-size:13px; }
+.compare-popup-dialog .fixed-context { margin:0 0 14px; font-size:13px; line-height:1.7; }
+.compare-popup-dialog .popup-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
+.compare-popup-dialog button { padding:9px 15px; border-radius:6px; border:1px solid #b7d3c9; cursor:pointer; }
+.compare-popup-dialog button[type=submit] { background:#d8eee5; color:#19483c; }
+.compare-popup-dialog button:disabled { opacity:.5; cursor:not-allowed; }
+.compare-popup-dialog .popup-status { min-height:22px; font-size:12px; margin-top:12px; }
+.compare-status { margin:0 24px 12px 270px; }
+.compare-status[hidden], #compareBottomBar[hidden] { display:none !important; }
+@media(max-width:1200px) { .compare-page-wrapper { padding-left:24px; } .compare-status { margin-left:24px; } }
+@media(max-width:850px) { .compare-main-container { grid-template-columns:1fr; } }
+
+/* 비교 결과표와 하단바가 같은 열 너비·간격을 사용 */
+:root { --dest-compare-left:270px; --dest-compare-right:24px; --dest-compare-gap:24px; }
+.compare-page-wrapper { padding-left:var(--dest-compare-left); padding-right:var(--dest-compare-right); }
+.compare-main-container { grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--dest-compare-gap); }
+#compareBottomBar .compare-summary-info {
+  flex:0 0 var(--dest-compare-left);
+  width:var(--dest-compare-left);
+  margin-right:0;
+}
+#compareBottomBar .compare-summary-info::after { right:12px; }
+#compareBottomBar .compare-bottom-aligner {
+  flex:1 1 0;
+  min-width:0;
+  width:auto;
+  margin-right:var(--dest-compare-right);
+  padding:0;
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:var(--dest-compare-gap);
+}
+/* 두 결과표 사이의 중앙과 구분선 위치를 일치시킵니다. */
+#compareBottomBar .compare-bottom-aligner::before { left:50%; }
+#compareBottomBar .compare-bottom-col {
+  width:auto;
+  min-width:0;
+  box-sizing:border-box;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 100px auto;
+  gap:12px;
+}
+#compareBottomBar .compare-bottom-col .partner-name {
+  width:auto; min-width:0; white-space:normal; overflow-wrap:anywhere; font-size:clamp(13px,1.25vw,24px);
+}
+#compareBottomBar .compare-bottom-col .currency-controls { width:100px; margin:0; }
+#compareBottomBar .compare-bottom-col .partner-total { width:auto; font-size:clamp(16px,1.7vw,32px); }
+@media(max-width:1200px) {
+  :root { --dest-compare-left:24px; }
+  #compareBottomBar { height:132px; flex-direction:column; align-items:stretch; justify-content:center; gap:8px; }
+  #compareBottomBar .compare-summary-info { flex:0 0 auto; width:auto; padding:0 24px; flex-direction:row; gap:12px; font-size:12px; }
+  #compareBottomBar .compare-summary-info::after { display:none; }
+  #compareBottomBar .compare-bottom-aligner { flex:0 0 auto; margin:0 24px; }
+  .compare-page-wrapper { padding-bottom:160px; }
+}
+@media(max-width:850px) {
+  #compareBottomBar .compare-bottom-col { grid-template-columns:minmax(0,1fr) auto; gap:6px; }
+  #compareBottomBar .compare-bottom-col .partner-name { grid-column:1 / -1; }
+}

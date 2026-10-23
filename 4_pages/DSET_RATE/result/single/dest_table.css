@@ -1,0 +1,56 @@
+body { font-family:'Noto Sans KR',sans-serif; }
+
+#resultStatus { font-size:13px; }
+#retryResult { padding:7px 14px; border:1px solid #cbd5e1; border-radius:6px; cursor:pointer; }
+#currencySection[hidden] { display:none !important; }
+.result-section { padding-bottom:140px; }
+
+/* OTC는 전체 3열 병합, 별도 안내 영역으로 구분 */
+.result-table tr.otc-separator td {
+  height: 14px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: #e8edf1 !important;
+}
+.result-table tr.row-otc td {
+  background: #edf5f4 !important;
+  color: #254b47 !important;
+  padding: 15px 18px !important;
+  border-top: 1px solid #d0e2de !important;
+  white-space: normal;
+  text-align: left !important;
+}
+/* OTC는 공통 hover-dim 효과 대신 어두운 배경과 밝은 글자로 표시 */
+.result-table tr.row-otc:hover td {
+  background: #254b47 !important;
+  color: #f8fafc !important;
+  filter: none !important;
+  opacity: 1 !important;
+}
+.result-table tr.row-otc:hover .item-title,
+.result-table tr.row-otc:hover .item-title > span,
+.result-table tr.row-otc:hover .item-extra,
+.result-table tr.row-otc:hover .item-extra * { color: #f8fafc !important; }
+.result-table tr.row-otc:hover .otc-badge {
+  background: #3c6961 !important;
+  color: #fff !important;
+}
+.result-table .row-otc .item-title { display:flex; align-items:center; gap:8px; }
+.result-table .otc-badge {
+  display:inline-block; flex:0 0 auto; padding:2px 7px;
+  border-radius:4px; background:#d5e8e3; color:#315e54;
+  font-size:10px; font-weight:700;
+}
+.result-table .row-otc .item-extra { padding-top:10px; }
+
+/* ADD 첫 열 전체를 클릭하여 추가 비용 선택 */
+.result-table tr.row-extra td.sel,
+.result-table tr.row-extra td.sel .sel-check,
+.result-table tr.row-extra td.sel input.extra-check { cursor: pointer; }
+
+/* 공통 헤더의 기존 배치는 유지하고 결과표 위 여백만 축소 */
+#resultFeedback[hidden] { display:none !important; }
+.result-feedback { padding-top:8px; }
+#resultSection { padding-top:8px; margin-top:0; }
+#resultSection > .result-container { padding-top:0; margin-top:0; }
+#tableWrap.table-wrap { margin-top:0 !important; }

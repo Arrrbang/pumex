@@ -1,19 +1,7 @@
 const SALES_API_URL = "https://notion-api-hub.vercel.app/api/home/home-sales";
 
-// 로그인 계정별 표시명을 여기에서 관리하면 됩니다.
-// value는 화면에 보이는 이름이고, key는 localStorage에 저장되는 username입니다.
-const SALES_USER_PROFILES = {
-    saleb: "이주봉 부장",
-    salek: "김영규 프로",
-    oh: "오수일 차장",
-    eric: "허용수 상무",
-    kbs: "김병수 부장",
-    pjs: "박제선 프로",
-    jackson: "김정철 프로",
-    crjung: "정창락 부장",
-    sk: "이상권 부장",
-    sjh: "심재훈 프로"
-};
+// 직원 목록과 표시명은 노션의 부서명/한글명/직책으로 생성합니다.
+let SALES_USER_PROFILES = {};
 
 let salesDashboardState = {
     loginUsername: "",
@@ -30,6 +18,9 @@ async function initSalesDashboard(username) {
     salesDashboardState.loginUsername = username;
     salesDashboardState.selectedUsername = username;
 
+    if(window.PumexUserReady)await window.PumexUserReady;
+    const staff=await window.PumexUser.list('영업부');
+    SALES_USER_PROFILES=Object.fromEntries(staff.map(user=>[user.pass_id,user.display_name||user.korean_name]));
     setupSalesFilters(username);
     await loadSalesDashboardData(username);
 }
@@ -82,7 +73,7 @@ async function loadSalesDashboardData(username) {
 
     const { urgent = [], storage = [], insurance = [], console: consoleData = [] } = result.data || {};
 
-    const filteredConsoleData = filterConsoleBySalesUser(consoleData || [], username);
+    const filteredConsoleData = consoleData || []; // 서버에서 담당자 조건으로 조회한 결과를 그대로 사용
 
     salesDashboardState.rawData = {
         urgent,
@@ -216,22 +207,6 @@ function setText(id, value) {
 function formatDate(value) {
     if (!value) return "-";
     return String(value).split("T")[0];
-}
-
-function filterConsoleBySalesUser(consoleData, username) {
-    const displayName = SALES_USER_PROFILES[username] || username;
-
-    return consoleData.filter(item => {
-        const salesRep = String(item.salesRep || "").trim();
-        const assignees = String(item.assignees || "").trim();
-
-        return (
-            salesRep === displayName ||
-            salesRep === username ||
-            assignees === displayName ||
-            assignees === username
-        );
-    });
 }
 
 function escapeHtml(value) {

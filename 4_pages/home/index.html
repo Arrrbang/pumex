@@ -117,44 +117,27 @@
 
     <script>
 
-    async function preloadProfitMarginRate() {
-        const userId = localStorage.getItem('username') || localStorage.getItem('userId');
-        if (!userId) return;
-
-        try {
-            const res = await fetch(`https://notion-api-hub.vercel.app/api/sales-info?pass_id=${userId}`);
-            const json = await res.json();
-            if (json.ok && json.data && json.data.profit !== undefined) {
-                sessionStorage.setItem('profitMarginRate', json.data.profit);
-            } else {
-                sessionStorage.setItem('profitMarginRate', 0);
-            }
-        } catch (e) {
-            console.error('초기 마진율 로드 실패:', e);
-            if (sessionStorage.getItem('profitMarginRate') === null) {
-                sessionStorage.setItem('profitMarginRate', 0);
-            }
-        }
-    }
         document.addEventListener("DOMContentLoaded", async () => {
             const loadingContainer = document.getElementById('loading-container');
             const landingOverlay = document.getElementById('sales-landing-overlay');
             const mainShell = document.getElementById('main-dashboard-shell');
             
-            const username = localStorage.getItem('username');
-
-            if (!username) {
-                alert("로그인 정보가 없습니다.");
-                if (typeof logout === 'function') logout();
-                else location.href = 'https://arrrbang.github.io/pumex/index.html';
+            let employee;
+            try {
+                if(window.PumexAuthReady)await window.PumexAuthReady;
+                if(window.PumexUserReady)await window.PumexUserReady;
+                employee=await window.PumexUser.current();
+            } catch(error) {
+                loadingContainer.style.display='none';
+                if(error.status===401||error.status===403)return;
+                mainShell.style.display='block';
+                mainShell.textContent='직원 정보를 불러오지 못했습니다. '+error.message;
                 return;
             }
+            const username=employee.pass_id;
 
-            const salesGroup = ['salea', 'saleb', 'salek', 'oh', 'eric', 'kbs', 'pjs', 'jackson', 'crjung', 'sk'];
-            const opsGroup   = ['admin', 'opere', 'opero', 'operd'];
-
-            // 💡 1. 영업부(salesGroup)가 접속했을 때
-            if (salesGroup.includes(username)) {
+            // 💡 1. 영업부가 접속했을 때
+            if (employee.department === "영업부") {
                 // 로딩 창을 감추고 두 개의 원형 버튼 화면을 띄움
                 loadingContainer.style.display = 'none';
                 landingOverlay.style.display = 'flex';
@@ -178,8 +161,8 @@
                     }
                 });
 
-            // 💡 2. 업무부(opsGroup)가 접속했을 때
-            } else if (opsGroup.includes(username)) {
+            // 💡 2. 업무부가 접속했을 때
+            } else if (employee.department === "업무부") {
                 // 랜딩 화면 건너뛰고 바로 메인 대시보드 로딩
                 mainShell.style.display = 'block';
                 try {

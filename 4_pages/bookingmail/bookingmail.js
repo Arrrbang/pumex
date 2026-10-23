@@ -1504,23 +1504,25 @@ async function openPartnerDocument(summary, partnerId) {
   }
 }
 
-// 로그인 아이디 → 운임 문의 발송자 이름
+// 공통 직원정보 모듈에서 확인한 발신자. 하드코딩 계정/이름 매핑은 사용하지 않습니다.
+let inquirySenderName = '';
+let inquirySenderToken = null;
+let inquirySenderPending = null;
 function getInquirySender() {
-  const names = {
-    admin: "지아름",
-    opere: "지아름",
-    opero: "노해원",
-    dami: "소다미",
-    ssy: "송소연"
-  };
-
-  const username = String(
-    localStorage.getItem("username") || ""
-  )
-    .trim()
-    .toLowerCase();
-
-  return names[username] || "";
+  const token=localStorage.getItem('token');
+  if(inquirySenderToken!==token && !inquirySenderPending){
+    inquirySenderName='';inquirySenderToken=token;
+    inquirySenderPending=(async()=>{
+      if(window.PumexUserReady)await window.PumexUserReady;
+      if(!window.PumexUser)throw Error('공통 직원정보 모듈을 불러오지 못했습니다.');
+      const user=await window.PumexUser.current();
+      if(token===localStorage.getItem('token'))inquirySenderName=user.korean_name;
+    })().catch(error=>{
+      console.error('운임 문의 발신자 조회 실패:',error.message);
+      if($('inquiryStatus'))$('inquiryStatus').textContent='발신자 정보를 불러오지 못했습니다. '+error.message;
+    }).finally(()=>{inquirySenderPending=null;if(token===localStorage.getItem('token'))syncRateInquiry();});
+  }
+  return inquirySenderName;
 }
 
 // 운임 문의 화면과 버튼 상태 갱신

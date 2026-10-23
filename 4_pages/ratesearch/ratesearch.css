@@ -1,0 +1,150 @@
+.booking-page { background: #f1f5f9; border-radius: 12px; --blue: #0078d4; --ink: #122343; --border: #dce4ee; font-family: 'Noto Sans KR', sans-serif; color: var(--ink); max-width: 1500px; margin: 0 auto; padding: 28px 24px 48px; }
+.booking-page * { box-sizing: border-box; }
+.page-heading { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
+.page-title { display: flex; align-items: center; gap: 18px; flex: 1; }
+.page-title h1 { margin: 0; font-size: 23px; letter-spacing: -.7px; }
+.page-title p { margin: 0; color: #64748b; font-size: 13px; }
+.booking-card { padding: 24px; background: #fff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 2px 7px rgba(18,35,67,.025); }
+.booking-card h2 { font-size: 20px; margin: 0; font-weight: 800; letter-spacing: -.6px; padding: 0; border: 0; }
+.section-heading { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.step-number { display: inline-flex; justify-content: center; align-items: center; width: 35px; height: 31px; border-radius: 7px; background: var(--blue); color: #fff; font-weight: 700; font-size: 15px; }
+.grid-row { display: grid; gap: 20px; }
+.col-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.input-group { display: flex; flex-direction: column; min-width: 0; gap: 8px; }
+.input-group label { font-size: 12px; font-weight: 700; }
+.input-group select { width: 100%; min-width: 0; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; color: #243653; font-family: inherit; font-size: 13px; padding: 10px 12px; min-height: 40px; }
+.input-group select { padding-right: 28px; }
+.status-text { color: #7a8799; font-size: 12px; line-height: 1.6; margin: 12px 0 0; }
+.booking-page .ts-control { padding: 10px 12px !important; border: 1px solid #cbd5e1 !important; border-radius: 6px !important; background: white !important; font-size: 13px !important; box-shadow: none !important; min-height: 40px; }
+.booking-page .ts-dropdown { font-size: 13px; border: 1px solid #cbd5e1; border-radius: 6px; }
+.rate-search-page .page-title { flex-wrap: wrap; }
+.rate-search-page .status-text { margin: 0; min-height: 20px; }
+.rate-search-page .ts-wrapper { width: 100%; min-width: 0; }
+.rate-search-page .ts-dropdown .active { background: #eaf4ff; color: #0078d4; }
+.rate-search-page .ts-control:focus-within { outline: 2px solid #0078d4; outline-offset: 2px; }
+.rate-search-page .input-group select:focus-visible { outline: 2px solid #0078d4; outline-offset: 2px; }
+.retry-button { justify-self: start; align-self: flex-start; padding: 7px 12px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; color: #0078d4; font: inherit; font-size: 12px; cursor: pointer; }
+.retry-button[hidden] { display: none; }
+@media(max-width:650px) { .rate-search-page { padding: 20px 14px 32px; } .rate-search-page .col-2 { grid-template-columns: 1fr; } .rate-search-page .page-title { display: block; } .rate-search-page .page-title h1 { font-size: 19px; } .rate-search-page .page-title p { margin-top: 8px; } .rate-search-page .booking-card { padding: 18px; } }
+
+.rate-search-actions { display:flex; justify-content:center; margin-top:20px; }
+#searchRates { min-width:180px; min-height:44px; padding:11px 28px; border:1px solid #0078d4; border-radius:7px; background:#0078d4; color:white; font:inherit; font-size:14px; font-weight:700; cursor:pointer; transition:background .2s; }
+#searchRates:not(:disabled):hover { background:#005a9e; }
+#searchRates:disabled { opacity:.55; cursor:default; }
+#searchRates:focus-visible { outline:2px solid #122343; outline-offset:3px; }
+.rate-feedback { margin:12px 0; min-height:24px; color:#0078d4; text-align:center; font-size:13px; }
+.rate-results[hidden] { display:none; }
+.rate-table-scroll { overflow-x:auto; }
+.average-rate-table { width:100%; border-collapse:collapse; font-size:14px; }
+.average-rate-table th, .average-rate-table td { padding:20px 16px; border:1px solid #dce4ee; text-align:center; }
+.average-rate-table thead th { background:#153a47; color:#fff; font-weight:700; }
+.average-rate-table tbody th { background:#f0f7f6; color:#254b47; font-weight:600; }
+.average-rate-table td { background:#fff; }
+.average-rate-table strong { display:block; white-space:nowrap; font-size:22px; color:#122343; }
+.average-rate-table small { display:block; margin-top:8px; color:#64748b; font-size:12px; }
+.rate-average-note { margin:14px 0 0; color:#64748b; line-height:1.7; font-size:12px; }
+@media(max-width:650px) { .average-rate-table th,.average-rate-table td { padding:14px 10px; } .average-rate-table strong { font-size:17px; } }
+
+.region-search-group { display:flex; flex-direction:column; gap:18px; }
+
+/* 두 가지 대체 검색 방식을 묶음과 디바이더로 구분 */
+.rate-search-page .search-methods {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr);
+  align-items:stretch;
+}
+.rate-search-page .search-method {
+  min-width:0;
+  margin:0;
+  padding:22px;
+  border:1px solid #dce4ee;
+  border-radius:10px;
+  background:#f8fafc;
+}
+.rate-search-page .search-method-region { background:#f0f7f6; border-color:#d0e2de; }
+.rate-search-page .search-method-title {
+  margin:0 0 20px;
+  padding:0;
+  font-size:14px;
+  font-weight:700;
+  line-height:1.5;
+  color:#254b47;
+}
+.rate-search-page .search-method-port .search-method-title { color:#243653; }
+.rate-search-page .search-method-divider {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  padding:8px 0;
+  color:#84919f;
+  font-size:11px;
+}
+.rate-search-page .search-method-divider::before,
+.rate-search-page .search-method-divider::after { content:''; flex:1; width:1px; background:#dce4ee; }
+.rate-search-page .search-method-divider span { white-space:nowrap; }
+@media(max-width:650px) {
+  .rate-search-page .search-methods { grid-template-columns:minmax(0,1fr); }
+  .rate-search-page .search-method { padding:18px; }
+  .rate-search-page .search-method-divider { flex-direction:row; padding:14px 6px; }
+  .rate-search-page .search-method-divider::before,
+  .rate-search-page .search-method-divider::after { width:auto; height:1px; }
+}
+
+/* 평상시 목록 개수 안내 공간 제거; 오류 메시지는 표시 */
+#countryStatus:empty, #deliveryRegionStatus:empty { display:none; }
+
+/* 줄어든 검색 폼에 맞춰 배경과 검색 묶음 높이를 자연스럽게 축소 */
+.rate-search-page.booking-page { height:auto; min-height:0; padding-bottom:28px; }
+.rate-search-page .search-methods { min-height:0; height:auto; }
+.rate-search-page .search-method { min-height:0; padding:16px 18px; }
+.rate-search-page .search-method-title { margin-bottom:12px; }
+.rate-search-page .region-search-group { gap:12px; }
+.rate-search-page .rate-history { margin-top:24px; }
+.rate-search-page .rate-history[hidden] { display:none; }
+#historyStatus:empty { display:none; }
+.history-charts { display:grid; gap:22px; }
+.history-chart-card { min-width:0; padding:18px; border:1px solid #dce4ee; border-radius:10px; background:#fff; }
+.history-chart-card h3 { margin:0 0 14px; color:#254b47; font-size:16px; }
+.history-chart-card svg { display:block; width:100%; height:auto; font-family:inherit; }
+.history-chart-card svg circle:focus { outline:none; stroke:#122343; stroke-width:3; r:6px; }
+.history-legend { display:flex; flex-wrap:wrap; gap:10px 20px; list-style:none; margin:0 0 14px; padding:0; }
+.history-legend li { display:flex; align-items:center; gap:7px; font-size:12px; color:#475569; overflow-wrap:anywhere; }
+.history-swatch { width:18px; height:3px; flex:0 0 auto; border-radius:2px; }
+.history-chart-card details { margin-top:10px; font-size:12px; color:#475569; }
+.history-chart-card summary { cursor:pointer; padding:8px 0; }
+.history-data-table { width:100%; border-collapse:collapse; white-space:nowrap; }
+.history-data-table th,.history-data-table td { border:1px solid #dce4ee; padding:9px 12px; text-align:right; }
+.history-data-table th { background:#f0f7f6; font-weight:600; }
+@media(max-width:650px) { .history-chart-card { padding:12px 8px; } .history-chart-card svg { min-width:560px; } .history-chart-card { overflow:auto; } }
+
+/* 기간별 금액 라벨 간격 확보 및 가로 스크롤 */
+.history-plot-scroll { overflow-x:auto; padding-top:4px; }
+.history-plot-scroll svg { max-width:none; }
+
+.nearest-no-results { display:flex; flex-direction:column; gap:8px; }
+.nearest-search { border:1px solid #c7ded8; border-radius:6px; background:#edf5f4; color:#254b47; padding:9px 12px; font:inherit; text-align:left; cursor:pointer; }
+.nearest-search:hover,.nearest-search:focus-visible { background:#254b47; color:white; }
+#deliveryRegionStatus { overflow-wrap:anywhere; }
+
+.nearest-location-search { display:flex; flex-direction:column; gap:8px; padding-top:12px; border-top:1px solid #d0e2de; }
+.nearest-location-search label { color:#52665f; font-size:12px; }
+.nearest-location-row { display:flex; gap:8px; min-width:0; }
+.nearest-location-row input { flex:1; min-width:0; width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:6px; background:white; color:#243653; font:inherit; font-size:13px; }
+.nearest-location-row button { flex:0 0 auto; white-space:nowrap; }
+.nearest-location-list:empty { display:none; }
+.nearest-location-list { display:flex; flex-direction:column; max-height:240px; overflow:auto; border:1px solid #cbd5e1; border-radius:6px; background:#fff; }
+.nearest-location-option { border:0; border-bottom:1px solid #e6ece9; padding:11px 12px; background:white; color:#243653; font:inherit; font-size:12px; text-align:left; line-height:1.6; cursor:pointer; }
+.nearest-location-option:hover,.nearest-location-option:focus-visible { background:#eaf4ff; color:#005a9e; }
+.nearest-location-row button:disabled { opacity:.6; cursor:progress; }
+.rate-request[hidden] { display:none; }
+.request-reason { font-size:13px; color:#64748b; line-height:1.7; }
+.request-table { width:100%; border-collapse:collapse; min-width:700px; font-size:13px; }
+.request-table th,.request-table td { border:1px solid #dce4ee; padding:14px 12px; text-align:center; }
+.request-table th { background:#153a47; color:#fff; }
+.request-table input,.request-table select { width:100%; min-height:40px; border:1px solid #cbd5e1; border-radius:6px; padding:8px; font:inherit; background:white; color:#243653; }
+.request-actions { display:flex; justify-content:flex-end; gap:12px; margin-top:18px; }
+#submitRateRequest { padding:10px 20px; border:1px solid #254b47; border-radius:6px; background:#254b47; color:white; font:inherit; cursor:pointer; }
+#submitRateRequest:not(:disabled):hover { background:#163b37; }
+#submitRateRequest:disabled { opacity:.6; cursor:default; }
+#requestStatus { min-height:24px; font-size:13px; color:#0078d4; line-height:1.7; }

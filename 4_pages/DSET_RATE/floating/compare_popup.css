@@ -1,0 +1,12 @@
+/* DEST_RATE 비교 선택 팝업 전용 */
+.compare-popup-dialog { padding:24px; width:min(480px,calc(100vw - 32px)); max-height:85vh; overflow:auto; box-sizing:border-box; border:1px solid #d5e3df; border-radius:14px; background:#123b40; color:#edf6f3; font-family:'Noto Sans KR',sans-serif; }
+.compare-popup-dialog::backdrop { background:rgba(15,23,42,.62); }
+.compare-popup-dialog h2 { margin:0 0 18px; font-size:19px; }
+.compare-popup-dialog label { display:block; margin:12px 0 6px; font-size:13px; }
+.compare-popup-dialog select { width:100%; box-sizing:border-box; padding:10px; border:1px solid #bccdc7; border-radius:6px; background:white; color:#193d38; font:inherit; font-size:13px; }
+.compare-popup-dialog .fixed-context { margin:0 0 14px; font-size:13px; line-height:1.7; }
+.compare-popup-dialog .popup-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:16px; }
+.compare-popup-dialog button { padding:9px 15px; border-radius:6px; border:1px solid #b7d3c9; cursor:pointer; }
+.compare-popup-dialog button[type=submit] { background:#d8eee5; color:#19483c; }
+.compare-popup-dialog button:disabled { opacity:.5; cursor:not-allowed; }
+.compare-popup-dialog .popup-status { min-height:22px; font-size:12px; margin-top:12px; }
