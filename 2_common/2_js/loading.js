@@ -32,7 +32,9 @@
             return res.text();
         })
         .then(html => {
-            const placeholder = document.getElementById("desktop-header-placeholder");
+            const placeholder = document.getElementById("header-placeholder") || document.getElementById("desktop-header-placeholder") || document.getElementById("mobile-header-placeholder");
+            if(placeholder) placeholder.style.setProperty('display','block','important');
+            ['desktop-header-placeholder','mobile-header-placeholder'].forEach(id=>{const other=document.getElementById(id);if(other&&other!==placeholder){other.innerHTML='';other.style.setProperty('display','none','important');}});
             if (placeholder) {
                 placeholder.innerHTML = html;
             } else {
@@ -75,38 +77,5 @@
         })
         .catch(err => console.error("공통 푸터 로딩 중 오류 발생:", err));
         
-    // ==========================================
-    // 💡 3. 모바일 헤더(Mobile Header) 로드 로직 (신규 추가!)
-    // ==========================================
-    const mPlaceholder = document.getElementById("mobile-header-placeholder");
-
-    // 화면에 모바일 헤더 자리가 있을 때만 실행되도록 똑똑하게 조건 처리
-    if (mPlaceholder) {
-        const M_HEADER_HTML_URL = `${basePath}/3_components/1_header/mobile/header.html`;
-        const M_HEADER_JS_URL = `${basePath}/3_components/1_header/mobile/header.js`;
-        const M_HEADER_CSS_URL = `${basePath}/3_components/1_header/mobile/header.css`;
-
-        // CSS 로드
-        const mHeaderLink = document.createElement("link");
-        mHeaderLink.rel = "stylesheet";
-        mHeaderLink.href = M_HEADER_CSS_URL;
-        document.head.appendChild(mHeaderLink);
-
-        // HTML 로드 및 JS 실행
-        fetch(M_HEADER_HTML_URL)
-            .then(res => {
-                if (!res.ok) throw new Error(`모바일 헤더 로드 실패: ${res.status}`);
-                return res.text();
-            })
-            .then(html => {
-                mPlaceholder.innerHTML = html;
-
-                const mScript = document.createElement("script");
-                mScript.src = M_HEADER_JS_URL;
-                mScript.defer = true;
-                document.body.appendChild(mScript);
-            })
-            .catch(err => console.error("모바일 헤더 로딩 중 오류 발생:", err));
-    }
 
 })();

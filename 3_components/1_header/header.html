@@ -1,15 +1,16 @@
-<!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>P.A.S.S</title>
-  <link rel="icon" href="/pumex/1_assets/1_image/favicon.png" type="image/x-icon">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-
 <header class="GNB-Wrapper">
+  <div class="m-top-bar">
+    <button type="button" class="m-hamburger-btn" id="m-menu-open" aria-label="메뉴 열기" aria-controls="m-sidebar" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="m-logo"><a href="/pumex/4_pages/home/index.html"><img src="/pumex/1_assets/1_image/passicon.png" alt="PASS Logo"></a></div>
+    <div class="m-actions"><span id="m-gear-slot"></span><button type="button" class="m-user-btn" id="m-user-icon" aria-label="사용자 정보">☻</button></div>
+  </div>
+  <div class="m-overlay" id="m-overlay" hidden></div>
+  <div class="m-sidebar" id="m-sidebar" role="dialog" aria-modal="true" aria-label="전체 메뉴" hidden>
+    <div class="m-sidebar-header"><img src="/pumex/1_assets/1_image/passicon.png" alt="PASS Logo" class="m-sidebar-logo"><button type="button" class="m-menu-close" id="m-menu-close" aria-label="메뉴 닫기">×</button></div>
+    <div class="m-sidebar-content" id="m-nav-slot"></div>
+    <div class="m-sidebar-footer" id="m-user-slot"></div>
+  </div>
+
 
   <div class="GNB-top">
     <div class="GNB-top-inner">
@@ -29,7 +30,7 @@
     </div>
   </div>
   
-  <div class="site-menu">
+  <nav class="site-menu" aria-label="주요 메뉴">
     <div class="site-menu-inner">
 
       <div class="gnb-category">
@@ -41,41 +42,57 @@
         <span class="gnb-category-label">카테고리</span>
       </div>
       
-      <div class="title-wrap has-dropdown" id="menu-destination">
-        <a href="#" class="site-title">도착지비용 조회</a>
+      <div class="title-wrap has-dropdown" data-menu-node id="menu-destination">
+        <button type="button" class="site-title" data-menu-toggle>도착지비용 조회</button>
         <div class="title-bar"></div>
 
-        <div class="menu-dropdown">
-          <a class="menu-item" href="/pumex/4_pages/destinationcost/1_search/index.html">도착지비용 조회</a>
+        <div class="menu-dropdown" data-menu-panel>
+          <!-- 2단계 항목: 하위 목록이 있으면 menu-branch로 감싸고 submenu-toggle을 사용합니다. -->
+          <div class="menu-branch" data-menu-node>
+            <button type="button" class="menu-item submenu-toggle" data-menu-toggle>
+              <span>도착지비용 조회</span><span class="submenu-arrow" aria-hidden="true">›</span>
+            </button>
+            <div class="menu-flyout" data-menu-panel>
+                            <a class="menu-item" href="/pumex/4_pages/DEST_RATE/Search/index.html">도착지비용 조회</a>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="title-wrap has-dropdown" id="menu-sos">
-        <a href="#" class="site-title">원가계산</a>
+      <div class="title-wrap has-dropdown" data-menu-node id="menu-sos">
+        <button type="button" class="site-title" data-menu-toggle>원가계산</button>
         <div class="title-bar"></div>
 
-        <div class="menu-dropdown">
+        <div class="menu-dropdown" data-menu-panel>
           <a class="menu-item" href="/pumex/4_pages/sos/outbound/index.html">OUTBOUND</a>
           <a class="menu-item" href="/pumex/4_pages/sos/inbound/index.html">INBOUND</a>
         </div>
       </div>
 
-
-      <div class="title-wrap has-dropdown" id="menu-provincial_packing_fee">
-          <a href="#" class="site-title">지방 포장비</a>
+      <div class="title-wrap has-dropdown" data-menu-node id="menu-provincial_packing_fee">
+          <button type="button" class="site-title" data-menu-toggle>지방 포장비</button>
           <div class="title-bar"></div>
         
-        <div class="menu-dropdown">
+        <div class="menu-dropdown" data-menu-panel>
           <a class="menu-item" href="/pumex/4_pages/ExternalPackagingCosts/yesg2m/index.html">YES G2M</a>
           <a class="menu-item" href="/pumex/4_pages/ExternalPackagingCosts/hansol/index.html">HANSOL</a>
         </div>
       </div>
 
-      <div class="title-wrap has-dropdown" id="menu-sos">
-        <a href="#" class="site-title">B2C 견적서</a>
+
+      <div class="title-wrap has-dropdown" data-menu-node id="menu-ocean">
+          <button type="button" class="site-title" data-menu-toggle>해상운임</button>
+          <div class="title-bar"></div>
+        <div class="menu-dropdown" data-menu-panel>
+          <a class="menu-item" href="/pumex/4_pages/ratesearch/ratesearch.html">운임조회</a>
+        </div>
+      </div>
+
+      <div class="title-wrap has-dropdown" data-menu-node id="menu-quotation">
+        <button type="button" class="site-title" data-menu-toggle>영업부</button>
         <div class="title-bar"></div>
 
-        <div class="menu-dropdown">
+        <div class="menu-dropdown" data-menu-panel>
           <a class="menu-item" href="/pumex/4_pages/quotation/index.html">신규 견적 생성</a>
           <a class="menu-item" 
               href="/pumex/4_pages/quotation/load_quotation/load_quotation.html" 
@@ -83,36 +100,64 @@
           </div>
       </div>
 
-      <div class="title-wrap has-dropdown" id="menu-operation">
-          <a href="#" class="site-title">업무부</a>
-          <div class="title-bar"></div>
-          <div class="menu-dropdown">
-            <a class="menu-item" href="/pumex/4_pages/bookingmail/bookingmail.html">포워딩 부킹 메일</a>
-            <a class="menu-item" href="/pumex/4_pages/greenlight/greenlightmail.html">Greenlight 요청 메일</a>
-          </div>
-      </div>
+      <div class="title-wrap has-dropdown" data-menu-node id="menu-operation">
+        <button type="button" class="site-title" data-menu-toggle>업무부</button>
+        <div class="title-bar"></div>
 
-      <div class="title-wrap has-dropdown" id="menu-supporting-documents">
-          <a href="#" class="site-title">도착지증빙환율확인</a>
-          <div class="title-bar"></div>
-        <div class="menu-dropdown">
-          <a class="menu-item" href="/pumex/4_pages/review-of-destination-proof/knj/">KNJ 청구서 확인</a>
-          <a class="menu-item" href="/pumex/4_pages/review-of-destination-proof/aegis/">AEGIS(MAM) 환율 확인</a>
+        <div class="menu-dropdown" data-menu-panel>
+
+          <!-- 메일 -->
+          <div class="menu-branch" data-menu-node>
+            <button type="button" class="menu-item submenu-toggle" data-menu-toggle>
+              <span>메일</span>
+              <span class="submenu-arrow" aria-hidden="true">›</span>
+            </button>
+
+            <div class="menu-flyout" data-menu-panel>
+              <a class="menu-item"
+                href="/pumex/4_pages/bookingmail/bookingmail.html">
+                포워딩 부킹 메일
+              </a>
+              <a class="menu-item"
+                href="/pumex/4_pages/greenlight/greenlightmail.html">
+                Greenlight 요청
+              </a>
+            </div>
+          </div>
+
+          <!-- 현지비용 확인 -->
+          <div class="menu-branch" data-menu-node>
+            <button type="button" class="menu-item submenu-toggle" data-menu-toggle>
+              <span>현지비용 확인</span>
+              <span class="submenu-arrow" aria-hidden="true">›</span>
+            </button>
+
+            <div class="menu-flyout" data-menu-panel>
+              <a class="menu-item"
+                href="/pumex/4_pages/review-of-destination-proof/knj/">
+                KNJ 청구서 확인
+              </a>
+              <a class="menu-item"
+                href="/pumex/4_pages/review-of-destination-proof/aegis/">
+                AEGIS(MAM) 환율 확인
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <div class="title-wrap has-dropdown" id="menu-account">
-          <a href="#" class="site-title">회계부</a>
+
+
+      <div class="title-wrap has-dropdown" data-menu-node id="menu-account">
+          <button type="button" class="site-title" data-menu-toggle>회계부</button>
           <div class="title-bar"></div>
         
-        <div class="menu-dropdown">
+        <div class="menu-dropdown" data-menu-panel>
           <a class="menu-item" href="/pumex/4_pages/account/ARAP/index.html">미수/미지급</a>
         </div>
       </div>
       
     </div>
-  </div>
+  </nav>
 </header>
-
-</body>
-</html>

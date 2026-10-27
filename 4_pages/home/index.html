@@ -15,7 +15,7 @@
 </head>
 <body>
     <!-- 데스크탑 전용 헤더 -->
-    <div id="desktop-header-placeholder" class="desktop-only"></div>
+    <div id="header-placeholder"></div>
 
     <!-- 💡 1. 영업부 전용 원형 버튼 랜딩 화면 (초기엔 숨겨져 있음) -->
     <div id="sales-landing-overlay">
@@ -143,7 +143,7 @@
                 landingOverlay.style.display = 'flex';
 
                 // '사내 조회 페이지 바로가기' 버튼 클릭 시
-                document.getElementById('btn-go-dashboard').addEventListener('click', async () => {
+                const openSalesDashboard = async () => {
                     // 원형 버튼 화면 숨기기
                     landingOverlay.style.display = 'none';
                     // 로딩 스피너 작동
@@ -159,7 +159,9 @@
                     } finally {
                         loadingContainer.style.display = 'none';
                     }
-                });
+                };
+                document.getElementById('btn-go-dashboard').addEventListener('click', openSalesDashboard);
+                if (window.matchMedia('(max-width: 760px)').matches) await openSalesDashboard();
 
             // 💡 2. 업무부가 접속했을 때
             } else if (employee.department === "업무부") {

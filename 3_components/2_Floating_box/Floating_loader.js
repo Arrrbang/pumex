@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   if(window.PumexFloating) return;
-  const base=new URL('.',document.currentScript.src), actions=new Map();
+  const actions=new Map();
   let menu, fitFrame;
   function fitLabels() {
     if (!menu || menu.hidden) return;
@@ -49,10 +49,7 @@
   };
   async function init() {
     try {
-      const link=document.createElement('link');link.rel='stylesheet';link.href=new URL('Floating.css',base);link.onload=scheduleFit;document.head.appendChild(link);
-      const r=await fetch(new URL('Floating_box.html',base));if(!r.ok)throw Error('플로팅 메뉴를 불러오지 못했습니다.');
-      const template=document.createElement('template');template.innerHTML=await r.text();
-      document.body.appendChild(template.content);menu=document.getElementById('floatingMenu');render();
+      menu=document.createElement('aside');menu.id='floatingMenu';menu.className='floating-menu';menu.setAttribute('aria-label','화면 메뉴');menu.hidden=true;document.body.appendChild(menu);render();
       document.dispatchEvent(new CustomEvent('pumex:floating-ready'));
       if (document.fonts?.ready) document.fonts.ready.then(scheduleFit);
       if (window.ResizeObserver) {

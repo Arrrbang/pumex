@@ -452,3 +452,16 @@ summary.notion-toggle-summary {
             background-color: #0f2950;
             color: #ffffff;
         }
+/* 모바일에서도 동일한 대시보드를 읽기 편하게 표시합니다. */
+@media (max-width: 760px) {
+  .summary-card-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap:10px; }
+  .summary-card { min-height:100px; padding:12px; }
+  .summary-icon { width:42px; height:42px; flex-shrink:0; }
+  .summary-content h2 { font-size:.8rem; }
+  .summary-content strong { font-size:1.25rem; }
+  .dashboard-card { min-width:0; overflow-x:auto; }
+  .dashboard-card table { min-width: 420px; }
+  #sales-landing-overlay { gap:16px; flex-wrap:wrap; }
+  .circle-btn { width: min(40vw,180px); height:min(40vw,180px); }
+  .btn-title { font-size:1rem; margin-bottom:10px; }
+}

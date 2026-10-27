@@ -106,14 +106,8 @@
         localStorage.setItem('token', result.token);
         localStorage.setItem('username', username);
 
-        // 💡 [수정됨] 기기 감지 후 분기 이동 처리
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
-        if (isMobile) {
-          window.location.href = '/pumex/mobile/home/index.html'; // 모바일 경로로 이동
-        } else {
-          window.location.href = './4_pages/home/index.html'; // 기존 PC 경로로 이동
-        }
+        // PC와 모바일 모두 반응형 공용 홈을 사용합니다.
+        window.location.href = './4_pages/home/index.html';
 
       } else {
         alert('아이디 또는 비밀번호가 올바르지 않습니다.');
