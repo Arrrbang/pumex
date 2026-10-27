@@ -1,0 +1,6 @@
+.result-table .item-title { display:flex; align-items:center; gap:5px; min-width:0; }
+.result-table .item-title > span:not(.toggle-icon):not(.otc-badge) { min-width:0; }
+.result-table .tariff-detail-button { margin-left:auto; flex:0 0 auto; padding:4px 8px; border:1px solid #b8d1cb; border-radius:5px; background:#edf5f4; color:#254b47; font:inherit; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; }
+.result-table .tariff-detail-button:hover { background:#254b47; border-color:#254b47; color:#fff; }
+.tariff-detail-error { color:#a04032; font-size:12px; padding:8px; }
+.tariff-detail-error button { border:0; color:#176b51; text-decoration:underline; background:transparent; cursor:pointer; }

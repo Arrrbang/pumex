@@ -24,7 +24,7 @@
       const data=await response.json();if(!response.ok||!data.ok)throw new Error(data.error||'비용 조회에 실패했습니다.');
       currency=data.currency;
       window.DestRateResult.data=data;
-      window.TableRenderer.render('tableWrap',data,data.type,true,data.cbm);
+      window.TableRenderer.render('tableWrap',data,data.type,true,data.cbm,Object.fromEntries(query));
       window.BottomBar.updateSummary(data.country,data.region,data.company,data.type,data.cbm);
       try {
         const ids=JSON.parse(query.get('aChecks') || '[]');

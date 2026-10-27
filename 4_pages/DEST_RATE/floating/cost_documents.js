@@ -11,6 +11,9 @@
       if(a.bold)node.style.fontWeight='700';if(a.italic)node.style.fontStyle='italic';
       if(a.underline||a.strikethrough)node.style.textDecoration=[a.underline?'underline':'',a.strikethrough?'line-through':''].filter(Boolean).join(' ');
       if(a.code){node.style.fontFamily='monospace';node.style.background='#eef2ef';}
+      const colors={gray:'#787774',brown:'#9f6b53',orange:'#d9730d',yellow:'#cb912f',green:'#448361',blue:'#337ea9',purple:'#9065b0',pink:'#c14c8a',red:'#d44c47'};
+      const backgrounds={gray:'#f1f1ef',brown:'#f4eeee',orange:'#faebdd',yellow:'#fbf3db',green:'#edf3ec',blue:'#e7f3f8',purple:'#f6f3f9',pink:'#faf1f5',red:'#fceeed'};
+      const color=a.color||'default';if(color.endsWith('_background'))node.style.backgroundColor=backgrounds[color.replace('_background','')]||'';else if(colors[color])node.style.color=colors[color];
       const href=safeUrl(item.href || item.text?.link?.url);
       if(href){const link=tag('a');link.href=href;link.target='_blank';link.rel='noopener noreferrer';link.appendChild(node);node=link;}
       parent.appendChild(node);
@@ -94,7 +97,7 @@
     } catch(e){if(current!==listVersion)return;panelStatus.textContent=e.name==='AbortError'?'조회 시간이 초과되었습니다.':e.message;retry.hidden=false;}
     finally{clearTimeout(timer);position();}
   }
-  async function openDocument(doc,context) {
+  async function openDocument(doc,context,kind='cost-documents') {
     if(document.getElementById('destDocumentDialog'))return;
     const dialog=tag('dialog');dialog.id='destDocumentDialog';dialog.className='dest-doc-dialog';
     const heading=tag('div');heading.className='doc-heading';heading.appendChild(tag('h2',doc.title));
@@ -151,7 +154,7 @@
         if(!name)throw Error(authorError || '작성자 이름을 조회하지 못했습니다.');
         if(getUsername()!==username)throw Error('로그인 정보가 변경되었습니다. 다시 눌러주세요.');
         status.textContent='댓글을 등록하고 있습니다…';
-        const response=await request(`/api/dest-rate/cost-documents/${encodeURIComponent(doc.id)}/comments`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({selection:context,text,username})});
+        const response=await request(`/api/dest-rate/${kind}/${encodeURIComponent(doc.id)}/comments`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({selection:context,text,username})});
         input.value='';note.textContent=`작성자: ${response.author?.korean_name || name}`;
         status.textContent='댓글을 등록했습니다. 노션에서 확인할 수 있습니다.';
       }
@@ -160,12 +163,13 @@
     };
     try{
       const query=window.DestRateAPI.params(context);
-      const data=await request(`/api/dest-rate/cost-documents/${encodeURIComponent(doc.id)}?${query}`,{signal:abort.signal});
+      const data=await request(`/api/dest-rate/${kind}/${encodeURIComponent(doc.id)}?${query}`,{signal:abort.signal});
       if(!dialog.isConnected)return;body.replaceChildren();blocks(body,data.blocks);
       if(!data.blocks.length)body.appendChild(tag('p','본문이 비어 있습니다.'));
       if(data.truncated)body.appendChild(tag('p','내용이 길어 일부만 표시했습니다. 전체 내용은 노션에서 확인해 주세요.'));
     }catch(e){if(dialog.isConnected)body.textContent=e.name==='AbortError'?'본문 조회가 취소되었습니다.':e.message;}
   }
+  window.DestDocumentPopup={openTariff:(doc,context)=>openDocument(doc,context,'tariff-details')};
   document.addEventListener('dest-rate:result-ready',()=>loadDocuments());
   document.addEventListener('pumex:floating-ready',()=>loadDocuments());
   loadDocuments();

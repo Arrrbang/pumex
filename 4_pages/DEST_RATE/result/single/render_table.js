@@ -27,7 +27,7 @@
   }
 
   window.TableRenderer = {
-    render: function(wrapId, data, type, isRegionFiltered, cbm) {
+    render: function(wrapId, data, type, isRegionFiltered, cbm, selection) {
       const wrap = typeof wrapId === 'string' ? document.getElementById(wrapId) : wrapId;
       if (!wrap) return;
 
@@ -79,9 +79,9 @@
             }
             otcStarted = true;
             const hasExtra = Boolean(extra.trim());
-            tbody += `<tr class="row-other row-otc"><td colspan="3" class="item-cell ${hasExtra ? 'has-extra' : ''}"><div class="item-title"><span class="otc-badge">OTC</span>${hasExtra ? '<span class="toggle-icon">▶</span>' : ''}<span>${allowBr(item)}</span></div>${hasExtra ? `<div class="item-extra">${extra}</div>` : ''}</td></tr>`;
+            tbody += `<tr data-row-id="${esc(r.id || '')}" class="row-other row-otc"><td colspan="3" class="item-cell ${hasExtra ? 'has-extra' : ''}"><div class="item-title"><span class="otc-badge">OTC</span>${hasExtra ? '<span class="toggle-icon">▶</span>' : ''}<span>${allowBr(item)}</span></div>${hasExtra ? `<div class="item-extra">${extra}</div>` : ''}</td></tr>`;
           } else {
-            tbody += `<tr class="row-other"><td class="sel">-</td><td colspan="2" class="item-cell has-extra hover-dim"><div class="item-title"><span class="toggle-icon">▶</span> <span>${allowBr(item)}</span></div><div class="item-extra">${extra}</div></td></tr>`;
+            tbody += `<tr data-row-id="${esc(r.id || '')}" class="row-other"><td class="sel">-</td><td colspan="2" class="item-cell has-extra hover-dim"><div class="item-title"><span class="toggle-icon">▶</span> <span>${allowBr(item)}</span></div><div class="item-extra">${extra}</div></td></tr>`;
           }
         } 
         // CDS(기본)와 ADD(체크박스)는 표 상단의 항목으로 렌더링
@@ -113,6 +113,8 @@
 
       wrap.innerHTML = `<table class="result-table" data-base-currency="${esc(baseCur)}">${colgroup}<thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
 
+      if (selection && window.DestTariffDetails) window.DestTariffDetails.attach(wrap, rows, selection);
+
       // ADD 첫 열 전체를 클릭 영역으로 사용. input/label의 기본 동작은 그대로 유지합니다.
       wrap.querySelectorAll('tr.row-extra td.sel').forEach(cell => {
         cell.addEventListener('click', event => {
@@ -125,7 +127,7 @@
       // 아코디언 토글 이벤트
       wrap.querySelectorAll('.item-cell.has-extra').forEach(cell => {
         cell.addEventListener('click', function(e) {
-          if (e.target.tagName === 'INPUT') return;
+          if (e.target.closest('input, button, a')) return;
           const extraDiv = this.querySelector('.item-extra');
           const icon = this.querySelector('.toggle-icon');
           if (extraDiv) {

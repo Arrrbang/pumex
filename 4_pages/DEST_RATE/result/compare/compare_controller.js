@@ -29,9 +29,9 @@
       const [a,b]=await Promise.all([api.costs(original,request.signal),api.costs(target,request.signal)]);
       if(current!==version)return;
       dataA=a;dataB=b;
-      for(const [wrapId,data] of [['tableWrapA',a],['tableWrapB',b]]) {
+      for(const [wrapId,data,selection] of [['tableWrapA',a,original],['tableWrapB',b,target]]) {
         window.CostUI={formatAmount:value=>format(value,data.currency)};
-        window.TableRenderer.render(wrapId,data,data.type,true,data.cbm);
+        window.TableRenderer.render(wrapId,data,data.type,true,data.cbm,selection);
       }
       api.restoreChecks('tableWrapA',restoreFromUrl());
       const text=(id,value)=>document.getElementById(id).textContent=value;
