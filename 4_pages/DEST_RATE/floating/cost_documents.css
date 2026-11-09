@@ -81,3 +81,12 @@
 .dest-doc-dialog .doc-heading > button:not(:disabled):hover {
   background:#e5e7eb;
 }
+
+.dest-doc-dialog .doc-comment-history { border-top:1px solid #dce5df; margin-top:16px; padding-top:12px; }
+.dest-doc-dialog .doc-comment-history h3 { margin:0 0 10px; font-size:14px; }
+.dest-doc-dialog .doc-comment-history > p { color:#637a70; font-size:12px; }
+.dest-doc-dialog .doc-comment-list { max-height:240px; overflow-y:auto; }
+.dest-doc-dialog .doc-comment-item { padding:10px 0; border-bottom:1px solid #edf2ef; }
+.dest-doc-dialog .doc-comment-meta { display:flex; justify-content:space-between; gap:8px; font-size:12px; }
+.dest-doc-dialog .doc-comment-meta time { color:#72847b; white-space:nowrap; }
+.dest-doc-dialog .doc-comment-item p { margin:5px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; font-size:13px; }

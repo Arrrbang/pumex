@@ -65,12 +65,21 @@
     <div id="historyCharts" class="history-charts"></div>
     <p class="rate-average-note">통화: USD · 기간 제목 A→Z 순서 · 등록되지 않은 값은 선을 연결하지 않습니다.</p>
   </section>
+  <section id="forwarderRates" class="booking-card forwarder-rates" aria-labelledby="forwarderRatesTitle" hidden>
+    <div class="section-heading"><span class="step-number">04</span><h2 id="forwarderRatesTitle">포워딩별 해상운임</h2></div>
+    <div class="rate-table-scroll"><table class="forwarder-rate-table">
+      <thead><tr><th scope="col">도착항구</th><th scope="col">포워딩</th><th scope="col">선사</th><th scope="col" id="sortHeader20" aria-sort="none"><button type="button" class="forwarder-sort" id="sortForwarder20">20FT (20DR) <span aria-hidden="true">↕</span></button></th><th scope="col" id="sortHeader40" aria-sort="none"><button type="button" class="forwarder-sort" id="sortForwarder40">40FT (40HC) <span aria-hidden="true">↕</span></button></th><th scope="col">VALIDITY</th></tr></thead>
+      <tbody id="forwarderRateBody"></tbody>
+    </table></div>
+    <p class="rate-average-note">통화: USD · 부킹메일과 동일한 운임 데이터입니다.</p>
+  </section>
 </main>
 <script src="../../2_common/3_api/api.js"></script>
 <script src="../../2_common/2_js/loading.js"></script>
 <script src="./ratesearch.history.js"></script>
 <script src="./ratesearch.nearest.js"></script>
 <script src="./ratesearch.request.js"></script>
+<script src="./ratesearch.forwarders.js"></script>
 <script src="./ratesearch.js"></script>
 </body>
 </html>

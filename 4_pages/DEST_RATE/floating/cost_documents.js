@@ -103,6 +103,13 @@
     const heading=tag('div');heading.className='doc-heading';heading.appendChild(tag('h2',doc.title));
     const close=tag('button','닫기');close.type='button';heading.appendChild(close);dialog.appendChild(heading);
     const body=tag('div');body.className='doc-body';body.textContent='본문을 불러오고 있습니다…';dialog.appendChild(body);
+    let commentList,commentStatus,commentRetry;
+    if(kind==='tariff-details') {
+      const section=tag('section');section.className='doc-comment-history';section.appendChild(tag('h3','기존 댓글'));
+      commentStatus=tag('p','댓글을 불러오고 있습니다…');commentStatus.setAttribute('role','status');section.appendChild(commentStatus);
+      commentList=tag('div');commentList.className='doc-comment-list';section.appendChild(commentList);
+      commentRetry=tag('button','댓글 다시 불러오기');commentRetry.type='button';commentRetry.hidden=true;commentRetry.onclick=()=>loadComments();section.appendChild(commentRetry);dialog.appendChild(section);
+    }
     const form=tag('form');form.className='doc-comments';const label=tag('label','댓글 작성');label.htmlFor='destCommentText';form.appendChild(label);
     const input=tag('textarea');input.id='destCommentText';input.maxLength=10000;input.placeholder='문서에 남길 내용을 입력하세요';form.appendChild(input);
     const getUsername=()=>String(localStorage.getItem('username') || '').trim();
@@ -112,6 +119,25 @@
     const submit=tag('button','댓글 등록');submit.type='submit';actions.appendChild(submit);form.appendChild(actions);
     const status=tag('p');status.className='doc-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');form.appendChild(status);dialog.appendChild(form);
     let saving=false;const abort=new AbortController();
+    let commentsVersion=0;
+    async function loadComments() {
+      if(!commentList)return;
+      const version=++commentsVersion;commentStatus.textContent='댓글을 불러오고 있습니다…';commentRetry.hidden=true;
+      try {
+        const query=window.DestRateAPI.params(context);
+        const data=await request(`/api/dest-rate/tariff-details/${encodeURIComponent(doc.id)}/comments?${query}`,{signal:abort.signal});
+        if(!dialog.isConnected||version!==commentsVersion)return;
+        commentList.replaceChildren();const comments=Array.isArray(data.comments)?data.comments:[];
+        commentStatus.textContent=comments.length?'':'등록된 페이지 댓글이 없습니다.';
+        for(const comment of comments){
+          const item=tag('article');item.className='doc-comment-item';
+          const header=tag('div');header.className='doc-comment-meta';header.appendChild(tag('strong',comment.created_by?.name||'노션 사용자'));
+          if(comment.created_time){const date=tag('time');date.dateTime=comment.created_time;const value=new Date(comment.created_time);date.textContent=Number.isNaN(value.valueOf())?'':new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(value);header.appendChild(date);}
+          item.appendChild(header);const text=tag('p');rich(text,comment.rich_text||[]);item.appendChild(text);commentList.appendChild(item);
+        }
+      } catch(e){if(!dialog.isConnected||version!==commentsVersion)return;commentStatus.textContent='댓글 조회 실패: '+(e.name==='AbortError'?'요청이 취소되었습니다.':e.message);commentRetry.hidden=false;}
+    }
+
     let authorVersion=0,authorRequest,authorPromise,authorUsername='',authorName='',authorError='';
     function updateAuthor(force=false) {
       const username=getUsername();
@@ -141,7 +167,7 @@
     window.addEventListener('storage',syncAuthor);const refreshAuthor=()=>updateAuthor(true);
     window.addEventListener('focus',refreshAuthor);
     dialog.addEventListener('close',()=>{abort.abort();authorRequest?.abort();++authorVersion;window.removeEventListener('storage',syncAuthor);window.removeEventListener('focus',refreshAuthor);dialog.remove();focus?.focus();},{once:true});
-    document.body.appendChild(dialog);dialog.showModal();updateAuthor();
+    document.body.appendChild(dialog);dialog.showModal();updateAuthor();loadComments();
     form.onsubmit=async e=>{
       e.preventDefault();if(saving)return;const username=getUsername();
       if(!username){status.textContent='로그인 정보를 확인할 수 없습니다. 다시 로그인해 주세요.';return;}
@@ -156,7 +182,8 @@
         status.textContent='댓글을 등록하고 있습니다…';
         const response=await request(`/api/dest-rate/${kind}/${encodeURIComponent(doc.id)}/comments`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({selection:context,text,username})});
         input.value='';note.textContent=`작성자: ${response.author?.korean_name || name}`;
-        status.textContent='댓글을 등록했습니다. 노션에서 확인할 수 있습니다.';
+        status.textContent='댓글을 등록했습니다.';
+        await loadComments();
       }
       catch(e){status.textContent=`${e.message} 노션에서 등록 여부를 확인한 후 다시 시도해 주세요.`;}
       finally{saving=false;submit.disabled=false;close.disabled=false;input.disabled=false;}

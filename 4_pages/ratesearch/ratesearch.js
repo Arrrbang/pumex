@@ -13,7 +13,7 @@
     return data;
   }
   function resetResult() {
-    version++; request?.abort(); request=null; window.RateHistory?.reset();window.RateRequest?.reset();
+    version++; request?.abort(); request=null; window.RateHistory?.reset();window.RateRequest?.reset();window.RateForwarders?.reset();
     results.hidden=true; feedback.textContent=''; button.textContent='운임 조회';
     button.disabled=!(state.arrivalPort || (state.deliveryRegion && ports.length));
   }
@@ -149,6 +149,7 @@
         render(port,[...unique.values()]);
       }
       window.RateHistory?.load(matchedPorts);
+      window.RateForwarders?.render(matchedPorts,byCode);
       feedback.textContent=rows.size?`${selection.name} · 운임 ${rows.size}건 조회 완료`:'등록된 운임이 없습니다.';
     }catch(error){
       abort.abort();

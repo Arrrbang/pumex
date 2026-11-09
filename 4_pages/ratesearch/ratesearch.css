@@ -148,3 +148,18 @@
 #submitRateRequest:not(:disabled):hover { background:#163b37; }
 #submitRateRequest:disabled { opacity:.6; cursor:default; }
 #requestStatus { min-height:24px; font-size:13px; color:#0078d4; line-height:1.7; }
+
+/* 포워딩별 운임 결과 */
+.rate-search-page .forwarder-rates { margin-top:24px; }
+.rate-search-page .forwarder-rates[hidden] { display:none; }
+.forwarder-rate-table { width:100%; min-width:720px; border-collapse:collapse; font-size:13px; }
+.forwarder-rate-table th,.forwarder-rate-table td { padding:13px 12px; border:1px solid #dce4ee; text-align:center; }
+.forwarder-rate-table th { background:#153a47; color:#fff; white-space:nowrap; }
+.forwarder-rate-table tbody tr:nth-child(even) { background:#f8fbfa; }
+.forwarder-rate-table tbody tr:hover { background:#edf5f4; }
+.forwarder-rate-table td:first-child,.forwarder-rate-table td:nth-child(2) { text-align:left; }
+.forwarder-rate-table td:nth-child(4),.forwarder-rate-table td:nth-child(5) { white-space:nowrap; font-variant-numeric:tabular-nums; }
+
+.forwarder-sort { border:0; background:transparent; color:inherit; font:inherit; font-weight:inherit; cursor:pointer; padding:3px; white-space:nowrap; }
+.forwarder-sort:hover, .forwarder-sort:focus-visible { color:#b6ece1; text-decoration:underline; }
+.forwarder-rate-table th[aria-sort="ascending"] { background:#276455; }
