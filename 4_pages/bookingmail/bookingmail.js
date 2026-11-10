@@ -46,6 +46,9 @@ let manualRateLookupFailed = false;
 
 let selectedRows = new Set();
 let lockedForwarderId = "";
+let directForwarders = [];
+let directSelection = null;
+let directFetchVersion = 0;
 let selectedForwarderName = "";
 let selectedPoeName = "";
 
@@ -417,6 +420,9 @@ function updateMailButton() {
 // 운임 선택 초기화
 function resetRates() {
   manualForwarders = null;
+  directSelection = null; directForwarders = []; directFetchVersion++;
+  placeholder($("directForwarderSelect"), "POE를 먼저 선택하세요");
+  $("directForwarderStatus").textContent = ""; $("retryDirectForwarders").hidden = true;
   contactVersion++;
   selectedRows.clear();
   lockedForwarderId = "";
@@ -449,71 +455,36 @@ function showRateMessage(text) {
 
 // 운임이 없는 지역: 안내 문구와 전체 포워딩 드롭다운
 function renderManualForwarders() {
-  const row = document.createElement("tr");
-  const cell = document.createElement("td");
-
-  cell.colSpan = 6;
-  cell.style.padding = "20px 12px";
-
-  const message = document.createElement("strong");
-
-  message.textContent = "정기 운임 조사 지역 아님. 별도 문의 및 포워딩을 선택하여 부킹하세요.";
-  message.style.display = "block";
-  message.style.marginBottom = "12px";
-
-  const label = document.createElement("label");
-
-  label.htmlFor = "manualForwarderSelect";
-  label.textContent = "포워딩 선택";
-  label.style.display = "block";
-  label.style.marginBottom = "6px";
-
-  const select = document.createElement("select");
-
-  select.id = "manualForwarderSelect";
-
-  select.style.cssText =
-    "width:100%;max-width:420px;min-height:40px;" +
-    "padding:8px 12px;border:1px solid #cbd5e1;" +
-    "border-radius:6px;background:#fff;font:inherit;";
-
-  select.add(
-    new Option(
-      manualForwarders.length
-        ? "포워딩을 선택하세요"
-        : "등록된 포워딩이 없습니다",
-      ""
-    )
-  );
-
-  manualForwarders.forEach(item => {
-    select.add(new Option(item.name, item.id));
-  });
-
-  select.disabled = !manualForwarders.length;
-  select.value = lockedForwarderId;
-
-  select.addEventListener("change", async () => {
-    const selected = manualForwarders.find(
-      item => item.id === select.value
-    );
-
-    lockedForwarderId = selected?.id || "";
-    selectedForwarderName = selected?.name || "";
-
-    updateSummary();
-
-    $("rateSelectionStatus").textContent = selected
-      ? `${selected.name} 선택`
-      : "포워딩을 선택하세요.";
-
-    await loadForwarderContact(lockedForwarderId);
-  });
-
-  cell.append(message, label, select);
-  row.appendChild(cell);
-  rateTbody.replaceChildren(row);
+  showRateMessage("정기 운임 조사 지역 아님. 별도 문의 및 포워딩을 선택하여 부킹하세요.");
 }
+
+// 메일 수신 포워딩은 선택한 운임과 별도로 지정할 수 있습니다.
+async function loadDirectForwarders(version) {
+  const current=++directFetchVersion, select=$("directForwarderSelect");
+  placeholder(select,"포워딩 목록 조회중…"); $("retryDirectForwarders").hidden=true;
+  try {
+    const data=await fetchJson(`${API_BASE}/api/mail/booking/forwarder-options`);
+    if(current!==directFetchVersion || version!==poeVersion)return;
+    directForwarders=Array.isArray(data.forwarders)?data.forwarders:[];
+    placeholder(select,"운임표 선택 포워딩 사용",false);
+    directForwarders.forEach(item=>addOption(select,item.name,item.id));
+    select.value=directSelection?.id || "";
+    $("directForwarderStatus").textContent=directForwarders.length?"별도로 선택하면 선택한 포워딩으로 메일을 보냅니다.":"등록된 포워딩이 없습니다.";
+  } catch(error) {
+    if(current!==directFetchVersion || version!==poeVersion)return;
+    placeholder(select,"포워딩 목록 조회 실패");
+    $("directForwarderStatus").textContent="포워딩 목록을 불러오지 못했습니다.";
+    $("retryDirectForwarders").hidden=false;
+  }
+}
+$("retryDirectForwarders").addEventListener("click",()=>loadDirectForwarders(poeVersion));
+$("directForwarderSelect").addEventListener("change",async event=>{
+  directSelection=directForwarders.find(item=>item.id===event.target.value)||null;
+  const selectedRate=rates.find(item=>selectedRows.has(item.key));
+  const recipient=directSelection || (selectedRate?.forwarderId?{id:selectedRate.forwarderId,name:selectedRate.forwarderName}:null);
+  lockedForwarderId=recipient?.id || "";selectedForwarderName=recipient?.name || "";
+  updateSummary();await loadForwarderContact(lockedForwarderId);
+});
 
 // 운임이 없을 때 전체 포워딩 목록 조회
 async function loadManualForwarders(
@@ -585,12 +556,9 @@ function renderRatesTable() {
     const row = document.createElement("tr");
     const cell = document.createElement("td");
 
-    const allowed =
-      !!rate.forwarderId &&
-      (
-        !lockedForwarderId ||
-        rate.forwarderId === lockedForwarderId
-      );
+    const firstRate = rates.find(item => selectedRows.has(item.key));
+    const groupKey = item => item.forwarderId || `name:${item.forwarderName || "-"}`;
+    const allowed = !firstRate || groupKey(rate) === groupKey(firstRate);
 
     row.className =
       "rate-option" +
@@ -664,15 +632,9 @@ function renderRatesTable() {
 // 운임 선택 / 해제 및 포워딩 연락처 조회
 // 운임 선택 / 해제
 async function toggleRate(rate) {
-  if (
-    !rate.forwarderId ||
-    (
-      lockedForwarderId &&
-      lockedForwarderId !== rate.forwarderId
-    )
-  ) {
-    return;
-  }
+  const selectedFirst = rates.find(item => selectedRows.has(item.key));
+  const groupKey = item => item.forwarderId || `name:${item.forwarderName || "-"}`;
+  if (selectedFirst && groupKey(selectedFirst) !== groupKey(rate)) return;
 
   if (selectedRows.has(rate.key)) {
     selectedRows.delete(rate.key);
@@ -684,18 +646,19 @@ async function toggleRate(rate) {
     item => selectedRows.has(item.key)
   );
 
-  const nextId = first?.forwarderId || "";
+  const recipient = directSelection || (first?.forwarderId ? {id:first.forwarderId,name:first.forwarderName} : null);
+  const nextId = recipient?.id || "";
   const changed = nextId !== lockedForwarderId;
 
   lockedForwarderId = nextId;
-  selectedForwarderName = first?.forwarderName || "";
+  selectedForwarderName = recipient?.name || "";
 
   syncSelectedCarriers();
   renderRatesTable();
   updateSummary();
 
   $("rateSelectionStatus").textContent = first
-    ? `${selectedForwarderName} · ${selectedRows.size}개 운임 선택`
+    ? `${first.forwarderName} · ${selectedRows.size}개 운임 선택`
     : "운임 행을 클릭하거나 체크박스를 선택하세요.";
 
   if (!changed) return;
@@ -885,6 +848,8 @@ async function onPoeChange() {
 
     return;
   }
+
+  loadDirectForwarders(version);
 
   const codes = selectedPort?.codes?.length
     ? selectedPort.codes

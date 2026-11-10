@@ -207,3 +207,9 @@
   margin: 0 !important;
   white-space: nowrap;
 }
+.forwarder-direct { margin-top:14px; padding:14px; background:#f4f9f8; border:1px solid #d0e2de; border-radius:8px; }
+.forwarder-direct label { display:block; color:#254b47; font-size:13px; font-weight:700; margin-bottom:8px; }
+.forwarder-direct select { width:100%; min-height:40px; padding:8px 10px; border:1px solid #bdcec9; border-radius:6px; background:#fff; color:#243653; font:inherit; }
+.forwarder-direct p { font-size:12px; color:#52665f; margin:7px 0 0; }
+.forwarder-direct p:empty { display:none; }
+.forwarder-direct button { margin-top:8px; font:inherit; font-size:12px; cursor:pointer; }
