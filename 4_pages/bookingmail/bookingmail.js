@@ -1305,7 +1305,7 @@ function clearPartnerDocuments() {
   partnerDocList.replaceChildren();
 
   partnerDocStatus.textContent =
-    "파트너를 선택하면 선사 관련 문서를 표시합니다.";
+    "파트너를 선택하면 선사·부킹 관련 문서를 표시합니다.";
 
   if (partnerDocDialog.open) {
     partnerDocDialog.close();
@@ -1338,7 +1338,7 @@ function setDocumentLink(url) {
   }
 }
 
-// 선사 관련 문서 목록
+// 선사·부킹 관련 문서 목록
 async function loadPartnerDocuments(partnerId) {
   clearPartnerDocuments();
 
@@ -1347,7 +1347,7 @@ async function loadPartnerDocuments(partnerId) {
   const version = documentListVersion;
 
   partnerDocStatus.textContent =
-    "선사 관련 문서를 불러오는 중입니다.";
+    "선사·부킹 관련 문서를 불러오는 중입니다.";
 
   try {
     const data = await fetchJson(
@@ -1362,7 +1362,7 @@ async function loadPartnerDocuments(partnerId) {
 
     partnerDocStatus.textContent = documents.length
       ? `문서 ${documents.length}개 · 제목을 누르면 내용을 볼 수 있습니다.`
-      : "등록된 선사 관련 문서가 없습니다.";
+      : "등록된 선사·부킹 관련 문서가 없습니다.";
 
     for (const doc of documents) {
       const li = document.createElement("li");
@@ -1374,7 +1374,9 @@ async function loadPartnerDocuments(partnerId) {
       button.className = "partner-doc-button";
 
       title.className = "doc-title";
-      title.textContent = doc.title || "제목 없음";
+      const type = String(doc.documentType || "").replace(/\s+/g, "");
+      const label = type === "부킹정보" ? "부킹 정보" : type === "선사정보" ? "선사 정보" : "문서";
+      title.textContent = `[${label}] ${doc.title || "제목 없음"}`;
 
       date.textContent =
         "업데이트 " +
