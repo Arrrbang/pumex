@@ -26,6 +26,17 @@
     return temp.replace(/\[\[BR\]\]/g, '<br>');
   }
 
+  // DB 설명의 한 줄은 "업체명[표시할 내용]" 형식입니다.
+  function companyDescription(raw, company) {
+    const name=String(company || '').trim();
+    if(!name || typeof raw !== 'string') return '';
+    for(const line of raw.split(/\r?\n/)) {
+      const match=line.trim().match(/^([^\[\]\r\n]+)\[([^\]\r\n]*)\]\s*$/);
+      if(match && match[1].trim() === name) return match[2].trim();
+    }
+    return '';
+  }
+
   window.TableRenderer = {
     render: function(wrapId, data, type, isRegionFiltered, cbm, selection) {
       const wrap = typeof wrapId === 'string' ? document.getElementById(wrapId) : wrapId;
@@ -111,7 +122,12 @@
         }
       });
 
-      wrap.innerHTML = `<table class="result-table" data-base-currency="${esc(baseCur)}">${colgroup}<thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+      const description = companyDescription(data?.tariffDescription, data?.company);
+      const note = description
+        ? `<div class="tariff-db-description">${esc(description)}</div>`
+        : data?.tariffDescriptionUnavailable
+          ? '<div class="tariff-db-description is-unavailable">타리프 설명을 불러오지 못했습니다.</div>' : '';
+      wrap.innerHTML = `${note}<table class="result-table" data-base-currency="${esc(baseCur)}">${colgroup}<thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
 
       if (selection && window.DestTariffDetails) window.DestTariffDetails.attach(wrap, rows, selection);
 

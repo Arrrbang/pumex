@@ -92,3 +92,6 @@
 /* 기타내용 (아코디언/추가표) 특수 고유색상은 변수화 예외 유지 */
 .other-contents-table td:first-child { width: 1px !important; white-space: nowrap !important; background: #153A47 !important; color: #F5F5F5 !important; font-weight: 700 !important; text-align: center !important; }
 .other-contents-table td:last-child { width: auto !important; white-space: pre-wrap !important; text-align: left !important; background: var(--white) !important; }
+/* 국가별 타리프 DB의 설명을 결과표 오른쪽 위에 표시 */
+.tariff-db-description { padding:10px 14px; background:#fff; color:#64748b; font-size:12px; line-height:1.6; text-align:right; white-space:pre-wrap; overflow-wrap:anywhere; }
+.tariff-db-description.is-unavailable { color:#a65f40; }
