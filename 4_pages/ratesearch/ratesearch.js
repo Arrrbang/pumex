@@ -22,7 +22,7 @@
     const select=$(id); select.tomselect?.destroy();
     select.replaceChildren(new Option(placeholder,''));
     const byValue=new Map(options.map(item=>[item.value,item]));
-    options.forEach(item=>select.add(new Option(item.name,item.value)));
+    options.forEach(item=>select.add(new Option(item.name+(id==='arrivalPortSelect'&&item.pols?.length?' (POL: '+item.pols.map(p=>p==='BUS'?'BUSAN':'INCHEON').join(' / ')+')':''),item.value)));
     select.disabled=!options.length;
     select.onchange=()=>onChange(byValue.get(select.value)||(id==='deliveryRegionSelect'?window.RateNearest?.resolve(select.value):null)||null);
     if((options.length||id==='arrivalPortSelect') && typeof window.TomSelect==='function')new window.TomSelect(select,{
@@ -119,7 +119,7 @@
     const selection=state.deliveryRegion||state.arrivalPort;if(!selection)return;
     // USATL은 (BUS)USATL(VIA LA), (BUS)USATL(VIA SAV) 항구를 모두 포함합니다.
     const matchedPorts=state.deliveryRegion
-      ? ports.filter(port=>(selection.poes||[]).some(poe=>poe && (port.codes||[]).some(code=>code.includes(poe))))
+      ? ports.filter(port=>(selection.poes||[]).some(poe=>poe && (port.baseCodes||[]).some(code=>String(code).replace(/\s+/g,'').toUpperCase()===String(poe).replace(/^\((?:BUS|INC)\)/i,'').replace(/\s+/g,'').toUpperCase())))
       : [selection];
     const codes=[...new Set(matchedPorts.flatMap(port=>port.codes||[]).map(code=>String(code).trim()).filter(Boolean))];
     resetResult();

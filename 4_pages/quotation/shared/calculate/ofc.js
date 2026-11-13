@@ -41,7 +41,9 @@
  }
  function breakdown(type,cbm,base=state.consoleBase){
   const basic=amount(state.ofcData,type,cbm,base);
-  const extras=(state.extraCostsList||[]).map(item=>({...item,amount:extraAmount(item,type)}));
+  const select=document.getElementById('pol_select');
+  const prefix=select?.options[select.selectedIndex]?.getAttribute('data-prefix')||'';
+  const extras=(state.extraCostsList||[]).filter(item=>!item.poeList?.length || item.poeList.some(code=>String(code).toUpperCase().startsWith(prefix.toUpperCase()))).map(item=>({...item,amount:extraAmount(item,type)}));
   const extraTotal=extras.reduce((sum,item)=>sum+item.amount,0);
   return {basic,extras,extraTotal,total:basic==null?null:basic+extraTotal};
  }
