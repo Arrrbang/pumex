@@ -163,3 +163,17 @@
 .forwarder-sort { border:0; background:transparent; color:inherit; font:inherit; font-weight:inherit; cursor:pointer; padding:3px; white-space:nowrap; }
 .forwarder-sort:hover, .forwarder-sort:focus-visible { color:#b6ece1; text-decoration:underline; }
 .forwarder-rate-table th[aria-sort="ascending"] { background:#276455; }
+
+/* 왼쪽 도착항구 70%, 오른쪽 지역 검색 30%; 모바일에서는 세로 배치 */
+.rate-search-page .search-methods { grid-template-columns:minmax(0,7fr) 48px minmax(0,3fr); }
+.rate-search-page .search-method-port { grid-column:1; grid-row:1; }
+.rate-search-page .search-method-divider { grid-column:2; grid-row:1; }
+.rate-search-page .search-method-region { grid-column:3; grid-row:1; }
+#regionPoeStatus:empty { display:none; }
+@media(max-width:800px) {
+  .rate-search-page .search-methods { grid-template-columns:minmax(0,1fr); }
+  .rate-search-page .search-method-port { grid-column:1; grid-row:1; }
+  .rate-search-page .search-method-divider { grid-column:1; grid-row:2; flex-direction:row; padding:14px 6px; }
+  .rate-search-page .search-method-divider::before,.rate-search-page .search-method-divider::after { width:auto; height:1px; }
+  .rate-search-page .search-method-region { grid-column:1; grid-row:3; }
+}

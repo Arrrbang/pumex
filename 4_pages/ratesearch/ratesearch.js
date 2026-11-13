@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const API_BASE = 'https://notion-api-hub.vercel.app';
-  const state = {deliveryRegion:null, arrivalPort:null};
+  const state = {deliveryRegion:null, regionPort:null, arrivalPort:null};
   const $ = id => document.getElementById(id);
   const button = $('searchRates'), feedback = $('rateStatus'), results = $('rateResults');
   let request = null, version = 0;
@@ -15,7 +15,7 @@
   function resetResult() {
     version++; request?.abort(); request=null; window.RateHistory?.reset();window.RateRequest?.reset();window.RateForwarders?.reset();
     results.hidden=true; feedback.textContent=''; button.textContent='운임 조회';
-    button.disabled=!(state.arrivalPort || (state.deliveryRegion && ports.length));
+    button.disabled=!(state.arrivalPort || state.regionPort);
   }
   let ports=[], regionRequest=null, regionVersion=0, countryRequest=null;
   function setOptions(id, options, placeholder, onChange) {
@@ -45,10 +45,24 @@
     if(select.tomselect)select.tomselect.clear(true);else select.value='';
     state.arrivalPort=null;$('requestUnknownPort').hidden=true;
   }
+  const normalizePoe=value=>String(value||'').replace(/^\((?:BUS|INC)\)/i,'').replace(/\s+/g,'').toUpperCase();
+  function updateRegionPorts() {
+    state.regionPort=null;
+    const region=state.deliveryRegion;
+    const matches=region ? ports.filter(port=>(region.poes||[]).some(poe=>poe && (port.baseCodes||[]).some(code=>normalizePoe(poe) && normalizePoe(code).includes(normalizePoe(poe))))) : [];
+    setOptions('regionPoeSelect',matches,region?'도착항구를 선택하세요':'배송지역을 먼저 선택하세요',item=>{state.regionPort=item;resetResult();});
+    $('regionPoeStatus').textContent=region && !ports.length?'항구 목록을 불러오는 중입니다.':region && !matches.length?'이 지역에 연결된 도착항구가 없습니다.':'';
+    resetResult();
+  }
+  function chooseRegion(item) {
+    state.deliveryRegion=item;
+    if(item)clearPort();
+    updateRegionPorts();
+  }
   async function loadRegions() {
     const countryId=$('countrySelect').value;
     window.RateNearest?.reset();
-    const current=++regionVersion;regionRequest?.abort();state.deliveryRegion=null;resetResult();
+    const current=++regionVersion;regionRequest?.abort();state.deliveryRegion=null;updateRegionPorts();
     $('retryRegions').hidden=true;$('deliveryRegionStatus').textContent='';
     setOptions('deliveryRegionSelect',[],countryId?'지역 조회중…':'국가를 먼저 선택하세요',()=>{});
     if(!countryId)return;
@@ -58,14 +72,14 @@
       if(current!==regionVersion)return;
       if(!Array.isArray(data.options))throw Error('지역 목록 응답이 올바르지 않습니다.');
       setOptions('deliveryRegionSelect',data.options,'배송지역을 선택하세요',item=>{
-        window.RateNearest?.cancel();state.deliveryRegion=item;if(item)clearPort();resetResult();
+        window.RateNearest?.cancel();chooseRegion(item);
         $('deliveryRegionStatus').textContent='';
       });
       $('deliveryRegionStatus').textContent='';
       window.RateNearest?.attach({
         select:$('deliveryRegionSelect'),countryId,countryName:$('countrySelect').selectedOptions[0]?.textContent||'',
         regions:data.options,
-        onChoose:item=>{state.deliveryRegion=item;clearPort();resetResult();}
+        onChoose:item=>chooseRegion(item)
       });
     }catch(error){if(current!==regionVersion)return;$('deliveryRegionStatus').textContent=error.name==='AbortError'?'지역 조회 시간이 초과되었습니다.':error.message;$('retryRegions').hidden=false;}
     finally{clearTimeout(timer);}
@@ -91,10 +105,11 @@
       ports=data.options;
       setOptions('arrivalPortSelect',ports,'도착항구를 선택하세요',item=>{
         $('requestUnknownPort').hidden=true;state.arrivalPort=item;
-        if(item){window.RateNearest?.cancel();const select=$('deliveryRegionSelect');if(select.tomselect)select.tomselect.clear(true);else select.value='';state.deliveryRegion=null;}
+        if(item){window.RateNearest?.cancel();const select=$('deliveryRegionSelect');if(select.tomselect)select.tomselect.clear(true);else select.value='';state.deliveryRegion=null;updateRegionPorts();}
         resetResult();
       });
       $('arrivalPortStatus').textContent=`도착항구 ${ports.length}개`;
+      if(state.deliveryRegion)updateRegionPorts();
       resetResult();
     }catch(error){$('arrivalPortStatus').textContent=error.name==='AbortError'?'항구 조회 시간이 초과되었습니다.':error.message;$('retryPorts').hidden=false;}
     finally{clearTimeout(timer);}
@@ -116,11 +131,8 @@
     $('averageRateBody').appendChild(tr);results.hidden=false;
   }
   button.addEventListener('click',async()=>{
-    const selection=state.deliveryRegion||state.arrivalPort;if(!selection)return;
-    // USATL은 (BUS)USATL(VIA LA), (BUS)USATL(VIA SAV) 항구를 모두 포함합니다.
-    const matchedPorts=state.deliveryRegion
-      ? ports.filter(port=>(selection.poes||[]).some(poe=>poe && (port.baseCodes||[]).some(code=>String(code).replace(/\s+/g,'').toUpperCase()===String(poe).replace(/^\((?:BUS|INC)\)/i,'').replace(/\s+/g,'').toUpperCase())))
-      : [selection];
+    const selection=state.regionPort||state.arrivalPort;if(!selection)return;
+    const matchedPorts=[selection];
     const codes=[...new Set(matchedPorts.flatMap(port=>port.codes||[]).map(code=>String(code).trim()).filter(Boolean))];
     resetResult();
     if(!codes.length){window.RateRequest?.show({poe:selection.name,reason:'연결된 POE가 없어 운임을 조회할 수 없습니다.'});return;}
@@ -166,5 +178,6 @@
   $('retryRegions').addEventListener('click',loadRegions);
   $('retryPorts').addEventListener('click',loadPorts);
   setOptions('deliveryRegionSelect',[],'국가를 먼저 선택하세요',()=>{});
+  setOptions('regionPoeSelect',[],'배송지역을 먼저 선택하세요',()=>{});
   loadCountries();loadPorts();
 })();

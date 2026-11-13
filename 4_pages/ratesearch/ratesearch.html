@@ -28,9 +28,12 @@
   <section class="booking-card" aria-labelledby="searchTitle">
     <div class="section-heading"><span class="step-number">01</span><h2 id="searchTitle">조회 조건</h2></div>
     <div class="search-methods">
+      <section class="search-method search-method-port" aria-labelledby="portMethodTitle"><h3 id="portMethodTitle" class="search-method-title">도착항구로 검색</h3><div class="input-group"><label for="arrivalPortSelect">도착항구</label><select id="arrivalPortSelect" disabled><option value="">도착항구 불러오는 중...</option></select><button id="requestUnknownPort" class="retry-button" type="button" hidden>입력한 항구 운임 요청</button><p id="arrivalPortStatus" class="status-text" role="status" aria-live="polite"></p><button id="retryPorts" class="retry-button" type="button" hidden>도착항구 다시 불러오기</button></div></section>
+      <div class="search-method-divider" aria-hidden="true"><span>또는</span></div>
       <section class="search-method search-method-region" aria-labelledby="regionMethodTitle"><h3 id="regionMethodTitle" class="search-method-title">배송지역으로 검색</h3><div class="region-search-group"><div class="input-group"><select aria-label="국가" id="countrySelect" disabled><option value="">국가 불러오는 중...</option></select><p id="countryStatus" class="status-text" role="status"></p><button id="retryCountries" class="retry-button" type="button" hidden>국가 다시 불러오기</button></div>
       <div class="input-group"><select aria-label="배송지역" id="deliveryRegionSelect" disabled><option value="">국가를 먼저 선택하세요</option></select><p id="deliveryRegionStatus" class="status-text" role="status" aria-live="polite"></p><button id="retryRegions" class="retry-button" type="button" hidden>배송지역 다시 불러오기</button></div>
-      </div></section><div class="search-method-divider" aria-hidden="true"><span>또는</span></div><section class="search-method search-method-port" aria-labelledby="portMethodTitle"><h3 id="portMethodTitle" class="search-method-title">도착항구로 검색</h3><div class="input-group"><label for="arrivalPortSelect">도착항구</label><select id="arrivalPortSelect" disabled><option value="">도착항구 불러오는 중...</option></select><button id="requestUnknownPort" class="retry-button" type="button" hidden>입력한 항구 운임 요청</button><p id="arrivalPortStatus" class="status-text" role="status" aria-live="polite"></p><button id="retryPorts" class="retry-button" type="button" hidden>도착항구 다시 불러오기</button></div></section>
+      <div class="input-group"><select aria-label="지역의 도착항구" id="regionPoeSelect" disabled><option value="">배송지역을 먼저 선택하세요</option></select><p id="regionPoeStatus" class="status-text" role="status" aria-live="polite"></p></div>
+      </div></section>
     </div>
   </section>
   <div class="rate-search-actions"><button id="searchRates" type="button" disabled>운임 조회</button></div>
