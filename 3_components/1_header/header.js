@@ -6,7 +6,7 @@ function setActiveHeaderMenu() {
     {id:'menu-sos',paths:['/sos/']},
     {id:'menu-provincial_packing_fee',paths:['/ExternalPackagingCosts/']},
     {id:'menu-quotation',paths:['/quotation/']},
-    {id:'menu-operation',paths:['/bookingmail/','/greenlight/','/review-of-destination-proof/']},
+    {id:'menu-operation',paths:['/bookingmail/','/greenlight/','/review-of-destination-proof/','/excel/isf/']},
     {id:'menu-ocean',paths:['/ratesearch/']},
     {id:'menu-account',paths:['/account/']}
   ];

@@ -545,10 +545,7 @@ function renderRatesTable() {
     ? "hc40"
     : "dr20";
 
-  const polPrefix = polSelect.value === "BUSAN" ? "(BUS)" : polSelect.value === "INCHEON" ? "(INC)" : "";
-  const visibleRates = polPrefix ? rates.filter(rate => (rate.poeList || []).some(code => String(code).toUpperCase().startsWith(polPrefix))) : rates;
-  if (!visibleRates.length) { showRateMessage("선택한 출항항의 운임 정보가 없습니다."); return; }
-  const sorted = [...visibleRates].sort(
+  const sorted = [...rates].sort(
     (a, b) =>
       (a[key] || Infinity) - (b[key] || Infinity)
   );
@@ -861,9 +858,7 @@ async function onPoeChange() {
         .map(code => code.trim())
         .filter(Boolean);
 
-  const availablePols = (selectedPort?.pols || []).map(pol => pol === "BUS" ? "BUSAN" : pol === "INC" ? "INCHEON" : "").filter(Boolean);
-
-  // 항구 DB POL 다중 선택을 기준으로 출항항을 표시합니다.
+  // POL 목록 설정
   function setPolOptions(options) {
     if (version !== poeVersion) return;
 
@@ -961,7 +956,10 @@ async function onPoeChange() {
         if (version !== poeVersion) return;
 
         // 조회 오류가 발생해도 포워딩 직접 선택 허용
-        setPolOptions(availablePols);
+        setPolOptions([
+          "INCHEON",
+          "BUSAN"
+        ]);
 
         await loadManualForwarders(
           version,
@@ -986,7 +984,10 @@ async function onPoeChange() {
 
       // 운임이 없으면 기본 POL과 전체 포워딩 표시
       if (!rawRates.length) {
-        setPolOptions(availablePols);
+        setPolOptions([
+          "INCHEON",
+          "BUSAN"
+        ]);
 
         await loadManualForwarders(version);
 
@@ -1019,7 +1020,28 @@ async function onPoeChange() {
 
       renderRatesTable();
 
-      setPolOptions(availablePols);
+      // 운임이 있는 지역은 기존 POL 조회 방식 사용
+      try {
+        const data = await fetchPortMatches(
+          "pol-options",
+          codes
+        );
+
+        if (version !== poeVersion) return;
+
+        setPolOptions(data.options || []);
+      } catch (error) {
+        if (version !== poeVersion) return;
+
+        placeholder(
+          polSelect,
+          "POL 로드 실패"
+        );
+
+        setStatus(
+          "POL 조회 실패: " + error.message
+        );
+      }
     })()
   ]);
 }
@@ -1636,7 +1658,10 @@ poeSelect.addEventListener(
   onPoeChange
 );
 
-polSelect.addEventListener("change", () => { selectedRows.clear(); updateMailFields(); renderRatesTable(); });
+polSelect.addEventListener(
+  "change",
+  updateMailFields
+);
 
 containerSelect.addEventListener("change", () => {
   updateMailFields();
