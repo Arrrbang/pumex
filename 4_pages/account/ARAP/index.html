@@ -2,6 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <link rel="icon" href="/pumex/1_assets/1_image/favicon.png" type="image/png">
     <title>해외 AGENT 미수금/미지급금</title>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10,7 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20261127-nativebar4">
     <link rel="stylesheet" href="/pumex/3_components/1_header/header.css">
     <link rel="stylesheet" href="/pumex/2_common/1_css/color.css">
     <link rel="stylesheet" href="/pumex/2_common/1_css/common.css">
@@ -19,8 +20,9 @@
 <div id="desktop-header-placeholder" class="desktop-only"></div>
 
 <div class="main-layout">
-    <div class="left-wrap">
-        <div class="left-wrap-title">데이터 입력 & 저장</div>
+    <details class="left-wrap" open>
+        <summary class="left-wrap-title">데이터 입력 & 저장 <span class="panel-hint">열기 / 접기</span></summary>
+        <div class="input-panel-body">
         <div id="drop-zone">
             엑셀 파일을 여기에 드래그하거나<br>클릭하여 업로드하세요.
         </div>
@@ -37,9 +39,8 @@
                 <button id="btn-delete-selected" onclick="deleteSelectedHistory()">삭제</button>
             </div>
         </div>
-    </div>
-
-    <div class="vertical-divider"></div>
+        </div>
+    </details>
 
     <input type="file" id="fileInput" style="display: none;" />
 
@@ -109,7 +110,7 @@
                             <th style="width: 85px;">CREDIT</th>
                             <th style="width: 85px;">DEBIT</th>
                             <th style="width: 90px;">BALANCE</th>
-                            <th style="width: 150px;">비고 (Remarks)</th>
+                            <th style="width: 360px;">비고 (Remarks)</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -143,11 +144,20 @@
         </div>
     </div>
 </div>
+<div id="save-loading-overlay" hidden role="status" aria-live="polite" aria-atomic="true">
+    <div class="save-loading-card">
+        <div class="spinner" aria-hidden="true"></div>
+        <div class="loading-text">노션에 저장하고 있습니다...</div>
+        <p>잠시만 기다려 주세요.</p>
+    </div>
+</div>
+<div id="table-floating-scroll" hidden role="region" aria-label="결과표 가로 스크롤" tabindex="0"><div id="table-scroll-track"></div></div>
     <script src="/pumex/2_common/2_js/loading.js"></script>
     <script src="/pumex/2_common/2_js/login.js"></script>
     <script src="pdf.js?v=20261016-region-order-2"></script>
-    <script src="result.js?v=20261016-region-order-2"></script>
+    <script src="result.js?v=20261127-remarks"></script>
     <script src="excel.js?v=20261016-region-order-2"></script>
-    <script src="history.js"></script>
+    <script src="history.js?v=20261127-saving"></script>
+    <script src="table-scroll.js?v=20261127-nativebar4"></script>
 </body>
 </html>

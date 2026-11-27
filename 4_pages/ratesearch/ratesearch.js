@@ -118,9 +118,8 @@
   button.addEventListener('click',async()=>{
     const selection=state.deliveryRegion||state.arrivalPort;if(!selection)return;
     // USATL은 (BUS)USATL(VIA LA), (BUS)USATL(VIA SAV) 항구를 모두 포함합니다.
-    const comparableCode=value=>String(value||'').toUpperCase().replace(/^\((?:BUS|INC)\)\s*/, '').replace(/\s+/g,'');
     const matchedPorts=state.deliveryRegion
-      ? ports.filter(port=>(selection.poes||[]).some(poe=>comparableCode(poe) && (port.baseCodes||[]).some(code=>comparableCode(code).includes(comparableCode(poe)))))
+      ? ports.filter(port=>(selection.poes||[]).some(poe=>poe && (port.codes||[]).some(code=>code.includes(poe))))
       : [selection];
     const codes=[...new Set(matchedPorts.flatMap(port=>port.codes||[]).map(code=>String(code).trim()).filter(Boolean))];
     resetResult();

@@ -336,7 +336,8 @@ function processExcel(file) {
                 const lookupKey = valCode + "||" + valO; // 현재 데이터의 키 생성
                 
                 if (valCode && previousRemarksMap[lookupKey]) {
-                    initialRemark = `[이전 기록] ${previousRemarksMap[lookupKey]}`;
+                    // 과거 저장본에 자동으로 붙은 표시도 제거하고 비고 내용만 가져옵니다.
+                    initialRemark = String(previousRemarksMap[lookupKey]).replace(/^(?:\[이전 기록\]\s*)+/, '');
                 }
 
                 globalDataMap[key] = {

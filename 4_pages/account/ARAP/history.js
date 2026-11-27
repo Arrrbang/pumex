@@ -42,6 +42,8 @@ async function fetchLatestHistoryForComparison() {
 // 1. 저장 (Save)
 // ============================================================
 async function saveCurrentData() {
+    const btn = document.getElementById('btn-save-current');
+    if (btn.disabled) return;
     if (Object.keys(globalDataMap).length === 0) {
         alert("저장할 데이터가 없습니다. 엑셀 파일을 먼저 업로드해주세요.");
         return;
@@ -50,10 +52,12 @@ async function saveCurrentData() {
     const fileName = prompt("저장할 이름을 입력하세요:", `데이터_${new Date().toLocaleTimeString()}`);
     if (!fileName) return;
 
-    const btn = document.getElementById('btn-save-current');
+    const overlay = document.getElementById('save-loading-overlay');
     const originalText = btn.innerText;
     btn.innerText = "저장 중...";
     btn.disabled = true;
+    overlay.hidden = false;
+    document.body.setAttribute('aria-busy', 'true');
 
     try {
         const payload = {
@@ -73,6 +77,7 @@ async function saveCurrentData() {
         const result = await response.json();
 
         if (response.ok) {
+            overlay.hidden = true;
             alert("노션 데이터베이스에 저장되었습니다!");
             fetchHistoryList(); 
         } else {
@@ -81,8 +86,11 @@ async function saveCurrentData() {
 
     } catch (error) {
         console.error("Save Error:", error);
+        overlay.hidden = true;
         alert(`저장 중 오류가 발생했습니다: ${error.message}`);
     } finally {
+        overlay.hidden = true;
+        document.body.removeAttribute('aria-busy');
         btn.innerText = originalText;
         btn.disabled = false;
     }
